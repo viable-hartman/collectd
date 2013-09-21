@@ -115,6 +115,8 @@ static int wh_callback_init (wh_callback_t *cb) /* {{{ */
 
         curl_easy_setopt (cb->curl, CURLOPT_NOSIGNAL, 1L);
         curl_easy_setopt (cb->curl, CURLOPT_USERAGENT, PACKAGE_NAME"/"PACKAGE_VERSION);
+        curl_easy_setopt (cb->curl, CURLOPT_LOW_SPEED_LIMIT, 100L);
+        curl_easy_setopt (cb->curl, CURLOPT_LOW_SPEED_TIME, 1L);
 
         headers = NULL;
         headers = curl_slist_append (headers, "Accept:  */*");
