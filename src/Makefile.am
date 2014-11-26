@@ -1429,6 +1429,12 @@ collectd_LDADD += "-dlopen" zfs_arc.la
 collectd_DEPENDENCIES += zfs_arc.la
 endif
 
+if BUILD_PLUGIN_ZOOKEEPER
+pkglib_LTLIBRARIES += zookeeper.la
+zookeeper_la_SOURCES = zookeeper.c
+zookeeper_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+endif
+
 BUILT_SOURCES += $(dist_man_MANS)
 
 dist_man_MANS = collectd.1 \
