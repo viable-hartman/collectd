@@ -539,17 +539,27 @@ bin_PROGRAMS = collectd-nagios$(EXEEXT) collectdctl$(EXEEXT) \
 @BUILD_PLUGIN_ZFS_ARC_TRUE@am__append_445 = zfs_arc.la
 @BUILD_PLUGIN_ZFS_ARC_TRUE@am__append_446 = "-dlopen" zfs_arc.la
 @BUILD_PLUGIN_ZFS_ARC_TRUE@am__append_447 = zfs_arc.la
-@HAVE_PROTOC_C_TRUE@am__append_448 = pinba.pb-c.c pinba.pb-c.h \
+@BUILD_PLUGIN_ZOOKEEPER_TRUE@am__append_448 = zookeeper.la
+@BUILD_PLUGIN_ZOOKEEPER_TRUE@am__append_449 = "-dlopen" zookeeper.la
+@BUILD_PLUGIN_ZOOKEEPER_TRUE@am__append_450 = zookeeper.la
+@HAVE_PROTOC_C_TRUE@am__append_451 = pinba.pb-c.c pinba.pb-c.h \
 @HAVE_PROTOC_C_TRUE@	riemann.pb-c.c riemann.pb-c.h
-@HAVE_PROTOC_C_TRUE@am__append_449 = pinba.pb-c.c pinba.pb-c.h \
+@HAVE_PROTOC_C_TRUE@am__append_452 = pinba.pb-c.c pinba.pb-c.h \
 @HAVE_PROTOC_C_TRUE@	riemann.pb-c.c riemann.pb-c.h
-@BUILD_FEATURE_DEBUG_TRUE@am__append_450 = utils_vl_lookup_test
+@BUILD_FEATURE_DEBUG_TRUE@am__append_453 = utils_vl_lookup_test
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/config.h.in $(srcdir)/collectd.conf.in \
 	$(top_srcdir)/libltdl/config/depcomp $(dist_man_MANS)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.in
+am__aclocal_m4_deps = $(top_srcdir)/libltdl/m4/argz.m4 \
+	$(top_srcdir)/libltdl/m4/libtool.m4 \
+	$(top_srcdir)/libltdl/m4/ltdl.m4 \
+	$(top_srcdir)/libltdl/m4/ltoptions.m4 \
+	$(top_srcdir)/libltdl/m4/ltsugar.m4 \
+	$(top_srcdir)/libltdl/m4/ltversion.m4 \
+	$(top_srcdir)/libltdl/m4/lt~obsolete.m4 \
+	$(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -1760,6 +1770,15 @@ zfs_arc_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(zfs_arc_la_CFLAGS) \
 	$(CFLAGS) $(zfs_arc_la_LDFLAGS) $(LDFLAGS) -o $@
 @BUILD_PLUGIN_ZFS_ARC_TRUE@am_zfs_arc_la_rpath = -rpath $(pkglibdir)
+zookeeper_la_LIBADD =
+am__zookeeper_la_SOURCES_DIST = zookeeper.c
+@BUILD_PLUGIN_ZOOKEEPER_TRUE@am_zookeeper_la_OBJECTS = zookeeper.lo
+zookeeper_la_OBJECTS = $(am_zookeeper_la_OBJECTS)
+zookeeper_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(zookeeper_la_LDFLAGS) $(LDFLAGS) -o $@
+@BUILD_PLUGIN_ZOOKEEPER_TRUE@am_zookeeper_la_rpath = -rpath \
+@BUILD_PLUGIN_ZOOKEEPER_TRUE@	$(pkglibdir)
 @BUILD_FEATURE_DEBUG_TRUE@am__EXEEXT_1 =  \
 @BUILD_FEATURE_DEBUG_TRUE@	utils_vl_lookup_test$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS) $(sbin_PROGRAMS)
@@ -1894,7 +1913,8 @@ SOURCES = $(aggregation_la_SOURCES) $(amqp_la_SOURCES) \
 	$(write_graphite_la_SOURCES) $(write_http_la_SOURCES) \
 	$(write_mongodb_la_SOURCES) $(write_redis_la_SOURCES) \
 	$(write_riemann_la_SOURCES) $(nodist_write_riemann_la_SOURCES) \
-	$(xmms_la_SOURCES) $(zfs_arc_la_SOURCES) $(collectd_SOURCES) \
+	$(xmms_la_SOURCES) $(zfs_arc_la_SOURCES) \
+	$(zookeeper_la_SOURCES) $(collectd_SOURCES) \
 	$(collectd_nagios_SOURCES) $(collectd_tg_SOURCES) \
 	$(collectdctl_SOURCES) $(collectdmon_SOURCES) \
 	$(utils_vl_lookup_test_SOURCES)
@@ -1974,9 +1994,9 @@ DIST_SOURCES = $(am__aggregation_la_SOURCES_DIST) \
 	$(am__write_redis_la_SOURCES_DIST) \
 	$(am__write_riemann_la_SOURCES_DIST) \
 	$(am__xmms_la_SOURCES_DIST) $(am__zfs_arc_la_SOURCES_DIST) \
-	$(collectd_SOURCES) $(collectd_nagios_SOURCES) \
-	$(collectd_tg_SOURCES) $(collectdctl_SOURCES) \
-	$(collectdmon_SOURCES) \
+	$(am__zookeeper_la_SOURCES_DIST) $(collectd_SOURCES) \
+	$(collectd_nagios_SOURCES) $(collectd_tg_SOURCES) \
+	$(collectdctl_SOURCES) $(collectdmon_SOURCES) \
 	$(am__utils_vl_lookup_test_SOURCES_DIST)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
@@ -2371,7 +2391,7 @@ collectd_LDADD = -lm $(am__append_5) $(am__append_6) $(am__append_7) \
 	$(am__append_413) $(am__append_416) $(am__append_419) \
 	$(am__append_422) $(am__append_427) $(am__append_434) \
 	$(am__append_437) $(am__append_440) $(am__append_443) \
-	$(am__append_446)
+	$(am__append_446) $(am__append_449)
 collectd_DEPENDENCIES = $(am__append_16) $(am__append_27) \
 	$(am__append_30) $(am__append_35) $(am__append_39) \
 	$(am__append_42) $(am__append_45) $(am__append_49) \
@@ -2411,7 +2431,7 @@ collectd_DEPENDENCIES = $(am__append_16) $(am__append_27) \
 	$(am__append_411) $(am__append_414) $(am__append_417) \
 	$(am__append_420) $(am__append_425) $(am__append_432) \
 	$(am__append_435) $(am__append_438) $(am__append_441) \
-	$(am__append_444) $(am__append_447)
+	$(am__append_444) $(am__append_447) $(am__append_450)
 collectdmon_SOURCES = collectdmon.c
 collectdmon_CPPFLAGS = $(AM_CPPFLAGS)
 collectd_nagios_SOURCES = collectd-nagios.c
@@ -2470,9 +2490,9 @@ pkglib_LTLIBRARIES = $(am__append_25) $(am__append_28) \
 	$(am__append_412) $(am__append_415) $(am__append_418) \
 	$(am__append_421) $(am__append_426) $(am__append_433) \
 	$(am__append_436) $(am__append_439) $(am__append_442) \
-	$(am__append_445)
-BUILT_SOURCES = $(dist_man_MANS) $(am__append_449)
-CLEANFILES = $(am__append_448)
+	$(am__append_445) $(am__append_448)
+BUILT_SOURCES = $(dist_man_MANS) $(am__append_452)
+CLEANFILES = $(am__append_451)
 @BUILD_PLUGIN_AGGREGATION_TRUE@aggregation_la_SOURCES = aggregation.c \
 @BUILD_PLUGIN_AGGREGATION_TRUE@                         utils_vl_lookup.c utils_vl_lookup.h
 
@@ -2930,6 +2950,8 @@ CLEANFILES = $(am__append_448)
 @BUILD_PLUGIN_ZFS_ARC_TRUE@zfs_arc_la_CFLAGS = $(AM_CFLAGS)
 @BUILD_PLUGIN_ZFS_ARC_TRUE@zfs_arc_la_LDFLAGS = -module -avoid-version
 @BUILD_PLUGIN_ZFS_ARC_TRUE@zfs_arc_la_LIBADD = -lkstat
+@BUILD_PLUGIN_ZOOKEEPER_TRUE@zookeeper_la_SOURCES = zookeeper.c
+@BUILD_PLUGIN_ZOOKEEPER_TRUE@zookeeper_la_LDFLAGS = -module -avoid-version
 dist_man_MANS = collectd.1 \
 		collectd.conf.5 \
 		collectd-email.5 \
@@ -3405,6 +3427,9 @@ xmms.la: $(xmms_la_OBJECTS) $(xmms_la_DEPENDENCIES) $(EXTRA_xmms_la_DEPENDENCIES
 
 zfs_arc.la: $(zfs_arc_la_OBJECTS) $(zfs_arc_la_DEPENDENCIES) $(EXTRA_zfs_arc_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(zfs_arc_la_LINK) $(am_zfs_arc_la_rpath) $(zfs_arc_la_OBJECTS) $(zfs_arc_la_LIBADD) $(LIBS)
+
+zookeeper.la: $(zookeeper_la_OBJECTS) $(zookeeper_la_DEPENDENCIES) $(EXTRA_zookeeper_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(zookeeper_la_LINK) $(am_zookeeper_la_rpath) $(zookeeper_la_OBJECTS) $(zookeeper_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
@@ -3711,6 +3736,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/write_riemann.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xmms_la-xmms.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zfs_arc_la-zfs_arc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zookeeper.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
