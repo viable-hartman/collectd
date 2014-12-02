@@ -22,6 +22,7 @@ then
     [ -d agent-rpm ] || git clone git@github.com:Stackdriver/agent-rpm.git
     pushd agent-rpm
     git pull
+    git checkout origin/zookeeper
     make clean
     make DISTRO="$DISTRO" ARCH="$ARCH" VERSION="$VERSION" BUILD_NUM="$BUILD_NUM" build
     if [ $? -ne 0 ]
