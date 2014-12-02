@@ -968,6 +968,9 @@
 /* Define to 1 if the zfs_arc plugin is enabled. */
 #undef HAVE_PLUGIN_ZFS_ARC
 
+/* Define to 1 if the zookeeper plugin is enabled. */
+#undef HAVE_PLUGIN_ZOOKEEPER
+
 /* Define to 1 if you have the <poll.h> header file. */
 #undef HAVE_POLL_H
 
