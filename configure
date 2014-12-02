@@ -591,8 +591,8 @@ MAKEFLAGS=
 # Identity of this package.
 PACKAGE_NAME='collectd'
 PACKAGE_TARNAME='collectd'
-PACKAGE_VERSION='stack.build/20140124.38.gebe71fe'
-PACKAGE_STRING='collectd stack.build/20140124.38.gebe71fe'
+PACKAGE_VERSION='5.3.0.130.gebe71fe'
+PACKAGE_STRING='collectd 5.3.0.130.gebe71fe'
 PACKAGE_BUGREPORT=''
 PACKAGE_URL=''
 
@@ -13357,7 +13357,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE='collectd'
- VERSION='stack.build/20140124.38.gebe71fe'
+ VERSION='5.3.0-130.gebe71fe'
 
 
 cat >>confdefs.h <<_ACEOF
