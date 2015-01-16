@@ -63,7 +63,8 @@ static int pm_config (const char *key, const char *value)
 
         /* add a slash to the end if one is not present */
         if (plugin_dir[dir_len - 1] != '/') {
-            plugin_dir = realloc (plugin_dir, dir_len + 1);
+            /* +1 for slash, and another +1 for trailing NUL */
+            plugin_dir = realloc (plugin_dir, dir_len + 2);
             if (plugin_dir == NULL) {
                 ERROR ("plugin mem plugin: OOM");
                 return (-1);
