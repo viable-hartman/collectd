@@ -49,7 +49,11 @@ static char *collectd_pid_file = NULL;
 static int pm_config (const char *key, const char *value)
 {
     if (strcasecmp("PluginDir", key) == 0) {
-        size_t dir_len;
+        size_t dir_len = strlen(value);
+        if (dir_len == 0) {
+          ERROR ("Can't set PluginDir to the empty string");
+          return (-1);
+        }
         sfree (plugin_dir);
         plugin_dir = strdup(value);
         if (plugin_dir == NULL) {
@@ -57,7 +61,6 @@ static int pm_config (const char *key, const char *value)
             return (-1);
         }
 
-        dir_len = strlen (plugin_dir);
         /* add a slash to the end if one is not present */
         if (plugin_dir[dir_len - 1] != '/') {
             plugin_dir = realloc (plugin_dir, dir_len + 1);
