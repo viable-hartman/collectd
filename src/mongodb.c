@@ -480,7 +480,6 @@ static int mc_db_stats_read_cb (user_data_t *ud) /* {{{ */
         return (-1);
     }
 
-    bson_init (&result);
     bson_init (&b);
     bson_append_int (&b, "dbStats", 1);
     bson_append_int (&b, "scale", 1);
