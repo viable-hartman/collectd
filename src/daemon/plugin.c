@@ -629,8 +629,11 @@ static void start_read_threads(size_t num) /* {{{ */
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Avoid hang when restarting
   if (read_threads != NULL)
     return;
 
@@ -681,6 +684,9 @@ static void stop_read_threads(void) {
   sfree(read_threads);
   read_threads_num = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Avoid hang when restarting
 =======
 	if (read_threads == NULL)
 		return;
@@ -693,6 +699,10 @@ static void stop_read_threads(void) {
 	pthread_cond_broadcast (&read_cond);
 	pthread_mutex_unlock (&read_lock);
 
+<<<<<<< HEAD
+=======
+	sleep(0.25);
+>>>>>>> Avoid hang when restarting
 	for (int i = 0; i < read_threads_num; i++)
 	{
 		read_threads[i] = (pthread_t) 0;
@@ -700,8 +710,11 @@ static void stop_read_threads(void) {
 	sfree (read_threads);
 	read_threads_num = 0;
 >>>>>>> Avoid hang when restarting
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Avoid hang when restarting
 } /* void stop_read_threads */
 
 static void plugin_value_list_free(value_list_t *vl) /* {{{ */
@@ -876,8 +889,11 @@ static void stop_write_threads(void) /* {{{ */
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Avoid hang when restarting
   write_queue_t *q;
   size_t i;
 
@@ -921,6 +937,9 @@ static void stop_write_threads(void) /* {{{ */
             i, (i == 1) ? " was" : "s were");
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Avoid hang when restarting
 =======
 	write_queue_t *q;
 	size_t i;
@@ -936,6 +955,10 @@ static void stop_write_threads(void) /* {{{ */
 	pthread_cond_broadcast (&write_cond);
 	pthread_mutex_unlock (&write_lock);
 
+<<<<<<< HEAD
+=======
+	sleep(0.25);
+>>>>>>> Avoid hang when restarting
 	for (i = 0; i < write_threads_num; i++)
 	{
 		write_threads[i] = (pthread_t) 0;
@@ -965,8 +988,11 @@ static void stop_write_threads(void) /* {{{ */
 				i, (i == 1) ? " was" : "s were");
 	}
 >>>>>>> Avoid hang when restarting
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Avoid hang when restarting
 } /* }}} void stop_write_threads */
 
 /*
