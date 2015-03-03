@@ -2853,7 +2853,10 @@ END
 fi
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> Vendoring libltdl
 ## ------------------------------- ##
 ## Libtool specific configuration. ##
 ## ------------------------------- ##
