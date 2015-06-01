@@ -233,7 +233,11 @@ typedef int uid_t;
 #endif
 
 #ifndef COLLECTD_DEFAULT_INTERVAL
+<<<<<<< HEAD
 #define COLLECTD_DEFAULT_INTERVAL 10.0
+=======
+# define COLLECTD_DEFAULT_INTERVAL 60.0
+>>>>>>> Disallow intervals that are less than sixty seconds
 #endif
 
 #ifndef COLLECTD_USERAGENT
