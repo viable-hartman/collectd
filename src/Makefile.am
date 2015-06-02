@@ -627,6 +627,7 @@ pkglib_LTLIBRARIES += mongodb.la
 mongodb_la_SOURCES = mongodb.c
 mongodb_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBMONGOC_CPPFLAGS)
 mongodb_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBMONGOC_LDFLAGS)
+mongodb_la_LIBADD =
 if BUILD_WITH_OWN_LIBMONGOC
 # If upgrading libmongoc, we must check that the correct defines are set
 mongodb_la_SOURCES += libmongoc/src/encoding.c libmongoc/src/bson.c libmongoc/src/bcon.c libmongoc/src/env.c libmongoc/src/gridfs.c libmongoc/src/md5.c libmongoc/src/mongo.c libmongoc/src/numbers.c
@@ -634,10 +635,8 @@ mongodb_la_SOURCES += libmongoc/src/encoding.c libmongoc/src/bson.c libmongoc/sr
 # turn off errors on warnings using -Wno-error since the -Wunused-result flag does not exist until gcc 4.5
 mongodb_la_CPPFLAGS += -I libmongoc/src -DMONGO_HAVE_STDINT
 else
-mongodb_la_LIBADD = -lmongoc
+mongodb_la_LIBADD += -lmongoc
 endif
-collectd_LDADD += "-dlopen" mongodb.la
-collectd_DEPENDENCIES += mongodb.la
 endif
 
 if BUILD_PLUGIN_MULTIMETER
@@ -846,8 +845,6 @@ pkglib_LTLIBRARIES += plugin_mem.la
 plugin_mem_la_SOURCES = plugin_mem.c
 plugin_mem_la_CPPFLAGS = $(AM_CPPFLAGS)
 plugin_mem_la_LDFLAGS = -module -avoid-version
-collectd_LDADD += "-dlopen" plugin_mem.la
-collectd_DEPENDENCIES += plugin_mem.la
 endif
 
 if BUILD_PLUGIN_POSTGRESQL
@@ -1252,7 +1249,6 @@ write_gcm_la_SOURCES = write_gcm.c
 write_gcm_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBYAJL_LDFLAGS)
 write_gcm_la_CFLAGS = $(AM_CFLAGS) $(BUILD_WITH_LIBYAJL_CPPFLAGS)
 write_gcm_la_LIBADD = $(BUILD_WITH_LIBYAJL_LIBS)
-collectd_LDADD += "-dlopen" write_gcm.la
 if BUILD_WITH_LIBSSL
 write_gcm_la_CFLAGS += $(BUILD_WITH_LIBSSL_CFLAGS)
 write_gcm_la_LIBADD += $(BUILD_WITH_LIBSSL_LIBS)
@@ -1261,7 +1257,6 @@ if BUILD_WITH_LIBCURL
 write_gcm_la_CFLAGS += $(BUILD_WITH_LIBCURL_CFLAGS)
 write_gcm_la_LIBADD += $(BUILD_WITH_LIBCURL_LIBS)
 endif
-collectd_DEPENDENCIES += write_gcm.la
 endif
 
 if BUILD_PLUGIN_WRITE_MONGODB
@@ -1329,14 +1324,6 @@ if BUILD_PLUGIN_ZOOKEEPER
 pkglib_LTLIBRARIES += zookeeper.la
 zookeeper_la_SOURCES = zookeeper.c
 zookeeper_la_LDFLAGS = $(PLUGIN_LDFLAGS)
-endif
-
-if BUILD_PLUGIN_ZOOKEEPER
-pkglib_LTLIBRARIES += zookeeper.la
-zookeeper_la_SOURCES = zookeeper.c
-zookeeper_la_LDFLAGS = -module -avoid-version
-collectd_LDADD += "-dlopen" zookeeper.la
-collectd_DEPENDENCIES += zookeeper.la
 endif
 
 BUILT_SOURCES += $(dist_man_MANS)
