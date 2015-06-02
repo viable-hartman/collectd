@@ -4041,6 +4041,7 @@ fi
 AM_CONDITIONAL(BUILD_WITH_LM_SENSORS, test "x$with_libsensors" = "xyes")
 # }}}
 
+
 # --with-libsigrok {{{
 with_libsigrok_cflags=""
 with_libsigrok_ldflags=""
@@ -4109,6 +4110,59 @@ then
 	AC_SUBST(BUILD_WITH_LIBSIGROK_LDFLAGS)
 fi
 AM_CONDITIONAL(BUILD_WITH_LIBSIGROK, test "x$with_libsigrok" = "xyes")
+# }}}
+
+# --with-libssl {{{
+with_libssl_cflags=""
+with_libssl_ldflags=""
+AC_ARG_WITH(libssl, [AS_HELP_STRING([--with-libssl@<:@=PREFIX@:>@], [Path to libssl.])],
+[
+	if test "x$withval" != "xno" && test "x$withval" != "xyes"
+	then
+		with_libssl_cppflags="-I$withval/include"
+		with_libssl_ldflags="-L$withval/lib"
+		with_libssl="yes"
+	else
+		with_libssl="$withval"
+	fi
+],
+[
+	with_libssl="yes"
+])
+if test "x$with_libssl" = "xyes"
+then
+	SAVE_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS $with_libssl_cppflags"
+
+  AC_CHECK_HEADERS(openssl/sha.h openssl/blowfish.h openssl/rand.h,
+    [with_libssl="yes"],
+    [with_libssl="no (ssl header not found)"])
+
+	CPPFLAGS="$SAVE_CPPFLAGS"
+fi
+if test "x$with_libssl" = "xyes"
+then
+	SAVE_CPPFLAGS="$CPPFLAGS"
+	SAVE_LDFLAGS="$LDFLAGS"
+	CPPFLAGS="$CPPFLAGS $with_libssl_cppflags"
+	LDFLAGS="$LDFLAGS $with_libssl_ldflags"
+
+	AC_CHECK_LIB(ssl, SSL_library_init, [with_libssl="yes"], [with_libssl="no (Symbol 'SSL_library_init' not found)"])
+
+	CPPFLAGS="$SAVE_CPPFLAGS"
+	LDFLAGS="$SAVE_LDFLAGS"
+fi
+if test "x$with_libssl" = "xyes"
+then
+	BUILD_WITH_LIBSSL_CFLAGS="$with_libssl_cflags"
+	BUILD_WITH_LIBSSL_LDFLAGS="$with_libssl_ldflags"
+	BUILD_WITH_LIBSSL_LIBS="-lssl -lcrypto"
+	AC_SUBST(BUILD_WITH_LIBSSL_CFLAGS)
+	AC_SUBST(BUILD_WITH_LIBSSL_LDFLAGS)
+	AC_SUBST(BUILD_WITH_LIBSSL_LIBS)
+	AC_DEFINE(HAVE_LIBSSL, 1, [Define if libssl is present and usable.])
+fi
+AM_CONDITIONAL(BUILD_WITH_LIBSSL, test "x$with_libssl" = "xyes")
 # }}}
 
 # --with-libstatgrab {{{
@@ -5516,6 +5570,11 @@ then
 	plugin_tcpconns="yes"
 fi
 
+if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
+then
+	plugin_write_gcm="yes"
+fi
+
 if test "x$have_getutent" = "xyes"
 then
 	plugin_users="yes"
@@ -5678,6 +5737,7 @@ AC_PLUGIN([vserver],     [$plugin_vserver],    [Linux VServer statistics])
 AC_PLUGIN([wireless],    [$plugin_wireless],   [Wireless statistics])
 AC_PLUGIN([write_graphite], [yes],             [Graphite / Carbon output plugin])
 AC_PLUGIN([write_http],  [$with_libcurl],      [HTTP output plugin])
+AC_PLUGIN([write_gcm],   [$plugin_write_gcm],  [Google cloud monitoring output plugin])
 AC_PLUGIN([write_kafka],  [$with_librdkafka],  [Kafka output plugin])
 AC_PLUGIN([write_log], [yes],                  [Log output plugin])
 AC_PLUGIN([write_mongodb], [$with_libmongoc],  [MongoDB output plugin])
@@ -5910,6 +5970,7 @@ Configuration:
     librrd  . . . . . . . $with_librrd
     libsensors  . . . . . $with_libsensors
     libsigrok   . . . . . $with_libsigrok
+    libssl  . . . . .   . $with_libssl
     libstatgrab . . . . . $with_libstatgrab
     libtokyotyrant  . . . $with_libtokyotyrant
     libudev . . . . . . . $with_libudev
@@ -6057,6 +6118,7 @@ Configuration:
     wireless  . . . . . . $enable_wireless
     write_graphite  . . . $enable_write_graphite
     write_http  . . . . . $enable_write_http
+    write_gcm   . . . . . $enable_write_gcm
     write_kafka . . . . . $enable_write_kafka
     write_log . . . . . . $enable_write_log
     write_mongodb . . . . $enable_write_mongodb
