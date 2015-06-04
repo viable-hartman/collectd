@@ -6,8 +6,9 @@ then
     # debian denotes 64 arches with amd64
     [ "x$ARCH" == "xx86_64" ] && ARCH="amd64" || true
     git clone git@github.com:Stackdriver/agent-deb.git
-    git checkout stackdriver-agent-$VERSION
     pushd agent-deb
+    git fetch origin stackdriver-agent-$VERSION
+    git checkout stackdriver-agent-$VERSION
     make clean
     make DISTRO="$DISTRO" ARCH="$ARCH" VERSION="$VERSION" BUILD_NUM="$BUILD_NUM" build
     if [ $? -ne 0 ]
@@ -20,8 +21,9 @@ then
 elif [ "x$PKGFORMAT" == "xrpm" ]
 then
     git clone git@github.com:Stackdriver/agent-rpm.git
-    git checkout stackdriver-agent-$VERSION
     pushd agent-rpm
+    git fetch origin stackdriver-agent-$VERSION
+    git checkout stackdriver-agent-$VERSION
     make clean
     make DISTRO="$DISTRO" ARCH="$ARCH" VERSION="$VERSION" BUILD_NUM="$BUILD_NUM" build
     if [ $? -ne 0 ]
