@@ -10,10 +10,16 @@ fi
 VERSION=5.5.0
 >>>>>>> stackdriver install and readme
 
+if [ "x$BRANCH" == "x" ]
+then
+    BRANCH=stackdriver-agent-$VERSION
+fi
+
 if [ "x$PKGFORMAT" == "xdeb" ]
 then
     # debian denotes 64 arches with amd64
     [ "x$ARCH" == "xx86_64" ] && ARCH="amd64" || true
+<<<<<<< HEAD
 <<<<<<< HEAD
     git clone git@github.com:Stackdriver/agent-deb.git --branch $BRANCH
     pushd agent-deb
@@ -33,9 +39,10 @@ then
     cp -r agent-rpm/result .
 =======
     git clone git@github.com:Stackdriver/agent-deb.git
+=======
+    git clone git@github.com:Stackdriver/agent-deb.git --branch $BRANCH
+>>>>>>> Change package-build.sh so that it checks out a branch specified by an
     pushd agent-deb
-    git fetch origin stackdriver-agent-$VERSION
-    git checkout stackdriver-agent-$VERSION
     make clean
     make DISTRO="$DISTRO" ARCH="$ARCH" VERSION="$VERSION" BUILD_NUM="$BUILD_NUM" build
     if [ $? -ne 0 ]
@@ -47,10 +54,8 @@ then
 	cp -r agent-deb/result .
 elif [ "x$PKGFORMAT" == "xrpm" ]
 then
-    git clone git@github.com:Stackdriver/agent-rpm.git
+    git clone git@github.com:Stackdriver/agent-rpm.git --branch $BRANCH
     pushd agent-rpm
-    git fetch origin stackdriver-agent-$VERSION
-    git checkout stackdriver-agent-$VERSION
     make clean
     make DISTRO="$DISTRO" ARCH="$ARCH" VERSION="$VERSION" BUILD_NUM="$BUILD_NUM" build
     if [ $? -ne 0 ]
