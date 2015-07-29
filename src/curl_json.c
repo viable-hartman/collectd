@@ -799,8 +799,11 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Revert https://github.com/Stackdriver/collectd/commit/9685c388b5954800d0e4ceb741844c2682464759 to revert the way the ES plugin forms keys
   if (key->instance == NULL) {
     int len = 0;
     for (int i = 0; i < db->depth; i++)
@@ -809,6 +812,9 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
   } else
     sstrncpy(vl.type_instance, key->instance, sizeof(vl.type_instance));
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Revert https://github.com/Stackdriver/collectd/commit/9685c388b5954800d0e4ceb741844c2682464759 to revert the way the ES plugin forms keys
 =======
   if (key->instance == NULL)
   {
@@ -821,8 +827,11 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
   else
     sstrncpy (vl.type_instance, key->instance, sizeof (vl.type_instance));
 >>>>>>> Revert https://github.com/Stackdriver/collectd/commit/9685c388b5954800d0e4ceb741844c2682464759 to revert the way the ES plugin forms keys
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Revert https://github.com/Stackdriver/collectd/commit/9685c388b5954800d0e4ceb741844c2682464759 to revert the way the ES plugin forms keys
 
   sstrncpy(vl.host, cj_host(db), sizeof(vl.host));
   sstrncpy(vl.plugin, (db->plugin_name != NULL) ? db->plugin_name : "curl_json",
