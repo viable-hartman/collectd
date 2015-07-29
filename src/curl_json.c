@@ -802,6 +802,7 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
   vl.values = value;
   vl.values_len = 1;
 
+<<<<<<< HEAD
   if (key->instance == NULL) {
     int len = 0;
     for (int i = 0; i < db->depth; i++)
@@ -809,6 +810,18 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
                       i ? "-%s" : "%s", db->state[i + 1].name);
   } else
     sstrncpy(vl.type_instance, key->instance, sizeof(vl.type_instance));
+=======
+  if (key->instance == NULL)
+  {
+    if ((db->depth == 0) || (strcmp ("", db->state[db->depth-1].name) == 0))
+      sstrncpy (vl.type_instance, db->state[db->depth].name, sizeof (vl.type_instance));
+    else
+      ssnprintf (vl.type_instance, sizeof (vl.type_instance), "%s-%s",
+          db->state[db->depth-1].name, db->state[db->depth].name);
+  }
+  else
+    sstrncpy (vl.type_instance, key->instance, sizeof (vl.type_instance));
+>>>>>>> Revert https://github.com/Stackdriver/collectd/commit/9685c388b5954800d0e4ceb741844c2682464759 to revert the way the ES plugin forms keys
 
   sstrncpy(vl.host, cj_host(db), sizeof(vl.host));
   sstrncpy(vl.plugin, (db->plugin_name != NULL) ? db->plugin_name : "curl_json",
