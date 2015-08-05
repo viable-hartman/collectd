@@ -245,6 +245,7 @@ static int mysql_config (oconfig_item_t *ci) /* {{{ */
 
 static MYSQL *getconnection (mysql_database_t *db)
 {
+	mysql_thread_init();
 	if (db->is_connected)
 	{
 		int status;
@@ -957,5 +958,6 @@ static int mysql_read (user_data_t *ud)
 
 void module_register (void)
 {
+	mysql_library_init(0, NULL, NULL);
 	plugin_register_complex_config ("mysql", mysql_config);
 } /* void module_register */
