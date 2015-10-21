@@ -629,11 +629,17 @@ mongodb_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBMONGOC_CPPFLAGS)
 mongodb_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBMONGOC_LDFLAGS)
 mongodb_la_LIBADD =
 if BUILD_WITH_OWN_LIBMONGOC
-# If upgrading libmongoc, we must check that the correct defines are set
-mongodb_la_SOURCES += libmongoc/src/encoding.c libmongoc/src/bson.c libmongoc/src/bcon.c libmongoc/src/env.c libmongoc/src/gridfs.c libmongoc/src/md5.c libmongoc/src/mongo.c libmongoc/src/numbers.c
+
+# add libmongoc source files
+mongodb_la_CPPFLAGS += -DMONGOC_COMPILATION
+mongodb_la_SOURCES += libmongoc/src/mongoc/mongoc-array.c libmongoc/src/mongoc/mongoc-b64.c libmongoc/src/mongoc/mongoc-buffer.c libmongoc/src/mongoc/mongoc-bulk-operation.c libmongoc/src/mongoc/mongoc-client.c libmongoc/src/mongoc/mongoc-client-pool.c libmongoc/src/mongoc/mongoc-cluster.c libmongoc/src/mongoc/mongoc-collection.c libmongoc/src/mongoc/mongoc-counters.c libmongoc/src/mongoc/mongoc-cursor-array.c libmongoc/src/mongoc/mongoc-cursor.c libmongoc/src/mongoc/mongoc-cursor-cursorid.c libmongoc/src/mongoc/mongoc-cursor-transform.c libmongoc/src/mongoc/mongoc-database.c libmongoc/src/mongoc/mongoc-gridfs.c libmongoc/src/mongoc/mongoc-gridfs-file.c libmongoc/src/mongoc/mongoc-gridfs-file-list.c libmongoc/src/mongoc/mongoc-gridfs-file-page.c libmongoc/src/mongoc/mongoc-index.c libmongoc/src/mongoc/mongoc-init.c libmongoc/src/mongoc/mongoc-list.c libmongoc/src/mongoc/mongoc-log.c libmongoc/src/mongoc/mongoc-matcher.c libmongoc/src/mongoc/mongoc-matcher-op.c libmongoc/src/mongoc/mongoc-queue.c libmongoc/src/mongoc/mongoc-rand.c libmongoc/src/mongoc/mongoc-read-prefs.c libmongoc/src/mongoc/mongoc-rpc.c libmongoc/src/mongoc/mongoc-sasl.c libmongoc/src/mongoc/mongoc-scram.c libmongoc/src/mongoc/mongoc-socket.c libmongoc/src/mongoc/mongoc-ssl.c libmongoc/src/mongoc/mongoc-stream-buffered.c libmongoc/src/mongoc/mongoc-stream.c libmongoc/src/mongoc/mongoc-stream-file.c libmongoc/src/mongoc/mongoc-stream-gridfs.c libmongoc/src/mongoc/mongoc-stream-socket.c libmongoc/src/mongoc/mongoc-stream-tls.c libmongoc/src/mongoc/mongoc-uri.c libmongoc/src/mongoc/mongoc-util.c libmongoc/src/mongoc/mongoc-write-command.c libmongoc/src/mongoc/mongoc-write-concern.c
+
+# add bson source files
+mongodb_la_CPPFLAGS += -DBSON_COMPILATION
+mongodb_la_SOURCES += libmongoc/src/libbson/src/bson/bcon.c libmongoc/src/libbson/src/bson/bson-atomic.c libmongoc/src/libbson/src/bson/bson.c libmongoc/src/libbson/src/bson/bson-clock.c libmongoc/src/libbson/src/bson/bson-context.c libmongoc/src/libbson/src/bson/bson-error.c libmongoc/src/libbson/src/bson/bson-iso8601.c libmongoc/src/libbson/src/bson/bson-iter.c libmongoc/src/libbson/src/bson/bson-keys.c libmongoc/src/libbson/src/bson/bson-md5.c libmongoc/src/libbson/src/bson/bson-memory.c libmongoc/src/libbson/src/bson/bson-oid.c libmongoc/src/libbson/src/bson/bson-reader.c libmongoc/src/libbson/src/bson/bson-string.c libmongoc/src/libbson/src/bson/bson-timegm.c libmongoc/src/libbson/src/bson/bson-utf8.c libmongoc/src/libbson/src/bson/bson-value.c libmongoc/src/libbson/src/bson/bson-version.c libmongoc/src/libbson/src/bson/bson-writer.c
 # unused-result being treated as an error since libmongoc calls functions that some libc implementations warn on if results aren't checked
 # turn off errors on warnings using -Wno-error since the -Wunused-result flag does not exist until gcc 4.5
-mongodb_la_CPPFLAGS += -I libmongoc/src -DMONGO_HAVE_STDINT
+mongodb_la_CPPFLAGS += -I libmongoc/src/mongoc -I libmongoc/src/libbson/src/bson -DMONGO_HAVE_STDINT
 else
 mongodb_la_LIBADD += -lmongoc
 endif
