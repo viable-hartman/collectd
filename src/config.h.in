@@ -1264,6 +1264,9 @@
 /* Define to 1 if `idiag_states' is a member of `struct inet_diag_req'. */
 #undef HAVE_STRUCT_INET_DIAG_REQ_IDIAG_STATES
 
+/* Define to 1 if the system has the type `struct ip6_ext'. */
+#undef HAVE_STRUCT_IP6_EXT
+
 /* Define to 1 if `imr_ifindex' is a member of `struct ip_mreqn'. */
 #undef HAVE_STRUCT_IP_MREQN_IMR_IFINDEX
 
