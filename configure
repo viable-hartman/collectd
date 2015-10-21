@@ -15314,7 +15314,38 @@ $as_echo "#define _POSIX_PTHREAD_SEMANTICS 1" >>confdefs.h
 
 $as_echo "#define _REENTRANT 1" >>confdefs.h
 
+
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether compiler builds 64bit binaries" >&5
+$as_echo_n "checking whether compiler builds 64bit binaries... " >&6; }
+	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+			   #ifndef _LP64
+			   # error "Compiler not in 64bit mode."
+			   #endif
+
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_cpp "$LINENO"; then :
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+
+			    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+			    { $as_echo "$as_me:${as_lineno-$LINENO}: Solaris detected. Please consider building a 64-bit binary." >&5
+$as_echo "$as_me: Solaris detected. Please consider building a 64-bit binary." >&6;}
+
 fi
+rm -f conftest.err conftest.i conftest.$ac_ext
+fi
+
 if test "x$ac_system" = "xAIX"
 then
 
@@ -16017,6 +16048,33 @@ fi
 done
 
 
+ac_fn_c_check_type "$LINENO" "struct ip6_ext" "ac_cv_type_struct_ip6_ext" "#if HAVE_STDINT_H
+# include <stdint.h>
+#endif
+#if HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#if HAVE_NETINET_IN_SYSTM_H
+# include <netinet/in_systm.h>
+#endif
+#if HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
+#if HAVE_NETINET_IP6_H
+# include <netinet/ip6.h>
+#endif
+
+"
+if test "x$ac_cv_type_struct_ip6_ext" = xyes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_STRUCT_IP6_EXT 1
+_ACEOF
+
+
+fi
+
+
 # For cpu modules
 for ac_header in sys/dkstat.h
 do :
@@ -16216,19 +16274,6 @@ fi
 
 done
 
-
-if test "x$have_sys_swap_h$ac_system" = "xnoSolaris"
-then
-	hint_64=""
-	if test "x$GCC" = "xyes"
-	then
-		hint_64="CFLAGS='-m64'"
-	else
-		hint_64="CFLAGS='-xarch=v9'"
-	fi
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: Solaris detected and sys/swap.h not usable. Try building a 64-bit binary ($hint_64 ./configure)." >&5
-$as_echo "$as_me: Solaris detected and sys/swap.h not usable. Try building a 64-bit binary ($hint_64 ./configure)." >&6;}
-fi
 
 # For load module
 # For the processes plugin

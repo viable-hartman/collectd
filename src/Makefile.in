@@ -161,11 +161,80 @@ bin_PROGRAMS = collectd-nagios$(EXEEXT) collectdctl$(EXEEXT) \
 @BUILD_PLUGIN_MIC_TRUE@am__append_104 = mic.la
 @BUILD_PLUGIN_MODBUS_TRUE@am__append_105 = modbus.la
 @BUILD_PLUGIN_MONGODB_TRUE@am__append_106 = mongodb.la
-# If upgrading libmongoc, we must check that the correct defines are set
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@am__append_107 = libmongoc/src/encoding.c libmongoc/src/bson.c libmongoc/src/bcon.c libmongoc/src/env.c libmongoc/src/gridfs.c libmongoc/src/md5.c libmongoc/src/mongo.c libmongoc/src/numbers.c
+
+# add libmongoc source files
+
+# add bson source files
 # unused-result being treated as an error since libmongoc calls functions that some libc implementations warn on if results aren't checked
 # turn off errors on warnings using -Wno-error since the -Wunused-result flag does not exist until gcc 4.5
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@am__append_108 = -I libmongoc/src -DMONGO_HAVE_STDINT
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@am__append_107 = -DMONGOC_COMPILATION \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	-DBSON_COMPILATION \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	-I \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	-I \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	-DMONGO_HAVE_STDINT
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@am__append_108 = libmongoc/src/mongoc/mongoc-array.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-b64.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-buffer.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-bulk-operation.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-client.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-client-pool.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-cluster.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-collection.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-counters.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-cursor-array.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-cursor.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-cursor-cursorid.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-cursor-transform.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-database.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-gridfs.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-gridfs-file.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-gridfs-file-list.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-gridfs-file-page.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-index.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-init.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-list.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-log.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-matcher.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-matcher-op.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-queue.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-rand.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-read-prefs.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-rpc.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-sasl.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-scram.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-socket.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-ssl.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-stream-buffered.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-stream.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-stream-file.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-stream-gridfs.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-stream-socket.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-stream-tls.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-uri.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-util.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-write-command.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongoc-write-concern.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bcon.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-atomic.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-clock.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-context.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-error.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-iso8601.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-iter.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-keys.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-md5.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-memory.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-oid.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-reader.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-string.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-timegm.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-utf8.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-value.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-version.c \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/bson-writer.c
 @BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_FALSE@am__append_109 = -lmongoc
 @BUILD_PLUGIN_MULTIMETER_TRUE@am__append_110 = multimeter.la
 @BUILD_PLUGIN_MYSQL_TRUE@am__append_111 = mysql.la
@@ -922,19 +991,130 @@ modbus_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 @BUILD_PLUGIN_MODBUS_TRUE@am_modbus_la_rpath = -rpath $(pkglibdir)
 @BUILD_PLUGIN_MONGODB_TRUE@mongodb_la_DEPENDENCIES =  \
 @BUILD_PLUGIN_MONGODB_TRUE@	$(am__DEPENDENCIES_1)
-am__mongodb_la_SOURCES_DIST = mongodb.c libmongoc/src/encoding.c \
-	libmongoc/src/bson.c libmongoc/src/bcon.c libmongoc/src/env.c \
-	libmongoc/src/gridfs.c libmongoc/src/md5.c \
-	libmongoc/src/mongo.c libmongoc/src/numbers.c
+am__mongodb_la_SOURCES_DIST = mongodb.c \
+	libmongoc/src/mongoc/mongoc-array.c \
+	libmongoc/src/mongoc/mongoc-b64.c \
+	libmongoc/src/mongoc/mongoc-buffer.c \
+	libmongoc/src/mongoc/mongoc-bulk-operation.c \
+	libmongoc/src/mongoc/mongoc-client.c \
+	libmongoc/src/mongoc/mongoc-client-pool.c \
+	libmongoc/src/mongoc/mongoc-cluster.c \
+	libmongoc/src/mongoc/mongoc-collection.c \
+	libmongoc/src/mongoc/mongoc-counters.c \
+	libmongoc/src/mongoc/mongoc-cursor-array.c \
+	libmongoc/src/mongoc/mongoc-cursor.c \
+	libmongoc/src/mongoc/mongoc-cursor-cursorid.c \
+	libmongoc/src/mongoc/mongoc-cursor-transform.c \
+	libmongoc/src/mongoc/mongoc-database.c \
+	libmongoc/src/mongoc/mongoc-gridfs.c \
+	libmongoc/src/mongoc/mongoc-gridfs-file.c \
+	libmongoc/src/mongoc/mongoc-gridfs-file-list.c \
+	libmongoc/src/mongoc/mongoc-gridfs-file-page.c \
+	libmongoc/src/mongoc/mongoc-index.c \
+	libmongoc/src/mongoc/mongoc-init.c \
+	libmongoc/src/mongoc/mongoc-list.c \
+	libmongoc/src/mongoc/mongoc-log.c \
+	libmongoc/src/mongoc/mongoc-matcher.c \
+	libmongoc/src/mongoc/mongoc-matcher-op.c \
+	libmongoc/src/mongoc/mongoc-queue.c \
+	libmongoc/src/mongoc/mongoc-rand.c \
+	libmongoc/src/mongoc/mongoc-read-prefs.c \
+	libmongoc/src/mongoc/mongoc-rpc.c \
+	libmongoc/src/mongoc/mongoc-sasl.c \
+	libmongoc/src/mongoc/mongoc-scram.c \
+	libmongoc/src/mongoc/mongoc-socket.c \
+	libmongoc/src/mongoc/mongoc-ssl.c \
+	libmongoc/src/mongoc/mongoc-stream-buffered.c \
+	libmongoc/src/mongoc/mongoc-stream.c \
+	libmongoc/src/mongoc/mongoc-stream-file.c \
+	libmongoc/src/mongoc/mongoc-stream-gridfs.c \
+	libmongoc/src/mongoc/mongoc-stream-socket.c \
+	libmongoc/src/mongoc/mongoc-stream-tls.c \
+	libmongoc/src/mongoc/mongoc-uri.c \
+	libmongoc/src/mongoc/mongoc-util.c \
+	libmongoc/src/mongoc/mongoc-write-command.c \
+	libmongoc/src/mongoc/mongoc-write-concern.c \
+	libmongoc/src/libbson/src/bson/bcon.c \
+	libmongoc/src/libbson/src/bson/bson-atomic.c \
+	libmongoc/src/libbson/src/bson/bson.c \
+	libmongoc/src/libbson/src/bson/bson-clock.c \
+	libmongoc/src/libbson/src/bson/bson-context.c \
+	libmongoc/src/libbson/src/bson/bson-error.c \
+	libmongoc/src/libbson/src/bson/bson-iso8601.c \
+	libmongoc/src/libbson/src/bson/bson-iter.c \
+	libmongoc/src/libbson/src/bson/bson-keys.c \
+	libmongoc/src/libbson/src/bson/bson-md5.c \
+	libmongoc/src/libbson/src/bson/bson-memory.c \
+	libmongoc/src/libbson/src/bson/bson-oid.c \
+	libmongoc/src/libbson/src/bson/bson-reader.c \
+	libmongoc/src/libbson/src/bson/bson-string.c \
+	libmongoc/src/libbson/src/bson/bson-timegm.c \
+	libmongoc/src/libbson/src/bson/bson-utf8.c \
+	libmongoc/src/libbson/src/bson/bson-value.c \
+	libmongoc/src/libbson/src/bson/bson-version.c \
+	libmongoc/src/libbson/src/bson/bson-writer.c
 am__dirstamp = $(am__leading_dot)dirstamp
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@am__objects_1 = libmongoc/src/mongodb_la-encoding.lo \
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongodb_la-bson.lo \
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongodb_la-bcon.lo \
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongodb_la-env.lo \
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongodb_la-gridfs.lo \
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongodb_la-md5.lo \
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongodb_la-mongo.lo \
-@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongodb_la-numbers.lo
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@am__objects_1 = libmongoc/src/mongoc/mongodb_la-mongoc-array.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-b64.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-buffer.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-bulk-operation.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-client.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-client-pool.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-cluster.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-collection.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-counters.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-cursor-array.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-cursor.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-cursor-cursorid.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-cursor-transform.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-database.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-gridfs.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-list.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-page.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-index.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-init.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-list.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-log.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-matcher.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-matcher-op.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-queue.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-rand.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-read-prefs.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-rpc.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-sasl.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-scram.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-socket.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-ssl.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-stream-buffered.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-stream.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-stream-file.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-stream-gridfs.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-stream-socket.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-stream-tls.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-uri.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-util.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-write-command.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/mongoc/mongodb_la-mongoc-write-concern.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bcon.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-atomic.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-clock.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-context.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-error.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-iso8601.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-iter.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-keys.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-md5.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-memory.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-oid.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-reader.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-string.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-timegm.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-utf8.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-value.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-version.lo \
+@BUILD_PLUGIN_MONGODB_TRUE@@BUILD_WITH_OWN_LIBMONGOC_TRUE@	libmongoc/src/libbson/src/bson/mongodb_la-bson-writer.lo
 @BUILD_PLUGIN_MONGODB_TRUE@am_mongodb_la_OBJECTS =  \
 @BUILD_PLUGIN_MONGODB_TRUE@	mongodb_la-mongodb.lo \
 @BUILD_PLUGIN_MONGODB_TRUE@	$(am__objects_1)
@@ -2586,10 +2766,10 @@ CLEANFILES = $(am__append_222)
 @BUILD_PLUGIN_MODBUS_TRUE@modbus_la_CFLAGS = $(AM_CFLAGS) $(BUILD_WITH_LIBMODBUS_CFLAGS)
 @BUILD_PLUGIN_MODBUS_TRUE@modbus_la_LIBADD = $(BUILD_WITH_LIBMODBUS_LIBS)
 @BUILD_PLUGIN_MONGODB_TRUE@mongodb_la_SOURCES = mongodb.c \
-@BUILD_PLUGIN_MONGODB_TRUE@	$(am__append_107)
+@BUILD_PLUGIN_MONGODB_TRUE@	$(am__append_108)
 @BUILD_PLUGIN_MONGODB_TRUE@mongodb_la_CPPFLAGS = $(AM_CPPFLAGS) \
 @BUILD_PLUGIN_MONGODB_TRUE@	$(BUILD_WITH_LIBMONGOC_CPPFLAGS) \
-@BUILD_PLUGIN_MONGODB_TRUE@	$(am__append_108)
+@BUILD_PLUGIN_MONGODB_TRUE@	$(am__append_107)
 @BUILD_PLUGIN_MONGODB_TRUE@mongodb_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBMONGOC_LDFLAGS)
 @BUILD_PLUGIN_MONGODB_TRUE@mongodb_la_LIBADD = $(am__append_109)
 @BUILD_PLUGIN_MULTIMETER_TRUE@multimeter_la_SOURCES = multimeter.c
@@ -3163,28 +3343,201 @@ mic.la: $(mic_la_OBJECTS) $(mic_la_DEPENDENCIES) $(EXTRA_mic_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(mic_la_LINK) $(am_mic_la_rpath) $(mic_la_OBJECTS) $(mic_la_LIBADD) $(LIBS)
 modbus.la: $(modbus_la_OBJECTS) $(modbus_la_DEPENDENCIES) $(EXTRA_modbus_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(modbus_la_LINK) $(am_modbus_la_rpath) $(modbus_la_OBJECTS) $(modbus_la_LIBADD) $(LIBS)
-libmongoc/src/$(am__dirstamp):
-	@$(MKDIR_P) libmongoc/src
-	@: > libmongoc/src/$(am__dirstamp)
-libmongoc/src/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) libmongoc/src/$(DEPDIR)
-	@: > libmongoc/src/$(DEPDIR)/$(am__dirstamp)
-libmongoc/src/mongodb_la-encoding.lo: libmongoc/src/$(am__dirstamp) \
-	libmongoc/src/$(DEPDIR)/$(am__dirstamp)
-libmongoc/src/mongodb_la-bson.lo: libmongoc/src/$(am__dirstamp) \
-	libmongoc/src/$(DEPDIR)/$(am__dirstamp)
-libmongoc/src/mongodb_la-bcon.lo: libmongoc/src/$(am__dirstamp) \
-	libmongoc/src/$(DEPDIR)/$(am__dirstamp)
-libmongoc/src/mongodb_la-env.lo: libmongoc/src/$(am__dirstamp) \
-	libmongoc/src/$(DEPDIR)/$(am__dirstamp)
-libmongoc/src/mongodb_la-gridfs.lo: libmongoc/src/$(am__dirstamp) \
-	libmongoc/src/$(DEPDIR)/$(am__dirstamp)
-libmongoc/src/mongodb_la-md5.lo: libmongoc/src/$(am__dirstamp) \
-	libmongoc/src/$(DEPDIR)/$(am__dirstamp)
-libmongoc/src/mongodb_la-mongo.lo: libmongoc/src/$(am__dirstamp) \
-	libmongoc/src/$(DEPDIR)/$(am__dirstamp)
-libmongoc/src/mongodb_la-numbers.lo: libmongoc/src/$(am__dirstamp) \
-	libmongoc/src/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/$(am__dirstamp):
+	@$(MKDIR_P) libmongoc/src/mongoc
+	@: > libmongoc/src/mongoc/$(am__dirstamp)
+libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) libmongoc/src/mongoc/$(DEPDIR)
+	@: > libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-array.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-b64.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-buffer.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-bulk-operation.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-client.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-client-pool.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-cluster.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-collection.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-counters.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-cursor-array.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-cursor.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-cursor-cursorid.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-cursor-transform.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-database.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-gridfs.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-list.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-page.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-index.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-init.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-list.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-log.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-matcher.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-matcher-op.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-queue.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-rand.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-read-prefs.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-rpc.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-sasl.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-scram.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-socket.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-ssl.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-buffered.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-stream.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-file.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-gridfs.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-socket.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-tls.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-uri.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-util.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-write-command.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/mongoc/mongodb_la-mongoc-write-concern.lo:  \
+	libmongoc/src/mongoc/$(am__dirstamp) \
+	libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/$(am__dirstamp):
+	@$(MKDIR_P) libmongoc/src/libbson/src/bson
+	@: > libmongoc/src/libbson/src/bson/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) libmongoc/src/libbson/src/bson/$(DEPDIR)
+	@: > libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bcon.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-atomic.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-clock.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-context.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-error.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-iso8601.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-iter.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-keys.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-md5.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-memory.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-oid.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-reader.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-string.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-timegm.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-utf8.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-value.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-version.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+libmongoc/src/libbson/src/bson/mongodb_la-bson-writer.lo:  \
+	libmongoc/src/libbson/src/bson/$(am__dirstamp) \
+	libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
 mongodb.la: $(mongodb_la_OBJECTS) $(mongodb_la_DEPENDENCIES) $(EXTRA_mongodb_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(mongodb_la_LINK) $(am_mongodb_la_rpath) $(mongodb_la_OBJECTS) $(mongodb_la_LIBADD) $(LIBS)
 multimeter.la: $(multimeter_la_OBJECTS) $(multimeter_la_DEPENDENCIES) $(EXTRA_multimeter_la_DEPENDENCIES) 
@@ -3463,22 +3816,128 @@ test_utils_vl_lookup$(EXEEXT): $(test_utils_vl_lookup_OBJECTS) $(test_utils_vl_l
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f libmongoc/src/mongodb_la-bcon.$(OBJEXT)
-	-rm -f libmongoc/src/mongodb_la-bcon.lo
-	-rm -f libmongoc/src/mongodb_la-bson.$(OBJEXT)
-	-rm -f libmongoc/src/mongodb_la-bson.lo
-	-rm -f libmongoc/src/mongodb_la-encoding.$(OBJEXT)
-	-rm -f libmongoc/src/mongodb_la-encoding.lo
-	-rm -f libmongoc/src/mongodb_la-env.$(OBJEXT)
-	-rm -f libmongoc/src/mongodb_la-env.lo
-	-rm -f libmongoc/src/mongodb_la-gridfs.$(OBJEXT)
-	-rm -f libmongoc/src/mongodb_la-gridfs.lo
-	-rm -f libmongoc/src/mongodb_la-md5.$(OBJEXT)
-	-rm -f libmongoc/src/mongodb_la-md5.lo
-	-rm -f libmongoc/src/mongodb_la-mongo.$(OBJEXT)
-	-rm -f libmongoc/src/mongodb_la-mongo.lo
-	-rm -f libmongoc/src/mongodb_la-numbers.$(OBJEXT)
-	-rm -f libmongoc/src/mongodb_la-numbers.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bcon.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bcon.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-atomic.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-atomic.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-clock.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-clock.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-context.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-context.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-error.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-error.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-iso8601.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-iso8601.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-iter.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-iter.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-keys.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-keys.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-md5.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-md5.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-memory.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-memory.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-oid.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-oid.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-reader.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-reader.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-string.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-string.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-timegm.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-timegm.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-utf8.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-utf8.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-value.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-value.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-version.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-version.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-writer.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson-writer.lo
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson.$(OBJEXT)
+	-rm -f libmongoc/src/libbson/src/bson/mongodb_la-bson.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-array.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-array.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-b64.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-b64.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-buffer.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-buffer.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-bulk-operation.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-bulk-operation.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-client-pool.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-client-pool.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-client.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-client.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cluster.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cluster.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-collection.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-collection.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-counters.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-counters.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cursor-array.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cursor-array.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cursor-cursorid.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cursor-cursorid.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cursor-transform.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cursor-transform.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cursor.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-cursor.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-database.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-database.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-list.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-list.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-page.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-page.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-gridfs.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-gridfs.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-index.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-index.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-init.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-init.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-list.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-list.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-log.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-log.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-matcher-op.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-matcher-op.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-matcher.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-matcher.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-queue.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-queue.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-rand.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-rand.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-read-prefs.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-read-prefs.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-rpc.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-rpc.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-sasl.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-sasl.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-scram.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-scram.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-socket.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-socket.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-ssl.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-ssl.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-buffered.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-buffered.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-file.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-file.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-gridfs.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-gridfs.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-socket.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-socket.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-tls.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream-tls.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-stream.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-uri.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-uri.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-util.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-util.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-write-command.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-write-command.lo
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-write-concern.$(OBJEXT)
+	-rm -f libmongoc/src/mongoc/mongodb_la-mongoc-write-concern.lo
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -3668,14 +4127,67 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xmms_la-xmms.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zfs_arc_la-zfs_arc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zookeeper.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/$(DEPDIR)/mongodb_la-bcon.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/$(DEPDIR)/mongodb_la-bson.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/$(DEPDIR)/mongodb_la-encoding.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/$(DEPDIR)/mongodb_la-env.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/$(DEPDIR)/mongodb_la-gridfs.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/$(DEPDIR)/mongodb_la-md5.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/$(DEPDIR)/mongodb_la-mongo.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/$(DEPDIR)/mongodb_la-numbers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bcon.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-atomic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-clock.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-context.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-error.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-iso8601.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-iter.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-keys.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-md5.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-memory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-oid.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-reader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-string.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-timegm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-utf8.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-value.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-version.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-writer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-array.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-b64.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-buffer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-bulk-operation.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-client-pool.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-client.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cluster.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-collection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-counters.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-array.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-cursorid.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-transform.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-database.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file-list.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file-page.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-index.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-init.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-list.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-log.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-matcher-op.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-matcher.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-queue.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-rand.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-read-prefs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-rpc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-sasl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-scram.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-socket.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-ssl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-buffered.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-file.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-gridfs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-socket.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-tls.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-uri.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-write-command.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-write-concern.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -3939,61 +4451,432 @@ mongodb_la-mongodb.lo: mongodb.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o mongodb_la-mongodb.lo `test -f 'mongodb.c' || echo '$(srcdir)/'`mongodb.c
 
-libmongoc/src/mongodb_la-encoding.lo: libmongoc/src/encoding.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongodb_la-encoding.lo -MD -MP -MF libmongoc/src/$(DEPDIR)/mongodb_la-encoding.Tpo -c -o libmongoc/src/mongodb_la-encoding.lo `test -f 'libmongoc/src/encoding.c' || echo '$(srcdir)/'`libmongoc/src/encoding.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/$(DEPDIR)/mongodb_la-encoding.Tpo libmongoc/src/$(DEPDIR)/mongodb_la-encoding.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/encoding.c' object='libmongoc/src/mongodb_la-encoding.lo' libtool=yes @AMDEPBACKSLASH@
+libmongoc/src/mongoc/mongodb_la-mongoc-array.lo: libmongoc/src/mongoc/mongoc-array.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-array.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-array.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-array.lo `test -f 'libmongoc/src/mongoc/mongoc-array.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-array.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-array.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-array.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-array.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-array.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongodb_la-encoding.lo `test -f 'libmongoc/src/encoding.c' || echo '$(srcdir)/'`libmongoc/src/encoding.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-array.lo `test -f 'libmongoc/src/mongoc/mongoc-array.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-array.c
 
-libmongoc/src/mongodb_la-bson.lo: libmongoc/src/bson.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongodb_la-bson.lo -MD -MP -MF libmongoc/src/$(DEPDIR)/mongodb_la-bson.Tpo -c -o libmongoc/src/mongodb_la-bson.lo `test -f 'libmongoc/src/bson.c' || echo '$(srcdir)/'`libmongoc/src/bson.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/$(DEPDIR)/mongodb_la-bson.Tpo libmongoc/src/$(DEPDIR)/mongodb_la-bson.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/bson.c' object='libmongoc/src/mongodb_la-bson.lo' libtool=yes @AMDEPBACKSLASH@
+libmongoc/src/mongoc/mongodb_la-mongoc-b64.lo: libmongoc/src/mongoc/mongoc-b64.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-b64.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-b64.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-b64.lo `test -f 'libmongoc/src/mongoc/mongoc-b64.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-b64.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-b64.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-b64.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-b64.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-b64.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongodb_la-bson.lo `test -f 'libmongoc/src/bson.c' || echo '$(srcdir)/'`libmongoc/src/bson.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-b64.lo `test -f 'libmongoc/src/mongoc/mongoc-b64.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-b64.c
 
-libmongoc/src/mongodb_la-bcon.lo: libmongoc/src/bcon.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongodb_la-bcon.lo -MD -MP -MF libmongoc/src/$(DEPDIR)/mongodb_la-bcon.Tpo -c -o libmongoc/src/mongodb_la-bcon.lo `test -f 'libmongoc/src/bcon.c' || echo '$(srcdir)/'`libmongoc/src/bcon.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/$(DEPDIR)/mongodb_la-bcon.Tpo libmongoc/src/$(DEPDIR)/mongodb_la-bcon.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/bcon.c' object='libmongoc/src/mongodb_la-bcon.lo' libtool=yes @AMDEPBACKSLASH@
+libmongoc/src/mongoc/mongodb_la-mongoc-buffer.lo: libmongoc/src/mongoc/mongoc-buffer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-buffer.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-buffer.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-buffer.lo `test -f 'libmongoc/src/mongoc/mongoc-buffer.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-buffer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-buffer.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-buffer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-buffer.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-buffer.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongodb_la-bcon.lo `test -f 'libmongoc/src/bcon.c' || echo '$(srcdir)/'`libmongoc/src/bcon.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-buffer.lo `test -f 'libmongoc/src/mongoc/mongoc-buffer.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-buffer.c
 
-libmongoc/src/mongodb_la-env.lo: libmongoc/src/env.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongodb_la-env.lo -MD -MP -MF libmongoc/src/$(DEPDIR)/mongodb_la-env.Tpo -c -o libmongoc/src/mongodb_la-env.lo `test -f 'libmongoc/src/env.c' || echo '$(srcdir)/'`libmongoc/src/env.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/$(DEPDIR)/mongodb_la-env.Tpo libmongoc/src/$(DEPDIR)/mongodb_la-env.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/env.c' object='libmongoc/src/mongodb_la-env.lo' libtool=yes @AMDEPBACKSLASH@
+libmongoc/src/mongoc/mongodb_la-mongoc-bulk-operation.lo: libmongoc/src/mongoc/mongoc-bulk-operation.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-bulk-operation.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-bulk-operation.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-bulk-operation.lo `test -f 'libmongoc/src/mongoc/mongoc-bulk-operation.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-bulk-operation.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-bulk-operation.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-bulk-operation.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-bulk-operation.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-bulk-operation.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongodb_la-env.lo `test -f 'libmongoc/src/env.c' || echo '$(srcdir)/'`libmongoc/src/env.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-bulk-operation.lo `test -f 'libmongoc/src/mongoc/mongoc-bulk-operation.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-bulk-operation.c
 
-libmongoc/src/mongodb_la-gridfs.lo: libmongoc/src/gridfs.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongodb_la-gridfs.lo -MD -MP -MF libmongoc/src/$(DEPDIR)/mongodb_la-gridfs.Tpo -c -o libmongoc/src/mongodb_la-gridfs.lo `test -f 'libmongoc/src/gridfs.c' || echo '$(srcdir)/'`libmongoc/src/gridfs.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/$(DEPDIR)/mongodb_la-gridfs.Tpo libmongoc/src/$(DEPDIR)/mongodb_la-gridfs.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/gridfs.c' object='libmongoc/src/mongodb_la-gridfs.lo' libtool=yes @AMDEPBACKSLASH@
+libmongoc/src/mongoc/mongodb_la-mongoc-client.lo: libmongoc/src/mongoc/mongoc-client.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-client.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-client.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-client.lo `test -f 'libmongoc/src/mongoc/mongoc-client.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-client.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-client.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-client.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-client.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-client.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongodb_la-gridfs.lo `test -f 'libmongoc/src/gridfs.c' || echo '$(srcdir)/'`libmongoc/src/gridfs.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-client.lo `test -f 'libmongoc/src/mongoc/mongoc-client.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-client.c
 
-libmongoc/src/mongodb_la-md5.lo: libmongoc/src/md5.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongodb_la-md5.lo -MD -MP -MF libmongoc/src/$(DEPDIR)/mongodb_la-md5.Tpo -c -o libmongoc/src/mongodb_la-md5.lo `test -f 'libmongoc/src/md5.c' || echo '$(srcdir)/'`libmongoc/src/md5.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/$(DEPDIR)/mongodb_la-md5.Tpo libmongoc/src/$(DEPDIR)/mongodb_la-md5.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/md5.c' object='libmongoc/src/mongodb_la-md5.lo' libtool=yes @AMDEPBACKSLASH@
+libmongoc/src/mongoc/mongodb_la-mongoc-client-pool.lo: libmongoc/src/mongoc/mongoc-client-pool.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-client-pool.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-client-pool.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-client-pool.lo `test -f 'libmongoc/src/mongoc/mongoc-client-pool.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-client-pool.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-client-pool.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-client-pool.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-client-pool.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-client-pool.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongodb_la-md5.lo `test -f 'libmongoc/src/md5.c' || echo '$(srcdir)/'`libmongoc/src/md5.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-client-pool.lo `test -f 'libmongoc/src/mongoc/mongoc-client-pool.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-client-pool.c
 
-libmongoc/src/mongodb_la-mongo.lo: libmongoc/src/mongo.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongodb_la-mongo.lo -MD -MP -MF libmongoc/src/$(DEPDIR)/mongodb_la-mongo.Tpo -c -o libmongoc/src/mongodb_la-mongo.lo `test -f 'libmongoc/src/mongo.c' || echo '$(srcdir)/'`libmongoc/src/mongo.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/$(DEPDIR)/mongodb_la-mongo.Tpo libmongoc/src/$(DEPDIR)/mongodb_la-mongo.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongo.c' object='libmongoc/src/mongodb_la-mongo.lo' libtool=yes @AMDEPBACKSLASH@
+libmongoc/src/mongoc/mongodb_la-mongoc-cluster.lo: libmongoc/src/mongoc/mongoc-cluster.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-cluster.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cluster.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cluster.lo `test -f 'libmongoc/src/mongoc/mongoc-cluster.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cluster.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cluster.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cluster.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-cluster.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-cluster.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongodb_la-mongo.lo `test -f 'libmongoc/src/mongo.c' || echo '$(srcdir)/'`libmongoc/src/mongo.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cluster.lo `test -f 'libmongoc/src/mongoc/mongoc-cluster.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cluster.c
 
-libmongoc/src/mongodb_la-numbers.lo: libmongoc/src/numbers.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongodb_la-numbers.lo -MD -MP -MF libmongoc/src/$(DEPDIR)/mongodb_la-numbers.Tpo -c -o libmongoc/src/mongodb_la-numbers.lo `test -f 'libmongoc/src/numbers.c' || echo '$(srcdir)/'`libmongoc/src/numbers.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/$(DEPDIR)/mongodb_la-numbers.Tpo libmongoc/src/$(DEPDIR)/mongodb_la-numbers.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/numbers.c' object='libmongoc/src/mongodb_la-numbers.lo' libtool=yes @AMDEPBACKSLASH@
+libmongoc/src/mongoc/mongodb_la-mongoc-collection.lo: libmongoc/src/mongoc/mongoc-collection.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-collection.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-collection.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-collection.lo `test -f 'libmongoc/src/mongoc/mongoc-collection.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-collection.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-collection.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-collection.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-collection.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-collection.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongodb_la-numbers.lo `test -f 'libmongoc/src/numbers.c' || echo '$(srcdir)/'`libmongoc/src/numbers.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-collection.lo `test -f 'libmongoc/src/mongoc/mongoc-collection.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-collection.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-counters.lo: libmongoc/src/mongoc/mongoc-counters.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-counters.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-counters.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-counters.lo `test -f 'libmongoc/src/mongoc/mongoc-counters.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-counters.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-counters.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-counters.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-counters.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-counters.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-counters.lo `test -f 'libmongoc/src/mongoc/mongoc-counters.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-counters.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-cursor-array.lo: libmongoc/src/mongoc/mongoc-cursor-array.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-cursor-array.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-array.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cursor-array.lo `test -f 'libmongoc/src/mongoc/mongoc-cursor-array.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cursor-array.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-array.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-array.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-cursor-array.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-cursor-array.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cursor-array.lo `test -f 'libmongoc/src/mongoc/mongoc-cursor-array.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cursor-array.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-cursor.lo: libmongoc/src/mongoc/mongoc-cursor.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-cursor.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cursor.lo `test -f 'libmongoc/src/mongoc/mongoc-cursor.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cursor.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-cursor.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-cursor.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cursor.lo `test -f 'libmongoc/src/mongoc/mongoc-cursor.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cursor.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-cursor-cursorid.lo: libmongoc/src/mongoc/mongoc-cursor-cursorid.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-cursor-cursorid.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-cursorid.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cursor-cursorid.lo `test -f 'libmongoc/src/mongoc/mongoc-cursor-cursorid.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cursor-cursorid.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-cursorid.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-cursorid.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-cursor-cursorid.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-cursor-cursorid.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cursor-cursorid.lo `test -f 'libmongoc/src/mongoc/mongoc-cursor-cursorid.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cursor-cursorid.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-cursor-transform.lo: libmongoc/src/mongoc/mongoc-cursor-transform.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-cursor-transform.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-transform.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cursor-transform.lo `test -f 'libmongoc/src/mongoc/mongoc-cursor-transform.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cursor-transform.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-transform.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-cursor-transform.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-cursor-transform.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-cursor-transform.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-cursor-transform.lo `test -f 'libmongoc/src/mongoc/mongoc-cursor-transform.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-cursor-transform.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-database.lo: libmongoc/src/mongoc/mongoc-database.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-database.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-database.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-database.lo `test -f 'libmongoc/src/mongoc/mongoc-database.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-database.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-database.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-database.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-database.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-database.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-database.lo `test -f 'libmongoc/src/mongoc/mongoc-database.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-database.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-gridfs.lo: libmongoc/src/mongoc/mongoc-gridfs.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-gridfs.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-gridfs.lo `test -f 'libmongoc/src/mongoc/mongoc-gridfs.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-gridfs.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-gridfs.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-gridfs.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-gridfs.lo `test -f 'libmongoc/src/mongoc/mongoc-gridfs.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-gridfs.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file.lo: libmongoc/src/mongoc/mongoc-gridfs-file.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file.lo `test -f 'libmongoc/src/mongoc/mongoc-gridfs-file.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-gridfs-file.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-gridfs-file.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file.lo `test -f 'libmongoc/src/mongoc/mongoc-gridfs-file.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-gridfs-file.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-list.lo: libmongoc/src/mongoc/mongoc-gridfs-file-list.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-list.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file-list.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-list.lo `test -f 'libmongoc/src/mongoc/mongoc-gridfs-file-list.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-gridfs-file-list.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file-list.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file-list.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-gridfs-file-list.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-list.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-list.lo `test -f 'libmongoc/src/mongoc/mongoc-gridfs-file-list.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-gridfs-file-list.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-page.lo: libmongoc/src/mongoc/mongoc-gridfs-file-page.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-page.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file-page.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-page.lo `test -f 'libmongoc/src/mongoc/mongoc-gridfs-file-page.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-gridfs-file-page.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file-page.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-gridfs-file-page.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-gridfs-file-page.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-page.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-gridfs-file-page.lo `test -f 'libmongoc/src/mongoc/mongoc-gridfs-file-page.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-gridfs-file-page.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-index.lo: libmongoc/src/mongoc/mongoc-index.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-index.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-index.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-index.lo `test -f 'libmongoc/src/mongoc/mongoc-index.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-index.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-index.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-index.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-index.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-index.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-index.lo `test -f 'libmongoc/src/mongoc/mongoc-index.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-index.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-init.lo: libmongoc/src/mongoc/mongoc-init.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-init.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-init.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-init.lo `test -f 'libmongoc/src/mongoc/mongoc-init.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-init.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-init.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-init.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-init.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-init.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-init.lo `test -f 'libmongoc/src/mongoc/mongoc-init.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-init.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-list.lo: libmongoc/src/mongoc/mongoc-list.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-list.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-list.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-list.lo `test -f 'libmongoc/src/mongoc/mongoc-list.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-list.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-list.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-list.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-list.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-list.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-list.lo `test -f 'libmongoc/src/mongoc/mongoc-list.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-list.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-log.lo: libmongoc/src/mongoc/mongoc-log.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-log.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-log.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-log.lo `test -f 'libmongoc/src/mongoc/mongoc-log.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-log.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-log.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-log.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-log.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-log.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-log.lo `test -f 'libmongoc/src/mongoc/mongoc-log.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-log.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-matcher.lo: libmongoc/src/mongoc/mongoc-matcher.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-matcher.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-matcher.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-matcher.lo `test -f 'libmongoc/src/mongoc/mongoc-matcher.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-matcher.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-matcher.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-matcher.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-matcher.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-matcher.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-matcher.lo `test -f 'libmongoc/src/mongoc/mongoc-matcher.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-matcher.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-matcher-op.lo: libmongoc/src/mongoc/mongoc-matcher-op.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-matcher-op.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-matcher-op.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-matcher-op.lo `test -f 'libmongoc/src/mongoc/mongoc-matcher-op.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-matcher-op.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-matcher-op.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-matcher-op.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-matcher-op.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-matcher-op.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-matcher-op.lo `test -f 'libmongoc/src/mongoc/mongoc-matcher-op.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-matcher-op.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-queue.lo: libmongoc/src/mongoc/mongoc-queue.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-queue.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-queue.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-queue.lo `test -f 'libmongoc/src/mongoc/mongoc-queue.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-queue.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-queue.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-queue.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-queue.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-queue.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-queue.lo `test -f 'libmongoc/src/mongoc/mongoc-queue.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-queue.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-rand.lo: libmongoc/src/mongoc/mongoc-rand.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-rand.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-rand.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-rand.lo `test -f 'libmongoc/src/mongoc/mongoc-rand.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-rand.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-rand.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-rand.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-rand.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-rand.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-rand.lo `test -f 'libmongoc/src/mongoc/mongoc-rand.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-rand.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-read-prefs.lo: libmongoc/src/mongoc/mongoc-read-prefs.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-read-prefs.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-read-prefs.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-read-prefs.lo `test -f 'libmongoc/src/mongoc/mongoc-read-prefs.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-read-prefs.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-read-prefs.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-read-prefs.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-read-prefs.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-read-prefs.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-read-prefs.lo `test -f 'libmongoc/src/mongoc/mongoc-read-prefs.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-read-prefs.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-rpc.lo: libmongoc/src/mongoc/mongoc-rpc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-rpc.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-rpc.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-rpc.lo `test -f 'libmongoc/src/mongoc/mongoc-rpc.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-rpc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-rpc.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-rpc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-rpc.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-rpc.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-rpc.lo `test -f 'libmongoc/src/mongoc/mongoc-rpc.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-rpc.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-sasl.lo: libmongoc/src/mongoc/mongoc-sasl.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-sasl.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-sasl.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-sasl.lo `test -f 'libmongoc/src/mongoc/mongoc-sasl.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-sasl.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-sasl.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-sasl.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-sasl.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-sasl.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-sasl.lo `test -f 'libmongoc/src/mongoc/mongoc-sasl.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-sasl.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-scram.lo: libmongoc/src/mongoc/mongoc-scram.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-scram.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-scram.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-scram.lo `test -f 'libmongoc/src/mongoc/mongoc-scram.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-scram.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-scram.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-scram.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-scram.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-scram.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-scram.lo `test -f 'libmongoc/src/mongoc/mongoc-scram.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-scram.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-socket.lo: libmongoc/src/mongoc/mongoc-socket.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-socket.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-socket.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-socket.lo `test -f 'libmongoc/src/mongoc/mongoc-socket.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-socket.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-socket.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-socket.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-socket.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-socket.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-socket.lo `test -f 'libmongoc/src/mongoc/mongoc-socket.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-socket.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-ssl.lo: libmongoc/src/mongoc/mongoc-ssl.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-ssl.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-ssl.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-ssl.lo `test -f 'libmongoc/src/mongoc/mongoc-ssl.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-ssl.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-ssl.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-ssl.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-ssl.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-ssl.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-ssl.lo `test -f 'libmongoc/src/mongoc/mongoc-ssl.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-ssl.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-buffered.lo: libmongoc/src/mongoc/mongoc-stream-buffered.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-stream-buffered.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-buffered.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-buffered.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-buffered.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-buffered.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-buffered.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-buffered.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-stream-buffered.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-stream-buffered.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-buffered.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-buffered.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-buffered.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-stream.lo: libmongoc/src/mongoc/mongoc-stream.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-stream.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream.lo `test -f 'libmongoc/src/mongoc/mongoc-stream.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-stream.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-stream.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream.lo `test -f 'libmongoc/src/mongoc/mongoc-stream.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-file.lo: libmongoc/src/mongoc/mongoc-stream-file.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-stream-file.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-file.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-file.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-file.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-file.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-file.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-file.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-stream-file.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-stream-file.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-file.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-file.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-file.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-gridfs.lo: libmongoc/src/mongoc/mongoc-stream-gridfs.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-stream-gridfs.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-gridfs.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-gridfs.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-gridfs.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-gridfs.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-gridfs.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-gridfs.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-stream-gridfs.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-stream-gridfs.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-gridfs.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-gridfs.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-gridfs.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-socket.lo: libmongoc/src/mongoc/mongoc-stream-socket.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-stream-socket.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-socket.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-socket.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-socket.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-socket.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-socket.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-socket.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-stream-socket.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-stream-socket.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-socket.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-socket.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-socket.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-stream-tls.lo: libmongoc/src/mongoc/mongoc-stream-tls.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-stream-tls.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-tls.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-tls.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-tls.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-tls.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-tls.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-stream-tls.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-stream-tls.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-stream-tls.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-stream-tls.lo `test -f 'libmongoc/src/mongoc/mongoc-stream-tls.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-stream-tls.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-uri.lo: libmongoc/src/mongoc/mongoc-uri.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-uri.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-uri.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-uri.lo `test -f 'libmongoc/src/mongoc/mongoc-uri.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-uri.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-uri.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-uri.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-uri.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-uri.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-uri.lo `test -f 'libmongoc/src/mongoc/mongoc-uri.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-uri.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-util.lo: libmongoc/src/mongoc/mongoc-util.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-util.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-util.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-util.lo `test -f 'libmongoc/src/mongoc/mongoc-util.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-util.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-util.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-util.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-util.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-util.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-util.lo `test -f 'libmongoc/src/mongoc/mongoc-util.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-util.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-write-command.lo: libmongoc/src/mongoc/mongoc-write-command.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-write-command.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-write-command.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-write-command.lo `test -f 'libmongoc/src/mongoc/mongoc-write-command.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-write-command.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-write-command.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-write-command.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-write-command.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-write-command.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-write-command.lo `test -f 'libmongoc/src/mongoc/mongoc-write-command.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-write-command.c
+
+libmongoc/src/mongoc/mongodb_la-mongoc-write-concern.lo: libmongoc/src/mongoc/mongoc-write-concern.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/mongoc/mongodb_la-mongoc-write-concern.lo -MD -MP -MF libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-write-concern.Tpo -c -o libmongoc/src/mongoc/mongodb_la-mongoc-write-concern.lo `test -f 'libmongoc/src/mongoc/mongoc-write-concern.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-write-concern.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-write-concern.Tpo libmongoc/src/mongoc/$(DEPDIR)/mongodb_la-mongoc-write-concern.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/mongoc/mongoc-write-concern.c' object='libmongoc/src/mongoc/mongodb_la-mongoc-write-concern.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/mongoc/mongodb_la-mongoc-write-concern.lo `test -f 'libmongoc/src/mongoc/mongoc-write-concern.c' || echo '$(srcdir)/'`libmongoc/src/mongoc/mongoc-write-concern.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bcon.lo: libmongoc/src/libbson/src/bson/bcon.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bcon.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bcon.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bcon.lo `test -f 'libmongoc/src/libbson/src/bson/bcon.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bcon.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bcon.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bcon.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bcon.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bcon.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bcon.lo `test -f 'libmongoc/src/libbson/src/bson/bcon.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bcon.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-atomic.lo: libmongoc/src/libbson/src/bson/bson-atomic.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-atomic.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-atomic.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-atomic.lo `test -f 'libmongoc/src/libbson/src/bson/bson-atomic.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-atomic.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-atomic.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-atomic.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-atomic.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-atomic.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-atomic.lo `test -f 'libmongoc/src/libbson/src/bson/bson-atomic.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-atomic.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson.lo: libmongoc/src/libbson/src/bson/bson.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson.lo `test -f 'libmongoc/src/libbson/src/bson/bson.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson.lo `test -f 'libmongoc/src/libbson/src/bson/bson.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-clock.lo: libmongoc/src/libbson/src/bson/bson-clock.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-clock.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-clock.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-clock.lo `test -f 'libmongoc/src/libbson/src/bson/bson-clock.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-clock.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-clock.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-clock.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-clock.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-clock.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-clock.lo `test -f 'libmongoc/src/libbson/src/bson/bson-clock.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-clock.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-context.lo: libmongoc/src/libbson/src/bson/bson-context.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-context.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-context.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-context.lo `test -f 'libmongoc/src/libbson/src/bson/bson-context.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-context.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-context.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-context.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-context.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-context.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-context.lo `test -f 'libmongoc/src/libbson/src/bson/bson-context.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-context.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-error.lo: libmongoc/src/libbson/src/bson/bson-error.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-error.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-error.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-error.lo `test -f 'libmongoc/src/libbson/src/bson/bson-error.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-error.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-error.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-error.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-error.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-error.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-error.lo `test -f 'libmongoc/src/libbson/src/bson/bson-error.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-error.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-iso8601.lo: libmongoc/src/libbson/src/bson/bson-iso8601.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-iso8601.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-iso8601.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-iso8601.lo `test -f 'libmongoc/src/libbson/src/bson/bson-iso8601.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-iso8601.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-iso8601.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-iso8601.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-iso8601.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-iso8601.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-iso8601.lo `test -f 'libmongoc/src/libbson/src/bson/bson-iso8601.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-iso8601.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-iter.lo: libmongoc/src/libbson/src/bson/bson-iter.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-iter.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-iter.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-iter.lo `test -f 'libmongoc/src/libbson/src/bson/bson-iter.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-iter.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-iter.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-iter.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-iter.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-iter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-iter.lo `test -f 'libmongoc/src/libbson/src/bson/bson-iter.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-iter.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-keys.lo: libmongoc/src/libbson/src/bson/bson-keys.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-keys.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-keys.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-keys.lo `test -f 'libmongoc/src/libbson/src/bson/bson-keys.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-keys.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-keys.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-keys.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-keys.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-keys.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-keys.lo `test -f 'libmongoc/src/libbson/src/bson/bson-keys.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-keys.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-md5.lo: libmongoc/src/libbson/src/bson/bson-md5.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-md5.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-md5.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-md5.lo `test -f 'libmongoc/src/libbson/src/bson/bson-md5.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-md5.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-md5.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-md5.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-md5.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-md5.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-md5.lo `test -f 'libmongoc/src/libbson/src/bson/bson-md5.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-md5.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-memory.lo: libmongoc/src/libbson/src/bson/bson-memory.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-memory.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-memory.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-memory.lo `test -f 'libmongoc/src/libbson/src/bson/bson-memory.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-memory.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-memory.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-memory.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-memory.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-memory.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-memory.lo `test -f 'libmongoc/src/libbson/src/bson/bson-memory.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-memory.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-oid.lo: libmongoc/src/libbson/src/bson/bson-oid.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-oid.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-oid.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-oid.lo `test -f 'libmongoc/src/libbson/src/bson/bson-oid.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-oid.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-oid.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-oid.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-oid.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-oid.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-oid.lo `test -f 'libmongoc/src/libbson/src/bson/bson-oid.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-oid.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-reader.lo: libmongoc/src/libbson/src/bson/bson-reader.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-reader.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-reader.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-reader.lo `test -f 'libmongoc/src/libbson/src/bson/bson-reader.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-reader.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-reader.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-reader.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-reader.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-reader.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-reader.lo `test -f 'libmongoc/src/libbson/src/bson/bson-reader.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-reader.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-string.lo: libmongoc/src/libbson/src/bson/bson-string.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-string.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-string.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-string.lo `test -f 'libmongoc/src/libbson/src/bson/bson-string.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-string.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-string.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-string.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-string.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-string.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-string.lo `test -f 'libmongoc/src/libbson/src/bson/bson-string.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-string.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-timegm.lo: libmongoc/src/libbson/src/bson/bson-timegm.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-timegm.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-timegm.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-timegm.lo `test -f 'libmongoc/src/libbson/src/bson/bson-timegm.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-timegm.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-timegm.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-timegm.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-timegm.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-timegm.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-timegm.lo `test -f 'libmongoc/src/libbson/src/bson/bson-timegm.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-timegm.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-utf8.lo: libmongoc/src/libbson/src/bson/bson-utf8.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-utf8.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-utf8.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-utf8.lo `test -f 'libmongoc/src/libbson/src/bson/bson-utf8.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-utf8.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-utf8.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-utf8.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-utf8.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-utf8.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-utf8.lo `test -f 'libmongoc/src/libbson/src/bson/bson-utf8.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-utf8.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-value.lo: libmongoc/src/libbson/src/bson/bson-value.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-value.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-value.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-value.lo `test -f 'libmongoc/src/libbson/src/bson/bson-value.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-value.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-value.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-value.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-value.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-value.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-value.lo `test -f 'libmongoc/src/libbson/src/bson/bson-value.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-value.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-version.lo: libmongoc/src/libbson/src/bson/bson-version.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-version.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-version.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-version.lo `test -f 'libmongoc/src/libbson/src/bson/bson-version.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-version.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-version.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-version.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-version.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-version.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-version.lo `test -f 'libmongoc/src/libbson/src/bson/bson-version.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-version.c
+
+libmongoc/src/libbson/src/bson/mongodb_la-bson-writer.lo: libmongoc/src/libbson/src/bson/bson-writer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libmongoc/src/libbson/src/bson/mongodb_la-bson-writer.lo -MD -MP -MF libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-writer.Tpo -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-writer.lo `test -f 'libmongoc/src/libbson/src/bson/bson-writer.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-writer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-writer.Tpo libmongoc/src/libbson/src/bson/$(DEPDIR)/mongodb_la-bson-writer.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='libmongoc/src/libbson/src/bson/bson-writer.c' object='libmongoc/src/libbson/src/bson/mongodb_la-bson-writer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(mongodb_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libmongoc/src/libbson/src/bson/mongodb_la-bson-writer.lo `test -f 'libmongoc/src/libbson/src/bson/bson-writer.c' || echo '$(srcdir)/'`libmongoc/src/libbson/src/bson/bson-writer.c
 
 mysql_la-mysql.lo: mysql.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mysql_la_CFLAGS) $(CFLAGS) -MT mysql_la-mysql.lo -MD -MP -MF $(DEPDIR)/mysql_la-mysql.Tpo -c -o mysql_la-mysql.lo `test -f 'mysql.c' || echo '$(srcdir)/'`mysql.c
@@ -4441,7 +5324,8 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-	-rm -rf libmongoc/src/.libs libmongoc/src/_libs
+	-rm -rf libmongoc/src/libbson/src/bson/.libs libmongoc/src/libbson/src/bson/_libs
+	-rm -rf libmongoc/src/mongoc/.libs libmongoc/src/mongoc/_libs
 install-man1: $(dist_man_MANS)
 	@$(NORMAL_INSTALL)
 	@list1=''; \
@@ -4864,8 +5748,10 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
-	-rm -f libmongoc/src/$(DEPDIR)/$(am__dirstamp)
-	-rm -f libmongoc/src/$(am__dirstamp)
+	-rm -f libmongoc/src/libbson/src/bson/$(DEPDIR)/$(am__dirstamp)
+	-rm -f libmongoc/src/libbson/src/bson/$(am__dirstamp)
+	-rm -f libmongoc/src/mongoc/$(DEPDIR)/$(am__dirstamp)
+	-rm -f libmongoc/src/mongoc/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -4878,7 +5764,7 @@ clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
 	clean-sbinPROGRAMS mostlyclean-am
 
 distclean: distclean-recursive
-	-rm -rf ./$(DEPDIR) libmongoc/src/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) libmongoc/src/libbson/src/bson/$(DEPDIR) libmongoc/src/mongoc/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-tags
@@ -4926,7 +5812,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-	-rm -rf ./$(DEPDIR) libmongoc/src/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) libmongoc/src/libbson/src/bson/$(DEPDIR) libmongoc/src/mongoc/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
