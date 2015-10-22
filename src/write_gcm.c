@@ -86,7 +86,12 @@ static const char google_metadata_header[] = "Metadata-Flavor: Google";
 // The maximum number of entries we keep in our processing queue before flushing
 // it. Ordinarily a flush happens every minute or so, but we also flush if the
 // list size exceeds a certain value.
-#define MAX_QUEUE_SIZE 100
+#define QUEUE_FLUSH_SIZE 100
+
+// The maximum numbers of entries we keep in our queue before we start dropping
+// entries. If the consumer thread gets way backed up, we won't keep more than
+// this many items in our queue.
+#define QUEUE_DROP_SIZE 1000
 
 // Size of the JSON buffer sent to the server. At flush time we format a JSON
 // message to send to the server.  We would like it to be no more than a certain
@@ -2320,7 +2325,7 @@ int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
     cdtime_t now = cdtime();
     if (queue->request_flush ||
         queue->request_terminate ||
-        queue->size > MAX_QUEUE_SIZE ||
+        queue->size > QUEUE_FLUSH_SIZE ||
         now > next_flush_time) {
       *payloads = queue->head;
       *want_terminate = queue->request_terminate;
@@ -2367,11 +2372,12 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
   pthread_mutex_lock(&queue->mutex);
   // Backpressure. If queue is backed up then something has gone horribly wrong.
   // Maybe the queue processor died.
-  size_t abnormal_limit = 5 * MAX_QUEUE_SIZE;
-  if (queue->size > abnormal_limit) {
+  if (queue->size > QUEUE_DROP_SIZE) {
+    DEBUG("write_gcm: Dropping data point because queue has size %zd",
+        queue->size);
     wg_payload_destroy(payload);
     pthread_mutex_unlock(&queue->mutex);
-    return -1;
+    return 0;
   }
   if (queue->head == NULL) {
     queue->head = payload;
