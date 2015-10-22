@@ -282,7 +282,7 @@ static int wg_curl_get_or_post(char *response_buffer,
     size_t response_buffer_size, const char *url, const char *body,
     const char **headers, int num_headers) {
   const char *get_or_post_tag = body == NULL ? "GET" : "POST";
-  DEBUG("write_gcm: Doing %s request: url %s, body %s, num_headers %d",
+  INFO("write_gcm: Doing %s request: url %s, body %s, num_headers %d",
         get_or_post_tag, url, body, num_headers);
   CURL *curl = curl_easy_init();
   if (curl == NULL) {
@@ -837,7 +837,7 @@ static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
       headers, num_headers) != 0) {
     return -1;
   }
-  DEBUG("I have a response which looks like this: %s", response);
+  INFO("I have a response which looks like this: %s", response);
 
   // Fill ctx->auth_header with the string "Authorization: Bearer $TOKEN"
   char *resultp = ctx->auth_header;
@@ -2700,7 +2700,7 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
   // Backpressure. If queue is backed up then something has gone horribly wrong.
   // Maybe the queue processor died.
   if (queue->size > QUEUE_DROP_SIZE) {
-    DEBUG("write_gcm: Dropping data point because queue has size %zd",
+    INFO("write_gcm: Dropping data point because queue has size %zd",
         queue->size);
     wg_payload_destroy(payload);
     pthread_mutex_unlock(&queue->mutex);
