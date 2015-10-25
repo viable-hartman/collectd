@@ -2516,8 +2516,9 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 static int wg_format_some_of_list(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty) {
-  if (wg_json_CreateCollectdTimeseriesPointsRequest(pretty, monitored_resource,
-      list, new_list, json) != 0) {
+  char *result = wg_json_CreateCollectdTimeseriesPointsRequest(pretty,
+      monitored_resource,list, new_list, json);
+  if (result == NULL) {
     ERROR("write_gcm: wg_json_CreateCollectdTimeseriesPointsRequest"
         " failed.");
     return -1;
@@ -2525,9 +2526,10 @@ static int wg_format_some_of_list(
 
   if (list == *new_list) {
     ERROR("write_gcm: wg_format_some_of_list failed to make progress.");
-    sfree(*json);
+    sfree(result);
     return -1;
   }
+  *json = result;
   return 0;
 }
 
