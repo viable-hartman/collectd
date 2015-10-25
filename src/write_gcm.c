@@ -402,7 +402,7 @@ static int wg_handle_bool(void *arg, int value) {
   return 1;
 }
 
-#ifdef YAJL_MAJOR && YAJL_MAJOR >= 2
+#if defined(YAJL_MAJOR) && YAJL_MAJOR >= 2
 typedef size_t wg_yajl_callback_size_t;
 #else
 typedef unsigned int wg_yajl_callback_size_t;
@@ -495,7 +495,7 @@ char *wg_extract_toplevel_value(const char *json, const char *key) {
       .expected_key = key,
       .expected_key_len = strlen(key)
   };
-#ifdef YAJL_MAJOR && YAJL_MAJOR >= 2
+#if defined(YAJL_MAJOR) && YAJL_MAJOR >= 2
   yajl_handle handle = yajl_alloc(&callbacks, NULL, &context);
 #else
   yajl_parser_config config = { 0, 1 };
@@ -507,7 +507,7 @@ char *wg_extract_toplevel_value(const char *json, const char *key) {
     goto leave;
   }
   int parse_result;
-#ifdef YAJL_MAJOR && YAJL_MAJOR >= 2
+#if defined(YAJL_MAJOR) && YAJL_MAJOR >= 2
   parse_result = yajl_complete_parse(handle);
 #else
   parse_result = yajl_parse_complete(handle);
@@ -1896,7 +1896,7 @@ static char *wg_json_CreateCollectdTimeseriesPointsRequest(_Bool pretty,
 
   const unsigned char *buffer_address;
   wg_yajl_callback_size_t buffer_length;
-  yajl_gen_get_buf(&buffer_address, &buffer_length);
+  yajl_gen_get_buf(jc->gen, &buffer_address, &buffer_length);
 
   char *json_result = malloc(buffer_length + 1);
   if (json_result == NULL) {
@@ -1953,7 +1953,7 @@ static void wg_json_CollectdPayloads(json_ctx_t *jc,
     // Also exit the loop if the message size has reached our target.
     const unsigned char *buffer_address;
     wg_yajl_callback_size_t buffer_length;
-    yajl_gen_get_buf(&buffer_address, &buffer_length);
+    yajl_gen_get_buf(jc->gen, &buffer_address, &buffer_length);
     if (buffer_length >= JSON_SOFT_TARGET_SIZE) {
       break;
     }
@@ -2183,7 +2183,7 @@ static json_ctx_t *wg_json_ctx_create(_Bool pretty) {
     return NULL;
   }
   jc->error = 0;
-#ifdef YAJL_MAJOR && YAJL_MAJOR >= 2
+#if defined(YAJL_MAJOR) && YAJL_MAJOR >= 2
   jc->gen = yajl_gen_alloc(NULL);
   yajl_gen_config(jc->gen, yajl_gen_beautify, pretty);
   yajl_gen_config(jc->gen, yajl_gen_validate_utf8, 1);
