@@ -2517,13 +2517,12 @@ static int wg_format_some_of_list(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty) {
   char *result = wg_json_CreateCollectdTimeseriesPointsRequest(pretty,
-      monitored_resource,list, new_list, json);
+      monitored_resource,list, new_list);
   if (result == NULL) {
     ERROR("write_gcm: wg_json_CreateCollectdTimeseriesPointsRequest"
         " failed.");
     return -1;
   }
-
   if (list == *new_list) {
     ERROR("write_gcm: wg_format_some_of_list failed to make progress.");
     sfree(result);
