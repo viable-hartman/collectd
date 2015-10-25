@@ -90,14 +90,10 @@ static const char json_content_type_header[] = "Content-Type: application/json";
 // number of bytes in size. We make this a 'soft' limit so that when the target
 // is reached, there is a little bit of margin to close out the JSON message
 // (finish the current array we are building, close out various records etc)
-// so that we cam always try to send a valid JSON message. The total size of the
-// buffer we allocate is (JSON_SOFT_TARGET_SIZE + JSON_LOW_WATER_MARK)
+// so that we cam always try to send a valid JSON message.
 
 // The "soft target" for the max size of our json messages.
 #define JSON_SOFT_TARGET_SIZE 64000
-
-// Additional slop so that we have enough space to close out the message.
-#define JSON_LOW_WATER_MARK 5000
 
 //==============================================================================
 //==============================================================================
@@ -406,10 +402,10 @@ static int wg_handle_bool(void *arg, int value) {
   return 1;
 }
 
-#if YAJL_MAJOR == 1
-typedef unsigned int wg_yajl_callback_size_t;
-#else
+#ifdef YAJL_MAJOR && YAJL_MAJOR >= 2
 typedef size_t wg_yajl_callback_size_t;
+#else
+typedef unsigned int wg_yajl_callback_size_t;
 #endif
 
 static int wg_handle_string(void *arg, const unsigned char *val,
@@ -499,11 +495,11 @@ char *wg_extract_toplevel_value(const char *json, const char *key) {
       .expected_key = key,
       .expected_key_len = strlen(key)
   };
-#if YAJL_MAJOR == 1
+#ifdef YAJL_MAJOR && YAJL_MAJOR >= 2
+  yajl_handle handle = yajl_alloc(&callbacks, NULL, &context);
+#else
   yajl_parser_config config = { 0, 1 };
   yajl_handle handle = yajl_alloc(&callbacks, &config, NULL, &context);
-#else
-  yajl_handle handle = yajl_alloc(&callbacks, NULL, &context);
 #endif
   if (yajl_parse(handle, (const unsigned char*)json, strlen(json))
       != yajl_status_ok) {
@@ -511,10 +507,10 @@ char *wg_extract_toplevel_value(const char *json, const char *key) {
     goto leave;
   }
   int parse_result;
-#if YAJL_MAJOR == 1
-  parse_result = yajl_parse_complete(handle);
-#else
+#ifdef YAJL_MAJOR && YAJL_MAJOR >= 2
   parse_result = yajl_complete_parse(handle);
+#else
+  parse_result = yajl_parse_complete(handle);
 #endif
   if (parse_result != yajl_status_ok) {
     ERROR("write_gcm: wg_extract_toplevel_value: error parsing JSON");
@@ -1810,26 +1806,23 @@ static void wg_queue_destroy(wg_queue_t *queue) {
 //==============================================================================
 //==============================================================================
 typedef struct {
-  char **buffer;
-  size_t *size;
   int error;
   yajl_gen gen;
 } json_ctx_t;
 
 // Formats some or all of the data in the payload_list as a
 // CreateCollectdTimeseriesPointsRequest.
-// 'buffer' and 'size' are as defined in bufprintf.
-// JSON_LOW_WATER_MARK is used to signal to this routine to finish things up
-// and close out the message. When there are fewer than JSON_LOW_WATER_MARK
-// bytes left in the buffer, the method stops adding new items to the
+// JSON_SOFT_TARGET_SIZE is used to signal to this routine to finish things up
+// and close out the message. When the message has grown to be of size
+// JSON_SOFT_TARGET_SIZE, the method stops adding new items to the
 // 'collectdPayloads' part of the JSON message and closes things up. The purpose
 // is to try to always make well-formed JSON messages, even if the incoming list
 // is large. One consequence of this is that this routine is not guaranteed to
 // empty out the list. Callers need to repeatedly call this routine (making
 // fresh wg_json_CreateCollectdTimeseriesPointsRequest requests each
-// time) until the list is exhausted.
-static int wg_json_CreateCollectdTimeseriesPointsRequest(char **buffer,
-    size_t *size, _Bool pretty,
+// time) until the list is exhausted. Upon success, a json string is returned
+// (memory owned by caller). Otherwise, NULL is returned.
+static char *wg_json_CreateCollectdTimeseriesPointsRequest(_Bool pretty,
     const const monitored_resource_t *monitored_resource,
     const wg_payload_t *head, const wg_payload_t **new_head);
 
@@ -1850,8 +1843,7 @@ static void wg_json_array_close(json_ctx_t *jc);
 static void wg_json_string(json_ctx_t *jc, const char *s);
 static void wg_json_uint64(json_ctx_t *jc, uint64_t value);
 
-static json_ctx_t *wg_json_ctx_create(char **buffer, size_t *size,
-    _Bool pretty);
+static json_ctx_t *wg_json_ctx_create(_Bool pretty);
 static void wg_json_ctx_destroy(json_ctx_t *jc);
 
 typedef struct {
@@ -1870,8 +1862,8 @@ static int wg_get_vl_value(int ds_type, value_t value,
 //   string collectd_version = 3;
 //   repeated CollectdPayload collectd_payloads = 4;
 // }
-static int wg_json_CreateCollectdTimeseriesPointsRequest(char **buffer,
-    size_t *size, _Bool pretty, const monitored_resource_t *monitored_resource,
+static char *wg_json_CreateCollectdTimeseriesPointsRequest(_Bool pretty,
+    const monitored_resource_t *monitored_resource,
     const wg_payload_t *head, const wg_payload_t **new_head) {
   char name[256];
   int result = snprintf(name, sizeof(name), "project/%s",
@@ -1879,13 +1871,13 @@ static int wg_json_CreateCollectdTimeseriesPointsRequest(char **buffer,
   if (result < 0 || result >= sizeof(name)) {
     ERROR("write_gcm: project_id %s doesn't fit in buffer.",
         monitored_resource->project_id);
-    return -1;
+    return NULL;
   }
 
-  json_ctx_t *jc = wg_json_ctx_create(buffer, size, pretty);
+  json_ctx_t *jc = wg_json_ctx_create(pretty);
   if (jc == NULL) {
     ERROR("write_gcm: wg_json_ctx_create failed");
-    return -1;
+    return NULL;
   }
 
   wg_json_map_open(jc);
@@ -1902,9 +1894,20 @@ static int wg_json_CreateCollectdTimeseriesPointsRequest(char **buffer,
   wg_json_CollectdPayloads(jc, head, new_head);
   wg_json_map_close(jc);
 
-  result = jc->error;
+  const unsigned char *buffer_address;
+  wg_yajl_callback_size_t buffer_length;
+  yajl_gen_get_buf(&buffer_address, &buffer_length);
+
+  char *json_result = malloc(buffer_length + 1);
+  if (json_result == NULL) {
+    wg_json_ctx_destroy(jc);
+    return NULL;
+  }
+
+  memcpy(json_result, buffer_address, buffer_length);
+  json_result[buffer_length] = 0;
   wg_json_ctx_destroy(jc);
-  return result;
+  return json_result;
 }
 
 // From google/api/monitored_resource.proto
@@ -1946,7 +1949,15 @@ static void wg_json_MonitoredResource(json_ctx_t *jc,
 static void wg_json_CollectdPayloads(json_ctx_t *jc,
     const wg_payload_t *head, const wg_payload_t **new_head) {
   wg_json_array_open(jc);
-  while (head != NULL && *jc->size >= JSON_LOW_WATER_MARK && jc->error == 0) {
+  while (head != NULL && jc->error == 0) {
+    // Also exit the loop if the message size has reached our target.
+    const unsigned char *buffer_address;
+    wg_yajl_callback_size_t buffer_length;
+    yajl_gen_get_buf(&buffer_address, &buffer_length);
+    if (buffer_length >= JSON_SOFT_TARGET_SIZE) {
+      break;
+    }
+
     wg_json_map_open(jc);
     wg_json_string(jc, "startTime");
     wg_json_Timestamp(jc, head->start_time);
@@ -2165,41 +2176,20 @@ static int wg_get_vl_value(int ds_type, value_t value,
   return 0;
 }
 
-static void wg_yajl_dump(void *ctx, const char *str,
-    wg_yajl_callback_size_t len) {
-  json_ctx_t *jc = (json_ctx_t*)ctx;
-  if (*jc->size == 0) {
-    return;
-  }
-  if (len > *jc->size - 1) {
-    len = *jc->size - 1;
-  }
-  memcpy(*jc->buffer, str, len);
-  *jc->buffer += len;
-  *jc->size -= len;
-  // Terminate with NUL here because it's convenient (although we don't actually
-  // need a terminating NUL until we're done building the whole buffer).
-  (*jc->buffer)[0] = 0;
-}
-
-static json_ctx_t *wg_json_ctx_create(char **buffer, size_t *size,
-    _Bool pretty) {
+static json_ctx_t *wg_json_ctx_create(_Bool pretty) {
   json_ctx_t *jc = calloc(1, sizeof(*jc));
   if (jc == NULL) {
     ERROR("write_gcm: can't allocate jcon_ctx_t");
     return NULL;
   }
-  jc->buffer = buffer;
-  jc->size = size;
   jc->error = 0;
-#if YAJL_MAJOR == 1
-  yajl_gen_config config = { pretty, "  " };
-  jc->gen = yajl_gen_alloc2(&wg_yajl_dump, &config, NULL, jc);
-#else
+#ifdef YAJL_MAJOR && YAJL_MAJOR >= 2
   jc->gen = yajl_gen_alloc(NULL);
   yajl_gen_config(jc->gen, yajl_gen_beautify, pretty);
   yajl_gen_config(jc->gen, yajl_gen_validate_utf8, 1);
-  yajl_gen_config(jc->gen, yajl_gen_print_callback, wg_yajl_dump, jc);
+#else
+  yajl_gen_config config = { pretty, "  " };
+  jc->gen = yajl_gen_alloc(&config, NULL);
 #endif
   return jc;
 }
@@ -2526,38 +2516,19 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 static int wg_format_some_of_list(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty) {
-  size_t size = JSON_SOFT_TARGET_SIZE + JSON_LOW_WATER_MARK;
-  char *buffer_start = malloc(size);
-  if (buffer_start == NULL) {
-    ERROR("write_gcm: Couldn't allocate %zd bytes for buffer", size);
-    goto error;
-  }
-
-  char *buffer = buffer_start;
-  if (wg_json_CreateCollectdTimeseriesPointsRequest(
-      &buffer, &size, pretty, monitored_resource, list, new_list) != 0) {
+  if (wg_json_CreateCollectdTimeseriesPointsRequest(pretty, monitored_resource,
+      list, new_list, json) != 0) {
     ERROR("write_gcm: wg_json_CreateCollectdTimeseriesPointsRequest"
         " failed.");
-    goto error;
-  }
-
-  if (size < 2) {
-    ERROR("write_gcm: buffer overflow (or other error) while building JSON"
-        " message.");
-    goto error;
+    return -1;
   }
 
   if (list == *new_list) {
     ERROR("write_gcm: wg_format_some_of_list failed to make progress.");
-    goto error;
+    sfree(*json);
+    return -1;
   }
-
-  *json = buffer_start;
   return 0;
-
- error:
-  sfree(buffer_start);
-  return -1;
 }
 
 int wg_find_unique_segment(wg_payload_t *list, wg_payload_t **tail) {
