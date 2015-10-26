@@ -371,12 +371,6 @@ static int mg_make_uri(char *buffer, size_t buffer_size,
     ERROR("mongodb plugin: buffer not big enough to build URI.");
     return -1;
   }
-  // SECURITY LEAK
-  // SECURITY LEAK
-  // SECURITY LEAK
-  // SECURITY LEAK
-  // SECURITY LEAK
-  ERROR("mongodb plugin: uri is %s... DELETE THIS SECURITY LEAK", buffer);
   return 0;
 }
 
@@ -384,7 +378,7 @@ static int mg_make_uri(char *buffer, size_t buffer_size,
  * Read the configuration. If successful, register a read callback.
  */
 static int mg_config(oconfig_item_t *ci) {
-  ERROR("Hi! I'm inside config (perhaps twice for some reason)");
+  ERROR("mg_config: Inside mg_config");
   char *hostname = NULL;
   int port = MONGOC_DEFAULT_PORT;
   char *user = NULL;
