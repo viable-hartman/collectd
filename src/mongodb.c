@@ -403,7 +403,7 @@ static int mg_config(oconfig_item_t *ci) {
         continue;
       }
     } else if (strcasecmp("Port", child->key) == 0) {
-      char *portString;
+      char *portString = NULL;
       if (cf_util_get_string(child, &portString) != 0) {
         ERROR(error_template, "Port");
         ++parse_errors;
