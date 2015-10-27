@@ -45,7 +45,6 @@
 
 #include <yajl/yajl_gen.h>
 #include <yajl/yajl_parse.h>
-#include <yajl/yajl_version.h>
 
 #if HAVE_PTHREAD_H
 #include <pthread.h>
