@@ -1547,6 +1547,7 @@ static monitored_resource_t *wg_monitored_resource_create_for_aws(
   char *instance_id_to_use = sstrdup(cb->instance_id);
   char *account_id_to_use = sstrdup(cb->account_id);
   char *iid_document = NULL;
+  char *aws_region = NULL;
 
   // GCP project id must be specified in the config file.
   if (project_id_to_use == NULL) {
@@ -1568,11 +1569,18 @@ static monitored_resource_t *wg_monitored_resource_create_for_aws(
 
   if (region_to_use == NULL) {
     if (wg_extract_toplevel_json_string(iid_document, "region",
-        &region_to_use) != 0) {
+        &aws_region) != 0) {
       ERROR("write_gcm: Can't get region from GCP metadata server "
           " (and 'Region' not specified in the config file).");
       goto leave;
     }
+    // The '5' is to hold space for "aws:" plus terminating NUL.
+    region_to_use = malloc(strlen(aws_region) + 5);
+    if (region_to_use == NULL) {
+      ERROR("write_gcm: malloc region_to_use failed.");
+      goto leave;
+    }
+    snprintf(region_to_use, strlen(aws_region) + 5, "aws:%s", aws_region);
   }
 
   if (instance_id_to_use == NULL) {
@@ -1594,15 +1602,16 @@ static monitored_resource_t *wg_monitored_resource_create_for_aws(
   }
 
   result = monitored_resource_create_from_fields(
-      "aws_instance",
+      "aws_ec2_instance",
       project_id_to_use,
       /* keys/values */
       "region", region_to_use,
       "instance_id", instance_id_to_use,
-      "account_id", account_id_to_use,
+      "aws_account", account_id_to_use,
       NULL);
 
  leave:
+  sfree(aws_region);
   sfree(iid_document);
   sfree(account_id_to_use);
   sfree(instance_id_to_use);
