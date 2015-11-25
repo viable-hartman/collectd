@@ -327,7 +327,9 @@ static int wg_curl_get_or_post(char *response_buffer,
 
   write_ctx.data[0] = 0;
   if (write_ctx.size < 2) {
-    WARNING("write_gcm: The buffer overflowed.");
+    WARNING("write_gcm: wg_curl_get_or_post: The receive buffer overflowed.");
+    DEBUG("write_gcm: wg_curl_get_or_post: Received data is: %s",
+        response_buffer);
     goto leave;
   }
 
@@ -1834,7 +1836,7 @@ static void wg_queue_destroy(wg_queue_t *queue) {
 //==============================================================================
 //==============================================================================
 //==============================================================================
-// Build submodule for formatting the CreateCollectdTimeseriesPointsRequest.
+// Build submodule for formatting the CreateCollectdTimeseriesRequest.
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -1855,7 +1857,7 @@ typedef struct {
 // fresh wg_json_CreateCollectdTimeseriesPointsRequest requests each
 // time) until the list is exhausted. Upon success, a json string is returned
 // (memory owned by caller). Otherwise, NULL is returned.
-static char *wg_json_CreateCollectdTimeseriesPointsRequest(_Bool pretty,
+static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
     const const monitored_resource_t *monitored_resource,
     const wg_payload_t *head, const wg_payload_t **new_head);
 
@@ -1895,7 +1897,7 @@ static int wg_get_vl_value(int ds_type, value_t value,
 //   string collectd_version = 3;
 //   repeated CollectdPayload collectd_payloads = 4;
 // }
-static char *wg_json_CreateCollectdTimeseriesPointsRequest(_Bool pretty,
+static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
     const monitored_resource_t *monitored_resource,
     const wg_payload_t *head, const wg_payload_t **new_head) {
   char name[256];
@@ -2261,7 +2263,7 @@ static void wg_json_ctx_destroy(json_ctx_t *jc) {
 //==============================================================================
 //==============================================================================
 //==============================================================================
-void *wg_process_queue(void *arg);
+static void *wg_process_queue(void *arg);
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
@@ -2271,7 +2273,7 @@ void *wg_process_queue(void *arg);
 // - A flag indicating whether the caller wants the processing thread to
 //   terminate.
 // Returns 0 on success, <0 on error.
-int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
+static int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
     int *want_terminate, wg_payload_t **payloads);
 
 // "Rebases" derivative items in the list against their stored values. If this
@@ -2292,7 +2294,8 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 // up into segments, where all the items in the segments have distinct keys.
 // This is necessary because the upstream server rejects submissions with
 // duplicate keys/labels. (why?) Returns 0 on success, <0 on error.
-int wg_transmit_unique_segments(const wg_context_t *ctx, wg_payload_t *list);
+static int wg_transmit_unique_segments(const wg_context_t *ctx,
+    wg_payload_t *list);
 
 // Transmit a segment of the list, where it is guaranteed that all the items
 // in the list have distinct keys. Returns 0 on success, <0 on error.
@@ -2306,7 +2309,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 int wg_find_unique_segment(wg_payload_t *list, wg_payload_t **tail,
     size_t *size);
 
-// Converts the data in the list into a CreateCollectdTimeseriesPointsRequest
+// Converts the data in the list into a CollectdTimeseriesRequest
 // message (formatted in JSON format). If successful, sets *json to point to
 // the resultant buffer (owned by caller), sets *new_list, and returns 0.
 // Otherwise, returns <0. If successful, it is guaranteed that at least one
@@ -2325,7 +2328,7 @@ static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
     const wg_payload_t *payload, deriv_tracker_value_t **tracker, int *created);
 
 
-void *wg_process_queue(void *arg) {
+static void *wg_process_queue(void *arg) {
   wg_context_t *ctx = arg;
   wg_queue_t *queue = ctx->queue;
 
@@ -2489,7 +2492,8 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 // Because we can't send points with the same key and labels in one
 // transmission, we need to break 'list_to_process' into segments, where all
 // the items in a segment have distinct keys.
-int wg_transmit_unique_segments(const wg_context_t *ctx, wg_payload_t *list) {
+static int wg_transmit_unique_segments(const wg_context_t *ctx,
+    wg_payload_t *list) {
   while (list != NULL) {
     wg_payload_t *tail;
     size_t size;
@@ -2579,7 +2583,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 static int wg_format_some_of_list(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty) {
-  char *result = wg_json_CreateCollectdTimeseriesPointsRequest(pretty,
+  char *result = wg_json_CreateCollectdTimeseriesRequest(pretty,
       monitored_resource, list, new_list);
   if (result == NULL) {
     ERROR("write_gcm: wg_json_CreateCollectdTimeseriesPointsRequest"
@@ -2685,7 +2689,7 @@ static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
   return -1;
 }
 
-int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
+static int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
     int *want_terminate, wg_payload_t **payloads) {
   cdtime_t next_flush_time = last_flush_time + plugin_get_interval();
   pthread_mutex_lock(&queue->mutex);
