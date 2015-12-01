@@ -166,6 +166,58 @@ static void bufprintf(char **buffer, size_t *size, const char *fmt, ...) {
   *size -= result;
 }
 
+// Some methods for manipulating value_t's in a type-neutral way.
+static void wg_value_set_zero(int ds_type, value_t *value) {
+  memset(value, 0, sizeof(*value));
+}
+
+// Calculates *dest = *a - *b. It is OK for the pointer operands to overlap.
+static void wg_value_subtract(int ds_type, value_t *dest, const value_t *a,
+    const value_t *b) {
+  switch (ds_type) {
+    case DS_TYPE_COUNTER: {
+      dest->counter = a->counter - b->counter;
+      return;
+    }
+    case DS_TYPE_GAUGE: {
+      dest->gauge = a->gauge - b->gauge;
+      return;
+    }
+    case DS_TYPE_DERIVE: {
+      dest->derive = a->derive - b->derive;
+      return;
+    }
+    case DS_TYPE_ABSOLUTE: {
+      dest->absolute = a->absolute - b->absolute;
+      return;
+    }
+    default: {
+      assert(0);
+    }
+  }
+}
+
+// Returns true iff *a < *b. It is OK for the pointer operands to overlap.
+static _Bool wg_value_less(int ds_type, const value_t *a, const value_t *b) {
+  switch (ds_type) {
+    case DS_TYPE_COUNTER: {
+      return a->counter < b->counter;
+    }
+    case DS_TYPE_GAUGE: {
+      return a->gauge < b->gauge;
+    }
+    case DS_TYPE_DERIVE: {
+      return a->derive < b->derive;
+    }
+    case DS_TYPE_ABSOLUTE: {
+      return a->absolute < b->absolute;
+    }
+    default: {
+      assert(0);
+    }
+  }
+}
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -1025,10 +1077,10 @@ typedef struct wg_payload_s {
   wg_payload_value_t values[1];  // Actually, variable-length.
 } wg_payload_t;
 
-// For derivative values, we need to remember certain information so that we
-// can both properly adjust the 'start_time' field of wg_payload_value_t as well
-// as adjusting the value itself. For a given key, the information we keep
-// track of is:
+// For derivative values (both DERIVE and COUNTER values in collectd), we need
+// to remember certain information so that we can both properly adjust the
+// 'start_time' field of wg_payload_value_t as well as adjusting the value
+// itself. For a given key, the information we keep track of is:
 // - start_time
 // - baseline_value
 // - previous_value
@@ -1040,11 +1092,11 @@ typedef struct wg_payload_s {
 //
 // For subsequent values on that key:
 // - If the value is >= the previous value, then adjust value by subtracting
-//   baseline and set previous value = this value.
+//   baseline, set previous value = this value, and send it upstream.
 // - Otherwise (if the value is less than the previous value), reset start time,
-//   set baseline to zero, and set and set previous value to this value.
-//   Note that unlike the initial case, this value can be sent upstream (does
-//   not need to be absorbed).
+//   set baseline to zero, and set previous value to this value. Note that
+//   unlike the initial case, this value can be sent upstream (does not need to
+//   be absorbed).
 typedef struct {
   char host[DATA_MAX_NAME_LEN];
   char plugin[DATA_MAX_NAME_LEN];
@@ -1056,8 +1108,8 @@ typedef struct {
 // See the comments above deriv_tracker_key_t.
 typedef struct {
   cdtime_t start_time;
-  derive_t *baselines;
-  derive_t *previous;
+  value_t *baselines;
+  value_t *previous;
 } deriv_tracker_value_t;
 
 static wg_payload_t *wg_payload_create(const data_set_t *ds,
@@ -1346,21 +1398,28 @@ static void wg_deriv_tracker_key_destroy(deriv_tracker_key_t *key) {
 }
 
 static deriv_tracker_value_t *wg_deriv_tracker_value_create(int num_values) {
-  deriv_tracker_value_t *result = calloc(1, sizeof(*result));
-  if (result == NULL) {
+  // Items to clean up at exit.
+  deriv_tracker_value_t *result = NULL;  // Pessimistically assume failure.
+  deriv_tracker_value_t *build = NULL;
+
+  build = calloc(1, sizeof(*build));
+  if (build == NULL) {
     ERROR("write_gcm: wg_deriv_tracker_value_create: calloc failed");
-    return NULL;
+    goto leave;
   }
-  result->baselines = calloc(num_values, sizeof(derive_t));
-  if (result->baselines == NULL) {
+  build->baselines = calloc(num_values, sizeof(*build->baselines));
+  build->previous = calloc(num_values, sizeof(*build->baselines));
+  if (build->baselines == NULL || build->previous == NULL) {
     ERROR("write_gcm: wg_deriv_tracker_value_create: calloc failed");
-    return NULL;
+    goto leave;
   }
-  result->previous = calloc(num_values, sizeof(derive_t));
-  if (result->previous == NULL) {
-    ERROR("write_gcm: wg_deriv_tracker_value_create: calloc failed");
-    return NULL;
-  }
+
+  // Success!
+  result = build;
+  build = NULL;
+
+ leave:
+  wg_deriv_tracker_value_destroy(build);
   return result;
 }
 
@@ -2505,8 +2564,10 @@ static int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
 
 // "Rebases" derivative items in the list against their stored values. If this
 // is the first time we've seen a derivative item, store it in the map and
-// remove it from the list. If the item is not a derivative item, leave it be.
-// Modifies the list in place.
+// remove it from the list. Otherwise (if it is not the first time we've seen
+// a derivative item), adjust its value and start_time based on what we've
+// stored in the map value. Finally, if it is not a derivative item, leave it
+// be. Modifies the list in place.
 static int wg_rebase_cumulative_values(c_avl_tree_t *deriv_tree,
     wg_payload_t **list);
 
@@ -2515,7 +2576,7 @@ static int wg_rebase_cumulative_values(c_avl_tree_t *deriv_tree,
 // entry in the deriv_tree. Otherwise, set *keep to 1 and adjust the item by the
 // offset in the deriv_tree. Returns 0 on success, <0 on error.
 static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
-    int *keep);
+    _Bool *keep);
 
 // Transmit the items in the list to the upstream server by first breaking them
 // up into segments, where all the items in the segments have distinct keys.
@@ -2552,8 +2613,8 @@ static int wg_format_some_of_list(
 // found in the tree; 1 if it was newly-created. Returns 0 on success, <0 on
 // error.
 static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
-    const wg_payload_t *payload, deriv_tracker_value_t **tracker, int *created);
-
+    const wg_payload_t *payload, deriv_tracker_value_t **tracker,
+    _Bool *created);
 
 static void *wg_process_queue(void *arg) {
   wg_context_t *ctx = arg;
@@ -2607,17 +2668,15 @@ static int wg_rebase_cumulative_values(c_avl_tree_t *deriv_tree,
   wg_payload_t *new_tail = NULL;
   wg_payload_t *item = *list;
   int some_error_occurred = 0;
-  size_t old_size = 0;
-  size_t new_size = 0;
   while (item != NULL) {
     wg_payload_t *next = item->next;
     item->next = NULL;  // Detach from the list.
 
-    int keep;
+    _Bool keep;
     if (wg_rebase_item(deriv_tree, item, &keep) != 0) {
       ERROR("write_gcm: wg_rebase_item failed.");
-      // Finish processing the list (so we don't lose anything), but remember
-      // that an error occurred.
+      // Finish processing the list (so that we can properly free the list's
+      // memory), but remember that an error occurred.
       some_error_occurred = 1;
       keep = 0;
     }
@@ -2630,36 +2689,39 @@ static int wg_rebase_cumulative_values(c_avl_tree_t *deriv_tree,
         new_tail->next = item;
         new_tail = item;
       }
-      ++new_size;
     } else {
       wg_payload_destroy(item);
     }
     item = next;
-    ++old_size;
   }
   *list = new_head;
-  size_t tree_size = c_avl_size(deriv_tree);
-  INFO("write_gcm: wg_rebase_cumulative_values: old_size %zd, new_size %zd, "
-      "tree_size %zd.", old_size, new_size, tree_size);
   return some_error_occurred ? -1 : 0;
 }
 
 static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
-    int *keep) {
-  // It is an assumption of our system that either all the types in a value_list
-  // are DERIVE, or none of them are.
+    _Bool *keep) {
+  // Our system assumes that the values in the list are homogeneous: i.e. if
+  // one value is a DERIVED (or COUNTER) then all the values in that list are
+  // DERIVED (or COUNTER).
   int derived_count = 0;
+  int counter_count = 0;
   int i;
   for (i = 0; i < payload->num_values; ++i) {
-    if (payload->values[i].ds_type == DS_TYPE_DERIVE) {
+    int ds_type = payload->values[i].ds_type;
+    if (ds_type == DS_TYPE_DERIVE) {
       ++derived_count;
+    } else if (ds_type == DS_TYPE_COUNTER) {
+      ++counter_count;
     }
   }
-  if (derived_count == 0) {
+  if (derived_count == 0 && counter_count == 0) {
     *keep = 1;
-    return 0;  // No DERIVED values, so nothing further to do here.
+    return 0;  // No DERIVED or COUNTER values, so nothing to do here.
   }
-  if (derived_count != payload->num_values) {
+  // We know there's at least one DERIVED or COUNTER. Check that either (all the
+  // items are DERIVED) or (all the items are COUNTER).
+  if (derived_count != payload->num_values &&
+      counter_count != payload->num_values) {
     ERROR("write_gcm: wg_rebase_cumulative_values: values must not have diverse"
         " types.");
     return -1;
@@ -2667,7 +2729,7 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 
   // Get the appropriate tracker for this payload.
   deriv_tracker_value_t *tracker;
-  int created;
+  _Bool created;
   if (wg_lookup_or_create_tracker_value(deriv_tree, payload, &tracker, &created)
       != 0) {
     ERROR("write_gcm: wg_lookup_or_create_tracker_value failed.");
@@ -2675,32 +2737,39 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
   }
 
   if (created) {
-    // Establish a baseline, and then indicate to the caller not to add this
-    // to the output list.
+    // Establish the baseline.
     tracker->start_time = payload->start_time;
+    int i;
     for (i = 0; i < payload->num_values; ++i) {
-      derive_t d = payload->values[i].val.derive;
-      tracker->baselines[i] = d;
-      tracker->previous[i] = d;
+      tracker->baselines[i] = payload->values[i].val;
+      tracker->previous[i] = payload->values[i].val;
     }
+    // Having established the baseline, indicate to the caller not to add this
+    // to the output list.
     *keep = 0;
     return 0;
   }
+
+  // The list is nonempty and homogeneous, so taking the type of the first
+  // element is sufficient.
+  int ds_type = payload->values[0].ds_type;
 
   // If any of the counters have wrapped, then we need to reset the tracker
   // baseline and start_time.
   int some_counter_wrapped = 0;
   for (i = 0; i < payload->num_values; ++i) {
-    if (payload->values[i].val.derive < tracker->previous[i]) {
+    if (wg_value_less(ds_type, &payload->values[i].val,
+        &tracker->previous[i])) {
       some_counter_wrapped = 1;
       break;
     }
   }
 
+  // If any counter wrapped, everybody resets.
   if (some_counter_wrapped) {
     tracker->start_time = payload->start_time;
     for (i = 0; i < payload->num_values; ++i) {
-      tracker->baselines[i] = 0;
+      wg_value_set_zero(ds_type, &tracker->baselines[i]);
     }
   }
 
@@ -2709,8 +2778,9 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
   payload->start_time = tracker->start_time;
   for (i = 0; i < payload->num_values; ++i) {
     wg_payload_value_t *v = &payload->values[i];
-    tracker->previous[i] = v->val.derive;
-    v->val.derive -= tracker->baselines[i];
+    tracker->previous[i] = v->val;
+    // val -= baseline
+    wg_value_subtract(ds_type, &v->val, &v->val, &tracker->baselines[i]);
   }
   *keep = 1;
   return 0;
@@ -2877,7 +2947,7 @@ int wg_find_unique_segment(wg_payload_t *list, wg_payload_t **tail,
 
 static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
     const wg_payload_t *payload, deriv_tracker_value_t **tracker,
-    int *created) {
+    _Bool *created) {
   // Items to clean up upon exit.
   deriv_tracker_key_t *key = NULL;
   deriv_tracker_value_t *value = NULL;
