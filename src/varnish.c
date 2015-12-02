@@ -23,7 +23,6 @@
  *   Florian octo Forster <octo at collectd.org>
  **/
 
-#include <stdbool.h>
 #include "collectd.h"
 #include "common.h"
 #include "plugin.h"
@@ -794,7 +793,7 @@ static int varnish_read (user_data_t *ud) /* {{{ */
 {
 	struct VSM_data *vd;
 	const c_varnish_stats_t *stats;
-	bool test;
+	_Bool ok;
 
 	user_config_t *conf;
 
@@ -824,11 +823,11 @@ static int varnish_read (user_data_t *ud) /* {{{ */
 	}
 
 #if HAVE_VARNISH_V3
-	test = VSC_Open (vd, /* diag = */ 1);
+	ok = (VSC_Open (vd, /* diag = */ 1) == 0);
 #else /* if HAVE_VARNISH_V4 */
-	test = VSM_Open (vd);
+	ok = (VSM_Open (vd) == 0);
 #endif
-	if (test)
+	if (!ok)
 	{
 		VSM_Delete (vd);
 		ERROR ("varnish plugin: Unable to open connection.");
