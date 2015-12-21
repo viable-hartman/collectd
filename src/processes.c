@@ -41,6 +41,8 @@
 #include "common.h"
 #include "plugin.h"
 
+#include <stdio.h>
+
 /* Include header files for the mach system, if they exist.. */
 #if HAVE_THREAD_INFO
 #if HAVE_MACH_MACH_INIT_H
@@ -269,8 +271,24 @@ static procstat_t *list_head_g = NULL;
 
 static _Bool want_init = 1;
 static _Bool report_ctx_switch = 0;
-static _Bool report_fd_num = 0;
-static _Bool report_maps_num = 0;
+typedef struct
+{
+    _Bool ps_count;
+    _Bool ps_vm;
+    _Bool ps_rss;
+    _Bool ps_data;
+    _Bool ps_code;
+    _Bool ps_stacksize;
+    _Bool ps_cputime;
+    _Bool ps_pagefaults;
+    _Bool ps_disk_octets;
+    _Bool ps_disk_ops;
+    _Bool cswitch_vol;
+    _Bool cswitch_invol;
+} want_detail_configuration_t;
+
+static want_detail_configuration_t want_detail_configuration_g;
+static _Bool some_detail_active_g = 0;
 
 #if HAVE_THREAD_INFO
 static mach_port_t port_host_self;
@@ -440,85 +458,93 @@ static void ps_update_counter(derive_t *group_counter, derive_t *curr_counter,
 }
 
 /* add process entry to 'instances' of process 'name' (or refresh it) */
-static void ps_list_add(const char *name, const char *cmdline,
-                        process_entry_t *entry) {
-  procstat_entry_t *pse;
+static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t *entry)
+{
+	procstat_entry_t *pse;
 
-  if (entry->id == 0)
-    return;
+	if (entry->id == 0)
+		return;
 
-  for (procstat_t *ps = list_head_g; ps != NULL; ps = ps->next) {
-    if ((ps_list_match(name, cmdline, ps)) == 0)
-      continue;
+	for (procstat_t *ps = list_head_g; ps != NULL; ps = ps->next)
+	{
+		_Bool want_init;
 
-#if KERNEL_LINUX
-    ps_fill_details(ps, entry);
-#endif
+		if ((ps_list_match (name, cmdline, ps)) == 0)
+			continue;
 
-    for (pse = ps->instances; pse != NULL; pse = pse->next)
-      if ((pse->id == entry->id) || (pse->next == NULL))
-        break;
+		for (pse = ps->instances; pse != NULL; pse = pse->next)
+			if ((pse->id == entry->id) || (pse->next == NULL))
+				break;
 
-    if ((pse == NULL) || (pse->id != entry->id)) {
-      procstat_entry_t *new;
+		if ((pse == NULL) || (pse->id != entry->id))
+		{
+			procstat_entry_t *new;
 
-      new = calloc(1, sizeof(*new));
-      if (new == NULL)
-        return;
-      new->id = entry->id;
+			new = calloc (1, sizeof (*new));
+			if (new == NULL)
+				return;
+			new->id = entry->id;
 
-      if (pse == NULL)
-        ps->instances = new;
-      else
-        pse->next = new;
+			if (pse == NULL)
+				ps->instances = new;
+			else
+				pse->next = new;
 
-      pse = new;
-    }
+			pse = new;
+		}
 
-    pse->age = 0;
+		pse->age = 0;
+		pse->num_proc   = entry->num_proc;
+		pse->num_lwp    = entry->num_lwp;
+		pse->vmem_size  = entry->vmem_size;
+		pse->vmem_rss   = entry->vmem_rss;
+		pse->vmem_data  = entry->vmem_data;
+		pse->vmem_code  = entry->vmem_code;
+		pse->stack_size = entry->stack_size;
+		pse->io_rchar   = entry->io_rchar;
+		pse->io_wchar   = entry->io_wchar;
+		pse->io_syscr   = entry->io_syscr;
+		pse->io_syscw   = entry->io_syscw;
+		pse->cswitch_vol   = entry->cswitch_vol;
+		pse->cswitch_invol = entry->cswitch_invol;
 
-    ps->num_proc += entry->num_proc;
-    ps->num_lwp += entry->num_lwp;
-    ps->num_fd += entry->num_fd;
-    ps->num_maps += entry->num_maps;
-    ps->vmem_size += entry->vmem_size;
-    ps->vmem_rss += entry->vmem_rss;
-    ps->vmem_data += entry->vmem_data;
-    ps->vmem_code += entry->vmem_code;
-    ps->stack_size += entry->stack_size;
+		ps->num_proc   += pse->num_proc;
+		ps->num_lwp    += pse->num_lwp;
+		ps->vmem_size  += pse->vmem_size;
+		ps->vmem_rss   += pse->vmem_rss;
+		ps->vmem_data  += pse->vmem_data;
+		ps->vmem_code  += pse->vmem_code;
+		ps->stack_size += pse->stack_size;
 
-    if ((entry->io_rchar != -1) && (entry->io_wchar != -1)) {
-      ps_update_counter(&ps->io_rchar, &pse->io_rchar, entry->io_rchar);
-      ps_update_counter(&ps->io_wchar, &pse->io_wchar, entry->io_wchar);
-    }
+		ps->io_rchar   += ((pse->io_rchar == -1)?0:pse->io_rchar);
+		ps->io_wchar   += ((pse->io_wchar == -1)?0:pse->io_wchar);
+		ps->io_syscr   += ((pse->io_syscr == -1)?0:pse->io_syscr);
+		ps->io_syscw   += ((pse->io_syscw == -1)?0:pse->io_syscw);
 
-    if ((entry->io_syscr != -1) && (entry->io_syscw != -1)) {
-      ps_update_counter(&ps->io_syscr, &pse->io_syscr, entry->io_syscr);
-      ps_update_counter(&ps->io_syscw, &pse->io_syscw, entry->io_syscw);
-    }
+		ps->cswitch_vol   += ((pse->cswitch_vol == -1)?0:pse->cswitch_vol);
+		ps->cswitch_invol += ((pse->cswitch_invol == -1)?0:pse->cswitch_invol);
+		want_init = (entry->vmem_minflt_counter == 0)
+				&& (entry->vmem_majflt_counter == 0);
+		ps_update_counter (want_init,
+				&ps->vmem_minflt_counter,
+				&pse->vmem_minflt_counter, &pse->vmem_minflt,
+				entry->vmem_minflt_counter, entry->vmem_minflt);
+		ps_update_counter (want_init,
+				&ps->vmem_majflt_counter,
+				&pse->vmem_majflt_counter, &pse->vmem_majflt,
+				entry->vmem_majflt_counter, entry->vmem_majflt);
 
-    if ((entry->io_diskr != -1) && (entry->io_diskw != -1)) {
-      ps_update_counter(&ps->io_diskr, &pse->io_diskr, entry->io_diskr);
-      ps_update_counter(&ps->io_diskw, &pse->io_diskw, entry->io_diskw);
-    }
-
-    if ((entry->cswitch_vol != -1) && (entry->cswitch_invol != -1)) {
-      ps_update_counter(&ps->cswitch_vol, &pse->cswitch_vol,
-                        entry->cswitch_vol);
-      ps_update_counter(&ps->cswitch_invol, &pse->cswitch_invol,
-                        entry->cswitch_invol);
-    }
-
-    ps_update_counter(&ps->vmem_minflt_counter, &pse->vmem_minflt_counter,
-                      entry->vmem_minflt_counter);
-    ps_update_counter(&ps->vmem_majflt_counter, &pse->vmem_majflt_counter,
-                      entry->vmem_majflt_counter);
-
-    ps_update_counter(&ps->cpu_user_counter, &pse->cpu_user_counter,
-                      entry->cpu_user_counter);
-    ps_update_counter(&ps->cpu_system_counter, &pse->cpu_system_counter,
-                      entry->cpu_system_counter);
-  }
+		want_init = (entry->cpu_user_counter == 0)
+				&& (entry->cpu_system_counter == 0);
+		ps_update_counter (want_init,
+				&ps->cpu_user_counter,
+				&pse->cpu_user_counter, &pse->cpu_user,
+				entry->cpu_user_counter, entry->cpu_user);
+		ps_update_counter (want_init,
+				&ps->cpu_system_counter,
+				&pse->cpu_system_counter, &pse->cpu_system,
+				entry->cpu_system_counter, entry->cpu_system);
+	}
 }
 
 /* remove old entries from instances of processes in list_head_g */
@@ -586,6 +612,35 @@ static int ps_config(oconfig_item_t *ci) {
 #elif KERNEL_SOLARIS || KERNEL_FREEBSD
   const size_t max_procname_len = MAXCOMLEN - 1;
 #endif
+    const char *stat_names[] = {
+        "ps_count",
+        "ps_vm",
+        "ps_rss",
+        "ps_data",
+        "ps_code",
+        "ps_stacksize",
+        "ps_cputime",
+        "ps_pagefaults",
+        "ps_disk_octets",
+        "ps_disk_ops",
+	"cswitch_vol",
+	"cswitch_invol"
+    };
+
+    _Bool *detail_flags[] = {
+        &want_detail_configuration_g.ps_count,
+        &want_detail_configuration_g.ps_vm,
+        &want_detail_configuration_g.ps_rss,
+        &want_detail_configuration_g.ps_data,
+        &want_detail_configuration_g.ps_code,
+        &want_detail_configuration_g.ps_stacksize,
+        &want_detail_configuration_g.ps_cputime,
+        &want_detail_configuration_g.ps_pagefaults,
+        &want_detail_configuration_g.ps_disk_octets,
+        &want_detail_configuration_g.ps_disk_ops,
+	&want_detail_configuration_g.cswitch_vol,
+	&want_detail_configuration_g.cswitch_invol
+    };
 
   procstat_t *ps;
 
@@ -609,39 +664,72 @@ static int ps_config(oconfig_item_t *ci) {
       }
 #endif
 
-      ps = ps_list_register(c->values[0].value.string, NULL);
+			ps_list_register (c->values[0].value.string, NULL);
+		}
+		else if (strcasecmp (c->key, "ProcessMatch") == 0)
+		{
+			if ((c->values_num != 2)
+					|| (OCONFIG_TYPE_STRING != c->values[0].type)
+					|| (OCONFIG_TYPE_STRING != c->values[1].type))
+			{
+				ERROR ("processes plugin: `ProcessMatch' needs exactly "
+						"two string arguments (got %i).",
+						c->values_num);
+				continue;
+			}
 
-      if (c->children_num != 0 && ps != NULL)
-        ps_tune_instance(c, ps);
-    } else if (strcasecmp(c->key, "ProcessMatch") == 0) {
-      if ((c->values_num != 2) || (OCONFIG_TYPE_STRING != c->values[0].type) ||
-          (OCONFIG_TYPE_STRING != c->values[1].type)) {
-        ERROR("processes plugin: `ProcessMatch' needs exactly "
-              "two string arguments (got %i).",
-              c->values_num);
-        continue;
-      }
+			if (c->children_num != 0) {
+				WARNING ("processes plugin: the `ProcessMatch' config option "
+						"does not expect any child elements -- ignoring "
+						"content (%i elements) of the <ProcessMatch '%s' '%s'> "
+						"block.", c->children_num, c->values[0].value.string,
+						c->values[1].value.string);
+			}
 
-      ps = ps_list_register(c->values[0].value.string,
-                            c->values[1].value.string);
+			ps_list_register (c->values[0].value.string,
+					c->values[1].value.string);
+		}
+		else if (strcasecmp (c->key, "CollectContextSwitch") == 0)
+		{
+			cf_util_get_boolean (c, &report_ctx_switch);
+		}
+		else if (strcasecmp (c->key, "Detail") == 0)
+		{
+		    int sn;
+		    if ((c->values_num != 1)
+		            || (OCONFIG_TYPE_STRING != c->values[0].type))
+		    {
+		        ERROR ("processes plugin: `Detail' needs exactly "
+		                "one string argument (got %i).",
+		                c->values_num);
+		        continue;
+		    }
+		    assert (STATIC_ARRAY_SIZE (stat_names) ==
+		            STATIC_ARRAY_SIZE (detail_flags));
+		    for (sn = 0; sn < STATIC_ARRAY_SIZE(stat_names); ++sn) {
+		        if (strcasecmp(c->values[0].value.string, stat_names[sn]) == 0)
+		        {
+		            *detail_flags[sn] = 1;
+		            some_detail_active_g = 1;
+		            break;
+		        }
+		    }
+		    if (sn == STATIC_ARRAY_SIZE(stat_names))
+		    {
+		        ERROR ("processes plugin: Unrecognized `Detail' argument %s.",
+		               c->values[0].value.string);
+		        continue;
+		    }
+		}
+		else
+		{
+			ERROR ("processes plugin: The `%s' configuration option is not "
+					"understood and will be ignored.", c->key);
+			continue;
+		}
+	}
 
-      if (c->children_num != 0 && ps != NULL)
-        ps_tune_instance(c, ps);
-    } else if (strcasecmp(c->key, "CollectContextSwitch") == 0) {
-      cf_util_get_boolean(c, &report_ctx_switch);
-    } else if (strcasecmp(c->key, "CollectFileDescriptor") == 0) {
-      cf_util_get_boolean(c, &report_fd_num);
-    } else if (strcasecmp(c->key, "CollectMemoryMaps") == 0) {
-      cf_util_get_boolean(c, &report_maps_num);
-    } else {
-      ERROR("processes plugin: The `%s' configuration option is not "
-            "understood and will be ignored.",
-            c->key);
-      continue;
-    }
-  }
-
-  return 0;
+	return (0);
 }
 
 static int ps_init(void) {
@@ -699,129 +787,247 @@ static void ps_submit_state(const char *state, double value) {
   plugin_dispatch_values(&vl);
 }
 
-/* submit info about specific process (e.g.: memory taken, cpu usage, etc..) */
-static void ps_submit_proc_list(procstat_t *ps) {
-  value_list_t vl = VALUE_LIST_INIT;
-  value_t values[2];
+static char *ps_get_cmdline (long pid, char *name,
+    char *buf, size_t buf_len);
+static char *ps_get_command(pid_t pid);
+static char *ps_get_owner(pid_t pid);
 
-  vl.values = values;
-  sstrncpy(vl.plugin, "processes", sizeof(vl.plugin));
-  sstrncpy(vl.plugin_instance, ps->name, sizeof(vl.plugin_instance));
+// Increase this value if any of the callers use a larger 'values_len'.
+// (If the assertion fails, you know you have this problem).
+#define MAX_VALUE_LIST_SIZE 2
 
-  sstrncpy(vl.type, "ps_vm", sizeof(vl.type));
-  vl.values[0].gauge = ps->vmem_size;
-  vl.values_len = 1;
-  plugin_dispatch_values(&vl);
+static void dispatch_value_helper (value_list_t *vl,
+        const char *type, const char *type_instance, int values_len,
+        _Bool doing_detail, _Bool want_detail)
+{
+    assert (values_len <= MAX_VALUE_LIST_SIZE);
+    if (doing_detail != want_detail)
+    {
+        return;
+    }
+    sstrncpy(vl->type, type, sizeof (vl->type));
+    if (type_instance != NULL)
+    {
+        sstrncpy(vl->type_instance, type_instance, sizeof (vl->type_instance));
+    }
+    vl->values_len = values_len;
+    plugin_dispatch_values(vl);
+}
 
-  sstrncpy(vl.type, "ps_rss", sizeof(vl.type));
-  vl.values[0].gauge = ps->vmem_rss;
-  vl.values_len = 1;
-  plugin_dispatch_values(&vl);
+static void ps_submit_proc_stats (
+        _Bool doing_detail,
+        const char *instance_name,
+        const char *pid,
+        const char *owner,
+        const char *command,
+        const char *command_line,
+        unsigned long num_proc,
+        unsigned long num_lwp,
+        unsigned long vmem_size,
+        unsigned long vmem_rss,
+        unsigned long vmem_data,
+        unsigned long vmem_code,
+        unsigned long stack_size,
+        derive_t vmem_minflt_counter,
+        derive_t vmem_majflt_counter,
+        derive_t cpu_user_counter,
+        derive_t cpu_system_counter,
+        derive_t io_rchar,
+        derive_t io_wchar,
+        derive_t io_syscr,
+        derive_t io_syscw,
+	derive_t cswitch_vol,
+        derive_t cswitch_invol)
+{
+    const want_detail_configuration_t *config = &want_detail_configuration_g;
+    value_t values[MAX_VALUE_LIST_SIZE];
+    value_list_t vl = VALUE_LIST_INIT;
+    vl.values = values;
 
-  sstrncpy(vl.type, "ps_data", sizeof(vl.type));
-  vl.values[0].gauge = ps->vmem_data;
-  vl.values_len = 1;
-  plugin_dispatch_values(&vl);
+    sstrncpy (vl.host, hostname_g, sizeof (vl.host));
+    sstrncpy (vl.plugin, "processes", sizeof (vl.plugin));
+    sstrncpy (vl.plugin_instance, instance_name, sizeof (vl.plugin_instance));
 
-  sstrncpy(vl.type, "ps_code", sizeof(vl.type));
-  vl.values[0].gauge = ps->vmem_code;
-  vl.values_len = 1;
-  plugin_dispatch_values(&vl);
+    if (doing_detail)
+    {
+        // sstrncpy(vl.type_instance, "detail", sizeof (vl.type_instance));
+        vl.meta = meta_data_create();
+        if (pid != NULL) {
+            meta_data_add_string(vl.meta, "processes:pid", pid);
+        }
+        if (owner != NULL) {
+            meta_data_add_string(vl.meta, "processes:owner", owner);
+        }
+        if (command != NULL) {
+            meta_data_add_string(vl.meta, "processes:command", command);
+        }
+        if (command_line != NULL) {
+            meta_data_add_string(vl.meta, "processes:command_line",
+                    command_line);
+        }
+    }
 
-  sstrncpy(vl.type, "ps_stacksize", sizeof(vl.type));
-  vl.values[0].gauge = ps->stack_size;
-  vl.values_len = 1;
-  plugin_dispatch_values(&vl);
+    vl.values[0].gauge = num_proc;
+    vl.values[1].gauge = num_lwp;
+    dispatch_value_helper(&vl, "ps_count", NULL, 2, doing_detail, config->ps_count);
 
-  sstrncpy(vl.type, "ps_cputime", sizeof(vl.type));
-  vl.values[0].derive = ps->cpu_user_counter;
-  vl.values[1].derive = ps->cpu_system_counter;
-  vl.values_len = 2;
-  plugin_dispatch_values(&vl);
+    vl.values[0].gauge = vmem_size;
+    dispatch_value_helper(&vl, "ps_vm", NULL, 1, doing_detail, config->ps_vm);
 
-  sstrncpy(vl.type, "ps_count", sizeof(vl.type));
-  vl.values[0].gauge = ps->num_proc;
-  vl.values[1].gauge = ps->num_lwp;
-  vl.values_len = 2;
-  plugin_dispatch_values(&vl);
+    vl.values[0].gauge = vmem_rss;
+    dispatch_value_helper(&vl, "ps_rss", NULL, 1, doing_detail, config->ps_rss);
 
-  sstrncpy(vl.type, "ps_pagefaults", sizeof(vl.type));
-  vl.values[0].derive = ps->vmem_minflt_counter;
-  vl.values[1].derive = ps->vmem_majflt_counter;
-  vl.values_len = 2;
-  plugin_dispatch_values(&vl);
+    vl.values[0].gauge = vmem_data;
+    dispatch_value_helper(&vl, "ps_data", NULL, 1, doing_detail, config->ps_data);
 
-  if ((ps->io_rchar != -1) && (ps->io_wchar != -1)) {
-    sstrncpy(vl.type, "io_octets", sizeof(vl.type));
-    vl.values[0].derive = ps->io_rchar;
-    vl.values[1].derive = ps->io_wchar;
-    vl.values_len = 2;
-    plugin_dispatch_values(&vl);
-  }
+    vl.values[0].gauge = vmem_code;
+    dispatch_value_helper(&vl, "ps_code", NULL, 1, doing_detail, config->ps_code);
 
-  if ((ps->io_syscr != -1) && (ps->io_syscw != -1)) {
-    sstrncpy(vl.type, "io_ops", sizeof(vl.type));
-    vl.values[0].derive = ps->io_syscr;
-    vl.values[1].derive = ps->io_syscw;
-    vl.values_len = 2;
-    plugin_dispatch_values(&vl);
-  }
+    vl.values[0].gauge = stack_size;
+    dispatch_value_helper(&vl, "ps_stacksize", NULL, 1, doing_detail,
+                          config->ps_stacksize);
 
-  if ((ps->io_diskr != -1) && (ps->io_diskw != -1)) {
-    sstrncpy(vl.type, "disk_octets", sizeof(vl.type));
-    vl.values[0].derive = ps->io_diskr;
-    vl.values[1].derive = ps->io_diskw;
-    vl.values_len = 2;
-    plugin_dispatch_values(&vl);
-  }
+    vl.values[0].derive = vmem_minflt_counter;
+    vl.values[1].derive = vmem_majflt_counter;
+    dispatch_value_helper(&vl, "ps_pagefaults", NULL, 2, doing_detail,
+                          config->ps_pagefaults);
 
-  if (ps->num_fd > 0) {
-    sstrncpy(vl.type, "file_handles", sizeof(vl.type));
-    vl.values[0].gauge = ps->num_fd;
-    vl.values_len = 1;
-    plugin_dispatch_values(&vl);
-  }
+    vl.values[0].derive = cpu_user_counter;
+    vl.values[1].derive = cpu_system_counter;
+    dispatch_value_helper(&vl, "ps_cputime", NULL, 2, doing_detail,
+                          config->ps_cputime);
 
-  if (ps->num_maps > 0) {
-    sstrncpy(vl.type, "file_handles", sizeof(vl.type));
-    sstrncpy(vl.type_instance, "mapped", sizeof(vl.type_instance));
-    vl.values[0].gauge = ps->num_maps;
-    vl.values_len = 1;
-    plugin_dispatch_values(&vl);
-  }
+    if ( (io_rchar != -1) && (io_wchar != -1) )
+    {
+        vl.values[0].derive = io_rchar;
+        vl.values[1].derive = io_wchar;
+        dispatch_value_helper(&vl, "ps_disk_octets", NULL, 2, doing_detail,
+                config->ps_disk_octets);
+    }
 
-  if ((ps->cswitch_vol != -1) && (ps->cswitch_invol != -1)) {
-    sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
-    sstrncpy(vl.type_instance, "voluntary", sizeof(vl.type_instance));
-    vl.values[0].derive = ps->cswitch_vol;
-    vl.values_len = 1;
-    plugin_dispatch_values(&vl);
+    if ( (io_syscr != -1) && (io_syscw != -1) )
+    {
+        vl.values[0].derive = io_syscr;
+        vl.values[1].derive = io_syscw;
+        dispatch_value_helper(&vl, "ps_disk_ops", NULL, 2, doing_detail,
+                              config->ps_disk_ops);
+    }
 
-    sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
-    sstrncpy(vl.type_instance, "involuntary", sizeof(vl.type_instance));
-    vl.values[0].derive = ps->cswitch_invol;
-    vl.values_len = 1;
-    plugin_dispatch_values(&vl);
-  }
+    if ( report_ctx_switch )
+    {
+	    vl.values[0].derive = cswitch_vol;
+	    dispatch_value_helper(&vl, "contextswitch", "voluntary", 2, doing_detail,
+		    config->cswitch_vol);
+	    vl.values[0].derive = cswitch_invol;
+	    dispatch_value_helper(&vl, "contextswitch", "involuntary", 2, doing_detail,
+		    config->cswitch_invol);
+    }
+    meta_data_destroy(vl.meta);
+    vl.meta = NULL;
 
-  DEBUG(
-      "name = %s; num_proc = %lu; num_lwp = %lu; num_fd = %lu; num_maps = %lu; "
-      "vmem_size = %lu; vmem_rss = %lu; vmem_data = %lu; "
-      "vmem_code = %lu; "
-      "vmem_minflt_counter = %" PRIi64 "; vmem_majflt_counter = %" PRIi64 "; "
-      "cpu_user_counter = %" PRIi64 "; cpu_system_counter = %" PRIi64 "; "
-      "io_rchar = %" PRIi64 "; io_wchar = %" PRIi64 "; "
-      "io_syscr = %" PRIi64 "; io_syscw = %" PRIi64 "; "
-      "io_diskr = %" PRIi64 "; io_diskw = %" PRIi64 "; "
-      "cswitch_vol = %" PRIi64 "; cswitch_invol = %" PRIi64 ";",
-      ps->name, ps->num_proc, ps->num_lwp, ps->num_fd, ps->num_maps,
-      ps->vmem_size, ps->vmem_rss, ps->vmem_data, ps->vmem_code,
-      ps->vmem_minflt_counter, ps->vmem_majflt_counter, ps->cpu_user_counter,
-      ps->cpu_system_counter, ps->io_rchar, ps->io_wchar, ps->io_syscr,
-      ps->io_syscw, ps->io_diskr, ps->io_diskw, ps->cswitch_vol,
-      ps->cswitch_invol);
-
+    DEBUG ("name = %s; num_proc = %lu; num_lwp = %lu; "
+            "vmem_size = %lu; vmem_rss = %lu; vmem_data = %lu; "
+            "vmem_code = %lu; "
+            "vmem_minflt_counter = %"PRIi64"; vmem_majflt_counter = %"PRIi64"; "
+            "cpu_user_counter = %"PRIi64"; cpu_system_counter = %"PRIi64"; "
+            "io_rchar = %"PRIi64"; io_wchar = %"PRIi64"; "
+            "io_syscr = %"PRIi64"; io_syscw = %"PRIi64";"
+            "cswitch_vol = %"PRIi64"; cswitch_invol = %"PRIi64";",
+            instance_name, num_proc, num_lwp,
+            vmem_size, vmem_rss,
+            vmem_data, vmem_code,
+            vmem_minflt_counter, vmem_majflt_counter,
+            cpu_user_counter, cpu_system_counter,
+            io_rchar, io_wchar, io_syscr, io_syscw,
+            cswitch_vol, cswitch_invol);
 } /* void ps_submit_proc_list */
+
+#undef MAX_VALUE_LIST_SIZE
+
+
+static void ps_submit_procstat_entry (const char *instance_name,
+        procstat_entry_t *entry)
+{
+    char commandline[CMDLINE_BUFFER_SIZE];
+    const char *cmd_line_to_use;
+    char pid[32];
+    char *command;
+    char *owner;
+
+    cmd_line_to_use = ps_get_cmdline(entry->id, NULL, commandline,
+        sizeof(commandline));
+    if (cmd_line_to_use == NULL) {
+        // No command line. Probably a kernel process?
+        return;
+    }
+    snprintf(pid, sizeof(pid), "%lu", entry->id);
+    owner = ps_get_owner(entry->id);
+    command = ps_get_command(entry->id);
+
+    ps_submit_proc_stats (
+            1,
+            instance_name,
+            pid,
+            owner,
+            command,
+            cmd_line_to_use,
+            entry->num_proc,
+            entry->num_lwp,
+            entry->vmem_size,
+            entry->vmem_rss,
+            entry->vmem_data,
+            entry->vmem_code,
+            entry->stack_size,
+            entry->cpu_user_counter,
+            entry->cpu_system_counter,
+            entry->vmem_minflt_counter,
+            entry->vmem_majflt_counter,
+            entry->io_rchar,
+            entry->io_wchar,
+            entry->io_syscr,
+            entry->io_syscw,
+	    entry->cswitch_vol,
+	    entry->cswitch_invol);
+
+    sfree (command);
+    sfree (owner);
+}
+
+static void ps_submit_proc_list (procstat_t *ps)
+{
+    ps_submit_proc_stats (
+            0,
+            ps->name,
+            NULL,  // pid
+            NULL,  // owner
+            NULL,  // command
+            NULL,  // command_line
+            ps->num_proc,
+            ps->num_lwp,
+            ps->vmem_size,
+            ps->vmem_rss,
+            ps->vmem_data,
+            ps->vmem_code,
+            ps->stack_size,
+            ps->cpu_user_counter,
+            ps->cpu_system_counter,
+            ps->vmem_minflt_counter,
+            ps->vmem_majflt_counter,
+            ps->io_rchar,
+            ps->io_wchar,
+            ps->io_syscr,
+            ps->io_syscw,
+	    ps->cswitch_vol,
+	    ps->cswitch_invol);
+
+    if (some_detail_active_g) {
+        procstat_entry_t *entry;
+        for (entry = ps->instances; entry != NULL; entry = entry->next)
+        {
+            ps_submit_procstat_entry (ps->name, entry);
+        }
+    }
+}
 
 #if KERNEL_LINUX || KERNEL_SOLARIS
 static void ps_submit_fork_rate(derive_t value) {
@@ -1336,45 +1542,110 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
   return buf;
 } /* char *ps_get_cmdline (...) */
 
-static int read_fork_rate(void) {
-  FILE *proc_stat;
-  char buffer[1024];
-  value_t value;
-  _Bool value_valid = 0;
+static char *ps_get_command(pid_t pid)
+{
+    char *result = NULL;
+    char file_name[128];
+    char buffer[128];
+    FILE *f = NULL;
 
-  proc_stat = fopen("/proc/stat", "r");
-  if (proc_stat == NULL) {
-    char errbuf[1024];
-    ERROR("processes plugin: fopen (/proc/stat) failed: %s",
-          sstrerror(errno, errbuf, sizeof(errbuf)));
-    return -1;
-  }
+    snprintf(file_name, sizeof(file_name), "/proc/%d/comm", pid);
+    f = fopen(file_name, "r");
+    if (!f)
+        return NULL;
 
-  while (fgets(buffer, sizeof(buffer), proc_stat) != NULL) {
-    int status;
-    char *fields[3];
-    int fields_num;
+    result = fgets(buffer, sizeof(buffer), f);
+    if (result)
+    {
+        // Trim trailing newline.
+        ssize_t num_chars = strlen(result);
+        if (num_chars > 0 && result[num_chars - 1] == '\n')
+            result[num_chars - 1] = 0;
+    }
+    fclose (f);
+    return sstrdup(result);
+}
 
-    fields_num = strsplit(buffer, fields, STATIC_ARRAY_SIZE(fields));
-    if (fields_num != 2)
-      continue;
+static char *ps_get_owner(pid_t pid)
+{
+    char *result = NULL;
+    char file_name[128];
+    FILE *f = NULL;
 
-    if (strcmp("processes", fields[0]) != 0)
-      continue;
+    snprintf (file_name, sizeof(file_name), "/proc/%d/status", pid);
+    f = fopen (file_name, "r");
+    if (!f)
+        return NULL;
+    while (1)
+    {
+        struct passwd passwd;
+        struct passwd *passwd_result;
+        char line_buffer[1024];
+        char passwd_buffer[16384];
+        int uid;
+        char *line = fgets(line_buffer, sizeof(line_buffer), f);
 
-    status = parse_value(fields[1], &value, DS_TYPE_DERIVE);
-    if (status == 0)
-      value_valid = 1;
+        if (line == NULL)
+            break;
 
-    break;
-  }
-  fclose(proc_stat);
+        if (strncmp (line, "Uid:", 4) != 0)
+            continue;
 
-  if (!value_valid)
-    return -1;
+        uid = atoi (line + 5);
+        getpwuid_r (uid, &passwd, passwd_buffer, sizeof(passwd_buffer),
+                &passwd_result);
+        if (passwd_result)
+            result = sstrdup (passwd_result->pw_name);
+        break;
+    }
 
-  ps_submit_fork_rate(value.derive);
-  return 0;
+    fclose (f);
+    return result;
+}
+
+static int read_fork_rate (void)
+{
+	FILE *proc_stat;
+	char buffer[1024];
+	value_t value;
+	_Bool value_valid = 0;
+
+	proc_stat = fopen ("/proc/stat", "r");
+	if (proc_stat == NULL)
+	{
+		char errbuf[1024];
+		ERROR ("processes plugin: fopen (/proc/stat) failed: %s",
+				sstrerror (errno, errbuf, sizeof (errbuf)));
+		return (-1);
+	}
+
+	while (fgets (buffer, sizeof (buffer), proc_stat) != NULL)
+	{
+		int status;
+		char *fields[3];
+		int fields_num;
+
+		fields_num = strsplit (buffer, fields,
+				STATIC_ARRAY_SIZE (fields));
+		if (fields_num != 2)
+			continue;
+
+		if (strcmp ("processes", fields[0]) != 0)
+			continue;
+
+		status = parse_value (fields[1], &value, DS_TYPE_DERIVE);
+		if (status == 0)
+			value_valid = 1;
+
+		break;
+	}
+	fclose(proc_stat);
+
+	if (!value_valid)
+		return (-1);
+
+	ps_submit_fork_rate (value.derive);
+	return (0);
 }
 #endif /*KERNEL_LINUX */
 
