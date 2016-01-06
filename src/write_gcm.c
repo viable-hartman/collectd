@@ -369,7 +369,7 @@ static int wg_curl_get_or_post(char *response_buffer,
   time_t start_time = cdtime();
   int curl_result = curl_easy_perform(curl);
   if (curl_result != CURLE_OK) {
-    WARNING("write_gcm: curl_easy_perform() failed: %s",
+    ERROR("write_gcm: curl_easy_perform() failed: %s",
             curl_easy_strerror(curl_result));
     goto leave;
   }
@@ -379,7 +379,7 @@ static int wg_curl_get_or_post(char *response_buffer,
 
   write_ctx.data[0] = 0;
   if (write_ctx.size < 2) {
-    WARNING("write_gcm: wg_curl_get_or_post: The receive buffer overflowed.");
+    ERROR("write_gcm: wg_curl_get_or_post: The receive buffer overflowed.");
     DEBUG("write_gcm: wg_curl_get_or_post: Received data is: %s",
         response_buffer);
     goto leave;
@@ -1019,12 +1019,207 @@ static void wg_oauth2_ctx_destroy(oauth2_ctx_t *ctx) {
 //==============================================================================
 //==============================================================================
 //==============================================================================
+// Austin Appleby's MurmurHash3, retrieved from Wikipedia on December 22, 2015.
+// https://en.wikipedia.org/wiki/MurmurHash
+//
+// This version requires that your processor be tolerant of unaligned reads.
+//==============================================================================
+//==============================================================================
+//==============================================================================
+#define ROT32(x, y) ((x << y) | (x >> (32 - y))) // avoid effor
+uint32_t murmur3_32(const char *key, uint32_t len, uint32_t seed) {
+  static const uint32_t c1 = 0xcc9e2d51;
+  static const uint32_t c2 = 0x1b873593;
+  static const uint32_t r1 = 15;
+  static const uint32_t r2 = 13;
+  static const uint32_t m = 5;
+  static const uint32_t n = 0xe6546b64;
+
+  uint32_t hash = seed;
+
+  const int nblocks = len / 4;
+  const uint32_t *blocks = (const uint32_t *) key;
+  int i;
+  uint32_t k;
+  for (i = 0; i < nblocks; i++) {
+    k = blocks[i];
+    k *= c1;
+    k = ROT32(k, r1);
+    k *= c2;
+
+    hash ^= k;
+    hash = ROT32(hash, r2) * m + n;
+  }
+
+  const uint8_t *tail = (const uint8_t *) (key + nblocks * 4);
+  uint32_t k1 = 0;
+
+  switch (len & 3) {
+    case 3:
+      k1 ^= tail[2] << 16;
+    case 2:
+      k1 ^= tail[1] << 8;
+    case 1:
+      k1 ^= tail[0];
+
+      k1 *= c1;
+      k1 = ROT32(k1, r1);
+      k1 *= c2;
+      hash ^= k1;
+  }
+
+  hash ^= len;
+  hash ^= (hash >> 16);
+  hash *= 0x85ebca6b;
+  hash ^= (hash >> 13);
+  hash *= 0xc2b2ae35;
+  hash ^= (hash >> 16);
+
+  return hash;
+}
+#undef ROT32
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+// Canonical metadata values. The only metadata values we currently care about
+// are those that function as a 'key' for the Stackdriver product. When a value
+// comes in, we keep those (sorting them to put them in a canonical order) and
+// discard the rest.
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+// Identifying information for plugins with supported metadata.
+typedef struct {
+  // These fields form a filter. A given field is NULL if it does not
+  // participate in the match.
+  const char *plugin;
+  const char *type;
+  const char *plugin_instance;
+  const char *type_instance;
+
+  // The metadata keys we care about.
+  const char **supported_keys;
+
+  // The number of keys in this structure.
+  // num_keys == arraysize(supported_keys).
+  int num_supported_keys;
+} wg_recognized_plugin_t;
+
+// Finds the wg_recognized_plugin_t structure that matches the incoming
+// parameters. Returns NULL if no match was found.
+static wg_recognized_plugin_t *wg_find_recognized_plugin(
+    const char *plugin, const char *type, const char *plugin_instance,
+    const char *type_instance);
+// Canonicalizes the array of metadata keys so that they are limited to those
+// supported by Stackdriver. (We don't care about metadata that some other
+// plugin may have added for its own purposes). This operation may shorten the
+// array. If it does, the deleted keys will be freed. Returns the new size of
+// the array.
+static int wg_canonicalize_keys(const char *plugin, const char *type,
+    const char *plugin_instance, const char *type_instance, char **keys,
+    int num_keys);
+
+//------------------------------------------------------------------------------
+// Private implementation starts here.
+//------------------------------------------------------------------------------
+// Removes entries from the 'keys' array which are not present in the
+// 'supported_keys' array. Returns the new array size. Frees removed keys.
+static int wg_filter_keys(char **keys, int keys_size,
+    const char **supported_keys, int supported_keys_len);
+static _Bool wg_array_contains_key(const char *key, const char **array,
+    int array_size);
+
+static const char *wg_supported_keys_processes[] = {
+    "processes:pid",
+    "processes:owner",
+    "processes:command",
+    "processes:command_line",
+};
+
+static wg_recognized_plugin_t wg_recognized_plugins[] = {
+    {
+        .plugin = "processes",
+        // .type_instance = "detail",
+        .supported_keys = wg_supported_keys_processes,
+        .num_supported_keys = STATIC_ARRAY_SIZE(wg_supported_keys_processes),
+    },
+};
+
+static wg_recognized_plugin_t *wg_find_recognized_plugin(
+    const char *plugin, const char *plugin_instance,
+    const char *type, const char *type_instance) {
+  int i;
+  for (i = 0; i < STATIC_ARRAY_SIZE(wg_recognized_plugins); ++i) {
+    wg_recognized_plugin_t *rec = &wg_recognized_plugins[i];
+    if (rec->plugin != NULL && strcmp(rec->plugin, plugin) != 0) continue;
+    if (rec->plugin_instance != NULL &&
+        strcmp(rec->plugin_instance, plugin_instance) != 0) continue;
+    if (rec->type != NULL && strcmp(rec->type, type) != 0) continue;
+    if (rec->type_instance != NULL &&
+        strcmp(rec->type_instance, type_instance) != 0) continue;
+    // Match found!
+    return rec;
+  }
+  return NULL;
+}
+
+static int wg_canonicalize_keys(const char *plugin, const char *plugin_instance,
+    const char *type, const char *type_instance,
+    char **keys, int num_keys) {
+  wg_recognized_plugin_t *rec = wg_find_recognized_plugin(
+      plugin, plugin_instance, type, type_instance);
+  if (rec == NULL) {
+    // Plugin not recognized. In this case we can free all the metadata entries.
+    return wg_filter_keys(keys, num_keys, NULL, 0);
+  }
+
+  // Plugin recognized. Limit the metadata entries to the supported keys.
+  num_keys = wg_filter_keys(keys, num_keys,
+      rec->supported_keys, rec->num_supported_keys);
+  // Canonicalize key order.
+  qsort(keys, num_keys, sizeof(keys[0]),
+      (int (*)(const void *, const void *))&strcmp);
+  return num_keys;
+}
+
+static int wg_filter_keys(char **keys, int num_keys,
+    const char **supported_keys, int num_supported_keys) {
+  int i = 0;
+  while (i < num_keys) {
+    if (wg_array_contains_key(keys[i], supported_keys, num_supported_keys)) {
+      // Key supported! Keep it.
+      ++i;
+      continue;
+    }
+    // Key not supported. Delete it!
+    sfree(keys[i]);
+    keys[i] = keys[num_keys - 1];
+    --num_keys;
+  }
+  return num_keys;
+}
+
+static _Bool wg_array_contains_key(const char *key, const char **array,
+    int array_size) {
+  int i;
+  for (i = 0; i < array_size; ++i) {
+    if (strcmp(array[i], key) == 0) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
 // Submodule for holding the monitored data while we are waiting to send it
 // upstream.
 //==============================================================================
 //==============================================================================
 //==============================================================================
-
 typedef enum {
   wg_typed_value_string, wg_typed_value_numeric, wg_typed_value_bool
 } wg_typed_value_type_t;
@@ -1050,6 +1245,20 @@ typedef struct wg_metadata_s {
   wg_typed_value_t value;
 } wg_metadata_entry_t;
 
+typedef struct {
+  char host[DATA_MAX_NAME_LEN];
+  char plugin[DATA_MAX_NAME_LEN];
+  char plugin_instance[DATA_MAX_NAME_LEN];
+  char type[DATA_MAX_NAME_LEN];
+  char type_instance[DATA_MAX_NAME_LEN];
+
+  int num_metadata_entries;
+  wg_metadata_entry_t *metadata_entries;
+
+  // The hash of all the fields above, including the metadata values if any.
+  uint32_t hash_code;
+} wg_payload_key_t;
+
 // The element type of the 'values' array of wg_payload_t, defined below.
 typedef struct {
   char name[DATA_MAX_NAME_LEN];
@@ -1057,24 +1266,17 @@ typedef struct {
   value_t val;
 } wg_payload_value_t;
 
-// This variable-length structure is our digested version of the collectd
-// payload, in a form more suitable for sending to the upstream server. The
-// actual number of elements in the 'values' array is stored in num_values.
+// Our digested version of the collectd payload, in a form more suitable for
+// sending to the upstream server.
 typedef struct wg_payload_s {
   struct wg_payload_s *next;
-  char host[DATA_MAX_NAME_LEN];
-  char plugin[DATA_MAX_NAME_LEN];
-  char plugin_instance[DATA_MAX_NAME_LEN];
-  char type[DATA_MAX_NAME_LEN];
-  char type_instance[DATA_MAX_NAME_LEN];
+
+  wg_payload_key_t key;
   cdtime_t start_time;
   cdtime_t end_time;
 
-  int num_metadata_entries;
-  wg_metadata_entry_t *metadata_entries;
-
   int num_values;
-  wg_payload_value_t values[1];  // Actually, variable-length.
+  wg_payload_value_t *values;
 } wg_payload_t;
 
 // For derivative values (both DERIVE and COUNTER values in collectd), we need
@@ -1098,107 +1300,94 @@ typedef struct wg_payload_s {
 //   unlike the initial case, this value can be sent upstream (does not need to
 //   be absorbed).
 typedef struct {
-  char host[DATA_MAX_NAME_LEN];
-  char plugin[DATA_MAX_NAME_LEN];
-  char plugin_instance[DATA_MAX_NAME_LEN];
-  char type[DATA_MAX_NAME_LEN];
-  char type_instance[DATA_MAX_NAME_LEN];
-} deriv_tracker_key_t;
-
-// See the comments above deriv_tracker_key_t.
-typedef struct {
   cdtime_t start_time;
   value_t *baselines;
   value_t *previous;
-} deriv_tracker_value_t;
+} wg_deriv_tracker_value_t;
 
 static wg_payload_t *wg_payload_create(const data_set_t *ds,
     const value_list_t *vl);
 static void wg_payload_destroy(wg_payload_t *list);
 
-static int wg_typed_value_create_from_value_t_inline(int ds_type, value_t value,
-    const char **dataSourceType_static, wg_typed_value_t *tv);
-static int wg_typed_value_create_from_meta_data_inline(meta_data_t *md,
-    const char *key, wg_typed_value_t *result);
-static void wg_typed_value_destroy_inline(wg_typed_value_t *typed_value);
+static int wg_typed_value_create_from_value_t_inline(wg_typed_value_t *result,
+    int ds_type, value_t value, const char **dataSourceType_static);
+static int wg_typed_value_create_from_meta_data_inline(wg_typed_value_t *item,
+    meta_data_t *md, const char *key);
+static void wg_typed_value_destroy_inline(wg_typed_value_t *item);
+static int wg_typed_value_copy(wg_typed_value_t *dest,
+    const wg_typed_value_t *src);
+static uint32_t wg_typed_value_compute_hash_code(const wg_typed_value_t *item,
+    uint32_t seed);
 
-static int wg_metadata_entry_create_inline(meta_data_t *md, char **key,
-    wg_metadata_entry_t *result);
-static void wg_metadata_entry_destroy_inline(wg_metadata_entry_t *entry);
+static int wg_metadata_entry_create_inline(wg_metadata_entry_t *result,
+    meta_data_t *md, const char *key);
+static void wg_metadata_entry_destroy_inline(wg_metadata_entry_t *item);
+static int wg_metadata_entry_copy(wg_metadata_entry_t *dest,
+    const wg_metadata_entry_t *src);
 
-static deriv_tracker_key_t *wg_deriv_tracker_key_create(const char *host,
-    const char *plugin, const char *plugin_instance, const char *type,
-    const char *type_instance);
-static void wg_deriv_tracker_key_destroy(deriv_tracker_key_t *key);
+static int wg_payload_key_create_inline(wg_payload_key_t *item,
+    const value_list_t *vl);
+static void wg_payload_key_destroy_inline(wg_payload_key_t *item);
+static wg_payload_key_t *wg_payload_key_clone(const wg_payload_key_t *item);
+// Compute the hash code of the payload key. It is assumed at this point that
+// the metadata is canonicalized (to be only those keys that Stackdriver
+// supports) and that the keys are sorted lexicographically. This is done by
+// the wg_canonicalize_keys method.
+static uint32_t wg_payload_key_compute_hash_code(const wg_payload_key_t *item,
+    uint32_t seed);
+// Estimate the memory impact of the payload key. This is basically the sum of
+// the string lengths of the main values (plugin, plugin_instance, type,
+// type_instance) plus the lengths of the metadata values.
+static uint32_t wg_payload_key_estimate_memory_impact(
+    const wg_payload_key_t *item);
+// Returns true if the payload key is a candidate for throttling (when server
+// memory usage gets tight).
+static _Bool wg_payload_key_is_throttleable(const wg_payload_key_t *item);
 
-static deriv_tracker_value_t *wg_deriv_tracker_value_create(int num_values);
-static void wg_deriv_tracker_value_destroy(deriv_tracker_value_t *value);
+static void wg_payload_value_create_inline(wg_payload_value_t *result,
+    const char *name, int ds_type, value_t value);
+static void wg_payload_value_destroy_inline(wg_payload_value_t *item);
 
+static wg_deriv_tracker_value_t *wg_deriv_tracker_value_create(int num_values);
+static void wg_deriv_tracker_value_destroy(wg_deriv_tracker_value_t *item);
+
+static c_avl_tree_t *wg_deriv_tree_create();
 static void wg_deriv_tree_destroy(c_avl_tree_t *tree);
 
-// The comparison function for deriv_tracker_key_t.
-static int wg_deriv_tracker_key_compare(const void *lhs, const void *rhs);
+static int wg_payload_key_compare(const wg_payload_key_t *l,
+    const wg_payload_key_t *r);
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
 //------------------------------------------------------------------------------
-
 static wg_payload_t *wg_payload_create(const data_set_t *ds,
     const value_list_t *vl) {
   // Items to clean up upon exit.
   wg_payload_t *build = NULL;
   wg_payload_t *result = NULL;
-  char **toc = NULL;
-  int toc_count = 0;
 
-  size_t size = sizeof(wg_payload_t) +
-      (vl->values_len - 1) * sizeof(wg_payload_value_t);
-  build = calloc(1, size);
+  build = calloc(1, sizeof(*build));
   if (build == NULL) {
     ERROR("write_gcm: wg_payload_create: calloc failed");
     goto leave;
   }
   build->next = NULL;
-  strncpy(build->host, vl->host, sizeof(build->host));
-  strncpy(build->plugin, vl->plugin, sizeof(build->plugin));
-  strncpy(build->plugin_instance, vl->plugin_instance,
-      sizeof(build->plugin_instance));
-  strncpy(build->type, vl->type, sizeof(build->type));
-  strncpy(build->type_instance, vl->type_instance,
-      sizeof(build->type_instance));
+  if (wg_payload_key_create_inline(&build->key, vl) != 0) {
+    ERROR("write_gcm: wg_payload_key_create_inline failed");
+    goto leave;
+  }
+
   build->start_time = vl->time;
   build->end_time = vl->time;
 
-  if (vl->meta != NULL) {
-    // Use the unfortunate O(N^2) interface to extract the metadata.
-    int count = meta_data_toc(vl->meta, &toc);
-    if (count < 0) {
-      ERROR("write_gcm: error reading metadata table of contents.");
-      goto leave;
-    }
-    toc_count = count;
-    build->num_metadata_entries = count;
-    build->metadata_entries = calloc(count, sizeof(build->metadata_entries[0]));
-    int i;
-    for (i = 0; i < count; ++i) {
-      if (wg_metadata_entry_create_inline(vl->meta, &toc[i],
-          &build->metadata_entries[i]) != 0) {
-        ERROR("write_gcm: wg_typed_value_create_from_meta_data_inline failed.");
-        goto leave;
-      }
-    }
-  }
-
   build->num_values = vl->values_len;
-
+  build->values = calloc(vl->values_len, sizeof(build->values[0]));
   assert(ds->ds_num == vl->values_len);
   int i;
   for (i = 0; i < ds->ds_num; ++i) {
     data_source_t *src = &ds->ds[i];
-    wg_payload_value_t *dst = &build->values[i];
-    strncpy(dst->name, src->name, sizeof(dst->name));
-    dst->ds_type = src->type;
-    dst->val = vl->values[i];
+    wg_payload_value_create_inline(&build->values[i],
+        src->name, src->type, vl->values[i]);
   }
 
   // Success!
@@ -1206,13 +1395,6 @@ static wg_payload_t *wg_payload_create(const data_set_t *ds,
   build = NULL;
 
  leave:
-  if (toc != NULL) {
-    int i;
-    for (i = 0; i < toc_count; ++i) {
-      sfree(toc[i]);
-    }
-    sfree(toc);
-  }
   wg_payload_destroy(build);
   return result;
 }
@@ -1221,9 +1403,11 @@ static void wg_payload_destroy(wg_payload_t *list) {
   while (list != NULL) {
     wg_payload_t *next = list->next;
     int i;
-    for (i = 0; i < list->num_metadata_entries; ++i) {
-      wg_metadata_entry_destroy_inline(&list->metadata_entries[i]);
+    for (i = 0; i < list->num_values; ++i) {
+      wg_payload_value_destroy_inline(&list->values[i]);
     }
+    sfree(list->values);
+    wg_payload_key_destroy_inline(&list->key);
     sfree(list);
     list = next;
   }
@@ -1236,8 +1420,8 @@ static void wg_payload_destroy(wg_payload_t *list) {
 // google.monitoring.v3.TypedValue). 'dataSourceType_static' is so named to help
 // us remember that it is a compile-time string constant which does not need to
 // be copied/deallocated.
-static int wg_typed_value_create_from_value_t_inline(int ds_type, value_t value,
-    const char **dataSourceType_static, wg_typed_value_t *tv) {
+static int wg_typed_value_create_from_value_t_inline(wg_typed_value_t *result,
+    int ds_type, value_t value, const char **dataSourceType_static) {
   char buffer[128];
   switch (ds_type) {
     case DS_TYPE_GAUGE: {
@@ -1246,7 +1430,7 @@ static int wg_typed_value_create_from_value_t_inline(int ds_type, value_t value,
         return -1;
       }
       *dataSourceType_static = "gauge";
-      tv->field_name_static = "doubleValue";
+      result->field_name_static = "doubleValue";
       snprintf(buffer, sizeof(buffer), "%f", value.gauge);
       break;
     }
@@ -1256,13 +1440,13 @@ static int wg_typed_value_create_from_value_t_inline(int ds_type, value_t value,
         return -1;
       }
       *dataSourceType_static = "counter";
-      tv->field_name_static = "int64Value";
+      result->field_name_static = "int64Value";
       snprintf(buffer, sizeof(buffer), "%" PRIi64, (int64_t)value.counter);
       break;
     }
     case DS_TYPE_DERIVE: {
       *dataSourceType_static = "derive";
-      tv->field_name_static = "int64Value";
+      result->field_name_static = "int64Value";
       snprintf(buffer, sizeof(buffer), "%" PRIi64, value.derive);
       break;
     }
@@ -1272,7 +1456,7 @@ static int wg_typed_value_create_from_value_t_inline(int ds_type, value_t value,
         return -1;
       }
       *dataSourceType_static = "absolute";
-      tv->field_name_static = "int64Value";
+      result->field_name_static = "int64Value";
       snprintf(buffer, sizeof(buffer), "%" PRIi64, (int64_t)value.absolute);
       break;
     }
@@ -1280,13 +1464,13 @@ static int wg_typed_value_create_from_value_t_inline(int ds_type, value_t value,
       ERROR("write_gcm: wg_get_vl_value: Unknown ds_type %i", ds_type);
       return -1;
   }
-  tv->value_text = strdup(buffer);
-  tv->value_type = wg_typed_value_numeric;
+  result->value_text = strdup(buffer);
+  result->value_type = wg_typed_value_numeric;
   return 0;
 }
 
-static int wg_typed_value_create_from_meta_data_inline(meta_data_t *md,
-    const char *key, wg_typed_value_t *result) {
+static int wg_typed_value_create_from_meta_data_inline(wg_typed_value_t *result,
+    meta_data_t *md, const char *key) {
   int type = meta_data_type(md, key);
   char buffer[128];
   switch(type) {
@@ -1354,18 +1538,207 @@ static int wg_typed_value_create_from_meta_data_inline(meta_data_t *md,
   }
 }
 
-static void wg_typed_value_destroy_inline(wg_typed_value_t *typed_value) {
-  sfree(typed_value->value_text);
+static void wg_typed_value_destroy_inline(wg_typed_value_t *item) {
+  sfree(item->value_text);
 }
 
-static int wg_metadata_entry_create_inline(meta_data_t *md,
-    char **key, wg_metadata_entry_t *result) {
-  if (wg_typed_value_create_from_meta_data_inline(md, *key, &result->value)
+static int wg_typed_value_copy(wg_typed_value_t *dest,
+    const wg_typed_value_t *src) {
+  dest->field_name_static = src->field_name_static;
+  dest->value_type = src->value_type;
+  dest->value_text = sstrdup(src->value_text);
+  if (dest->value_text == NULL) {
+    ERROR("write_gcm: wg_typed_value_copy: sstrdup failed");
+    return -1;
+  }
+  dest->bool_value = src->bool_value;
+  return 0;
+}
+
+static int wg_typed_value_compare(const wg_typed_value_t *lhs,
+    const wg_typed_value_t *rhs) {
+  int difference;
+  difference = strcmp(lhs->field_name_static, rhs->field_name_static);
+  if (difference != 0) return difference;
+  difference = (int)lhs->value_type - (int)rhs->value_type;
+  if (difference != 0) return difference;
+  if (lhs->value_type == wg_typed_value_bool) {
+    return (int)lhs->bool_value - (int)rhs->bool_value;
+  }
+  return strcmp(lhs->value_text, rhs->value_text);
+}
+
+static uint32_t wg_typed_value_compute_hash_code(const wg_typed_value_t *item,
+    uint32_t seed) {
+  if (item->value_type == wg_typed_value_bool) {
+    return seed + item->bool_value;
+  }
+  return murmur3_32(item->value_text, strlen(item->value_text), seed);
+}
+
+static uint32_t wg_typed_value_estimate_memory_impact(
+    const wg_typed_value_t *item) {
+  if (item->value_type == wg_typed_value_bool) {
+    return 0;
+  }
+  return strlen(item->value_text);
+}
+
+static int wg_payload_key_create_inline(wg_payload_key_t *item,
+    const value_list_t *vl) {
+  // Items to clean up upon exit.
+  char **toc = NULL;
+  int toc_size = 0;
+  int result = -1;  // Pessimistically assume error.
+
+  strncpy(item->host, vl->host, sizeof(item->host));
+  strncpy(item->plugin, vl->plugin, sizeof(item->plugin));
+  strncpy(item->plugin_instance, vl->plugin_instance,
+      sizeof(item->plugin_instance));
+  strncpy(item->type, vl->type, sizeof(item->type));
+  strncpy(item->type_instance, vl->type_instance,
+      sizeof(item->type_instance));
+
+  if (vl->meta != NULL) {
+    toc_size = meta_data_toc(vl->meta, &toc);
+    if (toc_size < 0) {
+      ERROR("write_gcm: error reading metadata table of contents.");
+      goto leave;
+    }
+    toc_size = wg_canonicalize_keys(vl->plugin, vl->plugin_instance,
+        vl->type, vl->type_instance, toc, toc_size);
+    item->num_metadata_entries = toc_size;
+    item->metadata_entries = calloc(toc_size,
+        sizeof(item->metadata_entries[0]));
+    int i;
+    for (i = 0; i < toc_size; ++i) {
+      if (wg_metadata_entry_create_inline(&item->metadata_entries[i],
+          vl->meta, toc[i]) != 0) {
+        ERROR("write_gcm: wg_metadata_entry_create_inline failed.");
+        goto leave;
+      }
+    }
+  }
+  item->hash_code = wg_payload_key_compute_hash_code(item, 0);
+  result = 0;  //Success!
+
+ leave:
+  if (toc != NULL) {
+    int i;
+    for (i = 0; i < toc_size; ++i) {
+      sfree(toc[i]);
+    }
+    sfree(toc);
+  }
+  return result;
+}
+
+static void wg_payload_key_destroy_inline(wg_payload_key_t *item) {
+  int i;
+  for (i = 0; i < item->num_metadata_entries; ++i) {
+    wg_metadata_entry_destroy_inline(&item->metadata_entries[i]);
+  }
+  sfree(item->metadata_entries);
+}
+
+static wg_payload_key_t *wg_payload_key_clone(const wg_payload_key_t *item) {
+  // Items to clean up on exit.
+  wg_payload_key_t *build = NULL;
+  wg_payload_key_t *result = NULL;
+
+  build = calloc(1, sizeof(*build));
+  if (build == NULL) {
+    ERROR("write_gcm: wg_payload_key_clone: calloc failed");
+    goto leave;
+  }
+
+  sstrncpy(build->host, item->host, sizeof(build->host));
+  sstrncpy(build->plugin, item->plugin, sizeof(build->plugin));
+  sstrncpy(build->plugin_instance, item->plugin_instance,
+      sizeof(build->plugin_instance));
+  sstrncpy(build->type, item->type, sizeof(build->type));
+  sstrncpy(build->type_instance, item->type_instance,
+      sizeof(build->type_instance));
+
+  build->num_metadata_entries = item->num_metadata_entries;
+  if (build->num_metadata_entries != 0) {
+    build->metadata_entries = calloc(build->num_metadata_entries,
+        sizeof(build->metadata_entries[0]));
+    if (build->metadata_entries == NULL) {
+      ERROR("write_gcm: wg_payload_key_clone: 2nd calloc failed");
+      goto leave;
+    }
+    int i;
+    for (i = 0; i < build->num_metadata_entries; ++i) {
+      if (wg_metadata_entry_copy(&build->metadata_entries[i],
+          &item->metadata_entries[i]) != 0) {
+        ERROR("write_gcm: wg_metadata_entry_copy failed");
+        goto leave;
+      }
+    }
+  }
+
+  // Success!
+  result = build;
+  build = NULL;
+
+ leave:
+  if (build != NULL) {
+    wg_payload_key_destroy_inline(build);
+    sfree(build);
+  }
+  return result;
+}
+
+static uint32_t wg_payload_key_compute_hash_code(const wg_payload_key_t *item,
+    uint32_t seed) {
+  uint32_t result = seed;
+  result = murmur3_32(item->host, strlen(item->host), result);
+  result = murmur3_32(item->plugin, strlen(item->plugin), result);
+  result = murmur3_32(item->plugin_instance, strlen(item->plugin_instance),
+      result);
+  result = murmur3_32(item->type, strlen(item->type), result);
+  result = murmur3_32(item->type_instance, strlen(item->type_instance),
+      result);
+
+  int i;
+  for (i = 0; i < item->num_metadata_entries; ++i) {
+    result = wg_typed_value_compute_hash_code(
+        &item->metadata_entries[i].value, result);
+  }
+  return result;
+}
+
+static uint32_t wg_payload_key_estimate_memory_impact(
+    const wg_payload_key_t *item) {
+  uint32_t result = 0;
+  result += strlen(item->plugin);
+  result += strlen(item->plugin_instance);
+  result += strlen(item->type);
+  result += strlen(item->type_instance);
+  int i;
+  for (i = 0; i < item->num_metadata_entries; ++i) {
+    result += wg_typed_value_estimate_memory_impact(
+        &item->metadata_entries[i].value);
+  }
+  return result;
+}
+
+static _Bool wg_payload_key_is_throttleable(const wg_payload_key_t *item) {
+  return item->num_metadata_entries != 0;
+}
+
+static int wg_metadata_entry_create_inline(wg_metadata_entry_t *item,
+    meta_data_t *md, const char *key) {
+  if (wg_typed_value_create_from_meta_data_inline(&item->value, md, key)
       != 0) {
     return -1;
   }
-  result->key = *key;  // Take ownership of string.
-  *key = NULL;
+  item->key = sstrdup(key);
+  if (item->key == NULL) {
+    ERROR("write_gcm: wg_metadata_entry_create_inline: sstrdup failed");
+    return -1;
+  }
   return 0;
 }
 
@@ -1374,33 +1747,40 @@ static void wg_metadata_entry_destroy_inline(wg_metadata_entry_t *entry) {
   wg_typed_value_destroy_inline(&entry->value);
 }
 
-static deriv_tracker_key_t *wg_deriv_tracker_key_create(const char *host,
-    const char *plugin, const char *plugin_instance, const char *type,
-    const char *type_instance) {
-  deriv_tracker_key_t *res = calloc(1, sizeof(*res));
-  if (res == NULL) {
-    ERROR("write_gcm: wg_deriv_tracker_key_create: calloc failed");
-    return NULL;
+static int wg_metadata_entry_copy(wg_metadata_entry_t *dest,
+    const wg_metadata_entry_t *src) {
+  dest->key = sstrdup(src->key);
+  if (dest->key == NULL) {
+    ERROR("write_gcm: wg_metadata_entry_copy: sstrdup failed");
+    return -1;
   }
-  strncpy(res->host, host, sizeof(res->host));
-  strncpy(res->plugin, plugin, sizeof(res->plugin));
-  strncpy(res->plugin_instance, plugin_instance, sizeof(res->plugin_instance));
-  strncpy(res->type, type, sizeof(res->type));
-  strncpy(res->type_instance, type_instance, sizeof(res->type_instance));
-  return res;
+  return wg_typed_value_copy(&dest->value, &src->value);
 }
 
-static void wg_deriv_tracker_key_destroy(deriv_tracker_key_t *key) {
-  if (key == NULL) {
-    return;
+static int wg_metadata_entry_compare(const wg_metadata_entry_t *lhs,
+    const wg_metadata_entry_t *rhs) {
+  int difference = strcmp(lhs->key, rhs->key);
+  if (difference != 0) {
+    return difference;
   }
-  sfree(key);
+  return wg_typed_value_compare(&lhs->value, &rhs->value);
 }
 
-static deriv_tracker_value_t *wg_deriv_tracker_value_create(int num_values) {
+static void wg_payload_value_create_inline(wg_payload_value_t *item,
+    const char *name, int ds_type, value_t value) {
+  strncpy(item->name, name, sizeof(item->name));
+  item->ds_type = ds_type;
+  item->val = value;
+}
+
+static void wg_payload_value_destroy_inline(wg_payload_value_t *item) {
+  // Nothing to do :-)
+}
+
+static wg_deriv_tracker_value_t *wg_deriv_tracker_value_create(int num_values) {
   // Items to clean up at exit.
-  deriv_tracker_value_t *result = NULL;  // Pessimistically assume failure.
-  deriv_tracker_value_t *build = NULL;
+  wg_deriv_tracker_value_t *result = NULL;  // Pessimistically assume failure.
+  wg_deriv_tracker_value_t *build = NULL;
 
   build = calloc(1, sizeof(*build));
   if (build == NULL) {
@@ -1423,7 +1803,7 @@ static deriv_tracker_value_t *wg_deriv_tracker_value_create(int num_values) {
   return result;
 }
 
-static void wg_deriv_tracker_value_destroy(deriv_tracker_value_t *value) {
+static void wg_deriv_tracker_value_destroy(wg_deriv_tracker_value_t *value) {
   if (value == NULL) {
     return;
   }
@@ -1433,7 +1813,8 @@ static void wg_deriv_tracker_value_destroy(deriv_tracker_value_t *value) {
 }
 
 static c_avl_tree_t *wg_been_here_tree_create() {
-  return c_avl_create(&wg_deriv_tracker_key_compare);
+  return c_avl_create(
+      (int (*)(const void*, const void*))&wg_payload_key_compare);
 }
 
 static void wg_been_here_tree_destroy(c_avl_tree_t *tree) {
@@ -1443,14 +1824,17 @@ static void wg_been_here_tree_destroy(c_avl_tree_t *tree) {
   void *key;
   void *ignored;
   while (c_avl_pick(tree, &key, &ignored) == 0) {
-    wg_deriv_tracker_key_destroy((deriv_tracker_key_t*)key);
+    wg_payload_key_t *actual_key = (wg_payload_key_t*)key;
+    wg_payload_key_destroy_inline(actual_key);
+    sfree(actual_key);
     assert(ignored == NULL);
   }
   c_avl_destroy(tree);
 }
 
 static c_avl_tree_t *wg_deriv_tree_create() {
-  return c_avl_create(&wg_deriv_tracker_key_compare);
+  return c_avl_create(
+      (int (*)(const void*, const void*))&wg_payload_key_compare);
 }
 
 static void wg_deriv_tree_destroy(c_avl_tree_t *tree) {
@@ -1460,15 +1844,17 @@ static void wg_deriv_tree_destroy(c_avl_tree_t *tree) {
   void *key;
   void *value;
   while (c_avl_pick(tree, &key, &value) == 0) {
-    wg_deriv_tracker_key_destroy((deriv_tracker_key_t*)key);
-    wg_deriv_tracker_value_destroy((deriv_tracker_value_t*)value);
+    wg_payload_key_t *actual_key = (wg_payload_key_t*)key;
+    wg_deriv_tracker_value_t *actual_value = (wg_deriv_tracker_value_t *)value;
+    wg_payload_key_destroy_inline(actual_key);
+    sfree(actual_key);
+    wg_deriv_tracker_value_destroy(actual_value);
   }
   c_avl_destroy(tree);
 }
 
-static int wg_deriv_tracker_key_compare(const void *lhs, const void *rhs) {
-  const deriv_tracker_key_t *l = lhs;
-  const deriv_tracker_key_t *r = rhs;
+static int wg_payload_key_compare(const wg_payload_key_t *l,
+    const wg_payload_key_t *r) {
   int difference;
   difference = strcmp(l->host, r->host);
   if (difference != 0) return difference;
@@ -1479,9 +1865,22 @@ static int wg_deriv_tracker_key_compare(const void *lhs, const void *rhs) {
   difference = strcmp(l->type, r->type);
   if (difference != 0) return difference;
   difference = strcmp(l->type_instance, r->type_instance);
-  return difference;
-}
+  if (difference != 0) return difference;
 
+  // The metadata keys are in canonical order, so comparing them is pretty easy.
+
+  // No int32 overflow is possible here, so this is safe.
+  difference = l->num_metadata_entries - r->num_metadata_entries;
+  if (difference != 0) return difference;
+
+  int i;
+  for (i = 0; i < l->num_metadata_entries; ++i) {
+    difference = wg_metadata_entry_compare(&l->metadata_entries[i],
+        &r->metadata_entries[i]);
+    if (difference != 0) return difference;
+  }
+  return 0;
+}
 
 //==============================================================================
 //==============================================================================
@@ -1508,6 +1907,10 @@ typedef struct {
   char *passphrase;
   char *json_log_file;
   char *agent_translation_service_format_string;
+  int throttling_low_water_mark;
+  int throttling_high_water_mark;
+  int throttling_chunk_interval_secs;
+  int throttling_purge_interval_secs;
   _Bool pretty_print_json;
 } wg_configbuilder_t;
 
@@ -1520,7 +1923,6 @@ static void wg_configbuilder_destroy(wg_configbuilder_t *cb);
 //------------------------------------------------------------------------------
 static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci) {
   // Items to free on error.
-  char *pretty_print_json = NULL;
   wg_configbuilder_t *cb = NULL;
 
   cb = calloc(1, sizeof(*cb));
@@ -1529,7 +1931,7 @@ static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci) {
     goto error;
   }
 
-  const char *keys[] = {
+  const char *string_keys[] = {
       "CloudProvider",
       "Project",
       "Instance",
@@ -1541,9 +1943,8 @@ static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci) {
       "PrivateKeyPass",
       "JSONLogFile",
       "AgentTranslationServiceFormatString",
-      "PrettyPrintJSON"
   };
-  char **locations[] = {
+  char **string_locations[] = {
       &cb->cloud_provider,
       &cb->project_id,
       &cb->instance_id,
@@ -1555,17 +1956,43 @@ static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci) {
       &cb->passphrase,
       &cb->json_log_file,
       &cb->agent_translation_service_format_string,
-      &pretty_print_json
+  };
+  const char *int_keys[] = {
+      "ThrottlingLowWaterMark",
+      "ThrottlingHighWaterMark",
+      "ThrottlingChunkInterval",
+      "ThrottlingPurgeInterval",
+  };
+  int *int_locations[] = {
+      &cb->throttling_low_water_mark,
+      &cb->throttling_high_water_mark,
+      &cb->throttling_chunk_interval_secs,
+      &cb->throttling_purge_interval_secs,
+  };
+  const char *bool_keys[] = {
+      "PrettyPrintJSON",
+  };
+  _Bool *bool_locations[] = {
+      &cb->pretty_print_json
   };
 
-  assert(STATIC_ARRAY_SIZE(keys) == STATIC_ARRAY_SIZE(locations));
+  assert(STATIC_ARRAY_SIZE(string_keys) == STATIC_ARRAY_SIZE(string_locations));
+  assert(STATIC_ARRAY_SIZE(int_keys) == STATIC_ARRAY_SIZE(int_locations));
+  assert(STATIC_ARRAY_SIZE(bool_keys) == STATIC_ARRAY_SIZE(bool_locations));
+
+  // Set some defaults.
+  cb->throttling_low_water_mark = 800000000;  // 800M
+  cb->throttling_high_water_mark = 950000000;  // 950M
+  cb->throttling_chunk_interval_secs = 30 * 60;  // 30 minutes
+  cb->throttling_purge_interval_secs = 24 * 60 * 60;  // 24 hours
+
   int parse_errors = 0;
   int c, k;
   for (c = 0; c < ci->children_num; ++c) {
     oconfig_item_t *child = &ci->children[c];
-    for (k = 0; k < STATIC_ARRAY_SIZE(keys); ++k) {
-      if (strcasecmp(child->key, keys[k]) == 0) {
-        if (cf_util_get_string(child, locations[k]) != 0) {
+    for (k = 0; k < STATIC_ARRAY_SIZE(string_keys); ++k) {
+      if (strcasecmp(child->key, string_keys[k]) == 0) {
+        if (cf_util_get_string(child, string_locations[k]) != 0) {
           ERROR("write_gcm: cf_util_get_string failed for key %s",
                 child->key);
           ++parse_errors;
@@ -1573,20 +2000,46 @@ static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci) {
         break;
       }
     }
-    if (k == STATIC_ARRAY_SIZE(keys)) {
-      ERROR("write_gcm: Invalid configuration option: %s.", child->key);
-      ++parse_errors;
+    if (k < STATIC_ARRAY_SIZE(string_keys)) {
+      // Key matched some string and was either successful or a parse error.
+      continue;
     }
+    for (k = 0; k < STATIC_ARRAY_SIZE(int_keys); ++k) {
+      if (strcasecmp(child->key, int_keys[k]) == 0) {
+        if (cf_util_get_int(child, int_locations[k]) != 0) {
+          ERROR("write_gcm: cf_util_get_int failed for key %s",
+                child->key);
+          ++parse_errors;
+        }
+        break;
+      }
+    }
+    if (k < STATIC_ARRAY_SIZE(int_keys)) {
+      // Key matched some int and was either successful or a parse error.
+      continue;
+    }
+    for (k = 0; k < STATIC_ARRAY_SIZE(bool_keys); ++k) {
+      if (strcasecmp(child->key, bool_keys[k]) == 0) {
+        if (cf_util_get_boolean(child, bool_locations[k]) != 0) {
+          ERROR("write_gcm: cf_util_get_boolean failed for key %s",
+                child->key);
+          ++parse_errors;
+        }
+        break;
+      }
+    }
+    if (k < STATIC_ARRAY_SIZE(bool_keys)) {
+      // Key matched some bool and was either successful or a parse error.
+      continue;
+    }
+    ERROR("write_gcm: Invalid configuration option: %s.", child->key);
+    ++parse_errors;
   }
 
   if (parse_errors > 0) {
     ERROR("write_gcm: There were %d parse errors reading config file.",
           parse_errors);
     goto error;
-  }
-
-  if (pretty_print_json != NULL && strcasecmp(pretty_print_json, "yes") == 0) {
-    cb->pretty_print_json = 1;
   }
 
   // Either all or none of 'email', 'key_file', and 'passphrase' must be set.
@@ -1612,7 +2065,6 @@ static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci) {
   return cb;
 
  error:
-  sfree(pretty_print_json);
   wg_configbuilder_destroy(cb);
   return NULL;
 }
@@ -1944,6 +2396,354 @@ static char *wg_get_from_metadata_server(const char *base, const char *resource,
   return sstrdup(buffer);
 }
 
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+// "Cloud Key Tracker" submodule. This keeps track of the keys that the server
+// knows about, and initiates throttling if the server is tracking too many
+// keys.
+//==============================================================================
+//==============================================================================
+//==============================================================================
+struct wg_key_history_s;
+
+typedef struct {
+  // Mode: whether throttling is on right now.
+  _Bool is_throttling;
+  // Estimated amount of memory in use at the server (in bytes).
+  size_t server_memory_in_use;
+  // All keys sent in the past 24 hours.
+  struct wg_key_history_s *key_history_head;
+  struct wg_key_history_s *key_history_tail;
+  // Length of the above list.
+  size_t num_key_history_entries;
+  // map<hash code, hash_count_value_t>
+  c_avl_tree_t *hash_counts;
+
+  // Configuration parameters:
+
+  // When 'server_memory_in_use' is less than this value, throttling is turned
+  // off.
+  size_t low_water_mark_bytes;
+
+  // When 'server_memory_in_use' is greater than this value, throttling is
+  // turned on.
+  size_t high_water_mark_bytes;
+
+  // How long to keep adding hashes to the same chunk before making a new chunk
+  // (typically 1/2 hour).
+  int chunk_interval_secs;
+
+  // How long to keep wg_key_history_s chunks before purging them (typically
+  // 24 hours).
+  int purge_interval_secs;
+} wg_key_tracker_t;
+
+typedef struct {
+  uint32_t count;
+  uint32_t memory_impact;
+} hash_count_value_t;
+
+static wg_key_tracker_t *wg_key_tracker_create(size_t low_water_mark,
+    size_t high_water_mark, int chunk_interval_secs, int purge_interval_secs);
+static void wg_key_tracker_destroy(wg_key_tracker_t *item);
+
+// Updates the statistics which keep track of how much memory we think the
+// server is using. Starts throttling data (removing items from the list,
+// modifying it in place) if we feel the server is tracking too much data.
+static int wg_throttle_excessive_keys(wg_key_tracker_t *tracker, cdtime_t now,
+    wg_payload_t **list);
+
+//------------------------------------------------------------------------------
+// Private implementation starts here.
+//------------------------------------------------------------------------------
+static int wg_lookup_or_create_hash_count_value(wg_key_tracker_t *tracker,
+    uint32_t hash, hash_count_value_t **hc_value);
+static int wg_destroy_hash_count_entry(wg_key_tracker_t *tracker,
+    uint32_t hash);
+int wg_compare_uint32_t(void *lhs, void *rhs);
+
+// We track all the keys sent in the previous 24 hours. But we don't hang on to
+// the complete key; rather we just remember the hash of the key. This
+// significantly reduces the amount of memory needed for this tracking, at the
+// cost of being a little bit wrong about our estimate (due to occasional hash
+// collisions).
+typedef struct wg_key_history_s {
+  struct wg_key_history_s *next;
+
+  time_t creation_time;
+  time_t last_append_time;
+  int num_hashes;
+  uint32_t hashes[1024];
+} wg_key_history_t;
+
+static wg_key_history_t *wg_key_history_create(time_t now);
+static void wg_key_history_destroy(wg_key_history_t *item);
+
+
+static int wg_throttle_excessive_keys(wg_key_tracker_t *tracker, cdtime_t now,
+    wg_payload_t **list) {
+  // Trim the key history (removing entries older than 'purge_time')
+  size_t num_chunks_destroyed = 0;
+  cdtime_t purge_time = now - TIME_T_TO_CDTIME_T(tracker->purge_interval_secs);
+
+  while (tracker->key_history_head != NULL &&
+      tracker->key_history_head->last_append_time < purge_time) {
+    wg_key_history_t *kh = tracker->key_history_head;
+
+    int i;
+    for (i = 0; i < kh->num_hashes; ++i) {
+      uint32_t hash = kh->hashes[i];
+      hash_count_value_t *hc_value;
+      if (wg_lookup_or_create_hash_count_value(tracker, hash, &hc_value) != 0) {
+        ERROR("write_gcm: wg_lookup_or_create_hash_count_value (v1) failed.");
+        return -1;
+      }
+      if (hc_value->count == 0) {
+        ERROR("write_gcm: Failed to find existing hash entry.");
+        return -1;
+      }
+      --hc_value->count;
+      if (hc_value->count == 0) {
+        // The last instance! We get to delete it and reduce our estimate of
+        // server memory impact.
+        tracker->server_memory_in_use -= hc_value->memory_impact;
+        if (wg_destroy_hash_count_entry(tracker, hash) != 0) {
+          ERROR("write_gcm: wg_destroy_hash_count_entry failed");
+          return -1;
+        }
+      }
+    }
+    // Pop head.
+    tracker->key_history_head = kh->next;
+    kh->next = NULL;
+    if (tracker->key_history_head == NULL) {
+      tracker->key_history_tail = NULL;
+    }
+    wg_key_history_destroy(kh);
+    ++num_chunks_destroyed;
+    --tracker->num_key_history_entries;
+  }
+
+  // Decide whether to start or stop throttling.
+  if (tracker->is_throttling &&
+      tracker->server_memory_in_use < tracker->low_water_mark_bytes) {
+    WARNING("Estimated server memory is %zd. Throttling is now OFF.",
+        tracker->server_memory_in_use);
+    tracker->is_throttling = 0;
+  }
+  if (!tracker->is_throttling &&
+      tracker->server_memory_in_use > tracker->high_water_mark_bytes) {
+    WARNING("Estimated server memory is %zd. Throttling is now ON.",
+        tracker->server_memory_in_use);
+    tracker->is_throttling = 1;
+  }
+
+  if (tracker->is_throttling) {
+    // Throttle payloads and rewrite the list as we go.
+    wg_payload_t *new_head = NULL;
+    wg_payload_t *new_tail = NULL;
+    wg_payload_t *payload = *list;
+    while (payload != NULL) {
+      // Detach from rest of list.
+      wg_payload_t *next = payload->next;
+      payload->next = NULL;
+      if (wg_payload_key_is_throttleable(&payload->key)) {
+        // This payload is eligible for throttling, so delete it.
+        wg_payload_destroy(payload);
+        payload = next;
+        continue;
+      }
+      // Can't throttle this payload, so add it to the new list we're building.
+      if (new_head == NULL) {
+        new_head = payload;
+      } else {
+        new_tail->next = payload;
+      }
+      new_tail = payload;
+      payload = next;
+    }
+    *list = new_head;
+  }
+
+  // Update server impact of remaining keys.
+  wg_payload_t *payload;
+  hash_count_value_t *hc_value;
+  size_t num_chunks_created = 0;
+  for (payload = *list; payload != NULL; payload = payload->next) {
+    if (wg_lookup_or_create_hash_count_value(tracker, payload->key.hash_code,
+        &hc_value) != 0) {
+      ERROR("write_gcm: wg_lookup_or_create_hash_count_value (v2) failed.");
+      return -1;
+    }
+    if (hc_value->count == 0) {
+      // New entry!
+      uint32_t memory_impact = wg_payload_key_estimate_memory_impact(
+          &payload->key);
+      hc_value->memory_impact = memory_impact;
+      tracker->server_memory_in_use += memory_impact;
+    }
+    ++hc_value->count;
+
+    // Update history. We will make a new history node if:
+    // 1. There is no current history node.
+    // 2. The current history node is full.
+    // 3. The current history node was created prior to 'chunk_time'.
+    cdtime_t chunk_time = now -
+        TIME_T_TO_CDTIME_T(tracker->chunk_interval_secs);
+    wg_key_history_t *tail = tracker->key_history_tail;  // alias
+    if (tail == NULL ||
+        tail->num_hashes == STATIC_ARRAY_SIZE(tail->hashes) ||
+        tail->creation_time < chunk_time) {
+      wg_key_history_t *new = wg_key_history_create(now);
+      if (new == NULL) {
+        ERROR("write_gcm: wg_key_history_create failed");
+        return -1;
+      }
+      if (tail == NULL) {
+        tracker->key_history_head = new;
+      } else {
+        tail->next = new;
+      }
+      tracker->key_history_tail = new;
+      tail = new;  // Keep our alias up to date.
+      ++num_chunks_created;
+      ++tracker->num_key_history_entries;
+    }
+    tail->last_append_time = now;
+    tail->hashes[tail->num_hashes++] = payload->key.hash_code;
+  }
+  size_t keys_in_use = c_avl_size(tracker->hash_counts);
+  if (num_chunks_created != 0 || num_chunks_destroyed != 0) {
+    INFO("write_gcm: After destroying %zd tracking chunks and creating %zd"
+        " more, there are %zd chunks remaining, representing %zd tracked keys."
+        " Throttling mode is %d and estimated server memory used is %zd bytes.",
+        num_chunks_destroyed, num_chunks_created,
+        tracker->num_key_history_entries, keys_in_use, tracker->is_throttling,
+        tracker->server_memory_in_use);
+  }
+  return 0;
+}
+
+static int wg_lookup_or_create_hash_count_value(wg_key_tracker_t *tracker,
+    uint32_t hash, hash_count_value_t **hc_value) {
+  // Items to clean up on exit.
+  uint32_t *new_hash = NULL;
+  hash_count_value_t *new_value = NULL;
+
+  if (c_avl_get(tracker->hash_counts, &hash, (void**)hc_value) == 0) {
+    // Existing value found!
+    return 0;
+  }
+  new_hash = calloc(1, sizeof(*new_hash));
+  new_value = calloc(1, sizeof(*new_value));
+  if (new_hash == NULL || new_value == NULL) {
+    ERROR("write_gcm: wg_lookup_or_create_hash_count_value: calloc failed");
+    goto error;
+  }
+  *new_hash = hash;
+
+  if (c_avl_insert(tracker->hash_counts, new_hash, new_value) != 0) {
+    ERROR("write_gcm: c_avl_insert (hash_count_value) failed");
+    goto error;
+  }
+
+  // Successfully inserted!
+  *hc_value = new_value;
+  return 0;
+
+ error:
+  sfree(new_value);
+  sfree(new_hash);
+  return -1;
+}
+
+static int wg_destroy_hash_count_entry(wg_key_tracker_t *tracker,
+    uint32_t hash) {
+  uint32_t *tree_key;
+  hash_count_value_t *tree_value;
+  if (c_avl_remove(tracker->hash_counts, &hash, (void**)&tree_key,
+      (void**)&tree_value) != 0) {
+    ERROR("write_gcm: wg_destroy_hash_count_entry: c_avl_remove failed");
+    return -1;
+  }
+  sfree(tree_value);
+  sfree(tree_key);
+  return 0;
+}
+
+int wg_compare_uint32_t(void *lhs, void *rhs) {
+  uint32_t *l = (uint32_t*)lhs;
+  uint32_t *r = (uint32_t*)rhs;
+  if (*l < *r) {
+    return -1;
+  }
+  if (*l > *r) {
+    return 1;
+  }
+  return 0;
+}
+
+static wg_key_tracker_t *wg_key_tracker_create(size_t low_water_mark,
+    size_t high_water_mark, int chunk_interval_secs, int purge_interval_secs) {
+  // Items to clean up at exist.
+  wg_key_tracker_t *result = NULL;
+  wg_key_tracker_t *build = NULL;
+
+  build = calloc(1, sizeof(*build));
+  build->hash_counts = c_avl_create(
+      (int (*)(const void*, const void*))&wg_compare_uint32_t);
+  if (build->hash_counts == NULL) {
+    ERROR("write_gcm: wg_key_tracker_create failed");
+    goto leave;
+  }
+
+  build->low_water_mark_bytes = low_water_mark;
+  build->high_water_mark_bytes = high_water_mark;
+  build->chunk_interval_secs = chunk_interval_secs;
+  build->purge_interval_secs = purge_interval_secs;
+
+  // Success!
+  result = build;
+  build = NULL;
+
+ leave:
+  wg_key_tracker_destroy(build);
+  return result;
+}
+
+static void wg_key_tracker_destroy(wg_key_tracker_t *item) {
+  if (item == NULL) {
+    return;
+  }
+  c_avl_tree_t *tree = item->hash_counts;
+  if (tree != NULL) {
+    void *key;
+    void *value;
+    while (c_avl_size(tree) > 0) {
+      c_avl_pick(tree, &key, &value);
+      sfree(value);
+      sfree(key);
+    }
+    c_avl_destroy(tree);
+  }
+}
+
+static wg_key_history_t *wg_key_history_create(time_t now) {
+  wg_key_history_t *result = calloc(1, sizeof(*result));
+  if (result == NULL) {
+    ERROR("write_gcm: wg_key_history_create: calloc failed");
+    return NULL;
+  }
+  result->creation_time = now;
+  return result;
+}
+
+static void wg_key_history_destroy(wg_key_history_t *item) {
+  sfree(item);
+}
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -1960,7 +2760,7 @@ typedef struct {
   wg_payload_t *tail;
   size_t size;
   int request_flush;
-  int request_terminate;
+  _Bool request_terminate;
   pthread_t consumer_thread;
   _Bool consumer_thread_created;
 } wg_queue_t;
@@ -1973,6 +2773,7 @@ typedef struct {
   credential_ctx_t *cred_ctx;
   oauth2_ctx_t *oauth2_ctx;
   wg_queue_t *queue;
+  wg_key_tracker_t *key_tracker;
 } wg_context_t;
 
 static wg_context_t *wg_context_create(const wg_configbuilder_t *cb);
@@ -1985,27 +2786,30 @@ static void wg_queue_destroy(wg_queue_t *queue);
 // Private implementation starts here.
 //------------------------------------------------------------------------------
 static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
-  wg_context_t *ctx = calloc(1, sizeof(*ctx));
-  if (ctx == NULL) {
+  // Items to clean up on exit.
+  wg_context_t *build = NULL;
+  wg_context_t *result = NULL;
+
+  build = calloc(1, sizeof(*build));
+  if (build == NULL) {
     ERROR("wg_context_create: calloc failed.");
-    return NULL;
+    goto leave;
   }
 
   // Open the JSON log file if requested.
   if (cb->json_log_file != NULL) {
-    ctx->json_log_file = fopen(cb->json_log_file, "a");
-    if (ctx->json_log_file == NULL) {
+    build->json_log_file = fopen(cb->json_log_file, "a");
+    if (build->json_log_file == NULL) {
       WARNING("write_gcm: Can't open log file %s. errno is %d. Continuing.",
           cb->json_log_file, errno);
     }
   }
 
   // Create the subcontext holding various pieces of server information.
-  ctx->resource = wg_monitored_resource_create(cb);
-  if (ctx->resource == NULL) {
+  build->resource = wg_monitored_resource_create(cb);
+  if (build->resource == NULL) {
     ERROR("write_gcm: wg_monitored_resource_create failed.");
-    wg_context_destroy(ctx);
-    return NULL;
+    goto leave;
   }
 
   const char *format_string_to_use =
@@ -2014,44 +2818,56 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
           agent_translation_service_default_format_string;
 
   char url[512];  // Big enough?
-  int result = snprintf(url, sizeof(url), format_string_to_use,
-      ctx->resource->project_id);
-  if (result < 0 || result >= sizeof(url)) {
+  int sprintf_result = snprintf(url, sizeof(url), format_string_to_use,
+      build->resource->project_id);
+  if (sprintf_result < 0 || sprintf_result >= sizeof(url)) {
     ERROR("write_gcm: overflowed url buffer");
-    wg_context_destroy(ctx);
-    return NULL;
+    goto leave;
   }
-  ctx->agent_translation_service_url = sstrdup(url);
+  build->agent_translation_service_url = sstrdup(url);
 
   // Optionally create the subcontext holding the service account credentials.
   if (cb->email != NULL && cb->key_file != NULL && cb->passphrase != NULL) {
-    ctx->cred_ctx = wg_credential_ctx_create(cb->email, cb->key_file,
+    build->cred_ctx = wg_credential_ctx_create(cb->email, cb->key_file,
         cb->passphrase);
-    if (ctx->cred_ctx == NULL) {
+    if (build->cred_ctx == NULL) {
       ERROR("write_gcm: wg_credential_context_create failed.");
-      wg_context_destroy(ctx);
-      return NULL;
+      goto leave;
     }
   }
 
   // Create the subcontext holding the oauth2 state.
-  ctx->oauth2_ctx = wg_oauth2_cxt_create();
-  if (ctx->oauth2_ctx == NULL) {
+  build->oauth2_ctx = wg_oauth2_cxt_create();
+  if (build->oauth2_ctx == NULL) {
     ERROR("write_gcm: wg_oauth2_context_create failed.");
-    wg_context_destroy(ctx);
-    return NULL;
+    goto leave;
   }
 
   // Create the queue context.
-  ctx->queue = wg_queue_create();
-  if (ctx->queue == NULL) {
+  build->queue = wg_queue_create();
+  if (build->queue == NULL) {
     ERROR("write_gcm: wg_queue_create failed.");
-    wg_context_destroy(ctx);
-    return NULL;
+    goto leave;
   }
 
-  ctx->pretty_print_json = cb->pretty_print_json;
-  return ctx;
+  // Create the throttling context.
+  build->key_tracker = wg_key_tracker_create(cb->throttling_low_water_mark,
+      cb->throttling_high_water_mark, cb->throttling_chunk_interval_secs,
+      cb->throttling_purge_interval_secs);
+  if (build->key_tracker == NULL) {
+    ERROR("write_gcm: wg_key_tracker_create failed.");
+    goto leave;
+  }
+
+  build->pretty_print_json = cb->pretty_print_json;
+
+  // Success!
+  result = build;
+  build = NULL;
+
+ leave:
+  wg_context_destroy(build);
+  return result;
 }
 
 static void wg_context_destroy(wg_context_t *ctx) {
@@ -2059,6 +2875,7 @@ static void wg_context_destroy(wg_context_t *ctx) {
     return;
   }
   WARNING("write_gcm: Tearing down context.");
+  wg_key_tracker_destroy(ctx->key_tracker);
   wg_queue_destroy(ctx->queue);
   wg_oauth2_ctx_destroy(ctx->oauth2_ctx);
   wg_credential_ctx_destroy(ctx->cred_ctx);
@@ -2286,25 +3103,25 @@ static void wg_json_CollectdPayloads(json_ctx_t *jc,
     wg_json_Timestamp(jc, head->end_time);
 
     wg_json_string(jc, "plugin");
-    wg_json_string(jc, head->plugin);
+    wg_json_string(jc, head->key.plugin);
 
     wg_json_string(jc, "pluginInstance");
-    wg_json_string(jc, head->plugin_instance);
+    wg_json_string(jc, head->key.plugin_instance);
 
     wg_json_string(jc, "type");
-    wg_json_string(jc, head->type);
+    wg_json_string(jc, head->key.type);
 
     wg_json_string(jc, "typeInstance");
-    wg_json_string(jc, head->type_instance);
+    wg_json_string(jc, head->key.type_instance);
 
     wg_json_string(jc, "values");
     wg_json_CollectdValues(jc, head);
 
     // Optimization: omit the metadata entry altogether if it's empty.
-    if (head->num_metadata_entries != 0) {
+    if (head->key.num_metadata_entries != 0) {
       wg_json_string(jc, "metadata");
-      wg_json_MetadataEntries(jc, head->metadata_entries,
-          head->num_metadata_entries);
+      wg_json_MetadataEntries(jc, head->key.metadata_entries,
+          head->key.num_metadata_entries);
     }
     wg_json_map_close(jc);
 
@@ -2348,11 +3165,11 @@ static void wg_json_CollectdValues(json_ctx_t *jc,
 
     wg_typed_value_t typed_value;
     const char *data_source_type_static;
-    if (wg_typed_value_create_from_value_t_inline(value->ds_type, value->val,
-        &data_source_type_static, &typed_value) != 0) {
+    if (wg_typed_value_create_from_value_t_inline(&typed_value,
+        value->ds_type, value->val, &data_source_type_static) != 0) {
       WARNING("write_gcm: wg_typed_value_create_from_value_t_inline failed for "
           "%s/%s/%s! Continuing.",
-          element->plugin, element->type, value->name);
+          element->key.plugin, element->key.type, value->name);
       continue;
     }
     wg_json_map_open(jc);
@@ -2558,7 +3375,7 @@ static void *wg_process_queue(void *arg);
 //   terminate.
 // Returns 0 on success, <0 on error.
 static int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
-    int *want_terminate, wg_payload_t **payloads);
+    _Bool *want_terminate, wg_payload_t **payloads);
 
 // "Rebases" derivative items in the list against their stored values. If this
 // is the first time we've seen a derivative item, store it in the map and
@@ -2580,6 +3397,7 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 // up into segments, where all the items in the segments have distinct keys.
 // This is necessary because the upstream server rejects submissions with
 // duplicate keys/labels. (why?) Returns 0 on success, <0 on error.
+// Takes ownership of 'list'.
 static int wg_transmit_unique_segments(const wg_context_t *ctx,
     wg_payload_t *list);
 
@@ -2588,12 +3406,24 @@ static int wg_transmit_unique_segments(const wg_context_t *ctx,
 static int wg_transmit_unique_segment(const wg_context_t *ctx,
     const wg_payload_t *list);
 
-// Finds the longest prefix of the list where all the keys are unique.
-// Points '*tail' at the last element of that list. Stores the size of the
-// prefix in *size (useful for debugging). If 'list' is null, *tail will be
-// null. Returns 0 on successs, <0 on error.
-int wg_find_unique_segment(wg_payload_t *list, wg_payload_t **tail,
-    size_t *size);
+// Extracts as many distinct payloads as possible from the list, where the
+// notion of "distinct" is as defined by wg_payload_key_compare. Creates two
+// lists: the distinct payloads and the residual payloads. Relative ordering
+// (within those two lists) is preserved; that is if A came before B in the
+// original list, and if A and B are both in the distinct list (or both in the
+// residual list) then A will be before B in the distinct (or residual) list.
+// However, in a global sense reordering will be happening, as all the residual
+// items will be considered "after" all the distinct items.
+// The caller is expected to transmit the distinct payloads, then to call this
+// method again with the residual payloads as input, repeating until there are
+// no more residual payloads. The original list should be considered to be
+// destroyed, and every payload that was on the original list will be either
+// in the distinct list or in the residual list. This invariant holds even in
+// the case of an error return. Returns 0 on successs, <0 on error.
+// 'distinct_size' is for the purposes of debugging.
+static int wg_extract_distinct_payloads(wg_payload_t *src,
+    wg_payload_t **distinct_head, wg_payload_t **residual_head,
+    int *distinct_size);
 
 // Converts the data in the list into a CollectdTimeseriesRequest
 // message (formatted in JSON format). If successful, sets *json to point to
@@ -2606,12 +3436,12 @@ static int wg_format_some_of_list(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty);
 
-// Look up an existing, or create a new, deriv_tracker_value_t in the treee.
+// Look up an existing, or create a new, deriv_tracker_value_t in the tree.
 // The key is derived from the payload. *created is set to 0 if the tracker was
 // found in the tree; 1 if it was newly-created. Returns 0 on success, <0 on
 // error.
 static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
-    const wg_payload_t *payload, deriv_tracker_value_t **tracker,
+    const wg_payload_t *payload, wg_deriv_tracker_value_t **tracker,
     _Bool *created);
 
 static void *wg_process_queue(void *arg) {
@@ -2626,9 +3456,8 @@ static void *wg_process_queue(void *arg) {
   }
 
   cdtime_t last_flush_time = cdtime();
-
-  while (1) {
-    int want_terminate;
+  _Bool want_terminate = 0;
+  while (!want_terminate) {
     wg_payload_t *payloads;
     if (wait_next_queue_event(queue, last_flush_time, &want_terminate,
         &payloads) != 0) {
@@ -2637,6 +3466,13 @@ static void *wg_process_queue(void *arg) {
       break;
     }
     last_flush_time = cdtime();
+    if (wg_throttle_excessive_keys(ctx->key_tracker, last_flush_time,
+        &payloads) != 0) {
+      // Fatal.
+      ERROR("write_gcm: wg_throttle_excessive_keys failed.");
+      wg_payload_destroy(payloads);
+      break;
+    }
     if (wg_rebase_cumulative_values(deriv_tree, &payloads) != 0) {
       // Also fatal.
       ERROR("write_gcm: wg_rebase_cumulative_values failed.");
@@ -2648,10 +3484,7 @@ static void *wg_process_queue(void *arg) {
       // Just drop the payloads on the floor and make a note of it.
       WARNING("write_gcm: wg_transmit_unique_segments failed. Flushing.");
     }
-    wg_payload_destroy(payloads);
-    if (want_terminate) {
-      break;
-    }
+    payloads = NULL;
   }
 
  leave:
@@ -2726,7 +3559,7 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
   }
 
   // Get the appropriate tracker for this payload.
-  deriv_tracker_value_t *tracker;
+  wg_deriv_tracker_value_t *tracker;
   _Bool created;
   if (wg_lookup_or_create_tracker_value(deriv_tree, payload, &tracker, &created)
       != 0) {
@@ -2784,29 +3617,29 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
   return 0;
 }
 
-// Because we can't send points with the same key and labels in one
-// transmission, we need to break 'list_to_process' into segments, where all
-// the items in a segment have distinct keys.
 static int wg_transmit_unique_segments(const wg_context_t *ctx,
     wg_payload_t *list) {
   while (list != NULL) {
-    wg_payload_t *tail;
-    size_t size;
-    if (wg_find_unique_segment(list, &tail, &size) != 0) {
-      ERROR("write_gcm: wg_find_unique_segment failed");
+    wg_payload_t *distinct_list;
+    wg_payload_t *residual_list;
+    int distinct_size;
+    if (wg_extract_distinct_payloads(list, &distinct_list, &residual_list,
+        &distinct_size) != 0) {
+      ERROR("write_gcm: wg_extract_distinct_payloads failed");
+      wg_payload_destroy(distinct_list);
+      wg_payload_destroy(residual_list);
       return -1;
     }
-    INFO("write_gcm: next unique segment has size %zd", size);
-    // Temporarily detach the unique segment from the rest of the list.
-    wg_payload_t *save = tail->next;
-    tail->next = NULL;
-    int result = wg_transmit_unique_segment(ctx, list);
-    tail->next = save;
+    INFO("write_gcm: next distinct segment has size %d", distinct_size);
+    int result = wg_transmit_unique_segment(ctx, distinct_list);
     if (result != 0) {
       ERROR("write_gcm: wg_transmit_unique_segment failed.");
+      wg_payload_destroy(distinct_list);
+      wg_payload_destroy(residual_list);
       return -1;
     }
-    list = save;
+    wg_payload_destroy(distinct_list);
+    list = residual_list;
   }
   return 0;
 }
@@ -2840,6 +3673,18 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
   }
 
   while (list != NULL) {
+    // We can spend a lot of time here talking to the server. If the producer
+    // thread wants to shut us down, check for this explicitly and bail out
+    // early.
+    pthread_mutex_lock(&ctx->queue->mutex);
+    int want_terminate = ctx->queue->request_terminate;
+    pthread_mutex_unlock(&ctx->queue->mutex);
+    if (want_terminate) {
+      ERROR("write_gcm: wg_transmit_unique_segment: "
+          "Exiting early due to termination request.");
+      goto leave;
+    }
+
     const wg_payload_t *new_list;
     if (wg_format_some_of_list(ctx->resource, list, &new_list, &json,
         ctx->pretty_print_json) != 0) {
@@ -2894,72 +3739,92 @@ static int wg_format_some_of_list(
   return 0;
 }
 
-int wg_find_unique_segment(wg_payload_t *list, wg_payload_t **tail,
-    size_t *size) {
+static int wg_extract_distinct_payloads(wg_payload_t *src,
+    wg_payload_t **distinct_list, wg_payload_t **residual_list,
+    int *distinct_size) {
   // Items to clean up.
   c_avl_tree_t *been_here_tree = NULL;
-  wg_payload_t *prev = NULL;
+  wg_payload_t *distinct_head = NULL;
+  wg_payload_t *distinct_tail = NULL;
+  wg_payload_t *residual_head = NULL;
+  wg_payload_t *residual_tail = NULL;
   int result = -1;  // Pessimistically assume failure.
 
+  *distinct_size = 0;
   been_here_tree = wg_been_here_tree_create();
   if (been_here_tree == NULL) {
     ERROR("write_gcm: been_here_tree_create failed.");
     goto leave;
   }
 
-  *size = 0;
-  while (list != NULL) {
-    deriv_tracker_key_t *been_here_key = wg_deriv_tracker_key_create(
-        list->host, list->plugin, list->plugin_instance, list->type,
-        list->type_instance);
-    if (been_here_key == NULL) {
-      ERROR("write_gcm: error allocating been_here_key");
+  while (src != NULL) {
+    // Pop from head of list.
+    wg_payload_t *next = src->next;
+    src->next = NULL;
+
+    if (c_avl_get(been_here_tree, &src->key, NULL) == 0) {
+      // Collision, so append to residual list.
+      if (residual_head == NULL) {  // meaning residual_tail is also NULL.
+        residual_head = src;
+      } else {
+        residual_tail->next = src;
+      }
+      residual_tail = src;
+      src = next;
+      continue;
+    }
+
+    // Otherwise, create a new entry in the tree, then append the item to the
+    // distinct list.
+    wg_payload_key_t *new_key = wg_payload_key_clone(&src->key);
+    if (new_key == NULL) {
+      ERROR("write_gcm: wg_payload_key_clone failed");
       goto leave;
     }
 
-    if (c_avl_get(been_here_tree, been_here_key, NULL) == 0) {
-      // Collision with existing key, so stop processing here. Return a
-      // successful result with *tail = prev.
-      wg_deriv_tracker_key_destroy(been_here_key);
-      break;
-    }
-
-    if (c_avl_insert(been_here_tree, been_here_key, NULL) != 0) {
+    // Tree takes ownership of 'new_key'.
+    if (c_avl_insert(been_here_tree, new_key, NULL) != 0) {
       ERROR("write_gcm: c_avl_insert failed");
-      wg_deriv_tracker_key_destroy(been_here_key);
+      wg_payload_key_destroy_inline(new_key);
+      sfree(new_key);
       goto leave;
     }
 
-    prev = list;
-    list = list->next;
-    ++*size;
+    if (distinct_head == NULL) {  // meaning distinct_tail is also NULL.
+      distinct_head = src;
+    } else {
+      distinct_tail->next = src;
+    }
+    distinct_tail = src;
+    src = next;
+    ++*distinct_size;
   }
+
+  // Success!
 
   result = 0;
 
  leave:
+  // Append remaining items (if any) to the residual list.
+  if (residual_head == NULL) {  // meaning residual_tail is also NULL.
+    residual_head = src;
+  } else {
+    residual_tail->next = src;
+  }
+  *distinct_list = distinct_head;
+  *residual_list = residual_head;
   wg_been_here_tree_destroy(been_here_tree);
-  *tail = prev;
   return result;
 }
 
 static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
-    const wg_payload_t *payload, deriv_tracker_value_t **tracker,
+    const wg_payload_t *payload, wg_deriv_tracker_value_t **tracker_value,
     _Bool *created) {
   // Items to clean up upon exit.
-  deriv_tracker_key_t *key = NULL;
-  deriv_tracker_value_t *value = NULL;
+  wg_deriv_tracker_value_t *value = NULL;
 
-  key = wg_deriv_tracker_key_create(payload->host, payload->plugin,
-      payload->plugin_instance, payload->type, payload->type_instance);
-  if (key == NULL) {
-    ERROR("write_gcm: deriv_tracker_key_create failed");
-    goto error;
-  }
-
-  if (c_avl_get(tree, key, (void**)tracker) == 0) {
+  if (c_avl_get(tree, &payload->key, (void**)tracker_value) == 0) {
     // tracker_value found!
-    wg_deriv_tracker_key_destroy(key);
     *created = 0;
     return 0;
   }
@@ -2971,21 +3836,25 @@ static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
     goto error;
   }
 
-  if (c_avl_insert(tree, key, value) == 0) {
-    *tracker = value;
+  wg_payload_key_t *new_key = wg_payload_key_clone(&payload->key);
+  // tree owns 'new_key' and 'value'.
+  if (c_avl_insert(tree, new_key, value) == 0) {
+    *tracker_value = value;
     *created = 1;
     return 0;
   }
+
   ERROR("write_gcm: Can't insert new entry into tree.");
+  wg_payload_key_destroy_inline(new_key);
+  sfree(new_key);
 
  error:
   wg_deriv_tracker_value_destroy(value);
-  wg_deriv_tracker_key_destroy(key);
   return -1;
 }
 
 static int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
-    int *want_terminate, wg_payload_t **payloads) {
+    _Bool *want_terminate, wg_payload_t **payloads) {
   cdtime_t next_flush_time = last_flush_time + plugin_get_interval();
   pthread_mutex_lock(&queue->mutex);
   while (1) {
@@ -2994,6 +3863,8 @@ static int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
         queue->request_terminate ||
         queue->size >= QUEUE_FLUSH_SIZE ||
         now > next_flush_time) {
+      WARNING("write_gcm: wait_next_queue_event: returning a queue of size %zd",
+          queue->size);
       *payloads = queue->head;
       *want_terminate = queue->request_terminate;
       queue->head = NULL;
