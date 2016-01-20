@@ -520,7 +520,7 @@ static int wg_curl_get_or_post(char *response_buffer,
     goto leave;
   }
   DEBUG("write_gcm: Elapsed time for curl operation was %g seconds.",
-	CDTIME_T_TO_DOUBLE(cdtime() - start_time))
+	CDTIME_T_TO_DOUBLE(cdtime() - start_time));
 
   long response_code;
   curl_result = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
