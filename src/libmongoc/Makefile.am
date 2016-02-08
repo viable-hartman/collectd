@@ -33,22 +33,28 @@ include src/Makefile.am
 # endif
 =======
 include doc/Makefile.am
-if ENABLE_MAN_PAGES
-include doc/man/Makefile.am
-endif
-if ENABLE_HTML_DOCS
-include doc/html/Makefile.am
-endif
+# if ENABLE_MAN_PAGES
+# include doc/man/Makefile.am
+# endif
+# if ENABLE_HTML_DOCS
+# include doc/html/Makefile.am
+# endif
 include src/Makefile.am
 
-if ENABLE_TESTS
-include tests/Makefile.am
-endif
+# if ENABLE_TESTS
+# include tests/Makefile.am
+# endif
 
+<<<<<<< HEAD
 if ENABLE_EXAMPLES
 include examples/Makefile.am
 endif
 >>>>>>> vendoring libmongoc-1.3.5
+=======
+# if ENABLE_EXAMPLES
+# include examples/Makefile.am
+# endif
+>>>>>>> Disable tests (some of which try to call out to a running server,
 
 # for EXTRA_DIST
 include build/cmake/Makefile.am
