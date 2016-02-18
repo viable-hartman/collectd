@@ -1961,6 +1961,25 @@ static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci) {
   return NULL;
 }
 
+static void wg_configbuilder_destroy(wg_configbuilder_t *cb) {
+  if (cb == NULL) {
+    return;
+  }
+  sfree(cb->agent_translation_service_format_string);
+  sfree(cb->json_log_file);
+  sfree(cb->passphrase);
+  sfree(cb->key_file);
+  sfree(cb->email);
+  sfree(cb->account_id);
+  sfree(cb->credentials_json_file);
+  sfree(cb->region);
+  sfree(cb->zone);
+  sfree(cb->instance_id);
+  sfree(cb->project_id);
+  sfree(cb->cloud_provider);
+  sfree(cb);
+}
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -3640,25 +3659,6 @@ static int wg_config(oconfig_item_t *ci) {
   wg_context_destroy(ctx);
   wg_configbuilder_destroy(cb);
   return result;
-}
-
-static void wg_configbuilder_destroy(wg_configbuilder_t *cb) {
-  if (cb == NULL) {
-    return;
-  }
-  sfree(cb->agent_translation_service_format_string);
-  sfree(cb->json_log_file);
-  sfree(cb->passphrase);
-  sfree(cb->key_file);
-  sfree(cb->email);
-  sfree(cb->account_id);
-  sfree(cb->credentials_json_file);
-  sfree(cb->region);
-  sfree(cb->zone);
-  sfree(cb->instance_id);
-  sfree(cb->project_id);
-  sfree(cb->cloud_provider);
-  sfree(cb);
 }
 
 //==============================================================================
