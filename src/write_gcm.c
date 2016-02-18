@@ -1797,13 +1797,15 @@ typedef struct {
 } wg_configbuilder_t;
 
 // Builds a wg_configbuilder_t out of a config node.
-static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci);
+static wg_configbuilder_t *wg_configbuilder_create(int children_num,
+    const oconfig_item_t *children);
 static void wg_configbuilder_destroy(wg_configbuilder_t *cb);
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
 //------------------------------------------------------------------------------
-static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci) {
+static wg_configbuilder_t *wg_configbuilder_create(int children_num,
+    const oconfig_item_t *children) {
   // Items to free on error.
   wg_configbuilder_t *cb = NULL;
 
@@ -1872,8 +1874,8 @@ static wg_configbuilder_t *wg_configbuilder_create(oconfig_item_t *ci) {
 
   int parse_errors = 0;
   int c, k;
-  for (c = 0; c < ci->children_num; ++c) {
-    oconfig_item_t *child = &ci->children[c];
+  for (c = 0; c < children_num; ++c) {
+    const oconfig_item_t *child = &children[c];
     for (k = 0; k < STATIC_ARRAY_SIZE(string_keys); ++k) {
       if (strcasecmp(child->key, string_keys[k]) == 0) {
         if (cf_util_get_string(child, string_locations[k]) != 0) {
@@ -3526,11 +3528,7 @@ static int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
 //==============================================================================
 //==============================================================================
 
-// Runs those things that need to be initialized from a single-threaded context.
-static int wg_init(void) {
-  curl_global_init(CURL_GLOBAL_SSL);
-  return (0);
-}
+static wg_configbuilder_t *wg_configbuilder_g = NULL;
 
 // Transform incoming value_list into our "payload" format and append it to the
 // work queue.
@@ -3607,35 +3605,37 @@ static int wg_flush(cdtime_t timeout,
   return 0;
 }
 
-//==============================================================================
-//==============================================================================
-//==============================================================================
-// Config file parsing submodule. The entry point here is wg_config.
-// If successful, it ends up registering a 'write' and 'flush' callback with
-// collectd.
-//==============================================================================
-//==============================================================================
-//==============================================================================
-static int wg_config(oconfig_item_t *ci);
-
-//------------------------------------------------------------------------------
-// Private implementation starts here.
-//------------------------------------------------------------------------------
 static int wg_config(oconfig_item_t *ci) {
-  // Items to clean up on exit from the function.
-  wg_configbuilder_t *cb = NULL;
+  wg_configbuilder_g = wg_configbuilder_create(ci->children_num, ci->children);
+  if (wg_configbuilder_g == NULL) {
+    ERROR("write_gcm: wg_config: wg_configbuilder_create failed");
+    return -1;
+  }
+
+  return 0;
+}
+
+// If there is a config block, wg_config has been run by now (and therefore
+// wg_configbuilder_g will be non-NULL).
+static int wg_init(void) {
+  // Items to clean up on exit.
   wg_context_t *ctx = NULL;
   int result = -1;  // Pessimistically assume failure.
 
-  cb = wg_configbuilder_create(ci);
-  if (cb == NULL) {
-    ERROR("write_gcm: wg_configbuilder_create failed");
-    goto leave;
+  curl_global_init(CURL_GLOBAL_SSL);
+
+  if (wg_configbuilder_g == NULL) {
+    // If no config specified, make the default one.
+    wg_configbuilder_g = wg_configbuilder_create(0, NULL);
+    if (wg_configbuilder_g == NULL) {
+      ERROR("write_gcm: wg_init: wg_configbuilder_create failed.");
+      return -1;
+    }
   }
 
-  ctx = wg_context_create(cb);
+  ctx = wg_context_create(wg_configbuilder_g);
   if (ctx == NULL) {
-    ERROR("write_gcm: wg_context_create failed.");
+    ERROR("write_gcm: wg_init: wg_context_create failed.");
     goto leave;
   }
 
@@ -3644,20 +3644,20 @@ static int wg_config(oconfig_item_t *ci) {
       .free_func = NULL
   };
   if (plugin_register_flush(this_plugin_name, &wg_flush, &user_data) != 0) {
-    ERROR("There was an error from plugin_register_flush");
+    ERROR("write_gcm: wg_init: plugin_register_flush failed");
     goto leave;
   }
   user_data.free_func = (void(*)(void*))&wg_context_destroy;
-  result = plugin_register_write(this_plugin_name, &wg_write, &user_data);
-  if (result != 0) {
-    ERROR("There was an error from plugin_register_write");
+  if (plugin_register_write(this_plugin_name, &wg_write, &user_data) != 0) {
+    ERROR("write_gcm: wg_init: plugin_register_write failed");
     goto leave;
   }
+
   ctx = NULL;
+  result = 0;
 
  leave:
   wg_context_destroy(ctx);
-  wg_configbuilder_destroy(cb);
   return result;
 }
 
