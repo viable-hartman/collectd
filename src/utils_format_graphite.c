@@ -64,7 +64,7 @@ static int gr_format_values (char *ret, size_t ret_len,
     else if (rates != NULL)
         BUFFER_ADD ("%f", rates[ds_num]);
     else if (ds->ds[ds_num].type == DS_TYPE_COUNTER)
-        BUFFER_ADD ("%"PRIsz, vl->values[ds_num].counter);
+        BUFFER_ADD ("%"PRIu64, (uint64_t)vl->values[ds_num].counter);
     else if (ds->ds[ds_num].type == DS_TYPE_DERIVE)
         BUFFER_ADD ("%"PRIi64, vl->values[ds_num].derive);
     else if (ds->ds[ds_num].type == DS_TYPE_ABSOLUTE)
