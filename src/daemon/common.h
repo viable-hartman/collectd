@@ -383,6 +383,12 @@ void strarray_free (char **array, size_t array_len);
 # define PRIu64 "I64u"
 # undef PRIi64
 # define PRIi64 "I64d"
+# undef PRIsz
+# if _WIN64
+#  define PRIsz "I64u"
+# else
+#  define PRIsz "I32u"
+# endif
 #endif
 
 
