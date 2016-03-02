@@ -33,11 +33,11 @@ else
       recv
 
   cd ${TOP_SRCDIR}/_build_aux/_gnulib
-  ./configure --host=mingw32 LIBS="-lws2_32 -lpthread"
+  ./configure --host="mingw32" LIBS="-lws2_32 -lpthread"
   make 
   cd gllib
 
-  # We have to rebuild libnug.a to get the list of *.o files to build a dll later
+  # We have to rebuild libgnu.a to get the list of *.o files to build a dll later
   rm libgnu.a
   OBJECT_LIST=`make V=1 | grep "ar" | cut -d' ' -f4-`
   $CC -shared -o libgnu.dll $OBJECT_LIST -lws2_32 -lpthread
