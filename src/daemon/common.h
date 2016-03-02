@@ -388,10 +388,10 @@ void strarray_free (char **array, size_t array_len);
 #endif
 
 #ifndef PRIsz
-# if UINTPTR_MAX == 0xffffffff
-#  define PRIsz PRIu32
+# ifdef WIN32
+#  define PRIsz "Iu"
 # else
-#  define PRIsz PRIu64
+#  define PRIsz "zu"
 # endif
 #endif
 
