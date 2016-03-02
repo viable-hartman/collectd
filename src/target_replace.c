@@ -198,10 +198,9 @@ static int tr_action_invoke (tr_action_t *act_head, /* {{{ */
         (size_t) matches[0].rm_so, (size_t) matches[0].rm_eo, act->replacement);
     if (subst_status == NULL)
     {
-      ERROR ("Target `replace': subst (buffer = %s, start = %"PRIu64", end = %"PRIu64", "
+      ERROR ("Target `replace': subst (buffer = %s, start = %"PRIsz", end = %"PRIsz", "
           "replacement = %s) failed.",
-          buffer, (uint64_t) matches[0].rm_so, (uint64_t) matches[0].rm_eo,
-          act->replacement);
+          buffer, matches[0].rm_so, matches[0].rm_eo, act->replacement);
       continue;
     }
     sstrncpy (buffer, temp, sizeof (buffer));
