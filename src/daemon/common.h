@@ -28,6 +28,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <stdint.h>
+
 #include "collectd.h"
 #include "plugin.h"
 
@@ -383,11 +385,13 @@ void strarray_free (char **array, size_t array_len);
 # define PRIu64 "I64u"
 # undef PRIi64
 # define PRIi64 "I64d"
-# undef PRIsz
-# if _WIN64
-#  define PRIsz "I64u"
+#endif
+
+#ifndef PRIsz
+# if UINTPTR_MAX == 0xffffffff
+#  define PRIsz PRIu32
 # else
-#  define PRIsz "I32u"
+#  define PRIsz PRIu64
 # endif
 #endif
 
