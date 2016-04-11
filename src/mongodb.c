@@ -64,8 +64,13 @@ static void context_destroy(context_t *ctx) {
   sfree(ctx);
 }
 
-static int mg_try_get_value(const bson_iter_t *iter, int ds_type, double scale,
-                            value_t *result) {
+// Gets a value from the bson_iter (which can be in one of a few different
+// numeric formats) and add it to the appropriate slot (indicated by ds_type)
+// of the value_t indicated by *result. This is basically a
+// demultiplexing/multiplexing problem. Caller needs to initialize '*sum' to
+// some reasonable initial value (like zero).
+static int mg_try_sum_value(const bson_iter_t *iter, int ds_type, double scale,
+                            value_t *sum) {
   // The bson value can be one of a few types. Our strategy for dealing with
   // this is to store the value we extract in the variable of the most
   // appropriate type, then copy that value to the other variables. Then we
@@ -103,19 +108,19 @@ static int mg_try_get_value(const bson_iter_t *iter, int ds_type, double scale,
   // Now store into the appropriate field of the result union.
   switch (ds_type) {
     case DS_TYPE_COUNTER:
-      result->counter = uint64_value;
+      sum->counter += uint64_value;
       break;
 
     case DS_TYPE_GAUGE:
-      result->gauge = double_value;
+      sum->gauge += double_value;
       break;
 
     case DS_TYPE_DERIVE:
-      result->derive = int64_value;
+      sum->derive += int64_value;
       break;
 
     case DS_TYPE_ABSOLUTE:
-      result->absolute = uint64_value;
+      sum->absolute += uint64_value;
       break;
 
     default:
@@ -125,7 +130,28 @@ static int mg_try_get_value(const bson_iter_t *iter, int ds_type, double scale,
   return 0;
 }
 
+// Add all of the values of the document to 'sum'. Caller needs to initialize
+// '*sum' to some reasonable initial value (like zero).
+static int mg_try_sum_document(const bson_iter_t *doc, int ds_type,
+    double scale, value_t *sum) {
+  bson_iter_t iter;
+  if (!bson_iter_recurse(doc, &iter)) {
+    ERROR("mongodb plugin: couldn't recurse into document.");
+    return -1;
+  }
+
+  while (bson_iter_next(&iter)) {
+    if (mg_try_sum_value(&iter, ds_type, scale, sum) != 0) {
+      ERROR("mongodb plugin: Failed to parse value from document. Key is %s.",
+          bson_iter_key(&iter));
+      return -1;
+    }
+  }
+  return 0;
+}
+
 typedef struct {
+  _Bool sum_document;
   const char *key;
   const char *type;
   const char *type_instance;
@@ -134,96 +160,102 @@ typedef struct {
 } parse_info_t;
 
 static parse_info_t server_parse_infos[] = {
-    { "opcounters.insert", "total_operations", "insert", DS_TYPE_DERIVE, 1 },
-    { "opcounters.query", "total_operations", "query", DS_TYPE_DERIVE, 1 },
-    { "opcounters.update", "total_operations", "update", DS_TYPE_DERIVE, 1 },
-    { "opcounters.delete", "total_operations", "delete", DS_TYPE_DERIVE, 1 },
-    { "opcounters.getmore", "total_operations", "getmore", DS_TYPE_DERIVE, 1 },
-    { "opcounters.command", "total_operations", "command", DS_TYPE_DERIVE, 1 },
+    { 0, "opcounters.insert", "total_operations", "insert", DS_TYPE_DERIVE, 1 },
+    { 0, "opcounters.query", "total_operations", "query", DS_TYPE_DERIVE, 1 },
+    { 0, "opcounters.update", "total_operations", "update", DS_TYPE_DERIVE, 1 },
+    { 0, "opcounters.delete", "total_operations", "delete", DS_TYPE_DERIVE, 1 },
+    { 0, "opcounters.getmore", "total_operations", "getmore", DS_TYPE_DERIVE,1},
+    { 0, "opcounters.command", "total_operations", "command", DS_TYPE_DERIVE,1},
 
-    { "mem.mapped", "memory", "mapped", DS_TYPE_GAUGE, 1 << 20 },
-    { "mem.resident", "memory", "resident", DS_TYPE_GAUGE, 1 << 20 },
-    { "mem.virtual", "memory", "virtual", DS_TYPE_GAUGE, 1 << 20 },
+    { 0, "mem.mapped", "memory", "mapped", DS_TYPE_GAUGE, 1 << 20 },
+    { 0, "mem.resident", "memory", "resident", DS_TYPE_GAUGE, 1 << 20 },
+    { 0, "mem.virtual", "memory", "virtual", DS_TYPE_GAUGE, 1 << 20 },
 
-    { "connections.current", "current_connections", NULL, DS_TYPE_GAUGE, 1 },
+    { 0, "connections.current", "current_connections", NULL, DS_TYPE_GAUGE, 1 },
 
-    { "locks.Global.timeAcquiringMicros","total_time_in_ms", "global_lock_held",
-        DS_TYPE_DERIVE, .001 }
+    // This mapping depends on which version of Mongo is runinng. One of them
+    // will succeed and the other will fail.
+    // pre-Mongo 3.0
+    { 0, "globalLock.lockTime", "total_time_in_ms", "global_lock_held",
+        DS_TYPE_DERIVE, 1 },
+    // post-Mongo 3.0
+    { 1, "locks.Global.timeAcquiringMicros", "total_time_in_ms",
+            "global_lock_held", DS_TYPE_DERIVE, .001 },
 };
 
 static parse_info_t db_parse_infos[] = {
-    { "collections", "gauge", "collections", DS_TYPE_GAUGE, 1 },
-    { "objects", "gauge", "objects", DS_TYPE_GAUGE, 1 },
-    { "numExtents", "gauge", "num_extents", DS_TYPE_GAUGE, 1 },
-    { "indexes", "gauge", "indexes", DS_TYPE_GAUGE, 1 },
-    { "dataSize", "bytes", "data", DS_TYPE_GAUGE, 1 },
-    { "storageSize", "bytes", "storage", DS_TYPE_GAUGE, 1 },
-    { "indexSize", "bytes", "index", DS_TYPE_GAUGE, 1 }
+    { 0, "collections", "gauge", "collections", DS_TYPE_GAUGE, 1 },
+    { 0, "objects", "gauge", "objects", DS_TYPE_GAUGE, 1 },
+    { 0, "numExtents", "gauge", "num_extents", DS_TYPE_GAUGE, 1 },
+    { 0, "indexes", "gauge", "indexes", DS_TYPE_GAUGE, 1 },
+    { 0, "dataSize", "bytes", "data", DS_TYPE_GAUGE, 1 },
+    { 0, "storageSize", "bytes", "storage", DS_TYPE_GAUGE, 1 },
+    { 0, "indexSize", "bytes", "index", DS_TYPE_GAUGE, 1 }
 };
 
-/*
- * Looks up a statistic by dotted key path and then submits a value
- * list. Returns 0 if successful, >0 if key is not found, and <0 if
- * error.
- */
-static int mg_submit_helper(
-    const context_t *ctx, cdtime_t now, cdtime_t interval,
-    const bson_t *document, const parse_info_t *ip,
-    const char *plugin_instance) {
-  bson_iter_t iter;
-  bson_iter_t sub_iter;
-  if (!bson_iter_init(&iter, document)) {
-    ERROR("mongodb plugin: bson_iter_init failed.");
-    return -1;
-  }
+// Fill in a few values and submit the value_t.
+static int mg_submit_helper(value_t *value, cdtime_t now, cdtime_t interval,
+    const char *type, const char *plugin_instance, const char *type_instance) {
+    value_list_t vl = {
+        .values = value,
+        .values_len = 1,
+        .time = now,
+        .interval = interval
+    };
+    sstrncpy(vl.host, hostname_g, sizeof(vl.host));
+    sstrncpy(vl.plugin, this_plugin_name, sizeof(vl.plugin));
+    sstrncpy(vl.type, type, sizeof(vl.type));
+    if (plugin_instance != NULL) {
+      sstrncpy(vl.plugin_instance, plugin_instance, sizeof(vl.plugin_instance));
+    }
+    if (type_instance != NULL) {
+      sstrncpy(vl.type_instance, type_instance, sizeof(vl.type_instance));
+    }
 
-  if (!bson_iter_find_descendant(&iter, ip->key, &sub_iter)) {
-    DEBUG("mongodb plugin: key %s not found.", ip->key);
-    return 1;
-  }
-
-  value_t value;
-  if (mg_try_get_value(&sub_iter, ip->ds_type, ip->scale, &value) != 0) {
-    ERROR("mongodb plugin: Failed to parse value. Key is %s",
-          ip->key);
-    return -1;
-  }
-
-  value_list_t vl = {
-      .values = &value,
-      .values_len = 1,
-      .time = now,
-      .interval = interval
-  };
-  sstrncpy(vl.host, hostname_g, sizeof(vl.host));
-  sstrncpy(vl.plugin, this_plugin_name, sizeof(vl.plugin));
-  if (plugin_instance != NULL) {
-    sstrncpy(vl.plugin_instance, plugin_instance, sizeof(vl.plugin_instance));
-  }
-  sstrncpy(vl.type, ip->type, sizeof(vl.type));
-  if (ip->type_instance != NULL) {
-    sstrncpy(vl.type_instance, ip->type_instance, sizeof(vl.type_instance));
-  }
-
-  if (plugin_dispatch_values(&vl) != 0) {
-    ERROR("mongodb plugin: plugin_dispatch_values failed.");
-    return -1;
-  }
-  return 0;
+    if (plugin_dispatch_values(&vl) != 0) {
+      ERROR("mongodb plugin: plugin_dispatch_values failed.");
+      return -1;
+    }
+    return 0;
 }
 
 static int mg_parse_and_submit(
-    const context_t *ctx, const bson_t *status, const char *plugin_instance,
+    const bson_t *status, const char *plugin_instance,
     const parse_info_t *infos, size_t num_infos) {
   cdtime_t now = cdtime();
   cdtime_t interval = plugin_get_interval();
 
   size_t i;
   for (i = 0; i < num_infos; ++i) {
+    bson_iter_t iter;
+    bson_iter_t sub_iter;
     const parse_info_t *ip = &infos[i];
-    int result = mg_submit_helper(ctx, now, interval, status, ip,
-                                  plugin_instance);
-    if (result < 0) {
+
+    if (!bson_iter_init(&iter, status)) {
+      ERROR("mongodb plugin: bson_iter_init failed.");
+      return -1;
+    }
+
+    if (!bson_iter_find_descendant(&iter, ip->key, &sub_iter)) {
+      DEBUG("mongodb plugin: key %s not found.", ip->key);
+      continue;
+    }
+
+    value_t value;
+    memset(&value, 0, sizeof(value));
+    int result;
+    if (ip->sum_document) {
+      result = mg_try_sum_document(&sub_iter, ip->ds_type, ip->scale, &value);
+    } else {
+      result = mg_try_sum_value(&sub_iter, ip->ds_type, ip->scale, &value);
+    }
+    if (result != 0) {
+      ERROR("mongodb plugin: Error getting value for key %s.", ip->key);
+      return -1;
+    }
+
+    if (mg_submit_helper(&value, now, interval, ip->type, plugin_instance,
+        ip->type_instance) != 0) {
       ERROR("mongodb plugin: mg_submit_helper failed on key %s.",
             ip->key);
       return -1;
@@ -251,7 +283,7 @@ static int mg_process_database(
     goto leave;
   }
 
-  if (mg_parse_and_submit(ctx, &reply, db_name, db_parse_infos,
+  if (mg_parse_and_submit(&reply, db_name, db_parse_infos,
                           STATIC_ARRAY_SIZE(db_parse_infos)) != 0) {
     ERROR("mongodb plugin: mg_parse_and_submit(db) failed.");
     goto leave;
@@ -292,7 +324,7 @@ static int mg_read(user_data_t *user_data) {
     goto leave;
   }
 
-  if (mg_parse_and_submit(ctx, &server_reply, NULL, server_parse_infos,
+  if (mg_parse_and_submit(&server_reply, NULL, server_parse_infos,
                           STATIC_ARRAY_SIZE(server_parse_infos)) != 0) {
     ERROR("mongodb plugin: mg_parse_and_submit(server) failed.");
     goto leave;
