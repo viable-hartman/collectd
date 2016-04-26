@@ -190,13 +190,13 @@ static parse_info_t server_parse_infos[] = {
 };
 
 static parse_info_t db_parse_infos[] = {
-    { 0, "collections", "gauge", "collections", DS_TYPE_GAUGE, 1 },
-    { 0, "objects", "gauge", "objects", DS_TYPE_GAUGE, 1 },
-    { 0, "numExtents", "gauge", "num_extents", DS_TYPE_GAUGE, 1 },
-    { 0, "indexes", "gauge", "indexes", DS_TYPE_GAUGE, 1 },
-    { 0, "dataSize", "bytes", "data", DS_TYPE_GAUGE, 1 },
-    { 0, "storageSize", "bytes", "storage", DS_TYPE_GAUGE, 1 },
-    { 0, "indexSize", "bytes", "index", DS_TYPE_GAUGE, 1 }
+    { 0, "collections", "gauge", "collections", DS_TYPE_GAUGE, 1, 1 },
+    { 0, "objects", "gauge", "objects", DS_TYPE_GAUGE, 1, 1 },
+    { 0, "numExtents", "gauge", "num_extents", DS_TYPE_GAUGE, 1, 1 },
+    { 0, "indexes", "gauge", "indexes", DS_TYPE_GAUGE, 1, 1 },
+    { 0, "dataSize", "bytes", "data", DS_TYPE_GAUGE, 1, 1 },
+    { 0, "storageSize", "bytes", "storage", DS_TYPE_GAUGE, 1, 1 },
+    { 0, "indexSize", "bytes", "index", DS_TYPE_GAUGE, 1, 1 }
 };
 
 // Fill in a few values and submit the value_t.
