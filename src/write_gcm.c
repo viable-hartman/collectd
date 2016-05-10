@@ -1056,7 +1056,6 @@ static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
       headers, num_headers) != 0) {
     return -1;
   }
-  DEBUG("I have a response which looks like this: %s", response);
 
   // Fill ctx->auth_header with the string "Authorization: Bearer $TOKEN"
   char *resultp = ctx->auth_header;
@@ -3716,6 +3715,7 @@ static int wg_shutdown(void) {
 //==============================================================================
 //==============================================================================
 void module_register(void) {
+  INFO("write_gcm: inside module_register for %s", COLLECTD_USERAGENT);
   plugin_register_complex_config(this_plugin_name, &wg_config);
   plugin_register_init(this_plugin_name, &wg_init);
   plugin_register_shutdown(this_plugin_name, &wg_shutdown);
