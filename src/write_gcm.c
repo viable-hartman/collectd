@@ -1423,7 +1423,14 @@ static int wg_typed_value_create_from_meta_data_inline(wg_typed_value_t *result,
     case MD_TYPE_STRING: {
       result->field_name_static = "stringValue";
       result->value_type = wg_typed_value_string;
-      return meta_data_get_string(md, key, &result->value_text);
+      if (meta_data_get_string(md, key, &result->value_text) != 0) {
+        return -1;
+      }
+      // Truncate all metadata entries to 512 characters.
+      if (sstrlen(result->value_text) > 512) {
+        result->value_text[512] = 0;
+      }
+      return 0;
     }
 
     case MD_TYPE_SIGNED_INT: {
