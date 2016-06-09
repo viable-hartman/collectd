@@ -771,11 +771,7 @@ static void ps_submit_proc_stats (
     sstrncpy (vl.plugin, "processes", sizeof (vl.plugin));
     sstrncpy (vl.plugin_instance, instance_name, sizeof (vl.plugin_instance));
 
-    if (!doing_detail)
-    {
-        // sstrncpy(vl.type_instance, "aggregate", sizeof (vl.type_instance));
-    }
-    else
+    if (doing_detail)
     {
         // sstrncpy(vl.type_instance, "detail", sizeof (vl.type_instance));
         vl.meta = meta_data_create();

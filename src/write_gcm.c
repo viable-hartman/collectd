@@ -354,7 +354,7 @@ static credential_ctx_t *wg_credential_ctx_create_from_json_file(
     char *dash;
     dash = strstr(ctx->email, "-");
     if (dash != NULL) {
-      char * project = strdup(ctx->email);
+      char * project = sstrdup(ctx->email);
       dash = strstr(project, "-");
       *dash = '\0';
       ctx->project_id = project;
@@ -1410,7 +1410,7 @@ static int wg_typed_value_create_from_value_t_inline(wg_typed_value_t *result,
       ERROR("write_gcm: wg_get_vl_value: Unknown ds_type %i", ds_type);
       return -1;
   }
-  result->value_text = strdup(buffer);
+  result->value_text = sstrdup(buffer);
   result->value_type = wg_typed_value_numeric;
   return 0;
 }
@@ -1434,7 +1434,7 @@ static int wg_typed_value_create_from_meta_data_inline(wg_typed_value_t *result,
       }
       snprintf(buffer, sizeof(buffer), "%" PRIi64, intValue);
       result->value_type = wg_typed_value_numeric;
-      result->value_text = strdup(buffer);
+      result->value_text = sstrdup(buffer);
       return 0;
     }
 
@@ -1451,7 +1451,7 @@ static int wg_typed_value_create_from_meta_data_inline(wg_typed_value_t *result,
       }
       snprintf(buffer, sizeof(buffer), "%" PRIi64, (int64_t)uintValue);
       result->value_type = wg_typed_value_numeric;
-      result->value_text = strdup(buffer);
+      result->value_text = sstrdup(buffer);
       return 0;
     }
 
@@ -1463,7 +1463,7 @@ static int wg_typed_value_create_from_meta_data_inline(wg_typed_value_t *result,
       }
       snprintf(buffer, sizeof(buffer), "%f", doubleValue);
       result->value_type = wg_typed_value_numeric;
-      result->value_text = strdup(buffer);
+      result->value_text = sstrdup(buffer);
       return 0;
     }
 
@@ -1521,12 +1521,12 @@ static int wg_payload_key_create_inline(wg_payload_key_t *item,
   int toc_size = 0;
   int result = -1;  // Pessimistically assume error.
 
-  strncpy(item->host, vl->host, sizeof(item->host));
-  strncpy(item->plugin, vl->plugin, sizeof(item->plugin));
-  strncpy(item->plugin_instance, vl->plugin_instance,
+  sstrncpy(item->host, vl->host, sizeof(item->host));
+  sstrncpy(item->plugin, vl->plugin, sizeof(item->plugin));
+  sstrncpy(item->plugin_instance, vl->plugin_instance,
       sizeof(item->plugin_instance));
-  strncpy(item->type, vl->type, sizeof(item->type));
-  strncpy(item->type_instance, vl->type_instance,
+  sstrncpy(item->type, vl->type, sizeof(item->type));
+  sstrncpy(item->type_instance, vl->type_instance,
       sizeof(item->type_instance));
 
   if (vl->meta != NULL) {
@@ -1657,7 +1657,7 @@ static int wg_metadata_entry_compare(const wg_metadata_entry_t *lhs,
 
 static void wg_payload_value_create_inline(wg_payload_value_t *item,
     const char *name, int ds_type, value_t value) {
-  strncpy(item->name, name, sizeof(item->name));
+  sstrncpy(item->name, name, sizeof(item->name));
   item->ds_type = ds_type;
   item->val = value;
 }
@@ -2389,7 +2389,7 @@ static char * find_application_default_creds_path() {
   // first see if there is a file specified by $GOOGLE_APPLICATION_CREDENTIALS 
   const char * env_creds_path = getenv("GOOGLE_APPLICATION_CREDENTIALS");
   if (env_creds_path != NULL && access(env_creds_path, R_OK) == 0) {
-    return strdup(env_creds_path);
+    return sstrdup(env_creds_path);
   }
   
   // next check for $HOME/.config/gcloud/application_default_credentials.json
@@ -2414,7 +2414,7 @@ static char * find_application_default_creds_path() {
   const char * system_default_path =
           "/etc/google/auth/application_default_credentials.json";
   if (access(system_default_path, R_OK) == 0) {
-    return strdup(system_default_path);
+    return sstrdup(system_default_path);
   }
 
   return NULL;
