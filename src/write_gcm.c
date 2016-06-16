@@ -1882,8 +1882,8 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
   assert(STATIC_ARRAY_SIZE(bool_keys) == STATIC_ARRAY_SIZE(bool_locations));
 
   // Set some defaults.
-  cb->throttling_low_water_mark = 800000000;  // 800M
-  cb->throttling_high_water_mark = 950000000;  // 950M
+  cb->throttling_low_water_mark = 150000000;  // 150M
+  cb->throttling_high_water_mark = 200000000;  // 200M
   cb->throttling_chunk_interval_secs = 30 * 60;  // 30 minutes
   cb->throttling_purge_interval_secs = 24 * 60 * 60;  // 24 hours
 
