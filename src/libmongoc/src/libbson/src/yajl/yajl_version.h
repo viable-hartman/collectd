@@ -13,11 +13,10 @@
 extern "C" {
 #endif
 
-extern int YAJL_API yajl_version(void);
+extern int YAJL_API stackdriver_yajl_version(void);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* YAJL_VERSION_H_ */
-

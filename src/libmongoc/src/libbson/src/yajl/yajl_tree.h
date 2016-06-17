@@ -118,7 +118,7 @@ struct yajl_val_s
  * null terminated message describing the error in more detail is stored in
  * \em error_buffer if it is not \c NULL.
  */
-YAJL_API yajl_val yajl_tree_parse (const char *input,
+YAJL_API yajl_val stackdriver_yajl_tree_parse (const char *input,
                                    char *error_buffer, size_t error_buffer_size);
 
 /**
@@ -127,7 +127,7 @@ YAJL_API yajl_val yajl_tree_parse (const char *input,
  * \param v Pointer to a JSON value returned by "yajl_tree_parse". Passing NULL
  * is valid and results in a no-op.
  */
-YAJL_API void yajl_tree_free (yajl_val v);
+YAJL_API void stackdriver_yajl_tree_free (yajl_val v);
 
 /**
  * Access a nested value inside a tree.
@@ -143,7 +143,7 @@ YAJL_API void yajl_tree_free (yajl_val v);
  * like .first and .last, even .length.  Inspiration from JSONPath and css selectors?
  * No it wouldn't be fast, but that's not what this API is about.
  */
-YAJL_API yajl_val yajl_tree_get(yajl_val parent, const char ** path, yajl_type type);
+YAJL_API yajl_val stackdriver_yajl_tree_get(yajl_val parent, const char ** path, yajl_type type);
 
 /* Various convenience macros to check the type of a `yajl_val` */
 #define YAJL_IS_STRING(v) (((v) != NULL) && ((v)->type == yajl_t_string))
