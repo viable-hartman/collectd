@@ -27,7 +27,7 @@
 /* Define to 1 if you have the <amqp.h> header file. */
 #undef HAVE_AMQP_H
 
-/* Define to 1 if `library_errno' is member of `amqp_rpc_reply_t'. */
+/* Define to 1 if `library_errno' is a member of `amqp_rpc_reply_t'. */
 #undef HAVE_AMQP_RPC_REPLY_T_LIBRARY_ERRNO
 
 /* Define to 1 if you have the <amqp_socket.h> header file. */
@@ -274,16 +274,16 @@
 /* Define to 1 if you have the <kstat.h> header file. */
 #undef HAVE_KSTAT_H
 
-/* Define to 1 if `nwrites' is member of `kstat_io_t'. */
+/* Define to 1 if `nwrites' is a member of `kstat_io_t'. */
 #undef HAVE_KSTAT_IO_T_NWRITES
 
-/* Define to 1 if `nwritten' is member of `kstat_io_t'. */
+/* Define to 1 if `nwritten' is a member of `kstat_io_t'. */
 #undef HAVE_KSTAT_IO_T_NWRITTEN
 
-/* Define to 1 if `writes' is member of `kstat_io_t'. */
+/* Define to 1 if `writes' is a member of `kstat_io_t'. */
 #undef HAVE_KSTAT_IO_T_WRITES
 
-/* Define to 1 if `wtime' is member of `kstat_io_t'. */
+/* Define to 1 if `wtime' is a member of `kstat_io_t'. */
 #undef HAVE_KSTAT_IO_T_WTIME
 
 /* Define to 1 if you have the <kvm.h> header file. */
@@ -1252,46 +1252,46 @@
 /* Define if struct if_data exists and is usable. */
 #undef HAVE_STRUCT_IF_DATA
 
-/* Define to 1 if `ifi_ibytes' is member of `struct if_data'. */
+/* Define to 1 if `ifi_ibytes' is a member of `struct if_data'. */
 #undef HAVE_STRUCT_IF_DATA_IFI_IBYTES
 
-/* Define to 1 if `ifi_ierrors' is member of `struct if_data'. */
+/* Define to 1 if `ifi_ierrors' is a member of `struct if_data'. */
 #undef HAVE_STRUCT_IF_DATA_IFI_IERRORS
 
-/* Define to 1 if `ifi_opackets' is member of `struct if_data'. */
+/* Define to 1 if `ifi_opackets' is a member of `struct if_data'. */
 #undef HAVE_STRUCT_IF_DATA_IFI_OPACKETS
 
-/* Define to 1 if `id' is member of `struct inet_diag_req'. */
+/* Define to 1 if `id' is a member of `struct inet_diag_req'. */
 #undef HAVE_STRUCT_INET_DIAG_REQ_ID
 
-/* Define to 1 if `idiag_states' is member of `struct inet_diag_req'. */
+/* Define to 1 if `idiag_states' is a member of `struct inet_diag_req'. */
 #undef HAVE_STRUCT_INET_DIAG_REQ_IDIAG_STATES
 
 /* Define to 1 if the system has the type `struct ip6_ext'. */
 #undef HAVE_STRUCT_IP6_EXT
 
-/* Define to 1 if `imr_ifindex' is member of `struct ip_mreqn'. */
+/* Define to 1 if `imr_ifindex' is a member of `struct ip_mreqn'. */
 #undef HAVE_STRUCT_IP_MREQN_IMR_IFINDEX
 
 /* Define if struct kinfo_proc exists in the FreeBSD variant. */
 #undef HAVE_STRUCT_KINFO_PROC_FREEBSD
 
-/* Define to 1 if `ki_pid' is member of `struct kinfo_proc'. */
+/* Define to 1 if `ki_pid' is a member of `struct kinfo_proc'. */
 #undef HAVE_STRUCT_KINFO_PROC_KI_PID
 
-/* Define to 1 if `ki_rssize' is member of `struct kinfo_proc'. */
+/* Define to 1 if `ki_rssize' is a member of `struct kinfo_proc'. */
 #undef HAVE_STRUCT_KINFO_PROC_KI_RSSIZE
 
-/* Define to 1 if `ki_rusage' is member of `struct kinfo_proc'. */
+/* Define to 1 if `ki_rusage' is a member of `struct kinfo_proc'. */
 #undef HAVE_STRUCT_KINFO_PROC_KI_RUSAGE
 
 /* Define if struct kinfo_proc exists in the OpenBSD variant. */
 #undef HAVE_STRUCT_KINFO_PROC_OPENBSD
 
-/* Define to 1 if `p_pid' is member of `struct kinfo_proc'. */
+/* Define to 1 if `p_pid' is a member of `struct kinfo_proc'. */
 #undef HAVE_STRUCT_KINFO_PROC_P_PID
 
-/* Define to 1 if `p_vm_rssize' is member of `struct kinfo_proc'. */
+/* Define to 1 if `p_vm_rssize' is a member of `struct kinfo_proc'. */
 #undef HAVE_STRUCT_KINFO_PROC_P_VM_RSSIZE
 
 /* Define if struct inet_diag_req exists and is usable. */
@@ -1300,29 +1300,29 @@
 /* Define if struct net_device_stats exists and is usable. */
 #undef HAVE_STRUCT_NET_DEVICE_STATS
 
-/* Define to 1 if `rx_bytes' is member of `struct net_device_stats'. */
+/* Define to 1 if `rx_bytes' is a member of `struct net_device_stats'. */
 #undef HAVE_STRUCT_NET_DEVICE_STATS_RX_BYTES
 
-/* Define to 1 if `rx_errors' is member of `struct net_device_stats'. */
+/* Define to 1 if `rx_errors' is a member of `struct net_device_stats'. */
 #undef HAVE_STRUCT_NET_DEVICE_STATS_RX_ERRORS
 
-/* Define to 1 if `tx_packets' is member of `struct net_device_stats'. */
+/* Define to 1 if `tx_packets' is a member of `struct net_device_stats'. */
 #undef HAVE_STRUCT_NET_DEVICE_STATS_TX_PACKETS
 
-/* Define to 1 if `tx_window_errors' is member of `struct rtnl_link_stats64'.
-   */
+/* Define to 1 if `tx_window_errors' is a member of `struct
+   rtnl_link_stats64'. */
 #undef HAVE_STRUCT_RTNL_LINK_STATS64_TX_WINDOW_ERRORS
 
-/* Define to 1 if `dest' is member of `struct udphdr'. */
+/* Define to 1 if `dest' is a member of `struct udphdr'. */
 #undef HAVE_STRUCT_UDPHDR_DEST
 
-/* Define to 1 if `source' is member of `struct udphdr'. */
+/* Define to 1 if `source' is a member of `struct udphdr'. */
 #undef HAVE_STRUCT_UDPHDR_SOURCE
 
-/* Define to 1 if `uh_dport' is member of `struct udphdr'. */
+/* Define to 1 if `uh_dport' is a member of `struct udphdr'. */
 #undef HAVE_STRUCT_UDPHDR_UH_DPORT
 
-/* Define to 1 if `uh_sport' is member of `struct udphdr'. */
+/* Define to 1 if `uh_sport' is a member of `struct udphdr'. */
 #undef HAVE_STRUCT_UDPHDR_UH_SPORT
 
 /* Define if the function getmntent exists. It's the version from libsun. */
@@ -1483,6 +1483,12 @@
 /* Define to 1 if you have the <utmp.h> header file. */
 #undef HAVE_UTMP_H
 
+/* Define to 1 if you have the <vapi/vsc.h> header file. */
+#undef HAVE_VAPI_VSC_H
+
+/* Define to 1 if you have the <varnishapi.h> header file. */
+#undef HAVE_VARNISHAPI_H
+
 /* Varnish 2 API support */
 #undef HAVE_VARNISH_V2
 
@@ -1492,17 +1498,11 @@
 /* Varnish 4 API support */
 #undef HAVE_VARNISH_V4
 
-/* Define to 1 if you have the <varnish/vapi/vsc.h> header file. */
-#undef HAVE_VARNISH_VAPI_VSC_H
-
-/* Define to 1 if you have the <varnish/varnishapi.h> header file. */
-#undef HAVE_VARNISH_VARNISHAPI_H
-
-/* Define to 1 if you have the <varnish/vsc.h> header file. */
-#undef HAVE_VARNISH_VSC_H
-
 /* Define to 1 if you have the <vm/anon.h> header file. */
 #undef HAVE_VM_ANON_H
+
+/* Define to 1 if you have the <vsc.h> header file. */
+#undef HAVE_VSC_H
 
 /* Define to 1 if you have the <wordexp.h> header file. */
 #undef HAVE_WORDEXP_H
@@ -1582,9 +1582,6 @@
 /* Define if dlsym() requires a leading underscore in symbol names. */
 #undef NEED_USCORE
 
-/* Define to 1 if your C compiler doesn't accept -c and -o together. */
-#undef NO_MINUS_C_MINUS_O
-
 /* Define to 1 if we use the shipped mongoc lib. */
 #undef OWN_LIBMONGOC
 
@@ -1602,6 +1599,9 @@
 
 /* Define to the one symbol short name of this package. */
 #undef PACKAGE_TARNAME
+
+/* Define to the home page for this package. */
+#undef PACKAGE_URL
 
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
@@ -1627,6 +1627,11 @@
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
 #undef YYTEXT_POINTER
+
+/* Enable large inode numbers on Mac OS X 10.5.  */
+#ifndef _DARWIN_USE_64_BIT_INODE
+# define _DARWIN_USE_64_BIT_INODE 1
+#endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */
 #undef _FILE_OFFSET_BITS

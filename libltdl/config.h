@@ -120,7 +120,7 @@
 /* #undef LTDL_DLOPEN_DEPLIBS */
 
 /* Define to the system default library search path. */
-#define LT_DLSEARCH_PATH "/lib:/usr/lib:/usr/lib64/mysql"
+#define LT_DLSEARCH_PATH "/lib:/usr/lib:/usr/lib/x86_64-linux-gnu/libfakeroot:/usr/local/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu"
 
 /* The archive extension */
 #define LT_LIBEXT "a"
@@ -159,6 +159,9 @@
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libltdl"
+
+/* Define to the home page for this package. */
+#define PACKAGE_URL ""
 
 /* Define to the version of this package. */
 #define PACKAGE_VERSION "2.4.2"
