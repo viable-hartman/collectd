@@ -1,4 +1,4 @@
-#include <yajl/yajl_version.h>
+#include <yajl/stackdriver_yajl_version.h>
 
 int stackdriver_yajl_version(void)
 {

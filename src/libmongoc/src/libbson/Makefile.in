@@ -248,15 +248,15 @@ libbson_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 libstackdriver_yajl_la_DEPENDENCIES =
 am_libstackdriver_yajl_la_OBJECTS =  \
-	src/yajl/libstackdriver_yajl_la-yajl_version.lo \
-	src/yajl/libstackdriver_yajl_la-yajl.lo \
-	src/yajl/libstackdriver_yajl_la-yajl_encode.lo \
-	src/yajl/libstackdriver_yajl_la-yajl_lex.lo \
-	src/yajl/libstackdriver_yajl_la-yajl_parser.lo \
-	src/yajl/libstackdriver_yajl_la-yajl_buf.lo \
-	src/yajl/libstackdriver_yajl_la-yajl_tree.lo \
-	src/yajl/libstackdriver_yajl_la-yajl_alloc.lo \
-	src/yajl/libstackdriver_yajl_la-yajl_gen.lo
+	src/yajl/libstackdriver_yajl_la-stackdriver_yajl_version.lo \
+	src/yajl/libstackdriver_yajl_la-stackdriver_yajl.lo \
+	src/yajl/libstackdriver_yajl_la-stackdriver_yajl_encode.lo \
+	src/yajl/libstackdriver_yajl_la-stackdriver_yajl_lex.lo \
+	src/yajl/libstackdriver_yajl_la-stackdriver_yajl_parser.lo \
+	src/yajl/libstackdriver_yajl_la-stackdriver_yajl_buf.lo \
+	src/yajl/libstackdriver_yajl_la-stackdriver_yajl_tree.lo \
+	src/yajl/libstackdriver_yajl_la-stackdriver_yajl_alloc.lo \
+	src/yajl/libstackdriver_yajl_la-stackdriver_yajl_gen.lo
 libstackdriver_yajl_la_OBJECTS = $(am_libstackdriver_yajl_la_OBJECTS)
 libstackdriver_yajl_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
@@ -608,26 +608,26 @@ libbson_la_SOURCES = \
 
 libbson_la_LIBADD = $(am__append_5) $(am__append_6)
 libstackdriver_yajl_la_SOURCES = \
-	src/yajl/yajl_tree.h \
-	src/yajl/yajl_parse.h \
-	src/yajl/yajl_gen.h \
-	src/yajl/yajl_common.h \
-	src/yajl/yajl_version.h \
-	src/yajl/yajl_parser.h \
-	src/yajl/yajl_encode.h \
-	src/yajl/yajl_buf.h \
-	src/yajl/yajl_alloc.h \
-	src/yajl/yajl_bytestack.h \
-	src/yajl/yajl_lex.h \
-	src/yajl/yajl_version.c \
-	src/yajl/yajl.c \
-	src/yajl/yajl_encode.c \
-	src/yajl/yajl_lex.c \
-	src/yajl/yajl_parser.c \
-	src/yajl/yajl_buf.c \
-	src/yajl/yajl_tree.c \
-	src/yajl/yajl_alloc.c \
-	src/yajl/yajl_gen.c
+	src/yajl/stackdriver_yajl_tree.h \
+	src/yajl/stackdriver_yajl_parse.h \
+	src/yajl/stackdriver_yajl_gen.h \
+	src/yajl/stackdriver_yajl_common.h \
+	src/yajl/stackdriver_yajl_version.h \
+	src/yajl/stackdriver_yajl_parser.h \
+	src/yajl/stackdriver_yajl_encode.h \
+	src/yajl/stackdriver_yajl_buf.h \
+	src/yajl/stackdriver_yajl_alloc.h \
+	src/yajl/stackdriver_yajl_bytestack.h \
+	src/yajl/stackdriver_yajl_lex.h \
+	src/yajl/stackdriver_yajl_version.c \
+	src/yajl/stackdriver_yajl.c \
+	src/yajl/stackdriver_yajl_encode.c \
+	src/yajl/stackdriver_yajl_lex.c \
+	src/yajl/stackdriver_yajl_parser.c \
+	src/yajl/stackdriver_yajl_buf.c \
+	src/yajl/stackdriver_yajl_tree.c \
+	src/yajl/stackdriver_yajl_alloc.c \
+	src/yajl/stackdriver_yajl_gen.c
 
 libstackdriver_yajl_la_CFLAGS = \
 	-I$(top_srcdir)/src \
@@ -799,24 +799,24 @@ src/yajl/$(am__dirstamp):
 src/yajl/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/yajl/$(DEPDIR)
 	@: > src/yajl/$(DEPDIR)/$(am__dirstamp)
-src/yajl/libstackdriver_yajl_la-yajl_version.lo:  \
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_version.lo:  \
 	src/yajl/$(am__dirstamp) src/yajl/$(DEPDIR)/$(am__dirstamp)
-src/yajl/libstackdriver_yajl_la-yajl.lo: src/yajl/$(am__dirstamp) \
-	src/yajl/$(DEPDIR)/$(am__dirstamp)
-src/yajl/libstackdriver_yajl_la-yajl_encode.lo:  \
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl.lo:  \
 	src/yajl/$(am__dirstamp) src/yajl/$(DEPDIR)/$(am__dirstamp)
-src/yajl/libstackdriver_yajl_la-yajl_lex.lo: src/yajl/$(am__dirstamp) \
-	src/yajl/$(DEPDIR)/$(am__dirstamp)
-src/yajl/libstackdriver_yajl_la-yajl_parser.lo:  \
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_encode.lo:  \
 	src/yajl/$(am__dirstamp) src/yajl/$(DEPDIR)/$(am__dirstamp)
-src/yajl/libstackdriver_yajl_la-yajl_buf.lo: src/yajl/$(am__dirstamp) \
-	src/yajl/$(DEPDIR)/$(am__dirstamp)
-src/yajl/libstackdriver_yajl_la-yajl_tree.lo:  \
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_lex.lo:  \
 	src/yajl/$(am__dirstamp) src/yajl/$(DEPDIR)/$(am__dirstamp)
-src/yajl/libstackdriver_yajl_la-yajl_alloc.lo:  \
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_parser.lo:  \
 	src/yajl/$(am__dirstamp) src/yajl/$(DEPDIR)/$(am__dirstamp)
-src/yajl/libstackdriver_yajl_la-yajl_gen.lo: src/yajl/$(am__dirstamp) \
-	src/yajl/$(DEPDIR)/$(am__dirstamp)
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_buf.lo:  \
+	src/yajl/$(am__dirstamp) src/yajl/$(DEPDIR)/$(am__dirstamp)
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_tree.lo:  \
+	src/yajl/$(am__dirstamp) src/yajl/$(DEPDIR)/$(am__dirstamp)
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_alloc.lo:  \
+	src/yajl/$(am__dirstamp) src/yajl/$(DEPDIR)/$(am__dirstamp)
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_gen.lo:  \
+	src/yajl/$(am__dirstamp) src/yajl/$(DEPDIR)/$(am__dirstamp)
 
 libstackdriver_yajl.la: $(libstackdriver_yajl_la_OBJECTS) $(libstackdriver_yajl_la_DEPENDENCIES) $(EXTRA_libstackdriver_yajl_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libstackdriver_yajl_la_LINK)  $(libstackdriver_yajl_la_OBJECTS) $(libstackdriver_yajl_la_LIBADD) $(LIBS)
@@ -909,15 +909,15 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/bson/$(DEPDIR)/libbson_la-bson-version-functions.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bson/$(DEPDIR)/libbson_la-bson-writer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/bson/$(DEPDIR)/libbson_la-bson.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_alloc.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_buf.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_encode.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_gen.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_lex.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_parser.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_tree.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_version.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_alloc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_buf.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_encode.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_gen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_lex.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_parser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_tree.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_version.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -1083,68 +1083,68 @@ src/bson/libbson_la-bson-writer.lo: src/bson/bson-writer.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbson_la_CPPFLAGS) $(CPPFLAGS) $(libbson_la_CFLAGS) $(CFLAGS) -c -o src/bson/libbson_la-bson-writer.lo `test -f 'src/bson/bson-writer.c' || echo '$(srcdir)/'`src/bson/bson-writer.c
 
-src/yajl/libstackdriver_yajl_la-yajl_version.lo: src/yajl/yajl_version.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-yajl_version.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_version.Tpo -c -o src/yajl/libstackdriver_yajl_la-yajl_version.lo `test -f 'src/yajl/yajl_version.c' || echo '$(srcdir)/'`src/yajl/yajl_version.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_version.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_version.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/yajl_version.c' object='src/yajl/libstackdriver_yajl_la-yajl_version.lo' libtool=yes @AMDEPBACKSLASH@
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_version.lo: src/yajl/stackdriver_yajl_version.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-stackdriver_yajl_version.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_version.Tpo -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_version.lo `test -f 'src/yajl/stackdriver_yajl_version.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_version.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_version.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_version.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/stackdriver_yajl_version.c' object='src/yajl/libstackdriver_yajl_la-stackdriver_yajl_version.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-yajl_version.lo `test -f 'src/yajl/yajl_version.c' || echo '$(srcdir)/'`src/yajl/yajl_version.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_version.lo `test -f 'src/yajl/stackdriver_yajl_version.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_version.c
 
-src/yajl/libstackdriver_yajl_la-yajl.lo: src/yajl/yajl.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-yajl.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl.Tpo -c -o src/yajl/libstackdriver_yajl_la-yajl.lo `test -f 'src/yajl/yajl.c' || echo '$(srcdir)/'`src/yajl/yajl.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/yajl.c' object='src/yajl/libstackdriver_yajl_la-yajl.lo' libtool=yes @AMDEPBACKSLASH@
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl.lo: src/yajl/stackdriver_yajl.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-stackdriver_yajl.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl.Tpo -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl.lo `test -f 'src/yajl/stackdriver_yajl.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/stackdriver_yajl.c' object='src/yajl/libstackdriver_yajl_la-stackdriver_yajl.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-yajl.lo `test -f 'src/yajl/yajl.c' || echo '$(srcdir)/'`src/yajl/yajl.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl.lo `test -f 'src/yajl/stackdriver_yajl.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl.c
 
-src/yajl/libstackdriver_yajl_la-yajl_encode.lo: src/yajl/yajl_encode.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-yajl_encode.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_encode.Tpo -c -o src/yajl/libstackdriver_yajl_la-yajl_encode.lo `test -f 'src/yajl/yajl_encode.c' || echo '$(srcdir)/'`src/yajl/yajl_encode.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_encode.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_encode.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/yajl_encode.c' object='src/yajl/libstackdriver_yajl_la-yajl_encode.lo' libtool=yes @AMDEPBACKSLASH@
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_encode.lo: src/yajl/stackdriver_yajl_encode.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-stackdriver_yajl_encode.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_encode.Tpo -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_encode.lo `test -f 'src/yajl/stackdriver_yajl_encode.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_encode.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_encode.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_encode.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/stackdriver_yajl_encode.c' object='src/yajl/libstackdriver_yajl_la-stackdriver_yajl_encode.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-yajl_encode.lo `test -f 'src/yajl/yajl_encode.c' || echo '$(srcdir)/'`src/yajl/yajl_encode.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_encode.lo `test -f 'src/yajl/stackdriver_yajl_encode.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_encode.c
 
-src/yajl/libstackdriver_yajl_la-yajl_lex.lo: src/yajl/yajl_lex.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-yajl_lex.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_lex.Tpo -c -o src/yajl/libstackdriver_yajl_la-yajl_lex.lo `test -f 'src/yajl/yajl_lex.c' || echo '$(srcdir)/'`src/yajl/yajl_lex.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_lex.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_lex.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/yajl_lex.c' object='src/yajl/libstackdriver_yajl_la-yajl_lex.lo' libtool=yes @AMDEPBACKSLASH@
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_lex.lo: src/yajl/stackdriver_yajl_lex.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-stackdriver_yajl_lex.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_lex.Tpo -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_lex.lo `test -f 'src/yajl/stackdriver_yajl_lex.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_lex.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_lex.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_lex.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/stackdriver_yajl_lex.c' object='src/yajl/libstackdriver_yajl_la-stackdriver_yajl_lex.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-yajl_lex.lo `test -f 'src/yajl/yajl_lex.c' || echo '$(srcdir)/'`src/yajl/yajl_lex.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_lex.lo `test -f 'src/yajl/stackdriver_yajl_lex.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_lex.c
 
-src/yajl/libstackdriver_yajl_la-yajl_parser.lo: src/yajl/yajl_parser.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-yajl_parser.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_parser.Tpo -c -o src/yajl/libstackdriver_yajl_la-yajl_parser.lo `test -f 'src/yajl/yajl_parser.c' || echo '$(srcdir)/'`src/yajl/yajl_parser.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_parser.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_parser.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/yajl_parser.c' object='src/yajl/libstackdriver_yajl_la-yajl_parser.lo' libtool=yes @AMDEPBACKSLASH@
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_parser.lo: src/yajl/stackdriver_yajl_parser.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-stackdriver_yajl_parser.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_parser.Tpo -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_parser.lo `test -f 'src/yajl/stackdriver_yajl_parser.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_parser.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_parser.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_parser.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/stackdriver_yajl_parser.c' object='src/yajl/libstackdriver_yajl_la-stackdriver_yajl_parser.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-yajl_parser.lo `test -f 'src/yajl/yajl_parser.c' || echo '$(srcdir)/'`src/yajl/yajl_parser.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_parser.lo `test -f 'src/yajl/stackdriver_yajl_parser.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_parser.c
 
-src/yajl/libstackdriver_yajl_la-yajl_buf.lo: src/yajl/yajl_buf.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-yajl_buf.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_buf.Tpo -c -o src/yajl/libstackdriver_yajl_la-yajl_buf.lo `test -f 'src/yajl/yajl_buf.c' || echo '$(srcdir)/'`src/yajl/yajl_buf.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_buf.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_buf.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/yajl_buf.c' object='src/yajl/libstackdriver_yajl_la-yajl_buf.lo' libtool=yes @AMDEPBACKSLASH@
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_buf.lo: src/yajl/stackdriver_yajl_buf.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-stackdriver_yajl_buf.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_buf.Tpo -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_buf.lo `test -f 'src/yajl/stackdriver_yajl_buf.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_buf.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_buf.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_buf.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/stackdriver_yajl_buf.c' object='src/yajl/libstackdriver_yajl_la-stackdriver_yajl_buf.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-yajl_buf.lo `test -f 'src/yajl/yajl_buf.c' || echo '$(srcdir)/'`src/yajl/yajl_buf.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_buf.lo `test -f 'src/yajl/stackdriver_yajl_buf.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_buf.c
 
-src/yajl/libstackdriver_yajl_la-yajl_tree.lo: src/yajl/yajl_tree.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-yajl_tree.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_tree.Tpo -c -o src/yajl/libstackdriver_yajl_la-yajl_tree.lo `test -f 'src/yajl/yajl_tree.c' || echo '$(srcdir)/'`src/yajl/yajl_tree.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_tree.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_tree.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/yajl_tree.c' object='src/yajl/libstackdriver_yajl_la-yajl_tree.lo' libtool=yes @AMDEPBACKSLASH@
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_tree.lo: src/yajl/stackdriver_yajl_tree.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-stackdriver_yajl_tree.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_tree.Tpo -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_tree.lo `test -f 'src/yajl/stackdriver_yajl_tree.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_tree.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_tree.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_tree.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/stackdriver_yajl_tree.c' object='src/yajl/libstackdriver_yajl_la-stackdriver_yajl_tree.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-yajl_tree.lo `test -f 'src/yajl/yajl_tree.c' || echo '$(srcdir)/'`src/yajl/yajl_tree.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_tree.lo `test -f 'src/yajl/stackdriver_yajl_tree.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_tree.c
 
-src/yajl/libstackdriver_yajl_la-yajl_alloc.lo: src/yajl/yajl_alloc.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-yajl_alloc.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_alloc.Tpo -c -o src/yajl/libstackdriver_yajl_la-yajl_alloc.lo `test -f 'src/yajl/yajl_alloc.c' || echo '$(srcdir)/'`src/yajl/yajl_alloc.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_alloc.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_alloc.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/yajl_alloc.c' object='src/yajl/libstackdriver_yajl_la-yajl_alloc.lo' libtool=yes @AMDEPBACKSLASH@
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_alloc.lo: src/yajl/stackdriver_yajl_alloc.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-stackdriver_yajl_alloc.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_alloc.Tpo -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_alloc.lo `test -f 'src/yajl/stackdriver_yajl_alloc.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_alloc.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_alloc.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_alloc.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/stackdriver_yajl_alloc.c' object='src/yajl/libstackdriver_yajl_la-stackdriver_yajl_alloc.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-yajl_alloc.lo `test -f 'src/yajl/yajl_alloc.c' || echo '$(srcdir)/'`src/yajl/yajl_alloc.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_alloc.lo `test -f 'src/yajl/stackdriver_yajl_alloc.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_alloc.c
 
-src/yajl/libstackdriver_yajl_la-yajl_gen.lo: src/yajl/yajl_gen.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-yajl_gen.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_gen.Tpo -c -o src/yajl/libstackdriver_yajl_la-yajl_gen.lo `test -f 'src/yajl/yajl_gen.c' || echo '$(srcdir)/'`src/yajl/yajl_gen.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_gen.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-yajl_gen.Plo
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/yajl_gen.c' object='src/yajl/libstackdriver_yajl_la-yajl_gen.lo' libtool=yes @AMDEPBACKSLASH@
+src/yajl/libstackdriver_yajl_la-stackdriver_yajl_gen.lo: src/yajl/stackdriver_yajl_gen.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -MT src/yajl/libstackdriver_yajl_la-stackdriver_yajl_gen.lo -MD -MP -MF src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_gen.Tpo -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_gen.lo `test -f 'src/yajl/stackdriver_yajl_gen.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_gen.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_gen.Tpo src/yajl/$(DEPDIR)/libstackdriver_yajl_la-stackdriver_yajl_gen.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/yajl/stackdriver_yajl_gen.c' object='src/yajl/libstackdriver_yajl_la-stackdriver_yajl_gen.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-yajl_gen.lo `test -f 'src/yajl/yajl_gen.c' || echo '$(srcdir)/'`src/yajl/yajl_gen.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libstackdriver_yajl_la_CFLAGS) $(CFLAGS) -c -o src/yajl/libstackdriver_yajl_la-stackdriver_yajl_gen.lo `test -f 'src/yajl/stackdriver_yajl_gen.c' || echo '$(srcdir)/'`src/yajl/stackdriver_yajl_gen.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

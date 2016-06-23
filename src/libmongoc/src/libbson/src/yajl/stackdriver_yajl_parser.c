@@ -14,11 +14,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "yajl_parse.h"
-#include "yajl_lex.h"
-#include "yajl_parser.h"
-#include "yajl_encode.h"
-#include "yajl_bytestack.h"
+#include "stackdriver_yajl_parse.h"
+#include "stackdriver_yajl_lex.h"
+#include "stackdriver_yajl_parser.h"
+#include "stackdriver_yajl_encode.h"
+#include "stackdriver_yajl_bytestack.h"
 
 #include <stdlib.h>
 #include <limits.h>

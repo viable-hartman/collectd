@@ -20,7 +20,7 @@
  * free
  */
 
-#include "yajl_alloc.h"
+#include "stackdriver_yajl_alloc.h"
 #include <stdlib.h>
 
 static void * stackdriver_yajl_internal_malloc(void *ctx, size_t sz)

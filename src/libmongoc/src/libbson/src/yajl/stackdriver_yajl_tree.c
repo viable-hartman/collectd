@@ -20,10 +20,10 @@
 #include <errno.h>
 #include <assert.h>
 
-#include "yajl_tree.h"
-#include "yajl_parse.h"
+#include "stackdriver_yajl_tree.h"
+#include "stackdriver_yajl_parse.h"
 
-#include "yajl_parser.h"
+#include "stackdriver_yajl_parser.h"
 
 #if defined(_WIN32) || defined(WIN32)
 #define snprintf sprintf_s
