@@ -26,8 +26,8 @@
 #include "bson-iso8601-private.h"
 #include "b64_pton.h"
 
-#include <yajl/yajl_parser.h>
-#include <yajl/yajl_bytestack.h>
+#include <yajl/stackdriver_yajl_parser.h>
+#include <yajl/stackdriver_yajl_bytestack.h>
 
 #ifdef _WIN32
 # include <io.h>

@@ -20,10 +20,10 @@
  * free
  */
 
-#ifndef __YAJL_ALLOC_H__
-#define __YAJL_ALLOC_H__
+#ifndef __STACKDRIVER_YAJL_ALLOC_H__
+#define __STACKDRIVER_YAJL_ALLOC_H__
 
-#include "yajl_common.h"
+#include "stackdriver_yajl_common.h"
 
 #define YA_MALLOC(afs, sz) (afs)->malloc((afs)->ctx, (sz))
 #define YA_FREE(afs, ptr) (afs)->free((afs)->ctx, (ptr))

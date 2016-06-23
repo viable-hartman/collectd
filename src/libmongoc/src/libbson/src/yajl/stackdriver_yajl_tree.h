@@ -28,10 +28,10 @@
  * \include example/parse_config.c
  */
 
-#ifndef YAJL_TREE_H
-#define YAJL_TREE_H 1
+#ifndef STACKDRIVER_YAJL_TREE_H
+#define STACKDRIVER_YAJL_TREE_H 1
 
-#include <yajl/yajl_common.h>
+#include <yajl/stackdriver_yajl_common.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -182,4 +182,4 @@ YAJL_API yajl_val stackdriver_yajl_tree_get(yajl_val parent, const char ** path,
 }
 #endif
 
-#endif /* YAJL_TREE_H */
+#endif /* STACKDRIVER_YAJL_TREE_H */

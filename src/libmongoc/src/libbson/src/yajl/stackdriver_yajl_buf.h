@@ -14,11 +14,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef __YAJL_BUF_H__
-#define __YAJL_BUF_H__
+#ifndef __STACKDRIVER_YAJL_BUF_H__
+#define __STACKDRIVER_YAJL_BUF_H__
 
-#include "yajl_common.h"
-#include "yajl_alloc.h"
+#include "stackdriver_yajl_common.h"
+#include "stackdriver_yajl_alloc.h"
 
 /*
  * Implementation/performance notes.  If this were moved to a header

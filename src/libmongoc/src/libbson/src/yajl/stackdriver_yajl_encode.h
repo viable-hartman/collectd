@@ -14,11 +14,11 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef __YAJL_ENCODE_H__
-#define __YAJL_ENCODE_H__
+#ifndef __STACKDRIVER_YAJL_ENCODE_H__
+#define __STACKDRIVER_YAJL_ENCODE_H__
 
-#include "yajl_buf.h"
-#include "yajl_gen.h"
+#include "stackdriver_yajl_buf.h"
+#include "stackdriver_yajl_gen.h"
 
 void stackdriver_yajl_string_encode(const yajl_print_t printer,
                         void * ctx,

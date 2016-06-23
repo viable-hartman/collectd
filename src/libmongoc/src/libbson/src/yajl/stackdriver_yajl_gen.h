@@ -19,10 +19,10 @@
  * Interface to YAJL's JSON generation facilities.
  */
 
-#include <yajl/yajl_common.h>
+#include <yajl/stackdriver_yajl_common.h>
 
-#ifndef __YAJL_GEN_H__
-#define __YAJL_GEN_H__
+#ifndef __STACKDRIVER_YAJL_GEN_H__
+#define __STACKDRIVER_YAJL_GEN_H__
 
 #include <stddef.h>
 

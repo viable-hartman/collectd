@@ -21,10 +21,10 @@
 
 #include "bson-compat.h"
 
-#include <yajl/yajl_common.h>
+#include <yajl/stackdriver_yajl_common.h>
 
-#ifndef __YAJL_PARSE_H__
-#define __YAJL_PARSE_H__
+#ifndef __STACKDRIVER_YAJL_PARSE_H__
+#define __STACKDRIVER_YAJL_PARSE_H__
 
 #include <stddef.h>
 

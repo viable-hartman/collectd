@@ -14,15 +14,15 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef __YAJL_PARSER_H__
-#define __YAJL_PARSER_H__
+#ifndef __STACKDRIVER_YAJL_PARSER_H__
+#define __STACKDRIVER_YAJL_PARSER_H__
 
 #include "bson-compat.h"
 
-#include "yajl_parse.h"
-#include "yajl_bytestack.h"
-#include "yajl_buf.h"
-#include "yajl_lex.h"
+#include "stackdriver_yajl_parse.h"
+#include "stackdriver_yajl_bytestack.h"
+#include "stackdriver_yajl_buf.h"
+#include "stackdriver_yajl_lex.h"
 
 
 typedef enum {

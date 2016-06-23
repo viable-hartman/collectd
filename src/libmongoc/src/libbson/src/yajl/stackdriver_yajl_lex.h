@@ -14,10 +14,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef __YAJL_LEX_H__
-#define __YAJL_LEX_H__
+#ifndef __STACKDRIVER_YAJL_LEX_H__
+#define __STACKDRIVER_YAJL_LEX_H__
 
-#include "yajl_common.h"
+#include "stackdriver_yajl_common.h"
 
 typedef enum {
     yajl_tok_bool,         
