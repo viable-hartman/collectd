@@ -1,6 +1,6 @@
-noinst_LTLIBRARIES += libyajl.la
+noinst_LTLIBRARIES += libstackdriver_yajl.la
 
-libyajl_la_SOURCES = \
+libstackdriver_yajl_la_SOURCES = \
 	src/yajl/yajl_tree.h \
 	src/yajl/yajl_parse.h \
 	src/yajl/yajl_gen.h \
@@ -22,10 +22,10 @@ libyajl_la_SOURCES = \
 	src/yajl/yajl_alloc.c \
 	src/yajl/yajl_gen.c
 
-libyajl_la_CFLAGS = \
+libstackdriver_yajl_la_CFLAGS = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/bson \
 	-I$(top_builddir)/src/bson \
 	-DBSON_COMPILATION
-libyajl_la_LIBADD = 
-libyajl_la_LDFLAGS = 
+libstackdriver_yajl_la_LIBADD = 
+libstackdriver_yajl_la_LDFLAGS = 

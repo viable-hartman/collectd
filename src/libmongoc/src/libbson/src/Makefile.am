@@ -3,7 +3,7 @@ lib_LTLIBRARIES += libbson-1.0.la
 libbson_1_0_la_SOURCES =
 libbson_1_0_la_LIBADD = \
 	libbson.la \
-	libyajl.la \
+	libstackdriver_yajl.la \
 	-lm
 libbson_1_0_la_LDFLAGS = \
 	$(OPTIMIZE_LDFLAGS) \
