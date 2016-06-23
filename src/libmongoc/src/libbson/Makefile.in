@@ -103,12 +103,10 @@ DIST_COMMON = $(srcdir)/src/Makefile.am $(srcdir)/src/bson/Makefile.am \
 	$(top_srcdir)/build/autotools/install-sh \
 	$(top_srcdir)/build/autotools/ltmain.sh \
 	$(top_srcdir)/build/autotools/missing
-@HAVE_LD_VERSION_SCRIPT_TRUE@am__append_1 = -Wl,--version-script=$(srcdir)/build/autotools/versions.ldscript
-@HAVE_LD_VERSION_SCRIPT_FALSE@am__append_2 = -export-symbols-regex "^(bson_|bcon_)"
-@OS_WIN32_TRUE@am__append_3 = src/bson/bson-stdint-win32.h
-@OS_WIN32_FALSE@am__append_4 = src/bson/bson-stdint.h
-@OS_WIN32_FALSE@am__append_5 = $(PTHREAD_LIBS)
-@OS_WIN32_TRUE@am__append_6 = -lws2_32
+@OS_WIN32_TRUE@am__append_1 = src/bson/bson-stdint-win32.h
+@OS_WIN32_FALSE@am__append_2 = src/bson/bson-stdint.h
+@OS_WIN32_FALSE@am__append_3 = $(PTHREAD_LIBS)
+@OS_WIN32_TRUE@am__append_4 = -lws2_32
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps =  \
@@ -541,8 +539,12 @@ libbson_1_0_la_LIBADD = \
 	libstackdriver_yajl.la \
 	-lm
 
-libbson_1_0_la_LDFLAGS = $(OPTIMIZE_LDFLAGS) $(COVERAGE_LDFLAGS) \
-	-no-undefined -rpath $(libdir) $(am__append_1) $(am__append_2)
+libbson_1_0_la_LDFLAGS = \
+	$(OPTIMIZE_LDFLAGS) \
+	$(COVERAGE_LDFLAGS) \
+	-no-undefined \
+	-rpath $(libdir)
+
 headerdir = $(prefix)/include/libbson-@BSON_API_VERSION@
 header_DATA = \
 	$(INST_H_FILES) \
@@ -559,7 +561,7 @@ INST_H_FILES = src/bson/bcon.h src/bson/bson.h src/bson/bson-atomic.h \
 	src/bson/bson-types.h src/bson/bson-utf8.h \
 	src/bson/bson-value.h src/bson/bson-version.h \
 	src/bson/bson-version-functions.h src/bson/bson-writer.h \
-	$(am__append_3) $(am__append_4)
+	$(am__append_1) $(am__append_2)
 NOINST_H_FILES = \
 	src/bson/b64_ntop.h \
 	src/bson/b64_pton.h \
@@ -606,7 +608,7 @@ libbson_la_SOURCES = \
 	src/bson/bson-version-functions.c \
 	src/bson/bson-writer.c
 
-libbson_la_LIBADD = $(am__append_5) $(am__append_6)
+libbson_la_LIBADD = $(am__append_3) $(am__append_4)
 libstackdriver_yajl_la_SOURCES = \
 	src/yajl/stackdriver_yajl_tree.h \
 	src/yajl/stackdriver_yajl_parse.h \
@@ -637,6 +639,12 @@ libstackdriver_yajl_la_CFLAGS = \
 
 libstackdriver_yajl_la_LIBADD = 
 libstackdriver_yajl_la_LDFLAGS = 
+
+#if HAVE_LD_VERSION_SCRIPT
+#libbson_1_0_la_LDFLAGS += -Wl,--version-script=$(srcdir)/build/autotools/versions.ldscript
+#else
+#libbson_1_0_la_LDFLAGS += -export-symbols-regex "^(bson_|bcon_)"
+#endif
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = $(top_builddir)/src/libbson-1.0.pc
 DISTCHECK_CONFIGURE_FLAGS = --enable-maintainer-flags --enable-silent-rules --enable-hardening --enable-optimizations --enable-html-docs --enable-man-pages
