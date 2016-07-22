@@ -5575,6 +5575,7 @@ if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
 then
 	plugin_write_gcm="yes"
         match_throttle_metadata_keys="yes"
+        plugin_stackdriver_agent="yes"
 fi
 
 if test "x$have_getutent" = "xyes"
@@ -5710,6 +5711,7 @@ AC_PLUGIN([serial],      [$plugin_serial],     [serial port traffic])
 AC_PLUGIN([sigrok],      [$with_libsigrok],    [sigrok acquisition sources])
 AC_PLUGIN([smart],       [$with_libatasmart],  [SMART statistics])
 AC_PLUGIN([snmp],        [$with_libnetsnmp],   [SNMP querying plugin])
+AC_PLUGIN([stackdriver_agent], [$plugin_stackdriver_agent], [Metrics from the Stackdriver agent itself])
 AC_PLUGIN([statsd],      [yes],                [StatsD plugin])
 AC_PLUGIN([swap],        [$plugin_swap],       [Swap usage statistics])
 AC_PLUGIN([syslog],      [$have_syslog],       [Syslog logging plugin])
@@ -6092,6 +6094,7 @@ Configuration:
     sigrok  . . . . . . . $enable_sigrok
     smart . . . . . . . . $enable_smart
     snmp  . . . . . . . . $enable_snmp
+    stackdriver_agent . . $enable_stackdriver_agent
     statsd  . . . . . . . $enable_statsd
     swap  . . . . . . . . $enable_swap
     syslog  . . . . . . . $enable_syslog
