@@ -30,6 +30,7 @@
 
 static const char this_plugin_name[] = "stackdriver_agent";
 
+<<<<<<< HEAD
 static const char *hostname = NULL;
 
 static const char *config_keys[] = {
@@ -38,6 +39,8 @@ static const char *config_keys[] = {
 
 static int config_keys_num = STATIC_ARRAY_SIZE(config_keys);
 
+=======
+>>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
 typedef struct {
     cdtime_t start_time;
 } context_t;
@@ -72,7 +75,11 @@ static int sagt_submit_helper(const char *type, const char *type_instance,
         .interval = interval,
         .meta = meta_data
     };
+<<<<<<< HEAD
     sstrncpy(vl.host, hostname != NULL ? hostname : hostname_g, sizeof(vl.host));
+=======
+    sstrncpy(vl.host, hostname_g, sizeof(vl.host));
+>>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
     sstrncpy(vl.plugin, "agent", sizeof(vl.plugin));
     sstrncpy(vl.type, type, sizeof(vl.type));
     sstrncpy(vl.type_instance, type_instance, sizeof(vl.type_instance));
@@ -214,6 +221,7 @@ static int sagt_init()
     return result;
 }
 
+<<<<<<< HEAD
 static int sagt_config(const char *key, const char *value) {
   if (strcmp(key, "Hostname") == 0) {
     hostname = (const char *) sstrdup(value);
@@ -233,6 +241,11 @@ void module_register(void)
 {
     plugin_register_config(this_plugin_name, sagt_config, config_keys,
         config_keys_num);
+=======
+/* Register this module with collectd */
+void module_register(void)
+{
+>>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
     if (plugin_register_init(this_plugin_name, &sagt_init) != 0)
     {
         ERROR("%s: plugin_register_init failed.", this_plugin_name);

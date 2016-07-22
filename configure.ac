@@ -6940,9 +6940,13 @@ then
 	plugin_write_gcm="yes"
         match_throttle_metadata_keys="yes"
 <<<<<<< HEAD
+<<<<<<< HEAD
         plugin_stackdriver_agent="yes"
 =======
 >>>>>>> write_gcm plugin
+=======
+        plugin_stackdriver_agent="yes"
+>>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
 fi
 
 if test "x$have_getutent" = "xyes"
