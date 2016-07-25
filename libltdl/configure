@@ -2854,9 +2854,13 @@ fi
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
 >>>>>>> Vendoring libltdl
+=======
+
+>>>>>>> build stuff -- the result of running build.sh
 ## ------------------------------- ##
 ## Libtool specific configuration. ##
 ## ------------------------------- ##

@@ -71,10 +71,14 @@
 #         compiler flags:		$LTCFLAGS
 #         linker:		$LD (gnu? $with_gnu_ld)
 <<<<<<< HEAD
+<<<<<<< HEAD
 #         $progname:	(GNU libtool) 2.4.2 Debian-2.4.2-1.11
 =======
 #         $progname:	(GNU libtool) 2.4.2 Debian-2.4.2-1.7ubuntu1
 >>>>>>> Vendoring libltdl
+=======
+#         $progname:	(GNU libtool) 2.4.2 Debian-2.4.2-1.11
+>>>>>>> build stuff -- the result of running build.sh
 #         automake:	$automake_version
 #         autoconf:	$autoconf_version
 #
@@ -85,10 +89,14 @@
 PROGRAM=libtool
 PACKAGE=libtool
 <<<<<<< HEAD
+<<<<<<< HEAD
 VERSION="2.4.2 Debian-2.4.2-1.11"
 =======
 VERSION="2.4.2 Debian-2.4.2-1.7ubuntu1"
 >>>>>>> Vendoring libltdl
+=======
+VERSION="2.4.2 Debian-2.4.2-1.11"
+>>>>>>> build stuff -- the result of running build.sh
 TIMESTAMP=""
 package_revision=1.3337
 

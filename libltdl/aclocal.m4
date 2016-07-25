@@ -574,11 +574,16 @@ END
     AC_MSG_ERROR([Your 'rm' program is bad, sorry.])
   fi
 <<<<<<< HEAD
+<<<<<<< HEAD
 fi
 ])
 =======
 fi])
 >>>>>>> Vendoring libltdl
+=======
+fi
+])
+>>>>>>> build stuff -- the result of running build.sh
 
 dnl Hook into '_AC_COMPILER_EXEEXT' early to learn its expansion.  Do not
 dnl add the conditional right here, as _AC_COMPILER_EXEEXT may be further
