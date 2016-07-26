@@ -629,6 +629,7 @@ match_value_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
 pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
 match_throttle_metadata_keys_la_SOURCES = match_throttle_metadata_keys.c stackdriver-agent-keys.h
@@ -637,6 +638,14 @@ endif
 
 =======
 >>>>>>> plugin_mem
+=======
+if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
+pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
+match_throttle_metadata_keys_la_SOURCES = match_throttle_metadata_keys.c
+match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+endif
+
+>>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
 if BUILD_PLUGIN_MBMON
 pkglib_LTLIBRARIES += mbmon.la
 mbmon_la_SOURCES = mbmon.c

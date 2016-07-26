@@ -35,6 +35,7 @@
 
 #include <pthread.h>
 #include <sys/types.h>
+<<<<<<< HEAD
 #include <stdlib.h>
 #include <strings.h>
 #include <memory.h>
@@ -45,6 +46,12 @@
 #include "filter_chain.h"
 #include "liboconfig/oconfig.h"
 #include "stackdriver-agent-keys.h"
+=======
+
+#include "collectd.h"
+#include "common.h"
+#include "filter_chain.h"
+>>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
 #include "utils_avltree.h"
 
 static char this_plugin_name[] = "match_throttle_metadata_keys";
@@ -495,6 +502,7 @@ static int mtg_compute_hash_code_and_memory_impact(const value_list_t *vl,
   return 0;
 }
 
+<<<<<<< HEAD
 static int mtg_update_stats(size_t server_memory_in_use, _Bool is_throttling)
 {
     data_set_t ds = {};  // zero-fill
@@ -518,6 +526,8 @@ static int mtg_update_stats(size_t server_memory_in_use, _Bool is_throttling)
     return 0;
 }
 
+=======
+>>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
 static int mtg_retire_old_entries(mtg_key_tracker_t *tracker, cdtime_t now)
 {
     // Trim the key history (removing entries older than 'purge_time')
@@ -640,7 +650,11 @@ static int mtg_add_new_entries(const mtg_context_t *ctx, cdtime_t now,
         tail = new;  // Keep our alias up to date.
         ++tracker->num_key_history_entries;
 
+<<<<<<< HEAD
         DEBUG("%s: %u history entries, %u distinct keys,"
+=======
+        INFO("%s: %u history entries, %u distinct keys,"
+>>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
              " %zd bytes server memory.",
              this_plugin_name, tracker->num_key_history_entries,
              tracker->num_distinct_keys, tracker->server_memory_in_use);
@@ -688,6 +702,7 @@ static int mtg_match_helper (const value_list_t *vl, mtg_context_t *context)
         }
     }
 
+<<<<<<< HEAD
     // Let's update our stats here so that the "stackdriver_agent" plugin can pick them up.
     if (mtg_update_stats(tracker->server_memory_in_use, tracker->is_throttling) != 0)
     {
@@ -695,6 +710,8 @@ static int mtg_match_helper (const value_list_t *vl, mtg_context_t *context)
         return -1;
     }
 
+=======
+>>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
     if (tracker->is_throttling && context->ok_to_throttle)
     {
         return FC_MATCH_NO_MATCH;
