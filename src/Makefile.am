@@ -628,12 +628,15 @@ match_value_la_SOURCES = match_value.c
 match_value_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
+<<<<<<< HEAD
 if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
 pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
 match_throttle_metadata_keys_la_SOURCES = match_throttle_metadata_keys.c stackdriver-agent-keys.h
 match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
+=======
+>>>>>>> plugin_mem
 if BUILD_PLUGIN_MBMON
 pkglib_LTLIBRARIES += mbmon.la
 mbmon_la_SOURCES = mbmon.c
@@ -713,6 +716,7 @@ mqtt_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(BUILD_WITH_LIBMOSQUITTO_LDFLAGS)
 mqtt_la_LIBADD = $(BUILD_WITH_LIBMOSQUITTO_LIBS)
 endif
 
+<<<<<<< HEAD
 if BUILD_PLUGIN_MONGODB
 pkglib_LTLIBRARIES += mongodb.la
 mongodb_la_SOURCES = mongodb.c
@@ -730,6 +734,8 @@ mongodb_la_LIBADD += -lmongoc
 endif
 endif
 
+=======
+>>>>>>> plugin_mem
 if BUILD_PLUGIN_MULTIMETER
 pkglib_LTLIBRARIES += multimeter.la
 multimeter_la_SOURCES = multimeter.c
@@ -1309,6 +1315,7 @@ pkglib_LTLIBRARIES += write_log.la
 write_log_la_SOURCES = write_log.c \
                         utils_format_graphite.c utils_format_graphite.h
 write_log_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+<<<<<<< HEAD
 write_log_la_LIBADD = libformat_json.la
 endif
 
@@ -1332,6 +1339,8 @@ if BUILD_PLUGIN_STACKDRIVER_AGENT
 pkglib_LTLIBRARIES += stackdriver_agent.la
 stackdriver_agent_la_SOURCES = stackdriver_agent.c
 stackdriver_agent_la_LDFLAGS = -module -avoid-version
+=======
+>>>>>>> plugin_mem
 endif
 
 if BUILD_PLUGIN_WRITE_MONGODB
@@ -1510,8 +1519,11 @@ test_plugin_ceph_LDADD = daemon/libplugin_mock.la $(BUILD_WITH_LIBYAJL_LIBS)
 check_PROGRAMS += test_plugin_ceph
 TESTS += test_plugin_ceph
 endif
+<<<<<<< HEAD
 
 if BUILD_PLUGIN_LOGGING_METRICS
 bin_SCRIPTS = read_agent_logging
 CLEANFILES += $(bin_SCRIPTS)
 endif
+=======
+>>>>>>> plugin_mem
