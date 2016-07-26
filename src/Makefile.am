@@ -726,6 +726,9 @@ mqtt_la_LIBADD = $(BUILD_WITH_LIBMOSQUITTO_LIBS)
 endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> mongo plugin
 if BUILD_PLUGIN_MONGODB
 pkglib_LTLIBRARIES += mongodb.la
 mongodb_la_SOURCES = mongodb.c
@@ -743,8 +746,11 @@ mongodb_la_LIBADD += -lmongoc
 endif
 endif
 
+<<<<<<< HEAD
 =======
 >>>>>>> plugin_mem
+=======
+>>>>>>> mongo plugin
 if BUILD_PLUGIN_MULTIMETER
 pkglib_LTLIBRARIES += multimeter.la
 multimeter_la_SOURCES = multimeter.c

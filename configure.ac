@@ -3417,10 +3417,13 @@ AC_SUBST([BUILD_WITH_LIBMODBUS_LIBS])
 # --with-libmongoc {{{
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
 <<<<<<< HEAD
 >>>>>>> Adds back BUILD_WITH_OWN_LIBMONGOC AM_CONDITIONAL
+=======
+>>>>>>> mongo plugin
 AC_ARG_WITH([libmongoc],
   [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
   [
@@ -3443,8 +3446,11 @@ AC_ARG_WITH([libmongoc],
 )
 =======
 AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
+<<<<<<< HEAD
 =======
 >>>>>>> Fixes mongodb
+=======
+>>>>>>> mongo plugin
 AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
 [
  if test "x$withval" = "xyes"
@@ -3460,9 +3466,12 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 	     with_own_libmongoc="yes"
 	     AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	     AC_CONFIG_SUBDIRS([src/libmongoc])
 >>>>>>> Fixes mongodb
+=======
+>>>>>>> mongo plugin
 	 else
 	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
 	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
@@ -3471,6 +3480,9 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 ],
 [with_libmongoc="yes"])
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> mongo plugin
 >>>>>>> mongo plugin
 
 if test "x$with_libmongoc" = "xyes"; then
@@ -3515,6 +3527,20 @@ then
 #endif
 ])
     fi
+<<<<<<< HEAD
+=======
+fi
+if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"
+then
+	if test "x$LIBMONGOC_LDFLAGS" != "x"
+	then
+		AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
+	fi
+	AC_CHECK_LIB(mongoc, mongo_run_command,
+	[with_libmongoc="yes"],
+	[with_libmongoc="no (symbol 'mongo_run_command' not found)"])
+>>>>>>> mongo plugin
+>>>>>>> mongo plugin
 fi
 if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"
 then

@@ -3,6 +3,7 @@ AM_YFLAGS = -d
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -22,6 +23,10 @@ SUBDIRS = src/libmongoc
 =======
 
 >>>>>>> Changes write_stackdriver to write_gcm
+=======
+
+<<<<<<< HEAD
+>>>>>>> mongo plugin
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
@@ -920,6 +925,9 @@ pkglib_LTLIBRARIES += email.la
 email_la_SOURCES = src/email.c
 email_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
+=======
+SUBDIRS = src/libmongoc
+>>>>>>> mongo plugin
 
 if BUILD_PLUGIN_ENTROPY
 pkglib_LTLIBRARIES += entropy.la
