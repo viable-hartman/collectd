@@ -3,6 +3,7 @@ AC_INIT([collectd],[m4_esyscmd(./version-gen.sh)])
 AC_CONFIG_SRCDIR(src/target_set.c)
 AC_CONFIG_HEADERS(src/config.h)
 AC_CONFIG_AUX_DIR([libltdl/config])
+AC_CONFIG_SUBDIRS([src/libmongoc])
 
 dnl older automake's default of ARFLAGS=cru is noisy on newer binutils;
 dnl we don't really need the 'u' even in older toolchains.  Then there is
@@ -2871,6 +2872,7 @@ fi
 # }}}
 
 # --with-libmongoc {{{
+AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
 AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
 [
  if test "x$withval" = "xyes"
@@ -2880,9 +2882,15 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
  then
 	 with_libmongoc="no"
  else
-	 with_libmongoc="yes"
-	 LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
-	 LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
+     if test "x$withval" = "xown"
+     then
+	     with_libmongoc="yes"
+	     with_own_libmongoc="yes"
+	     AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
+	 else
+	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
+	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
+	 fi
  fi; fi
 ],
 [with_libmongoc="yes"])
@@ -2899,17 +2907,20 @@ then
 	then
 		AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CPPFLAGS])
 	fi
-	AC_CHECK_HEADERS(mongo.h,
-	[with_libmongoc="yes"],
-	[with_libmongoc="no ('mongo.h' not found)"],
+	if test "x$with_own_libmongoc" != "xyes"
+	then
+	    AC_CHECK_HEADERS(mongo.h,
+	    [with_libmongoc="yes"],
+	    [with_libmongoc="no ('mongo.h' not found)"],
 [#if HAVE_STDINT_H
 # define MONGO_HAVE_STDINT 1
 #else
 # define MONGO_USE_LONG_LONG_INT 1
 #endif
 ])
+    fi
 fi
-if test "x$with_libmongoc" = "xyes"
+if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"
 then
 	if test "x$LIBMONGOC_LDFLAGS" != "x"
 	then
@@ -4496,6 +4507,7 @@ fi
 AM_CONDITIONAL(BUILD_WITH_LM_SENSORS, test "x$with_libsensors" = "xyes")
 # }}}
 
+
 # --with-libsigrok {{{
 with_libsigrok_cflags=""
 with_libsigrok_ldflags=""
@@ -4564,6 +4576,59 @@ then
 	AC_SUBST(BUILD_WITH_LIBSIGROK_LDFLAGS)
 fi
 AM_CONDITIONAL(BUILD_WITH_LIBSIGROK, test "x$with_libsigrok" = "xyes")
+# }}}
+
+# --with-libssl {{{
+with_libssl_cflags=""
+with_libssl_ldflags=""
+AC_ARG_WITH(libssl, [AS_HELP_STRING([--with-libssl@<:@=PREFIX@:>@], [Path to libssl.])],
+[
+	if test "x$withval" != "xno" && test "x$withval" != "xyes"
+	then
+		with_libssl_cppflags="-I$withval/include"
+		with_libssl_ldflags="-L$withval/lib"
+		with_libssl="yes"
+	else
+		with_libssl="$withval"
+	fi
+],
+[
+	with_libssl="yes"
+])
+if test "x$with_libssl" = "xyes"
+then
+	SAVE_CPPFLAGS="$CPPFLAGS"
+	CPPFLAGS="$CPPFLAGS $with_libssl_cppflags"
+
+  AC_CHECK_HEADERS(openssl/sha.h openssl/blowfish.h openssl/rand.h,
+    [with_libssl="yes"],
+    [with_libssl="no (ssl header not found)"])
+
+	CPPFLAGS="$SAVE_CPPFLAGS"
+fi
+if test "x$with_libssl" = "xyes"
+then
+	SAVE_CPPFLAGS="$CPPFLAGS"
+	SAVE_LDFLAGS="$LDFLAGS"
+	CPPFLAGS="$CPPFLAGS $with_libssl_cppflags"
+	LDFLAGS="$LDFLAGS $with_libssl_ldflags"
+
+	AC_CHECK_LIB(ssl, SSL_library_init, [with_libssl="yes"], [with_libssl="no (Symbol 'SSL_library_init' not found)"])
+
+	CPPFLAGS="$SAVE_CPPFLAGS"
+	LDFLAGS="$SAVE_LDFLAGS"
+fi
+if test "x$with_libssl" = "xyes"
+then
+	BUILD_WITH_LIBSSL_CFLAGS="$with_libssl_cflags"
+	BUILD_WITH_LIBSSL_LDFLAGS="$with_libssl_ldflags"
+	BUILD_WITH_LIBSSL_LIBS="-lssl -lcrypto"
+	AC_SUBST(BUILD_WITH_LIBSSL_CFLAGS)
+	AC_SUBST(BUILD_WITH_LIBSSL_LDFLAGS)
+	AC_SUBST(BUILD_WITH_LIBSSL_LIBS)
+	AC_DEFINE(HAVE_LIBSSL, 1, [Define if libssl is present and usable.])
+fi
+AM_CONDITIONAL(BUILD_WITH_LIBSSL, test "x$with_libssl" = "xyes")
 # }}}
 
 # --with-libstatgrab {{{
@@ -6064,6 +6129,12 @@ then
 	plugin_tcpconns="yes"
 fi
 
+if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
+then
+	plugin_write_gcm="yes"
+        match_throttle_metadata_keys="yes"
+fi
+
 if test "x$have_getutent" = "xyes"
 then
 	plugin_users="yes"
@@ -6157,6 +6228,7 @@ AC_PLUGIN([match_hashed],        [yes],                     [The hashed match])
 AC_PLUGIN([match_regex],         [yes],                     [The regex match])
 AC_PLUGIN([match_timediff],      [yes],                     [The timediff match])
 AC_PLUGIN([match_value],         [yes],                     [The value match])
+AC_PLUGIN([match_throttle_metadata_keys], [$match_throttle_metadata_keys], [Metadata key throttling plugin])
 AC_PLUGIN([mbmon],               [yes],                     [Query mbmond])
 AC_PLUGIN([md],                  [$have_linux_raid_md_u_h], [md (Linux software RAID) devices])
 AC_PLUGIN([memcachec],           [$with_libmemcached],      [memcachec statistics])
@@ -6164,6 +6236,7 @@ AC_PLUGIN([memcached],           [yes],                     [memcached statistic
 AC_PLUGIN([memory],              [$plugin_memory],          [Memory usage])
 AC_PLUGIN([mic],                 [$with_mic],               [Intel Many Integrated Core stats])
 AC_PLUGIN([modbus],              [$with_libmodbus],         [Modbus plugin])
+AC_PLUGIN([mongodb],             [$with_libmongoc],         [MongoDB statistics])
 AC_PLUGIN([mqtt],                [$with_libmosquitto],      [MQTT output plugin])
 AC_PLUGIN([multimeter],          [$plugin_multimeter],      [Read multimeter values])
 AC_PLUGIN([mysql],               [$with_libmysql],          [MySQL statistics])
@@ -6188,6 +6261,7 @@ AC_PLUGIN([pf],                  [$have_net_pfvar_h],       [BSD packet filter (
 # FIXME: Check for libevent, too.
 AC_PLUGIN([pinba],               [$plugin_pinba],           [Pinba statistics])
 AC_PLUGIN([ping],                [$with_liboping],          [Network latency statistics])
+AC_PLUGIN([plugin_mem],          [yes],                     [Memory usage monitoring for collectd plugins])
 AC_PLUGIN([postgresql],          [$with_libpq],             [PostgreSQL database statistics])
 AC_PLUGIN([powerdns],            [yes],                     [PowerDNS statistics])
 AC_PLUGIN([processes],           [$plugin_processes],       [Process statistics])
@@ -6231,6 +6305,7 @@ AC_PLUGIN([vmem],                [$plugin_vmem],            [Virtual memory stat
 AC_PLUGIN([vserver],             [$plugin_vserver],         [Linux VServer statistics])
 AC_PLUGIN([wireless],            [$plugin_wireless],        [Wireless statistics])
 AC_PLUGIN([write_graphite],      [yes],                     [Graphite / Carbon output plugin])
+AC_PLUGIN([write_gcm],           [$plugin_write_gcm],       [Google cloud monitoring output plugin])
 AC_PLUGIN([write_http],          [$with_libcurl],           [HTTP output plugin])
 AC_PLUGIN([write_kafka],         [$with_librdkafka],        [Kafka output plugin])
 AC_PLUGIN([write_log],           [yes],                     [Log output plugin])
@@ -6486,6 +6561,7 @@ AC_MSG_RESULT([    libperl . . . . . . . $with_libperl])
 AC_MSG_RESULT([    libpq . . . . . . . . $with_libpq])
 AC_MSG_RESULT([    libprotobuf . . . . . $with_libprotobuf])
 AC_MSG_RESULT([    libprotobuf-c . . . . $with_libprotobuf_c])
+AC_MSG_RESULT([    libpthread  . . . . . $with_libpthread])
 AC_MSG_RESULT([    librabbitmq . . . . . $with_librabbitmq])
 AC_MSG_RESULT([    libriemann-client . . $with_libriemann_client])
 AC_MSG_RESULT([    librdkafka  . . . . . $with_librdkafka])
@@ -6493,6 +6569,7 @@ AC_MSG_RESULT([    librouteros . . . . . $with_librouteros])
 AC_MSG_RESULT([    librrd  . . . . . . . $with_librrd])
 AC_MSG_RESULT([    libsensors  . . . . . $with_libsensors])
 AC_MSG_RESULT([    libsigrok   . . . . . $with_libsigrok])
+AC_MSG_RESULT([    libssl  . . . . .   . $with_libssl])
 AC_MSG_RESULT([    libstatgrab . . . . . $with_libstatgrab])
 AC_MSG_RESULT([    libtokyotyrant  . . . $with_libtokyotyrant])
 AC_MSG_RESULT([    libudev . . . . . . . $with_libudev])
@@ -6570,6 +6647,7 @@ AC_MSG_RESULT([    match_hashed  . . . . $enable_match_hashed])
 AC_MSG_RESULT([    match_regex . . . . . $enable_match_regex])
 AC_MSG_RESULT([    match_timediff  . . . $enable_match_timediff])
 AC_MSG_RESULT([    match_value . . . . . $enable_match_value])
+AC_MSG_RESULT([    match_throttle_metadata_keys $enable_match_throttle_metadata_keys])
 AC_MSG_RESULT([    mbmon . . . . . . . . $enable_mbmon])
 AC_MSG_RESULT([    md  . . . . . . . . . $enable_md])
 AC_MSG_RESULT([    memcachec . . . . . . $enable_memcachec])
@@ -6577,6 +6655,7 @@ AC_MSG_RESULT([    memcached . . . . . . $enable_memcached])
 AC_MSG_RESULT([    memory  . . . . . . . $enable_memory])
 AC_MSG_RESULT([    mic . . . . . . . . . $enable_mic])
 AC_MSG_RESULT([    modbus  . . . . . . . $enable_modbus])
+AC_MSG_RESULT([    mongodb  . . . . .  . $enable_mongodb])
 AC_MSG_RESULT([    mqtt  . . . . . . . . $enable_mqtt])
 AC_MSG_RESULT([    multimeter  . . . . . $enable_multimeter])
 AC_MSG_RESULT([    mysql . . . . . . . . $enable_mysql])
@@ -6600,6 +6679,7 @@ AC_MSG_RESULT([    perl  . . . . . . . . $enable_perl])
 AC_MSG_RESULT([    pf  . . . . . . . . . $enable_pf])
 AC_MSG_RESULT([    pinba . . . . . . . . $enable_pinba])
 AC_MSG_RESULT([    ping  . . . . . . . . $enable_ping])
+AC_MSG_RESULT([    plugin_mem  . . . . . $enable_plugin_mem])
 AC_MSG_RESULT([    postgresql  . . . . . $enable_postgresql])
 AC_MSG_RESULT([    powerdns  . . . . . . $enable_powerdns])
 AC_MSG_RESULT([    processes . . . . . . $enable_processes])
@@ -6642,6 +6722,7 @@ AC_MSG_RESULT([    virt  . . . . . . . . $enable_virt])
 AC_MSG_RESULT([    vmem  . . . . . . . . $enable_vmem])
 AC_MSG_RESULT([    vserver . . . . . . . $enable_vserver])
 AC_MSG_RESULT([    wireless  . . . . . . $enable_wireless])
+AC_MSG_RESULT([    write_gcm   . . . . . $enable_write_gcm])
 AC_MSG_RESULT([    write_graphite  . . . $enable_write_graphite])
 AC_MSG_RESULT([    write_http  . . . . . $enable_write_http])
 AC_MSG_RESULT([    write_kafka . . . . . $enable_write_kafka])
