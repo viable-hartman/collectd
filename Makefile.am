@@ -1,6 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
 
+SUBDIRS = src/libmongoc
 
 BUILT_SOURCES = \
 	src/libcollectdclient/collectd/lcc_features.h \
