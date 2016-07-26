@@ -1088,6 +1088,12 @@ match_regex_la_SOURCES = src/match_regex.c
 match_regex_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
+if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
+pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
+match_throttle_metadata_keys_la_SOURCES = match_throttle_metadata_keys.c
+match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+endif
+
 if BUILD_PLUGIN_MATCH_TIMEDIFF
 pkglib_LTLIBRARIES += match_timediff.la
 match_timediff_la_SOURCES = src/match_timediff.c
