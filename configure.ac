@@ -6913,7 +6913,10 @@ if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
 then
 	plugin_write_gcm="yes"
         match_throttle_metadata_keys="yes"
+<<<<<<< HEAD
         plugin_stackdriver_agent="yes"
+=======
+>>>>>>> write_gcm plugin
 fi
 
 if test "x$have_getutent" = "xyes"

@@ -29,11 +29,16 @@
 #include "collectd.h"
 #include "common.h"
 #include "daemon/collectd.h"
+<<<<<<< HEAD
 #include "daemon/utils_cache.h"
 #include "daemon/utils_time.h"
 #include "plugin.h"
 #include "configfile.h"
 #include "stackdriver-agent-keys.h"
+=======
+#include "plugin.h"
+#include "configfile.h"
+>>>>>>> write_gcm plugin
 #include "utils_avltree.h"
 
 #include <errno.h>
@@ -71,12 +76,15 @@
 
 static const char this_plugin_name[] = "write_gcm";
 
+<<<<<<< HEAD
 // Presence of this key in the metric meta_data causes the metric to be
 // sent to the GCMv3 API instead of the Agent Translation Service.
 static const char custom_metric_key[] = "stackdriver_metric_type";
 
 static const char custom_metric_label_prefix[] = "label:";
 
+=======
+>>>>>>> write_gcm plugin
 // The special HTTP header that needs to be added to any call to the GCP
 // metadata server.
 static const char gcp_metadata_header[] = "Metadata-Flavor: Google";
@@ -86,30 +94,45 @@ static const char gcp_metadata_header[] = "Metadata-Flavor: Google";
 static const char agent_translation_service_default_format_string[] =
   "https://monitoring.googleapis.com/v3/projects/%s/collectdTimeSeries";
 
+<<<<<<< HEAD
 static const char custom_metrics_default_format_string[] =
   "https://monitoring.googleapis.com/v3/projects/%s/timeSeries";
 
+=======
+>>>>>>> write_gcm plugin
 // The application/JSON content header.
 static const char json_content_type_header[] = "Content-Type: application/json";
 
 // Used when we are in end-to-end test mode (-T from the command line) to
 // indicate that some important error occurred during processing so that we can
 // bubble it back up to the exit status of collectd.
+<<<<<<< HEAD
 static _Bool wg_some_error_occurred_g = 0;
+=======
+static _Bool wg_some_error_occured_g = 0;
+>>>>>>> write_gcm plugin
 
 // The maximum number of entries we keep in our processing queue before flushing
 // it. Ordinarily a flush happens every minute or so, but we also flush if the
 // list size exceeds a certain value.
+<<<<<<< HEAD
 #define QUEUE_FLUSH_SIZE 2000
+=======
+#define QUEUE_FLUSH_SIZE 100
+>>>>>>> write_gcm plugin
 
 // The maximum numbers of entries we keep in our queue before we start dropping
 // entries. If the consumer thread gets way backed up, we won't keep more than
 // this many items in our queue.
+<<<<<<< HEAD
 #define QUEUE_DROP_SIZE 100000
 
 // The number of metrics that need to be dropped from the queue to trigger
 // a warning being logged.
 #define QUEUE_DROP_REPORT_LIMIT 1000
+=======
+#define QUEUE_DROP_SIZE 1000
+>>>>>>> write_gcm plugin
 
 // Size of the JSON buffer sent to the server. At flush time we format a JSON
 // message to send to the server.  We would like it to be no more than a certain
@@ -119,6 +142,7 @@ static _Bool wg_some_error_occurred_g = 0;
 // so that we cam always try to send a valid JSON message.
 
 // The "soft target" for the max size of our json messages.
+<<<<<<< HEAD
 #define JSON_SOFT_TARGET_SIZE 512000
 
 // The maximum size of the project id (platform-defined).
@@ -158,6 +182,9 @@ void EVP_MD_CTX_free(EVP_MD_CTX *ctx) {
   OPENSSL_free(ctx);
 }
 #endif
+=======
+#define JSON_SOFT_TARGET_SIZE 64000
+>>>>>>> write_gcm plugin
 
 //==============================================================================
 //==============================================================================
@@ -372,10 +399,17 @@ static credential_ctx_t *wg_credential_ctx_create_from_p12_file(
 }
 
 int wg_extract_toplevel_json_string(const char *json, const char *key,
+<<<<<<< HEAD
                                     char **result);
 
 static credential_ctx_t *wg_credential_ctx_create_from_json_file(
     const char *cred_file) {
+=======
+				    char **result);
+
+static credential_ctx_t *wg_credential_ctx_create_from_json_file(
+								 const char *cred_file) {
+>>>>>>> write_gcm plugin
   // Things to clean up upon exit.
   credential_ctx_t *result = NULL;
   credential_ctx_t *ctx = NULL;
@@ -393,7 +427,11 @@ static credential_ctx_t *wg_credential_ctx_create_from_json_file(
   creds = wg_read_all_bytes(cred_file, "r");
   if (creds == NULL) {
     ERROR("write_gcm: Failed to read application default credentials file %s",
+<<<<<<< HEAD
           cred_file);
+=======
+	  cred_file);
+>>>>>>> write_gcm plugin
     goto leave;
   }
 
@@ -424,6 +462,7 @@ static credential_ctx_t *wg_credential_ctx_create_from_json_file(
       ctx->project_id = project;
     }
   }
+<<<<<<< HEAD
   if (ctx->project_id == NULL) {
     INFO("write_gcm: No project id in credentials file.");
   } else if (strlen(ctx->project_id) > MAX_PROJECT_ID_SIZE) {
@@ -431,6 +470,8 @@ static credential_ctx_t *wg_credential_ctx_create_from_json_file(
           strlen(ctx->project_id), MAX_PROJECT_ID_SIZE);
     goto leave;
   }
+=======
+>>>>>>> write_gcm plugin
 
   if (wg_extract_toplevel_json_string(creds, "private_key", &private_key_pem)
       != 0) {
@@ -529,27 +570,37 @@ static EVP_PKEY *wg_credential_contex_load_pkey(char const *filename,
 
 // Does an HTTP GET or POST, with optional HTTP headers. The type of request is
 // determined by 'body': if 'body' is NULL, does a GET, otherwise does a POST.
+<<<<<<< HEAD
 // If curl_easy_init() or curl_easy_perform() fail, returns -1.
 // If they succeed but the HTTP response code is >= 400, returns -2.
 // Otherwise returns 0.
 static int wg_curl_get_or_post(char **response, const char *url,
     const char *body, const char **headers, int num_headers,
     _Bool silent_failures);
+=======
+static int wg_curl_get_or_post(char *response_buffer,
+    size_t response_buffer_size, const char *url, const char *body,
+    const char **headers, int num_headers);
+>>>>>>> write_gcm plugin
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
 //------------------------------------------------------------------------------
+<<<<<<< HEAD
 
 // Represent the intermediary state for the curl write callback when sending
 // requests to the Google Cloud Monitoring API. .data will be a null
 // terminated string in the event of a success. If an error occurs while
 // allocating memory for the response, .size will be set to -1 and should be
 // handled accordingly.
+=======
+>>>>>>> write_gcm plugin
 typedef struct {
   char *data;
   size_t size;
 } wg_curl_write_ctx_t;
 
+<<<<<<< HEAD
 static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
                                      void *userdata);
 
@@ -559,6 +610,17 @@ static int wg_curl_get_or_post(char **response, const char *url,
   DEBUG("write_gcm: Doing %s request: url %s, body %s, num_headers %d",
         body == NULL ? "GET" : "POST",
         url, body, num_headers);
+=======
+static size_t wg_curl_write_callback(char *ptr, size_t size, size_t nmemb,
+                                     void *userdata);
+
+static int wg_curl_get_or_post(char *response_buffer,
+    size_t response_buffer_size, const char *url, const char *body,
+    const char **headers, int num_headers) {
+  DEBUG("write_gcm: Doing %s request: url %s, body %s, num_headers %d",
+	body == NULL ? "GET" : "POST",
+	url, body, num_headers);
+>>>>>>> write_gcm plugin
   CURL *curl = curl_easy_init();
   if (curl == NULL) {
     ERROR("write_gcm: curl_easy_init failed");
@@ -571,8 +633,13 @@ static int wg_curl_get_or_post(char **response, const char *url,
     curl_headers = curl_slist_append(curl_headers, headers[i]);
   }
   wg_curl_write_ctx_t write_ctx = {
+<<<<<<< HEAD
      .data = NULL,
      .size = 0
+=======
+     .data = response_buffer,
+     .size = response_buffer_size
+>>>>>>> write_gcm plugin
   };
 
   curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -599,6 +666,7 @@ static int wg_curl_get_or_post(char **response, const char *url,
     goto leave;
   }
   DEBUG("write_gcm: Elapsed time for curl operation was %g seconds.",
+<<<<<<< HEAD
         CDTIME_T_TO_DOUBLE(cdtime() - start_time));
 
   long response_code;
@@ -619,6 +687,26 @@ static int wg_curl_get_or_post(char **response, const char *url,
 
   *response = write_ctx.data;
 
+=======
+	CDTIME_T_TO_DOUBLE(cdtime() - start_time));
+
+  long response_code;
+  curl_result = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+  write_ctx.data[0] = 0;
+  if (response_code >= 400) {
+    WARNING("write_gcm: Unsuccessful HTTP request %ld: %s",
+	    response_code, response_buffer);
+    goto leave;
+  }
+
+  if (write_ctx.size < 2) {
+    ERROR("write_gcm: wg_curl_get_or_post: The receive buffer overflowed.");
+    DEBUG("write_gcm: wg_curl_get_or_post: Received data is: %s",
+        response_buffer);
+    goto leave;
+  }
+
+>>>>>>> write_gcm plugin
   result = 0;  // Success!
 
  leave:
@@ -627,6 +715,7 @@ static int wg_curl_get_or_post(char **response, const char *url,
   return result;
 }
 
+<<<<<<< HEAD
 static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
                                      void *userdata) {
   size_t requested_bytes = size * nmemb;
@@ -648,6 +737,28 @@ static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
   ctx->size += requested_bytes;
   ctx->data[ctx->size] = '\0';
 
+=======
+static size_t wg_curl_write_callback(char *ptr, size_t size, size_t nmemb,
+                                     void *userdata) {
+  wg_curl_write_ctx_t *ctx = userdata;
+  if (ctx->size == 0) {
+    return 0;
+  }
+  size_t requested_bytes = size * nmemb;
+  size_t actual_bytes = requested_bytes;
+  if (actual_bytes >= ctx->size) {
+    actual_bytes = ctx->size - 1;
+  }
+  memcpy(ctx->data, ptr, actual_bytes);
+  ctx->data += actual_bytes;
+  ctx->size -= actual_bytes;
+
+  // We lie about the number of bytes successfully transferred in order to
+  // prevent curl from returning an error to our caller. Our caller is keeping
+  // track of buffer consumption so it will independently know if the buffer
+  // filled up; the only errors it wants to hear about from curl are the more
+  // catastrophic ones.
+>>>>>>> write_gcm plugin
   return requested_bytes;
 }
 
@@ -878,7 +989,11 @@ int wg_extract_toplevel_json_long_long(const char *json, const char *key,
 // THE EASY ROUTE
 //
 // Make a GET request to the metadata server at the following URL:
+<<<<<<< HEAD
 // http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token
+=======
+// http://169.254.169.254/computeMetadata/v1beta1/instance/service-accounts/default/token
+>>>>>>> write_gcm plugin
 //
 // If our call is successful, the server will respond with a json object looking
 // like this:
@@ -945,7 +1060,11 @@ int wg_extract_toplevel_json_long_long(const char *json, const char *key,
 //
 // EXAMPLE USAGE
 //
+<<<<<<< HEAD
 // char auth_header[1024];
+=======
+// char auth_header[256];
+>>>>>>> write_gcm plugin
 // if (wg_oauth2_get_auth_header(auth_header, sizeof(auth_header),
 //                               oauth2_ctx, credential_ctx) != 0) {
 //   return -1; // error
@@ -976,7 +1095,11 @@ static void wg_oauth2_ctx_destroy(oauth2_ctx_t *);
 struct oauth2_ctx_s {
   pthread_mutex_t mutex;
   cdtime_t token_expire_time;
+<<<<<<< HEAD
   char auth_header[1024];
+=======
+  char auth_header[256];
+>>>>>>> write_gcm plugin
 };
 
 static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
@@ -1014,7 +1137,11 @@ static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
     const credential_ctx_t *cred_ctx) {
   // The URL to get the auth token from the metadata server.
   static const char gcp_metadata_fetch_auth_token[] =
+<<<<<<< HEAD
     "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token";
+=======
+    "http://169.254.169.254/computeMetadata/v1beta1/instance/service-accounts/default/token";
+>>>>>>> write_gcm plugin
 
   cdtime_t now = cdtime();
   // Try to reuse an existing token. We build in a minute of slack in order to
@@ -1124,10 +1251,16 @@ static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
 static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
     const char *url, const char *body, const char **headers, int num_headers,
     cdtime_t now) {
+<<<<<<< HEAD
   char *response = NULL;
   if (wg_curl_get_or_post(&response, url, body, headers, num_headers, 0)
       != 0) {
     sfree(response);
+=======
+  char response[2048];
+  if (wg_curl_get_or_post(response, sizeof(response), url, body,
+      headers, num_headers) != 0) {
+>>>>>>> write_gcm plugin
     return -1;
   }
 
@@ -1139,17 +1272,26 @@ static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
   if (wg_oauth2_parse_result(&resultp, &result_size, &expires_in,
                              response) != 0) {
     ERROR("write_gcm: wg_oauth2_parse_result failed");
+<<<<<<< HEAD
     sfree(response);
+=======
+>>>>>>> write_gcm plugin
     return -1;
   }
 
   if (result_size < 2) {
     ERROR("write_gcm: Error or buffer overflow when building auth_header");
+<<<<<<< HEAD
     sfree(response);
     return -1;
   }
   ctx->token_expire_time = now + TIME_T_TO_CDTIME_T(expires_in);
   sfree(response);
+=======
+    return -1;
+  }
+  ctx->token_expire_time = now + TIME_T_TO_CDTIME_T(expires_in);
+>>>>>>> write_gcm plugin
   return 0;
 }
 
@@ -1160,6 +1302,7 @@ static int wg_oauth2_sign(unsigned char *signature, size_t sig_capacity,
     ERROR("write_gcm: signature buffer not big enough.");
     return -1;
   }
+<<<<<<< HEAD
 
   EVP_MD_CTX* ctx;
   ctx = EVP_MD_CTX_new();
@@ -1182,6 +1325,30 @@ static int wg_oauth2_sign(unsigned char *signature, size_t sig_capacity,
   }
 
   EVP_MD_CTX_free(ctx);
+=======
+  EVP_MD_CTX ctx;
+  EVP_SignInit(&ctx, EVP_sha256());
+
+  char err_buf[1024];
+  if (EVP_SignUpdate(&ctx, buffer, size) == 0) {
+    ERR_error_string_n(ERR_get_error(), err_buf, sizeof(err_buf));
+    ERROR("write_gcm: EVP_SignUpdate failed: %s", err_buf);
+    EVP_MD_CTX_cleanup(&ctx);
+    return -1;
+  }
+
+  if (EVP_SignFinal(&ctx, signature, actual_sig_size, pkey) == 0) {
+    ERR_error_string_n(ERR_get_error(), err_buf, sizeof(err_buf));
+    ERROR ("write_gcm: EVP_SignFinal failed: %s", err_buf);
+    EVP_MD_CTX_cleanup(&ctx);
+    return -1;
+  }
+  if (EVP_MD_CTX_cleanup(&ctx) == 0) {
+    ERR_error_string_n(ERR_get_error(), err_buf, sizeof(err_buf));
+    ERROR ("write_gcm: EVP_MD_CTX_cleanup failed: %s", err_buf);
+    return -1;
+  }
+>>>>>>> write_gcm plugin
   return 0;
 }
 
@@ -1474,7 +1641,10 @@ static int wg_typed_value_create_from_value_t_inline(wg_typed_value_t *result,
       break;
     }
     case DS_TYPE_ABSOLUTE: {
+<<<<<<< HEAD
       // TODO: Reject such metrics as they are not supported.
+=======
+>>>>>>> write_gcm plugin
       if (value.absolute > INT64_MAX) {
         ERROR("write_gcm: Absolute is too large for an int64.");
         return -1;
@@ -1504,9 +1674,15 @@ static int wg_typed_value_create_from_meta_data_inline(wg_typed_value_t *result,
       if (meta_data_get_string(md, key, &result->value_text) != 0) {
         return -1;
       }
+<<<<<<< HEAD
       // Truncate all metadata entries to the platform limit.
       if (strlen(result->value_text) > MAX_METADATA_SIZE) {
         result->value_text[MAX_METADATA_SIZE] = '\0';
+=======
+      // Truncate all metadata entries to 512 characters.
+      if (strlen(result->value_text) > 512) {
+        result->value_text[512] = '\0';
+>>>>>>> write_gcm plugin
       }
       return 0;
     }
@@ -1636,7 +1812,15 @@ static int wg_payload_key_create_inline(wg_payload_key_t *item,
 
  leave:
   if (toc != NULL) {
+<<<<<<< HEAD
     strarray_free(toc, toc_size);
+=======
+    int i;
+    for (i = 0; i < toc_size; ++i) {
+      sfree(toc[i]);
+    }
+    sfree(toc);
+>>>>>>> write_gcm plugin
   }
   return result;
 }
@@ -1878,7 +2062,10 @@ typedef struct {
   char *passphrase;
   char *json_log_file;
   char *agent_translation_service_format_string;
+<<<<<<< HEAD
   char *custom_metrics_format_string;
+=======
+>>>>>>> write_gcm plugin
   int throttling_low_water_mark;
   int throttling_high_water_mark;
   int throttling_chunk_interval_secs;
@@ -1918,7 +2105,10 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
       "PrivateKeyPass",
       "JSONLogFile",
       "AgentTranslationServiceFormatString",
+<<<<<<< HEAD
       "CustomMetricsDefaultFormatString",
+=======
+>>>>>>> write_gcm plugin
   };
   char **string_locations[] = {
       &cb->cloud_provider,
@@ -1933,6 +2123,7 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
       &cb->passphrase,
       &cb->json_log_file,
       &cb->agent_translation_service_format_string,
+<<<<<<< HEAD
       &cb->custom_metrics_format_string,
   };
   static size_t string_limits[] = {  /* -1 means effectively unlimited */
@@ -1949,6 +2140,8 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
       (size_t) -1,
       URL_BUFFER_SIZE - MAX_PROJECT_ID_SIZE,
       URL_BUFFER_SIZE - MAX_PROJECT_ID_SIZE,
+=======
+>>>>>>> write_gcm plugin
   };
   static const char *int_keys[] = {
       "ThrottlingLowWaterMark",
@@ -1970,7 +2163,10 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
   };
 
   assert(STATIC_ARRAY_SIZE(string_keys) == STATIC_ARRAY_SIZE(string_locations));
+<<<<<<< HEAD
   assert(STATIC_ARRAY_SIZE(string_keys) == STATIC_ARRAY_SIZE(string_limits));
+=======
+>>>>>>> write_gcm plugin
   assert(STATIC_ARRAY_SIZE(int_keys) == STATIC_ARRAY_SIZE(int_locations));
   assert(STATIC_ARRAY_SIZE(bool_keys) == STATIC_ARRAY_SIZE(bool_locations));
 
@@ -1990,10 +2186,13 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
           ERROR("write_gcm: cf_util_get_string failed for key %s",
                 child->key);
           ++parse_errors;
+<<<<<<< HEAD
         } else if (strlen(*string_locations[k]) > string_limits[k]) {
           ERROR("write_gcm: key %s cannot be longer than %zu characters",
                 child->key, string_limits[k]);
           ++parse_errors;
+=======
+>>>>>>> write_gcm plugin
         }
         break;
       }
@@ -2063,8 +2262,13 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
   // 'application_default_credentials_file'.
   if (num_set != 0 && cb->credentials_json_file != NULL) {
     ERROR("write_gcm: Error reading configuration. "
+<<<<<<< HEAD
           "It is an error to set both CredentialsJSON and "
           "Email/PrivateKeyFile/PrivateKeyPass.");
+=======
+	  "It is an error to set both CredentialsJSON and "
+	  "Email/PrivateKeyFile/PrivateKeyPass.");
+>>>>>>> write_gcm plugin
   }
 
   // Success!
@@ -2080,7 +2284,10 @@ static void wg_configbuilder_destroy(wg_configbuilder_t *cb) {
     return;
   }
   sfree(cb->agent_translation_service_format_string);
+<<<<<<< HEAD
   sfree(cb->custom_metrics_format_string);
+=======
+>>>>>>> write_gcm plugin
   sfree(cb->json_log_file);
   sfree(cb->passphrase);
   sfree(cb->key_file);
@@ -2137,26 +2344,44 @@ static monitored_resource_t *wg_monitored_resource_create_for_aws(
     const wg_configbuilder_t *cb, const char *project_id);
 
 // Fetch 'resource' from the GCP metadata server.
+<<<<<<< HEAD
 static char *wg_get_from_gcp_metadata_server(const char *resource,
     _Bool silent_failures);
 
 // Fetch 'resource' from the AWS metadata server.
 static char *wg_get_from_aws_metadata_server(const char *resource,
     _Bool silent_failures);
+=======
+static char *wg_get_from_gcp_metadata_server(const char *resource);
+
+// Fetch 'resource' from the AWS metadata server.
+static char *wg_get_from_aws_metadata_server(const char *resource);
+>>>>>>> write_gcm plugin
 
 // Fetches a resource (defined by the concatenation of 'base' and 'resource')
 // from an AWS or GCE metadata server and returns it. Returns NULL upon error.
 static char *wg_get_from_metadata_server(const char *base, const char *resource,
+<<<<<<< HEAD
     const char **headers, int num_headers, _Bool silent_failures);
 
 static char * detect_cloud_provider() {
   char * gcp_hostname = wg_get_from_gcp_metadata_server("instance/hostname", 1);
+=======
+    const char **headers, int num_headers);
+
+static char * detect_cloud_provider() {
+  char * gcp_hostname = wg_get_from_gcp_metadata_server("instance/hostname");
+>>>>>>> write_gcm plugin
   if (gcp_hostname != NULL) {
     sfree(gcp_hostname);
     return "gcp";
   }
 
+<<<<<<< HEAD
   char * aws_hostname = wg_get_from_aws_metadata_server("meta-data/hostname", 1);
+=======
+  char * aws_hostname = wg_get_from_aws_metadata_server("meta-data/hostname");
+>>>>>>> write_gcm plugin
   if (aws_hostname != NULL) {
     sfree(aws_hostname);
     return "aws";
@@ -2188,6 +2413,7 @@ static monitored_resource_t *wg_monitored_resource_create(
   return NULL;
 }
 
+<<<<<<< HEAD
 typedef struct {
   const char *key;
   const char *value;
@@ -2199,10 +2425,18 @@ static monitored_resource_t *monitored_resource_create_from_array(
   monitored_resource_t *result = calloc(1, sizeof(*result));
   if (result == NULL) {
     ERROR("write_gcm: monitored_resource_create_from_array: calloc failed.");
+=======
+static monitored_resource_t *monitored_resource_create_from_fields(
+    const char *type, const char *project_id, ...) {
+  monitored_resource_t *result = calloc(1, sizeof(*result));
+  if (result == NULL) {
+    ERROR("write_gcm: monitored_resource_create_from_fields: calloc failed.");
+>>>>>>> write_gcm plugin
     return NULL;
   }
   result->type = sstrdup(type);
   result->project_id = sstrdup(project_id);
+<<<<<<< HEAD
   result->num_labels = num_labels;
   result->keys = calloc(num_labels, sizeof(result->keys[0]));
   result->values = calloc(num_labels, sizeof(result->values[0]));
@@ -2231,6 +2465,12 @@ static monitored_resource_t *monitored_resource_create_from_fields(
   va_list ap;
   va_start(ap, project_id);
   size_t num_labels = 0;
+=======
+  // count keys/values
+  va_list ap;
+  va_start(ap, project_id);
+  int num_labels = 0;
+>>>>>>> write_gcm plugin
   while (1) {
     const char *nextKey = va_arg(ap, const char*);
     if (nextKey == NULL) {
@@ -2242,6 +2482,7 @@ static monitored_resource_t *monitored_resource_create_from_fields(
   }
   va_end(ap);
 
+<<<<<<< HEAD
   label_t labels[num_labels];
   // Changes va_list into label_t array
   va_start(ap, project_id);
@@ -2252,6 +2493,35 @@ static monitored_resource_t *monitored_resource_create_from_fields(
   va_end(ap);
   return monitored_resource_create_from_array(type, project_id, labels,
                                               num_labels);
+=======
+  result->num_labels = num_labels;
+  result->keys = calloc(num_labels, sizeof(result->keys[0]));
+  result->values = calloc(num_labels, sizeof(result->values[0]));
+  if (result->keys == NULL || result->values == NULL) {
+    ERROR("write_gcm: monitored_resource_create_from_fields: calloc failed.");
+    goto error;
+  }
+
+  va_start(ap, project_id);
+  int i;
+  for (i = 0; i < num_labels; ++i) {
+    const char *nextKey = va_arg(ap, const char*);
+    const char *nextValue = va_arg(ap, const char*);
+    result->keys[i] = sstrdup(nextKey);
+    result->values[i] = sstrdup(nextValue);
+    if (result->keys[i] == NULL || result->values[i] == NULL) {
+      ERROR("write_gcm: monitored_resource_create_from_fields: calloc failed.");
+      va_end(ap);
+      goto error;
+    }
+  }
+  va_end(ap);
+  return result;
+
+ error:
+  wg_monitored_resource_destroy(result);
+  return NULL;
+>>>>>>> write_gcm plugin
 }
 
 static void wg_monitored_resource_destroy(monitored_resource_t *resource) {
@@ -2288,7 +2558,11 @@ static monitored_resource_t *wg_monitored_resource_create_for_gcp(
   // metadata server.
   if (project_id_to_use == NULL) {
     // This gets the string id of the project (not the numeric id).
+<<<<<<< HEAD
     project_id_to_use = wg_get_from_gcp_metadata_server("project/project-id", 0);
+=======
+    project_id_to_use = wg_get_from_gcp_metadata_server("project/project-id");
+>>>>>>> write_gcm plugin
     if (project_id_to_use == NULL) {
       ERROR("write_gcm: Can't get project ID from GCP metadata server "
           " (and 'Project' not specified in the config file).");
@@ -2298,7 +2572,11 @@ static monitored_resource_t *wg_monitored_resource_create_for_gcp(
 
   if (instance_id_to_use == NULL) {
     // This gets the numeric instance id.
+<<<<<<< HEAD
     instance_id_to_use = wg_get_from_gcp_metadata_server("instance/id", 0);
+=======
+    instance_id_to_use = wg_get_from_gcp_metadata_server("instance/id");
+>>>>>>> write_gcm plugin
     if (instance_id_to_use == NULL) {
       ERROR("write_gcm: Can't get instance ID from GCP metadata server "
           " (and 'Instance' not specified in the config file).");
@@ -2309,7 +2587,11 @@ static monitored_resource_t *wg_monitored_resource_create_for_gcp(
   if (zone_to_use == NULL) {
     // This gets the zone.
     char *verbose_zone =
+<<<<<<< HEAD
         wg_get_from_gcp_metadata_server("instance/zone", 0);
+=======
+        wg_get_from_gcp_metadata_server("instance/zone");
+>>>>>>> write_gcm plugin
     if (verbose_zone == NULL) {
       ERROR("write_gcm: Can't get zone ID from GCP metadata server "
           " (and 'Zone' not specified in the config file).");
@@ -2371,7 +2653,11 @@ static monitored_resource_t *wg_monitored_resource_create_for_aws(
   if (region_to_use == NULL || instance_id_to_use == NULL ||
       account_id_to_use == NULL) {
     iid_document = wg_get_from_aws_metadata_server(
+<<<<<<< HEAD
         "dynamic/instance-identity/document", 0);
+=======
+        "dynamic/instance-identity/document");
+>>>>>>> write_gcm plugin
     if (iid_document == NULL) {
       ERROR("write_gcm: Can't get dynamic data from metadata server");
       goto leave;
@@ -2431,6 +2717,7 @@ static monitored_resource_t *wg_monitored_resource_create_for_aws(
   return result;
 }
 
+<<<<<<< HEAD
 static char *wg_get_from_gcp_metadata_server(const char *resource,
     _Bool silent_failures) {
   const char *headers[] = { gcp_metadata_header };
@@ -2447,6 +2734,22 @@ static char *wg_get_from_aws_metadata_server(const char *resource,
 
 static char *wg_get_from_metadata_server(const char *base, const char *resource,
     const char **headers, int num_headers, _Bool silent_failures) {
+=======
+static char *wg_get_from_gcp_metadata_server(const char *resource) {
+  const char *headers[] = { gcp_metadata_header };
+  return wg_get_from_metadata_server(
+      "http://169.254.169.254/computeMetadata/v1beta1/", resource,
+      headers, STATIC_ARRAY_SIZE(headers));
+}
+
+static char *wg_get_from_aws_metadata_server(const char *resource) {
+  return wg_get_from_metadata_server(
+      "http://169.254.169.254/latest/", resource, NULL, 0);
+}
+
+static char *wg_get_from_metadata_server(const char *base, const char *resource,
+    const char **headers, int num_headers) {
+>>>>>>> write_gcm plugin
   char url[256];
   int result = snprintf(url, sizeof(url), "%s%s", base, resource);
   if (result < 0 || result >= sizeof(url)) {
@@ -2454,6 +2757,7 @@ static char *wg_get_from_metadata_server(const char *base, const char *resource,
     return NULL;
   }
 
+<<<<<<< HEAD
   char *response = NULL;
   if (wg_curl_get_or_post(&response, url, NULL, headers, num_headers,
       silent_failures) != 0) {
@@ -2465,6 +2769,15 @@ static char *wg_get_from_metadata_server(const char *base, const char *resource,
     return NULL;
   }
   return response;
+=======
+  char buffer[2048];
+  if (wg_curl_get_or_post(buffer, sizeof(buffer), url, NULL, headers,
+      num_headers) != 0) {
+    INFO("write_gcm: wg_get_from_metadata_server failed fetching %s", url);
+    return NULL;
+  }
+  return sstrdup(buffer);
+>>>>>>> write_gcm plugin
 }
 
 //==============================================================================
@@ -2482,8 +2795,11 @@ typedef struct {
   wg_payload_t *head;
   wg_payload_t *tail;
   size_t size;
+<<<<<<< HEAD
   // A running counter of the number of metrics dropped from the agent queue.
   size_t drop_count;
+=======
+>>>>>>> write_gcm plugin
   // Set this to 1 to request that the consumer thread do a flush.
   int request_flush;
   // The consumer thread sets this to 1 when the last requested flush is
@@ -2495,16 +2811,20 @@ typedef struct {
 } wg_queue_t;
 
 typedef struct {
+<<<<<<< HEAD
   size_t api_successes;
   size_t api_connectivity_failures;
   size_t api_errors;
 } wg_stats_t;
 
 typedef struct {
+=======
+>>>>>>> write_gcm plugin
   _Bool pretty_print_json;
   FILE *json_log_file;
   monitored_resource_t *resource;
   char *agent_translation_service_url;
+<<<<<<< HEAD
   char *custom_metrics_url;
   credential_ctx_t *cred_ctx;
   oauth2_ctx_t *oauth2_ctx;
@@ -2512,6 +2832,11 @@ typedef struct {
   wg_stats_t *ats_stats;
   wg_queue_t *gsd_queue;  // Google Stackdriver (Custom metrics ingestion)
   wg_stats_t *gsd_stats;
+=======
+  credential_ctx_t *cred_ctx;
+  oauth2_ctx_t *oauth2_ctx;
+  wg_queue_t *queue;
+>>>>>>> write_gcm plugin
 } wg_context_t;
 
 static wg_context_t *wg_context_create(const wg_configbuilder_t *cb);
@@ -2520,19 +2845,30 @@ static void wg_context_destroy(wg_context_t *context);
 static wg_queue_t *wg_queue_create();
 static void wg_queue_destroy(wg_queue_t *queue);
 
+<<<<<<< HEAD
 static wg_stats_t *wg_stats_create();
 static void wg_stats_destroy(wg_stats_t *stats);
 
+=======
+>>>>>>> write_gcm plugin
 //------------------------------------------------------------------------------
 // Private implementation starts here.
 //------------------------------------------------------------------------------
 static char * find_application_default_creds_path() {
+<<<<<<< HEAD
   // first see if there is a file specified by $GOOGLE_APPLICATION_CREDENTIALS
+=======
+  // first see if there is a file specified by $GOOGLE_APPLICATION_CREDENTIALS 
+>>>>>>> write_gcm plugin
   const char * env_creds_path = getenv("GOOGLE_APPLICATION_CREDENTIALS");
   if (env_creds_path != NULL && access(env_creds_path, R_OK) == 0) {
     return sstrdup(env_creds_path);
   }
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> write_gcm plugin
   // next check for $HOME/.config/gcloud/application_default_credentials.json
   const char * home_path = getenv("HOME");
   if (home_path != NULL) {
@@ -2544,7 +2880,11 @@ static char * find_application_default_creds_path() {
       return NULL;
     }
     int result = snprintf(home_config_path, bytes_needed,
+<<<<<<< HEAD
                           "%s%s", home_path, suffix);
+=======
+			  "%s%s", home_path, suffix);
+>>>>>>> write_gcm plugin
     if (result > 0 && access(home_config_path, R_OK) == 0) {
       return home_config_path;
     }
@@ -2610,12 +2950,17 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
       build->cred_ctx = wg_credential_ctx_create_from_json_file(cred_path);
       if (build->cred_ctx == NULL) {
         ERROR("write_gcm: wg_credential_ctx_create_from_json_file failed to "
+<<<<<<< HEAD
               "parse %s", cred_path);
+=======
+	      "parse %s", cred_path);
+>>>>>>> write_gcm plugin
         goto leave;
       }
     }
   }
 
+<<<<<<< HEAD
   // If we have a project id in the configuration, use that one, otherwise use
   // the one from the credentials.
   const char *project_id;
@@ -2625,6 +2970,14 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
     project_id = build->cred_ctx->project_id;
   } else {
     project_id = NULL;
+=======
+  // If we got a project id from the credentials, use that one
+  const char * project_id;
+  if (build->cred_ctx != NULL && build->cred_ctx->project_id != NULL) {
+    project_id = build->cred_ctx->project_id;
+  } else {
+    project_id = cb->project_id;
+>>>>>>> write_gcm plugin
   }
 
   // Create the subcontext holding various pieces of server information.
@@ -2634,13 +2987,18 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
     goto leave;
   }
 
+<<<<<<< HEAD
   assert(sizeof(agent_translation_service_default_format_string)
          <= URL_BUFFER_SIZE - MAX_PROJECT_ID_SIZE);
   const char *ats_format_string_to_use =
+=======
+  const char *format_string_to_use =
+>>>>>>> write_gcm plugin
       cb->agent_translation_service_format_string != NULL ?
           cb->agent_translation_service_format_string :
           agent_translation_service_default_format_string;
 
+<<<<<<< HEAD
   char ats_url[URL_BUFFER_SIZE];
   int sprintf_result = snprintf(ats_url, sizeof(ats_url), ats_format_string_to_use,
       build->resource->project_id);
@@ -2665,6 +3023,16 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
     goto leave;
   }
   build->custom_metrics_url = sstrdup(cm_url);
+=======
+  char url[512];  // Big enough?
+  int sprintf_result = snprintf(url, sizeof(url), format_string_to_use,
+      build->resource->project_id);
+  if (sprintf_result < 0 || sprintf_result >= sizeof(url)) {
+    ERROR("write_gcm: overflowed url buffer");
+    goto leave;
+  }
+  build->agent_translation_service_url = sstrdup(url);
+>>>>>>> write_gcm plugin
 
   // Create the subcontext holding the oauth2 state.
   build->oauth2_ctx = wg_oauth2_cxt_create();
@@ -2673,6 +3041,7 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
     goto leave;
   }
 
+<<<<<<< HEAD
   // Create the queue contexts.
   build->ats_queue = wg_queue_create();
   if (build->ats_queue == NULL) {
@@ -2681,10 +3050,16 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
   }
   build->gsd_queue = wg_queue_create();
   if (build->gsd_queue == NULL) {
+=======
+  // Create the queue context.
+  build->queue = wg_queue_create();
+  if (build->queue == NULL) {
+>>>>>>> write_gcm plugin
     ERROR("write_gcm: wg_queue_create failed.");
     goto leave;
   }
 
+<<<<<<< HEAD
   // Create the stats context.
   build->ats_stats = wg_stats_create();
   if (build->ats_stats == NULL) {
@@ -2697,6 +3072,8 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
     goto leave;
   }
 
+=======
+>>>>>>> write_gcm plugin
   build->pretty_print_json = cb->pretty_print_json;
 
   // Success!
@@ -2714,6 +3091,7 @@ static void wg_context_destroy(wg_context_t *ctx) {
     return;
   }
   DEBUG("write_gcm: Tearing down context.");
+<<<<<<< HEAD
   wg_queue_destroy(ctx->ats_queue);
   wg_stats_destroy(ctx->ats_stats);
   wg_queue_destroy(ctx->gsd_queue);
@@ -2722,6 +3100,12 @@ static void wg_context_destroy(wg_context_t *ctx) {
   wg_credential_ctx_destroy(ctx->cred_ctx);
   sfree(ctx->agent_translation_service_url);
   sfree(ctx->custom_metrics_url);
+=======
+  wg_queue_destroy(ctx->queue);
+  wg_oauth2_ctx_destroy(ctx->oauth2_ctx);
+  wg_credential_ctx_destroy(ctx->cred_ctx);
+  sfree(ctx->agent_translation_service_url);
+>>>>>>> write_gcm plugin
   wg_monitored_resource_destroy(ctx->resource);
   if (ctx->json_log_file != NULL) {
     fclose(ctx->json_log_file);
@@ -2752,7 +3136,10 @@ static wg_queue_t *wg_queue_create() {
   queue->head = NULL;
   queue->tail = NULL;
   queue->size = 0;
+<<<<<<< HEAD
   queue->drop_count = 0;
+=======
+>>>>>>> write_gcm plugin
   queue->request_flush = 0;
   queue->flush_complete = 0;
   queue->request_terminate = 0;
@@ -2781,6 +3168,7 @@ static void wg_queue_destroy(wg_queue_t *queue) {
   wg_payload_destroy(queue->head);
   pthread_cond_destroy(&queue->cond);
   pthread_mutex_destroy(&queue->mutex);
+<<<<<<< HEAD
 
   sfree(queue);
 }
@@ -2797,6 +3185,8 @@ static wg_stats_t *wg_stats_create() {
 
 static void wg_stats_destroy(wg_stats_t *stats) {
   sfree(stats);
+=======
+>>>>>>> write_gcm plugin
 }
 
 //==============================================================================
@@ -2812,7 +3202,11 @@ typedef struct {
 } json_ctx_t;
 
 // Formats some or all of the data in the payload_list as a
+<<<<<<< HEAD
 // CreateCollectdTimeseriesRequest.
+=======
+// CreateCollectdTimeseriesPointsRequest.
+>>>>>>> write_gcm plugin
 // JSON_SOFT_TARGET_SIZE is used to signal to this routine to finish things up
 // and close out the message. When the message has grown to be of size
 // JSON_SOFT_TARGET_SIZE, the method stops adding new items to the
@@ -2820,6 +3214,7 @@ typedef struct {
 // is to try to always make well-formed JSON messages, even if the incoming list
 // is large. One consequence of this is that this routine is not guaranteed to
 // empty out the list. Callers need to repeatedly call this routine (making
+<<<<<<< HEAD
 // fresh CreateCollectdTimeseriesRequest requests each time) until the list is
 // exhausted. Upon success, the json argument is set to a json string (memory
 // owned by caller), and 0 is returned.
@@ -2827,6 +3222,14 @@ static int wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
     const monitored_resource_t *monitored_resource,
     const wg_payload_t *head, const wg_payload_t **new_head,
     char **json);
+=======
+// fresh wg_json_CreateCollectdTimeseriesPointsRequest requests each
+// time) until the list is exhausted. Upon success, a json string is returned
+// (memory owned by caller). Otherwise, NULL is returned.
+static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
+    const const monitored_resource_t *monitored_resource,
+    const wg_payload_t *head, const wg_payload_t **new_head);
+>>>>>>> write_gcm plugin
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
@@ -2853,8 +3256,11 @@ static void wg_json_bool(json_ctx_t *jc, _Bool value);
 static json_ctx_t *wg_json_ctx_create(_Bool pretty);
 static void wg_json_ctx_destroy(json_ctx_t *jc);
 
+<<<<<<< HEAD
 static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp);
 
+=======
+>>>>>>> write_gcm plugin
 // From google/monitoring/v3/agent_service.proto
 // message CreateCollectdTimeSeriesRequest {
 //   string name = 5;
@@ -2862,23 +3268,37 @@ static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp);
 //   string collectd_version = 3;
 //   repeated CollectdPayload collectd_payloads = 4;
 // }
+<<<<<<< HEAD
 static int wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
     const monitored_resource_t *monitored_resource,
     const wg_payload_t *head, const wg_payload_t **new_head,
     char **json) {
+=======
+static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
+    const monitored_resource_t *monitored_resource,
+    const wg_payload_t *head, const wg_payload_t **new_head) {
+>>>>>>> write_gcm plugin
   char name[256];
   int result = snprintf(name, sizeof(name), "project/%s",
       monitored_resource->project_id);
   if (result < 0 || result >= sizeof(name)) {
     ERROR("write_gcm: project_id %s doesn't fit in buffer.",
         monitored_resource->project_id);
+<<<<<<< HEAD
     return (-ENOMEM);
+=======
+    return NULL;
+>>>>>>> write_gcm plugin
   }
 
   json_ctx_t *jc = wg_json_ctx_create(pretty);
   if (jc == NULL) {
     ERROR("write_gcm: wg_json_ctx_create failed");
+<<<<<<< HEAD
     return (-ENOMEM);
+=======
+    return NULL;
+>>>>>>> write_gcm plugin
   }
 
   wg_json_map_open(jc);
@@ -2901,6 +3321,7 @@ static int wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
 
   char *json_result = malloc(buffer_length + 1);
   if (json_result == NULL) {
+<<<<<<< HEAD
     ERROR("write_gcm: malloc failed");
     wg_json_ctx_destroy(jc);
     return (-ENOMEM);
@@ -3168,14 +3589,22 @@ static int wg_json_CreateTimeSeriesRequest(_Bool pretty,
     ERROR("write_gcm: malloc failed");
     wg_json_ctx_destroy(jc);
     return (-ENOMEM);
+=======
+    wg_json_ctx_destroy(jc);
+    return NULL;
+>>>>>>> write_gcm plugin
   }
 
   memcpy(json_result, buffer_address, buffer_length);
   json_result[buffer_length] = 0;
   wg_json_ctx_destroy(jc);
+<<<<<<< HEAD
 
   *json = json_result;
   return 0;
+=======
+  return json_result;
+>>>>>>> write_gcm plugin
 }
 
 // From google/api/monitored_resource.proto
@@ -3259,9 +3688,13 @@ static void wg_json_CollectdPayloads(json_ctx_t *jc,
 
     head = head->next;
   }
+<<<<<<< HEAD
 
   *new_head = head;
 
+=======
+  *new_head = head;
+>>>>>>> write_gcm plugin
   wg_json_array_close(jc);
 }
 
@@ -3355,6 +3788,7 @@ static void wg_json_TypedValue(json_ctx_t *jc, const wg_typed_value_t *tv) {
   wg_json_map_close(jc);
 }
 
+<<<<<<< HEAD
 static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp) {
   char time_str[RFC3339NANO_SIZE];
   int status = rfc3339nano(time_str, sizeof(time_str), time_stamp);
@@ -3365,6 +3799,8 @@ static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp) {
   wg_json_string(jc, time_str);
 }
 
+=======
+>>>>>>> write_gcm plugin
 //message Timestamp {
 //  int64 seconds = 1;
 //  int32 nanos = 2;
@@ -3508,8 +3944,12 @@ static void wg_json_ctx_destroy(json_ctx_t *jc) {
 //==============================================================================
 //==============================================================================
 //==============================================================================
+<<<<<<< HEAD
 static void *wg_process_queue(wg_context_t *arg, wg_queue_t *queue,
                               wg_stats_t *stats);
+=======
+static void *wg_process_queue(void *arg);
+>>>>>>> write_gcm plugin
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
@@ -3522,11 +3962,14 @@ static void *wg_process_queue(wg_context_t *arg, wg_queue_t *queue,
 static int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
     _Bool *want_terminate, wg_payload_t **payloads);
 
+<<<<<<< HEAD
 
 // Update various stats and store them in the cache, to be picked up by the
 // stackdriver_agent plugin.
 static int wg_update_stats(const wg_stats_t *stats);
 
+=======
+>>>>>>> write_gcm plugin
 // "Rebases" derivative items in the list against their stored values. If this
 // is the first time we've seen a derivative item, store it in the map and
 // remove it from the list. Otherwise (if it is not the first time we've seen
@@ -3549,12 +3992,20 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 // duplicate keys/labels. (why?) Returns 0 on success, <0 on error.
 // Takes ownership of 'list'.
 static int wg_transmit_unique_segments(const wg_context_t *ctx,
+<<<<<<< HEAD
     wg_queue_t *queue, wg_payload_t *list);
+=======
+    wg_payload_t *list);
+>>>>>>> write_gcm plugin
 
 // Transmit a segment of the list, where it is guaranteed that all the items
 // in the list have distinct keys. Returns 0 on success, <0 on error.
 static int wg_transmit_unique_segment(const wg_context_t *ctx,
+<<<<<<< HEAD
     wg_queue_t *queue, const wg_payload_t *list);
+=======
+    const wg_payload_t *list);
+>>>>>>> write_gcm plugin
 
 // Extracts as many distinct payloads as possible from the list, where the
 // notion of "distinct" is as defined by wg_payload_key_compare. Creates two
@@ -3582,11 +4033,15 @@ static int wg_extract_distinct_payloads(wg_payload_t *src,
 // element of *list has been processed. It is intended that the caller calls
 // this method repeatedly until the list has been completely processsed.
 // Returns 0 on success, <0 on error.
+<<<<<<< HEAD
 static int wg_format_some_of_list_ctr(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty);
 
 static int wg_format_some_of_list_custom(
+=======
+static int wg_format_some_of_list(
+>>>>>>> write_gcm plugin
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty);
 
@@ -3598,8 +4053,14 @@ static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
     const wg_payload_t *payload, wg_deriv_tracker_value_t **tracker,
     _Bool *created);
 
+<<<<<<< HEAD
 static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
                               wg_stats_t *stats) {
+=======
+static void *wg_process_queue(void *arg) {
+  wg_context_t *ctx = arg;
+  wg_queue_t *queue = ctx->queue;
+>>>>>>> write_gcm plugin
 
   // Keeping track of the base values for derivative values.
   c_avl_tree_t *deriv_tree = wg_deriv_tree_create();
@@ -3620,6 +4081,7 @@ static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
     }
     last_flush_time = cdtime();
     if (wg_rebase_cumulative_values(deriv_tree, &payloads) != 0) {
+<<<<<<< HEAD
       // Couldn't update the counters — an error but not fatal.
       // Drop the payloads on the floor and make a note of it.
       ERROR("write_gcm: wg_rebase_cumulative_values failed. Flushing.");
@@ -3637,11 +4099,25 @@ static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
       WARNING("%s: wg_update_stats failed.", this_plugin_name);
       continue;
     }
+=======
+      // Also fatal.
+      ERROR("write_gcm: wg_rebase_cumulative_values failed.");
+      wg_payload_destroy(payloads);
+      break;
+    }
+    if (wg_transmit_unique_segments(ctx, payloads) != 0) {
+      // Not fatal. Connectivity problems? Server went away for a while?
+      // Just drop the payloads on the floor and make a note of it.
+      wg_some_error_occured_g = 1;
+      WARNING("write_gcm: wg_transmit_unique_segments failed. Flushing.");
+    }
+>>>>>>> write_gcm plugin
     payloads = NULL;
   }
 
  leave:
   wg_deriv_tree_destroy(deriv_tree);
+<<<<<<< HEAD
   if (!queue->request_terminate) {
     queue->consumer_thread_created = 0;
     ERROR("write_gcm: Consumer thread unexpectedly exiting.");
@@ -3665,6 +4141,12 @@ static void *wg_process_gsd_queue(void *arg) {
   return wg_process_queue(ctx, queue, stats);
 }
 
+=======
+  WARNING("write_gcm: Consumer thread is exiting.");
+  return NULL;
+}
+
+>>>>>>> write_gcm plugin
 static int wg_rebase_cumulative_values(c_avl_tree_t *deriv_tree,
     wg_payload_t **list) {
   wg_payload_t *new_head = NULL;
@@ -3790,7 +4272,11 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 }
 
 static int wg_transmit_unique_segments(const wg_context_t *ctx,
+<<<<<<< HEAD
     wg_queue_t *queue, wg_payload_t *list) {
+=======
+    wg_payload_t *list) {
+>>>>>>> write_gcm plugin
   while (list != NULL) {
     wg_payload_t *distinct_list;
     wg_payload_t *residual_list;
@@ -3803,7 +4289,11 @@ static int wg_transmit_unique_segments(const wg_context_t *ctx,
       return -1;
     }
     DEBUG("write_gcm: next distinct segment has size %d", distinct_size);
+<<<<<<< HEAD
     int result = wg_transmit_unique_segment(ctx, queue, distinct_list);
+=======
+    int result = wg_transmit_unique_segment(ctx, distinct_list);
+>>>>>>> write_gcm plugin
     if (result != 0) {
       ERROR("write_gcm: wg_transmit_unique_segment failed.");
       wg_payload_destroy(distinct_list);
@@ -3828,17 +4318,27 @@ static void wg_log_json_message(const wg_context_t *ctx, const char *fmt, ...) {
 }
 
 static int wg_transmit_unique_segment(const wg_context_t *ctx,
+<<<<<<< HEAD
     wg_queue_t *queue, const wg_payload_t *list) {
+=======
+    const wg_payload_t *list) {
+>>>>>>> write_gcm plugin
   if (list == NULL) {
     return 0;
   }
 
   // Variables to clean up at the end.
   char *json = NULL;
+<<<<<<< HEAD
   char *response = NULL;
   int result = -1;  // Pessimistically assume failure.
 
   char auth_header[1024];
+=======
+  int result = -1;  // Pessimistically assume failure.
+
+  char auth_header[256];
+>>>>>>> write_gcm plugin
   if (wg_oauth2_get_auth_header(auth_header, sizeof(auth_header),
       ctx->oauth2_ctx, ctx->cred_ctx) != 0) {
     ERROR("write_gcm: wg_oauth2_get_auth_header failed.");
@@ -3849,15 +4349,22 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
     // We can spend a lot of time here talking to the server. If the producer
     // thread wants to shut us down, check for this explicitly and bail out
     // early.
+<<<<<<< HEAD
     pthread_mutex_lock(&queue->mutex);
     int want_terminate = queue->request_terminate;
     pthread_mutex_unlock(&queue->mutex);
+=======
+    pthread_mutex_lock(&ctx->queue->mutex);
+    int want_terminate = ctx->queue->request_terminate;
+    pthread_mutex_unlock(&ctx->queue->mutex);
+>>>>>>> write_gcm plugin
     if (want_terminate) {
       ERROR("write_gcm: wg_transmit_unique_segment: "
           "Exiting early due to termination request.");
       goto leave;
     }
 
+<<<<<<< HEAD
     // By the way, a successful response is an empty JSON record (i.e. "{}").
     // An unsuccessful response is a detailed error message from the API.
     const char *headers[] = { auth_header, json_content_type_header };
@@ -3950,17 +4457,53 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
     sfree(json);
     json = NULL;
 
+=======
+    const wg_payload_t *new_list;
+    if (wg_format_some_of_list(ctx->resource, list, &new_list, &json,
+        ctx->pretty_print_json) != 0) {
+      ERROR("write_gcm: Error formatting list as JSON");
+      goto leave;
+    }
+
+    wg_log_json_message(ctx, "Sending json:\n%s\n", json);
+
+    // By the way, a successful response is an empty JSON record (i.e. "{}").
+    // An unsuccessful response is a detailed error message from Monarch.
+    char response[2048];
+    const char *headers[] = { auth_header, json_content_type_header };
+    if (wg_curl_get_or_post(response, sizeof(response),
+        ctx->agent_translation_service_url, json,
+        headers, STATIC_ARRAY_SIZE(headers)) != 0) {
+      wg_log_json_message(ctx, "Error contacting server.\n");
+      ERROR("write_gcm: Error talking to the endpoint.");
+      goto leave;
+    }
+
+    wg_log_json_message(ctx, "Server response:\n%s\n", response);
+    // Since the response is expected to be valid JSON, we don't
+    // look at the characters beyond the closing brace.
+    if (strncmp(response, "{}", 2) != 0) {
+      goto leave;
+    }
+
+    sfree(json);
+    json = NULL;
+>>>>>>> write_gcm plugin
     list = new_list;
   }
 
   result = 0;
 
  leave:
+<<<<<<< HEAD
   sfree(response);
+=======
+>>>>>>> write_gcm plugin
   sfree(json);
   return result;
 }
 
+<<<<<<< HEAD
 static int wg_format_some_of_list_ctr(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty) {
@@ -3990,6 +4533,20 @@ static int wg_format_some_of_list_custom(
   }
   if (list == *new_list) {
     ERROR("write_gcm: wg_format_some_of_list_custom failed to make progress.");
+=======
+static int wg_format_some_of_list(
+    const monitored_resource_t *monitored_resource, const wg_payload_t *list,
+    const wg_payload_t **new_list, char **json, _Bool pretty) {
+  char *result = wg_json_CreateCollectdTimeseriesRequest(pretty,
+      monitored_resource, list, new_list);
+  if (result == NULL) {
+    ERROR("write_gcm: wg_json_CreateCollectdTimeseriesPointsRequest"
+        " failed.");
+    return -1;
+  }
+  if (list == *new_list) {
+    ERROR("write_gcm: wg_format_some_of_list failed to make progress.");
+>>>>>>> write_gcm plugin
     sfree(result);
     return -1;
   }
@@ -4141,6 +4698,7 @@ static int wait_next_queue_event(wg_queue_t *queue, cdtime_t last_flush_time,
   }
 }
 
+<<<<<<< HEAD
 static int wg_update_stats(const wg_stats_t *stats)
 {
   data_set_t ds = {};  // zero-fill
@@ -4165,6 +4723,8 @@ static int wg_update_stats(const wg_stats_t *stats)
   return 0;
 }
 
+=======
+>>>>>>> write_gcm plugin
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -4175,13 +4735,17 @@ static int wg_update_stats(const wg_stats_t *stats)
 
 static wg_configbuilder_t *wg_configbuilder_g = NULL;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> write_gcm plugin
 // Transform incoming value_list into our "payload" format and append it to the
 // work queue.
 static int wg_write(const data_set_t *ds, const value_list_t *vl,
                     user_data_t *user_data) {
   assert(ds->ds_num > 0);
   wg_context_t *ctx = user_data->data;
+<<<<<<< HEAD
 
   // Initially assume Agent Tranlation Service queue and processor
   const char *queue_name = "ATS";
@@ -4206,6 +4770,9 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
     }
     strarray_free (toc, toc_size);
   }
+=======
+  wg_queue_t *queue = ctx->queue;
+>>>>>>> write_gcm plugin
 
   // Allocate the payload.
   wg_payload_t *payload = wg_payload_create(ds, vl);
@@ -4217,8 +4784,13 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
   pthread_mutex_lock(&queue->mutex);
   // One-time startup of the consumer thread.
   if (!queue->consumer_thread_created) {
+<<<<<<< HEAD
     if (plugin_thread_create(&queue->consumer_thread, NULL, processor,
         ctx, "") != 0) {
+=======
+    if (plugin_thread_create(&queue->consumer_thread, NULL, &wg_process_queue,
+        ctx) != 0) {
+>>>>>>> write_gcm plugin
       ERROR("write_gcm: plugin_thread_create failed");
       pthread_mutex_unlock(&queue->mutex);
       return -1;
@@ -4236,6 +4808,7 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
       queue->tail = NULL;
     }
     --queue->size;
+<<<<<<< HEAD
     ++queue->drop_count;
     if ((queue->drop_count % QUEUE_DROP_REPORT_LIMIT) == 0) {
       WARNING("write_gcm: %s queue dropped %d metric points due to dispatch"
@@ -4260,6 +4833,9 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
           to_remove->key.type,
           to_remove->key.type_instance,
           metadata);
+=======
+    to_remove->next = NULL;
+>>>>>>> write_gcm plugin
     wg_payload_destroy(to_remove);
   }
 
@@ -4276,7 +4852,11 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
   static cdtime_t next_message_time;
   cdtime_t now = cdtime();
   if (now >= next_message_time) {
+<<<<<<< HEAD
     DEBUG("write_gcm: current %s queue size is %zd", queue_name, queue->size);
+=======
+    DEBUG("write_gcm: current queue size is %zd", queue->size);
+>>>>>>> write_gcm plugin
     next_message_time = now + TIME_T_TO_CDTIME_T(10);  // Report every 10 sec.
   }
   pthread_cond_signal(&queue->cond);
@@ -4289,6 +4869,7 @@ static int wg_flush(cdtime_t timeout,
                     const char *identifier __attribute__((unused)),
                     user_data_t *user_data) {
   wg_context_t *ctx = user_data->data;
+<<<<<<< HEAD
   // Flush all queues in sequence.
   wg_queue_t *queues[] = { ctx->ats_queue, ctx->gsd_queue };
   for (int i = 0; i < STATIC_ARRAY_SIZE(queues) ; ++i) {
@@ -4309,6 +4890,23 @@ static int wg_flush(cdtime_t timeout,
 
     pthread_mutex_unlock(&queue->mutex);
   }
+=======
+  wg_queue_t *queue = ctx->queue;
+  pthread_mutex_lock(&queue->mutex);
+  queue->request_flush = 1;
+  queue->flush_complete = 0;
+  pthread_cond_signal(&queue->cond);
+
+  // If collectd is in the end-to-end test mode (command line option -T), then
+  // wait for the flush to complete.
+  if (wg_end_to_end_test_mode()) {
+    while (!queue->flush_complete) {
+      pthread_cond_wait(&queue->cond, &queue->mutex);
+    }
+  }
+
+  pthread_mutex_unlock(&queue->mutex);
+>>>>>>> write_gcm plugin
   return 0;
 }
 
@@ -4375,7 +4973,11 @@ static int wg_shutdown(void) {
   if (!wg_end_to_end_test_mode()) {
     return 0;
   }
+<<<<<<< HEAD
   if (wg_some_error_occurred_g) {
+=======
+  if (wg_some_error_occured_g) {
+>>>>>>> write_gcm plugin
     return -1;
   }
   return 0;
