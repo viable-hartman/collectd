@@ -1,6 +1,10 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
 
+<<<<<<< HEAD
+=======
+SUBDIRS = src/libmongoc
+>>>>>>> mongo plugin
 
 BUILT_SOURCES = \
 	src/libcollectdclient/collectd/lcc_features.h \
