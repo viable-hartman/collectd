@@ -3357,6 +3357,7 @@ AC_SUBST([BUILD_WITH_LIBMODBUS_LIBS])
 # }}}
 
 # --with-libmongoc {{{
+AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
 AC_ARG_WITH([libmongoc],
   [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
   [
@@ -3364,9 +3365,14 @@ AC_ARG_WITH([libmongoc],
       with_libmongoc="yes"
     else if test "x$withval" = "xno"; then
       with_libmongoc="no"
+    else if test "x$withval" = "xown"; then
+      with_libmongoc="yes"
+      with_own_libmongoc="yes"
+      AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
+      AC_CONFIG_SUBDIRS([src/libmongoc])
     else
       with_libmongoc="no"
-    fi; fi
+    fi; fi; fi
   ],
   [with_libmongoc="yes"]
 )
@@ -3393,6 +3399,21 @@ if test "x$with_libmongoc" = "xyes"; then
   )
 
   CPPFLAGS="$SAVE_CPPFLAGS"
+
+  if test "x$with_own_libmongoc" != "xyes"; then
+    AC_CHECK_HEADERS([mongo.h],
+      [with_libmongoc="yes"],
+      [with_libmongoc="no ('mongo.h' not found)"],
+[#if HAVE_STDINT_H
+# define MONGO_HAVE_STDINT 1
+#else
+# define MONGO_USE_LONG_LONG_INT 1
+#endif
+])
+    AC_CHECK_LIB(mongoc, mongo_run_command,
+      [with_libmongoc="yes"],
+      [with_libmongoc="no (symbol 'mongo_run_command' not found)"])
+  fi
 fi
 
 if test "x$with_libmongoc" = "xyes"; then
@@ -6622,6 +6643,7 @@ AC_PLUGIN([memcached],           [yes],                     [memcached statistic
 AC_PLUGIN([memory],              [$plugin_memory],          [Memory usage])
 AC_PLUGIN([mic],                 [$with_mic],               [Intel Many Integrated Core stats])
 AC_PLUGIN([modbus],              [$with_libmodbus],         [Modbus plugin])
+AC_PLUGIN([mongodb],             [$with_libmongoc],         [MongoDB statistics])
 AC_PLUGIN([mqtt],                [$with_libmosquitto],      [MQTT output plugin])
 AC_PLUGIN([multimeter],          [$plugin_multimeter],      [Read multimeter values])
 AC_PLUGIN([mysql],               [$with_libmysql],          [MySQL statistics])
@@ -7046,6 +7068,7 @@ AC_MSG_RESULT([    memcached . . . . . . $enable_memcached])
 AC_MSG_RESULT([    memory  . . . . . . . $enable_memory])
 AC_MSG_RESULT([    mic . . . . . . . . . $enable_mic])
 AC_MSG_RESULT([    modbus  . . . . . . . $enable_modbus])
+AC_MSG_RESULT([    mongodb  . . . . .  . $enable_mongodb])
 AC_MSG_RESULT([    mqtt  . . . . . . . . $enable_mqtt])
 AC_MSG_RESULT([    multimeter  . . . . . $enable_multimeter])
 AC_MSG_RESULT([    mysql . . . . . . . . $enable_mysql])

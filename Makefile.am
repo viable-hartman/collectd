@@ -1,7 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
 
-
 BUILT_SOURCES = \
 	src/libcollectdclient/collectd/lcc_features.h \
 	src/liboconfig/parser.h \
@@ -1185,6 +1184,21 @@ modbus_la_SOURCES = src/modbus.c
 modbus_la_CFLAGS = $(AM_CFLAGS) $(BUILD_WITH_LIBMODBUS_CFLAGS)
 modbus_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 modbus_la_LIBADD = $(BUILD_WITH_LIBMODBUS_LIBS)
+endif
+
+if BUILD_PLUGIN_MONGODB
+pkglib_LTLIBRARIES += mongodb.la
+mongodb_la_SOURCES = mongodb.c
+mongodb_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBMONGOC_CPPFLAGS)
+mongodb_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBMONGOC_LDFLAGS)
+mongodb_la_LIBADD =
+if BUILD_WITH_OWN_LIBMONGOC
+# add libmongoc source files
+mongodb_la_CPPFLAGS += -Ilibmongoc/src/mongoc -Ilibmongoc/src/libbson/src/bson
+mongodb_la_LIBADD += libmongoc/libmongoc-1.0.la libmongoc/src/libbson/libbson.la
+else
+mongodb_la_LIBADD += -lmongoc
+endif
 endif
 
 if BUILD_PLUGIN_MQTT
