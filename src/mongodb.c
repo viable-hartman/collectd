@@ -305,6 +305,45 @@ static int mg_process_database(
   return result;
 }
 
+// This code is identical to the method "mongoc_client_get_database_names"
+// in the Mongo driver, except that it doesn't filter out the database
+// called "local". This allows us to correctly enumerate and gather stats
+// from all databases when there is a "local" database (the normal case),
+// and when there is not (as in the sharding case).
+static char **
+mg_get_database_names (mongoc_client_t *client, bson_error_t *error)
+{
+   bson_iter_t iter;
+   const char *name;
+   char **ret = NULL;
+   int i = 0;
+   mongoc_cursor_t *cursor;
+   const bson_t *doc;
+
+   BSON_ASSERT (client);
+
+   cursor = mongoc_client_find_databases (client, error);
+
+   while (mongoc_cursor_next (cursor, &doc)) {
+      if (bson_iter_init (&iter, doc) &&
+          bson_iter_find (&iter, "name") &&
+          BSON_ITER_HOLDS_UTF8 (&iter) &&
+          (name = bson_iter_utf8 (&iter, NULL))) {
+            ret = (char **)bson_realloc (ret, sizeof(char*) * (i + 2));
+            ret [i] = bson_strdup (name);
+            ret [++i] = NULL;
+         }
+   }
+
+   if (!ret && !mongoc_cursor_error (cursor, error)) {
+      ret = (char **)bson_malloc0 (sizeof (void*));
+   }
+
+   mongoc_cursor_destroy (cursor);
+
+   return ret;
+}
+
 /**
  * Read the data from the MongoDB server.
  */
@@ -338,9 +377,8 @@ static int mg_read(user_data_t *user_data) {
     goto leave;
   }
 
-  // Get the list of databases (which excludes "local", alas), then process each
-  // database.
-  databases = mongoc_client_get_database_names(client, &error);
+  // Get the list of databases, then process each database.
+  databases = mg_get_database_names(client, &error);
   if (databases == NULL) {
     ERROR("mongodb plugin: mongoc_client_get_database_names failed: %s.",
           error.message);
@@ -354,11 +392,6 @@ static int mg_read(user_data_t *user_data) {
           " Continuing anyway...", databases[i]);
     }
   }
-  // Now process the "local" database.
-  if (mg_process_database(ctx, client, "local") != 0) {
-    ERROR("mongodb plugin: mg_process_database 'local' failed.");
-  }
-
   result = 0;  // Success!
 
  leave:
