@@ -1787,17 +1787,23 @@ static int wg_payload_key_compare(const wg_payload_key_t *l,
 //==============================================================================
 //==============================================================================
 typedef struct {
-  // "gcp" or "aws".
+  // "gcp" or "aws" or "gke".
   // "gcp" expects project_id, instance_id, and zone (or will fetch them from
   // the metadata server.
   // "aws" expects project_id, instance_id, region, and account_id (or will
   // fetch them from the metadata server).
+  // "gke" expects project_id, instance_id, zone, cluster, namespace, pod and
+  // container (or will fetch them from the metadata server.)
   char *cloud_provider;
   char *project_id;
   char *instance_id;
   char *zone;
   char *region;
   char *account_id;
+  char *cluster;
+  char *namespace;
+  char *pod;
+  char *container;
   char *credentials_json_file;
   char *email;
   char *key_file;
@@ -2037,6 +2043,8 @@ static monitored_resource_t *wg_monitored_resource_create_for_gcp(
     const wg_configbuilder_t *cb, const char *project_id);
 static monitored_resource_t *wg_monitored_resource_create_for_aws(
     const wg_configbuilder_t *cb, const char *project_id);
+static monitored_resource_t *wg_monitored_resource_create_for_gke(
+    const wg_configbuilder_t *cb, const char *project_id);
 
 // Fetch 'resource' from the GCP metadata server.
 static char *wg_get_from_gcp_metadata_server(const char *resource);
@@ -2082,6 +2090,9 @@ static monitored_resource_t *wg_monitored_resource_create(
   }
   if (strcasecmp(cloud_provider_to_use, "aws") == 0) {
     return wg_monitored_resource_create_for_aws(cb, project_id);
+  }
+  if (strcasecmp(cloud_provider_to_use, "gke") == 0) {
+    return wg_monitored_resource_create_for_gke(cb, project_id);
   }
   ERROR("write_gcm: Cloud provider '%s' not recognized.",
         cloud_provider_to_use);
@@ -2315,6 +2326,98 @@ static monitored_resource_t *wg_monitored_resource_create_for_aws(
   sfree(instance_id_to_use);
   sfree(region_to_use);
   sfree(project_id_to_use);
+  return result;
+}
+
+static monitored_resource_t *wg_monitored_resource_create_for_gke(
+    const wg_configbuilder_t *cb, const char *project_id) {
+  // Items to clean up upon leaving.
+  monitored_resource_t *result = NULL;
+  char *project_id_to_use = sstrdup(project_id);
+  char *instance_id_to_use = strdup(cb->instance_id);
+  char *zone_to_use = sstrdup(cb->zone);
+  char *cluster_to_use = strdup(cb->cluster);
+  char *namespace_to_use = strdup(cb->namespace);
+  char *pod_to_use = strdup(cb->pod);
+  char *container_to_use = strdup(cb->container);
+
+  // For items not specified in the config file, try to get them from the
+  // metadata server.
+  if (project_id_to_use == NULL) {
+    // This gets the string id of the project (not the numeric id).
+    project_id_to_use = wg_get_from_gcp_metadata_server("project/project-id");
+    if (project_id_to_use == NULL) {
+      ERROR("write_gcm: Can't get project ID from GCP metadata server "
+          " (and 'Project' not specified in the config file).");
+      goto leave;
+    }
+  }
+
+  if (instance_id_to_use == NULL) {
+    // This gets the numeric instance id.
+    instance_id_to_use = wg_get_from_gcp_metadata_server("instance/id");
+    if (instance_id_to_use == NULL) {
+      ERROR("write_gcm: Can't get instance ID from GCP metadata server "
+          " (and 'Instance' not specified in the config file).");
+      goto leave;
+    }
+  }
+
+  if (zone_to_use == NULL) {
+    // This gets the zone.
+    char *verbose_zone =
+        wg_get_from_gcp_metadata_server("instance/zone");
+    if (verbose_zone == NULL) {
+      ERROR("write_gcm: Can't get zone ID from GCP metadata server "
+          " (and 'Zone' not specified in the config file).");
+      goto leave;
+    }
+    // The zone comes back as projects/${numeric-id}/zones/${zone}
+    // where ${zone} is e.g. us-central1-a
+
+    const char *last_slash = strrchr(verbose_zone, '/');
+    if (last_slash == NULL) {
+      ERROR("write_gcm: Failed to parse zone.");
+      sfree(verbose_zone);
+      goto leave;
+    }
+
+    zone_to_use = sstrdup(last_slash + 1);
+    sfree(verbose_zone);
+    if (zone_to_use == NULL) {
+      ERROR("write_gcm: wg_monitored_resource_populate_for_gke: "
+          "sstrdup failed.");
+      goto leave;
+    }
+  }
+
+  if (cluster_to_use == NULL || namespace_to_use == NULL ||
+      pod_to_use == NULL || container_to_use == NULL) {
+    ERROR("write_gcm: wg_monitored_resource_populate_for_gke: "
+          "Need to specify cluster, namespace, pod, and container.");
+    goto leave;
+  }
+
+  result = monitored_resource_create_from_fields(
+      "gke_container",
+      project_id_to_use,
+      /* keys/values */
+      "zone", zone_to_use,
+      "instance_id", instance_id_to_use,
+      "cluster_name", cluster_to_use,
+      "namespace_id", namespace_to_use,
+      "pod_id", pod_to_use,
+      "container_name", container_to_use,
+      NULL);
+
+ leave:
+  sfree(project_id_to_use);
+  sfree(zone_to_use);
+  sfree(instance_id_to_use);
+  sfree(cluster_to_use);
+  sfree(namespace_to_use);
+  sfree(pod_to_use);
+  sfree(container_to_use);
   return result;
 }
 
