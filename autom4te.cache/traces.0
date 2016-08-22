@@ -1954,615 +1954,619 @@ m4trace:configure.ac:5231: -1- AC_DEFINE_TRACE_LITERAL([COLLECT_GETIFADDRS])
 m4trace:configure.ac:5231: -1- m4_pattern_allow([^COLLECT_GETIFADDRS$])
 m4trace:configure.ac:5231: -1- AH_OUTPUT([COLLECT_GETIFADDRS], [/* wether or not to enable feature getifaddrs under Linux */
 @%:@undef COLLECT_GETIFADDRS])
-m4trace:configure.ac:5615: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_AGGREGATION])
-m4trace:configure.ac:5615: -1- m4_pattern_allow([^HAVE_PLUGIN_AGGREGATION$])
-m4trace:configure.ac:5615: -1- AH_OUTPUT([HAVE_PLUGIN_AGGREGATION], [/* Define to 1 if the aggregation plugin is enabled. */
+m4trace:configure.ac:5616: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_AGGREGATION])
+m4trace:configure.ac:5616: -1- m4_pattern_allow([^HAVE_PLUGIN_AGGREGATION$])
+m4trace:configure.ac:5616: -1- AH_OUTPUT([HAVE_PLUGIN_AGGREGATION], [/* Define to 1 if the aggregation plugin is enabled. */
 @%:@undef HAVE_PLUGIN_AGGREGATION])
-m4trace:configure.ac:5616: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_AMQP])
-m4trace:configure.ac:5616: -1- m4_pattern_allow([^HAVE_PLUGIN_AMQP$])
-m4trace:configure.ac:5616: -1- AH_OUTPUT([HAVE_PLUGIN_AMQP], [/* Define to 1 if the amqp plugin is enabled. */
+m4trace:configure.ac:5617: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_AMQP])
+m4trace:configure.ac:5617: -1- m4_pattern_allow([^HAVE_PLUGIN_AMQP$])
+m4trace:configure.ac:5617: -1- AH_OUTPUT([HAVE_PLUGIN_AMQP], [/* Define to 1 if the amqp plugin is enabled. */
 @%:@undef HAVE_PLUGIN_AMQP])
-m4trace:configure.ac:5617: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_APACHE])
-m4trace:configure.ac:5617: -1- m4_pattern_allow([^HAVE_PLUGIN_APACHE$])
-m4trace:configure.ac:5617: -1- AH_OUTPUT([HAVE_PLUGIN_APACHE], [/* Define to 1 if the apache plugin is enabled. */
+m4trace:configure.ac:5618: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_APACHE])
+m4trace:configure.ac:5618: -1- m4_pattern_allow([^HAVE_PLUGIN_APACHE$])
+m4trace:configure.ac:5618: -1- AH_OUTPUT([HAVE_PLUGIN_APACHE], [/* Define to 1 if the apache plugin is enabled. */
 @%:@undef HAVE_PLUGIN_APACHE])
-m4trace:configure.ac:5618: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_APCUPS])
-m4trace:configure.ac:5618: -1- m4_pattern_allow([^HAVE_PLUGIN_APCUPS$])
-m4trace:configure.ac:5618: -1- AH_OUTPUT([HAVE_PLUGIN_APCUPS], [/* Define to 1 if the apcups plugin is enabled. */
+m4trace:configure.ac:5619: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_APCUPS])
+m4trace:configure.ac:5619: -1- m4_pattern_allow([^HAVE_PLUGIN_APCUPS$])
+m4trace:configure.ac:5619: -1- AH_OUTPUT([HAVE_PLUGIN_APCUPS], [/* Define to 1 if the apcups plugin is enabled. */
 @%:@undef HAVE_PLUGIN_APCUPS])
-m4trace:configure.ac:5619: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_APPLE_SENSORS])
-m4trace:configure.ac:5619: -1- m4_pattern_allow([^HAVE_PLUGIN_APPLE_SENSORS$])
-m4trace:configure.ac:5619: -1- AH_OUTPUT([HAVE_PLUGIN_APPLE_SENSORS], [/* Define to 1 if the apple_sensors plugin is enabled. */
+m4trace:configure.ac:5620: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_APPLE_SENSORS])
+m4trace:configure.ac:5620: -1- m4_pattern_allow([^HAVE_PLUGIN_APPLE_SENSORS$])
+m4trace:configure.ac:5620: -1- AH_OUTPUT([HAVE_PLUGIN_APPLE_SENSORS], [/* Define to 1 if the apple_sensors plugin is enabled. */
 @%:@undef HAVE_PLUGIN_APPLE_SENSORS])
-m4trace:configure.ac:5620: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_AQUAERO])
-m4trace:configure.ac:5620: -1- m4_pattern_allow([^HAVE_PLUGIN_AQUAERO$])
-m4trace:configure.ac:5620: -1- AH_OUTPUT([HAVE_PLUGIN_AQUAERO], [/* Define to 1 if the aquaero plugin is enabled. */
+m4trace:configure.ac:5621: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_AQUAERO])
+m4trace:configure.ac:5621: -1- m4_pattern_allow([^HAVE_PLUGIN_AQUAERO$])
+m4trace:configure.ac:5621: -1- AH_OUTPUT([HAVE_PLUGIN_AQUAERO], [/* Define to 1 if the aquaero plugin is enabled. */
 @%:@undef HAVE_PLUGIN_AQUAERO])
-m4trace:configure.ac:5621: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ASCENT])
-m4trace:configure.ac:5621: -1- m4_pattern_allow([^HAVE_PLUGIN_ASCENT$])
-m4trace:configure.ac:5621: -1- AH_OUTPUT([HAVE_PLUGIN_ASCENT], [/* Define to 1 if the ascent plugin is enabled. */
+m4trace:configure.ac:5622: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ASCENT])
+m4trace:configure.ac:5622: -1- m4_pattern_allow([^HAVE_PLUGIN_ASCENT$])
+m4trace:configure.ac:5622: -1- AH_OUTPUT([HAVE_PLUGIN_ASCENT], [/* Define to 1 if the ascent plugin is enabled. */
 @%:@undef HAVE_PLUGIN_ASCENT])
-m4trace:configure.ac:5622: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_BAROMETER])
-m4trace:configure.ac:5622: -1- m4_pattern_allow([^HAVE_PLUGIN_BAROMETER$])
-m4trace:configure.ac:5622: -1- AH_OUTPUT([HAVE_PLUGIN_BAROMETER], [/* Define to 1 if the barometer plugin is enabled. */
+m4trace:configure.ac:5623: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_BAROMETER])
+m4trace:configure.ac:5623: -1- m4_pattern_allow([^HAVE_PLUGIN_BAROMETER$])
+m4trace:configure.ac:5623: -1- AH_OUTPUT([HAVE_PLUGIN_BAROMETER], [/* Define to 1 if the barometer plugin is enabled. */
 @%:@undef HAVE_PLUGIN_BAROMETER])
-m4trace:configure.ac:5623: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_BATTERY])
-m4trace:configure.ac:5623: -1- m4_pattern_allow([^HAVE_PLUGIN_BATTERY$])
-m4trace:configure.ac:5623: -1- AH_OUTPUT([HAVE_PLUGIN_BATTERY], [/* Define to 1 if the battery plugin is enabled. */
+m4trace:configure.ac:5624: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_BATTERY])
+m4trace:configure.ac:5624: -1- m4_pattern_allow([^HAVE_PLUGIN_BATTERY$])
+m4trace:configure.ac:5624: -1- AH_OUTPUT([HAVE_PLUGIN_BATTERY], [/* Define to 1 if the battery plugin is enabled. */
 @%:@undef HAVE_PLUGIN_BATTERY])
-m4trace:configure.ac:5624: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_BIND])
-m4trace:configure.ac:5624: -1- m4_pattern_allow([^HAVE_PLUGIN_BIND$])
-m4trace:configure.ac:5624: -1- AH_OUTPUT([HAVE_PLUGIN_BIND], [/* Define to 1 if the bind plugin is enabled. */
+m4trace:configure.ac:5625: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_BIND])
+m4trace:configure.ac:5625: -1- m4_pattern_allow([^HAVE_PLUGIN_BIND$])
+m4trace:configure.ac:5625: -1- AH_OUTPUT([HAVE_PLUGIN_BIND], [/* Define to 1 if the bind plugin is enabled. */
 @%:@undef HAVE_PLUGIN_BIND])
-m4trace:configure.ac:5625: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CEPH])
-m4trace:configure.ac:5625: -1- m4_pattern_allow([^HAVE_PLUGIN_CEPH$])
-m4trace:configure.ac:5625: -1- AH_OUTPUT([HAVE_PLUGIN_CEPH], [/* Define to 1 if the ceph plugin is enabled. */
+m4trace:configure.ac:5626: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CEPH])
+m4trace:configure.ac:5626: -1- m4_pattern_allow([^HAVE_PLUGIN_CEPH$])
+m4trace:configure.ac:5626: -1- AH_OUTPUT([HAVE_PLUGIN_CEPH], [/* Define to 1 if the ceph plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CEPH])
-m4trace:configure.ac:5626: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CONNTRACK])
-m4trace:configure.ac:5626: -1- m4_pattern_allow([^HAVE_PLUGIN_CONNTRACK$])
-m4trace:configure.ac:5626: -1- AH_OUTPUT([HAVE_PLUGIN_CONNTRACK], [/* Define to 1 if the conntrack plugin is enabled. */
+m4trace:configure.ac:5627: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CONNTRACK])
+m4trace:configure.ac:5627: -1- m4_pattern_allow([^HAVE_PLUGIN_CONNTRACK$])
+m4trace:configure.ac:5627: -1- AH_OUTPUT([HAVE_PLUGIN_CONNTRACK], [/* Define to 1 if the conntrack plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CONNTRACK])
-m4trace:configure.ac:5627: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CONTEXTSWITCH])
-m4trace:configure.ac:5627: -1- m4_pattern_allow([^HAVE_PLUGIN_CONTEXTSWITCH$])
-m4trace:configure.ac:5627: -1- AH_OUTPUT([HAVE_PLUGIN_CONTEXTSWITCH], [/* Define to 1 if the contextswitch plugin is enabled. */
+m4trace:configure.ac:5628: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CONTEXTSWITCH])
+m4trace:configure.ac:5628: -1- m4_pattern_allow([^HAVE_PLUGIN_CONTEXTSWITCH$])
+m4trace:configure.ac:5628: -1- AH_OUTPUT([HAVE_PLUGIN_CONTEXTSWITCH], [/* Define to 1 if the contextswitch plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CONTEXTSWITCH])
-m4trace:configure.ac:5628: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CPUFREQ])
-m4trace:configure.ac:5628: -1- m4_pattern_allow([^HAVE_PLUGIN_CPUFREQ$])
-m4trace:configure.ac:5628: -1- AH_OUTPUT([HAVE_PLUGIN_CPUFREQ], [/* Define to 1 if the cpufreq plugin is enabled. */
+m4trace:configure.ac:5629: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CPUFREQ])
+m4trace:configure.ac:5629: -1- m4_pattern_allow([^HAVE_PLUGIN_CPUFREQ$])
+m4trace:configure.ac:5629: -1- AH_OUTPUT([HAVE_PLUGIN_CPUFREQ], [/* Define to 1 if the cpufreq plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CPUFREQ])
-m4trace:configure.ac:5629: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CPU])
-m4trace:configure.ac:5629: -1- m4_pattern_allow([^HAVE_PLUGIN_CPU$])
-m4trace:configure.ac:5629: -1- AH_OUTPUT([HAVE_PLUGIN_CPU], [/* Define to 1 if the cpu plugin is enabled. */
+m4trace:configure.ac:5630: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CPU])
+m4trace:configure.ac:5630: -1- m4_pattern_allow([^HAVE_PLUGIN_CPU$])
+m4trace:configure.ac:5630: -1- AH_OUTPUT([HAVE_PLUGIN_CPU], [/* Define to 1 if the cpu plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CPU])
-m4trace:configure.ac:5630: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CSV])
-m4trace:configure.ac:5630: -1- m4_pattern_allow([^HAVE_PLUGIN_CSV$])
-m4trace:configure.ac:5630: -1- AH_OUTPUT([HAVE_PLUGIN_CSV], [/* Define to 1 if the csv plugin is enabled. */
+m4trace:configure.ac:5631: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CSV])
+m4trace:configure.ac:5631: -1- m4_pattern_allow([^HAVE_PLUGIN_CSV$])
+m4trace:configure.ac:5631: -1- AH_OUTPUT([HAVE_PLUGIN_CSV], [/* Define to 1 if the csv plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CSV])
-m4trace:configure.ac:5631: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CURL])
-m4trace:configure.ac:5631: -1- m4_pattern_allow([^HAVE_PLUGIN_CURL$])
-m4trace:configure.ac:5631: -1- AH_OUTPUT([HAVE_PLUGIN_CURL], [/* Define to 1 if the curl plugin is enabled. */
+m4trace:configure.ac:5632: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CURL])
+m4trace:configure.ac:5632: -1- m4_pattern_allow([^HAVE_PLUGIN_CURL$])
+m4trace:configure.ac:5632: -1- AH_OUTPUT([HAVE_PLUGIN_CURL], [/* Define to 1 if the curl plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CURL])
-m4trace:configure.ac:5632: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CURL_JSON])
-m4trace:configure.ac:5632: -1- m4_pattern_allow([^HAVE_PLUGIN_CURL_JSON$])
-m4trace:configure.ac:5632: -1- AH_OUTPUT([HAVE_PLUGIN_CURL_JSON], [/* Define to 1 if the curl_json plugin is enabled. */
+m4trace:configure.ac:5633: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CURL_JSON])
+m4trace:configure.ac:5633: -1- m4_pattern_allow([^HAVE_PLUGIN_CURL_JSON$])
+m4trace:configure.ac:5633: -1- AH_OUTPUT([HAVE_PLUGIN_CURL_JSON], [/* Define to 1 if the curl_json plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CURL_JSON])
-m4trace:configure.ac:5633: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CURL_XML])
-m4trace:configure.ac:5633: -1- m4_pattern_allow([^HAVE_PLUGIN_CURL_XML$])
-m4trace:configure.ac:5633: -1- AH_OUTPUT([HAVE_PLUGIN_CURL_XML], [/* Define to 1 if the curl_xml plugin is enabled. */
+m4trace:configure.ac:5634: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CURL_XML])
+m4trace:configure.ac:5634: -1- m4_pattern_allow([^HAVE_PLUGIN_CURL_XML$])
+m4trace:configure.ac:5634: -1- AH_OUTPUT([HAVE_PLUGIN_CURL_XML], [/* Define to 1 if the curl_xml plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CURL_XML])
-m4trace:configure.ac:5634: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CGROUPS])
-m4trace:configure.ac:5634: -1- m4_pattern_allow([^HAVE_PLUGIN_CGROUPS$])
-m4trace:configure.ac:5634: -1- AH_OUTPUT([HAVE_PLUGIN_CGROUPS], [/* Define to 1 if the cgroups plugin is enabled. */
+m4trace:configure.ac:5635: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_CGROUPS])
+m4trace:configure.ac:5635: -1- m4_pattern_allow([^HAVE_PLUGIN_CGROUPS$])
+m4trace:configure.ac:5635: -1- AH_OUTPUT([HAVE_PLUGIN_CGROUPS], [/* Define to 1 if the cgroups plugin is enabled. */
 @%:@undef HAVE_PLUGIN_CGROUPS])
-m4trace:configure.ac:5635: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DBI])
-m4trace:configure.ac:5635: -1- m4_pattern_allow([^HAVE_PLUGIN_DBI$])
-m4trace:configure.ac:5635: -1- AH_OUTPUT([HAVE_PLUGIN_DBI], [/* Define to 1 if the dbi plugin is enabled. */
+m4trace:configure.ac:5636: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DBI])
+m4trace:configure.ac:5636: -1- m4_pattern_allow([^HAVE_PLUGIN_DBI$])
+m4trace:configure.ac:5636: -1- AH_OUTPUT([HAVE_PLUGIN_DBI], [/* Define to 1 if the dbi plugin is enabled. */
 @%:@undef HAVE_PLUGIN_DBI])
-m4trace:configure.ac:5636: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DF])
-m4trace:configure.ac:5636: -1- m4_pattern_allow([^HAVE_PLUGIN_DF$])
-m4trace:configure.ac:5636: -1- AH_OUTPUT([HAVE_PLUGIN_DF], [/* Define to 1 if the df plugin is enabled. */
+m4trace:configure.ac:5637: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DF])
+m4trace:configure.ac:5637: -1- m4_pattern_allow([^HAVE_PLUGIN_DF$])
+m4trace:configure.ac:5637: -1- AH_OUTPUT([HAVE_PLUGIN_DF], [/* Define to 1 if the df plugin is enabled. */
 @%:@undef HAVE_PLUGIN_DF])
-m4trace:configure.ac:5637: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DISK])
-m4trace:configure.ac:5637: -1- m4_pattern_allow([^HAVE_PLUGIN_DISK$])
-m4trace:configure.ac:5637: -1- AH_OUTPUT([HAVE_PLUGIN_DISK], [/* Define to 1 if the disk plugin is enabled. */
+m4trace:configure.ac:5638: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DISK])
+m4trace:configure.ac:5638: -1- m4_pattern_allow([^HAVE_PLUGIN_DISK$])
+m4trace:configure.ac:5638: -1- AH_OUTPUT([HAVE_PLUGIN_DISK], [/* Define to 1 if the disk plugin is enabled. */
 @%:@undef HAVE_PLUGIN_DISK])
-m4trace:configure.ac:5638: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DRBD])
-m4trace:configure.ac:5638: -1- m4_pattern_allow([^HAVE_PLUGIN_DRBD$])
-m4trace:configure.ac:5638: -1- AH_OUTPUT([HAVE_PLUGIN_DRBD], [/* Define to 1 if the drbd plugin is enabled. */
+m4trace:configure.ac:5639: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DRBD])
+m4trace:configure.ac:5639: -1- m4_pattern_allow([^HAVE_PLUGIN_DRBD$])
+m4trace:configure.ac:5639: -1- AH_OUTPUT([HAVE_PLUGIN_DRBD], [/* Define to 1 if the drbd plugin is enabled. */
 @%:@undef HAVE_PLUGIN_DRBD])
-m4trace:configure.ac:5639: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DNS])
-m4trace:configure.ac:5639: -1- m4_pattern_allow([^HAVE_PLUGIN_DNS$])
-m4trace:configure.ac:5639: -1- AH_OUTPUT([HAVE_PLUGIN_DNS], [/* Define to 1 if the dns plugin is enabled. */
+m4trace:configure.ac:5640: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_DNS])
+m4trace:configure.ac:5640: -1- m4_pattern_allow([^HAVE_PLUGIN_DNS$])
+m4trace:configure.ac:5640: -1- AH_OUTPUT([HAVE_PLUGIN_DNS], [/* Define to 1 if the dns plugin is enabled. */
 @%:@undef HAVE_PLUGIN_DNS])
-m4trace:configure.ac:5640: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_EMAIL])
-m4trace:configure.ac:5640: -1- m4_pattern_allow([^HAVE_PLUGIN_EMAIL$])
-m4trace:configure.ac:5640: -1- AH_OUTPUT([HAVE_PLUGIN_EMAIL], [/* Define to 1 if the email plugin is enabled. */
+m4trace:configure.ac:5641: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_EMAIL])
+m4trace:configure.ac:5641: -1- m4_pattern_allow([^HAVE_PLUGIN_EMAIL$])
+m4trace:configure.ac:5641: -1- AH_OUTPUT([HAVE_PLUGIN_EMAIL], [/* Define to 1 if the email plugin is enabled. */
 @%:@undef HAVE_PLUGIN_EMAIL])
-m4trace:configure.ac:5641: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ENTROPY])
-m4trace:configure.ac:5641: -1- m4_pattern_allow([^HAVE_PLUGIN_ENTROPY$])
-m4trace:configure.ac:5641: -1- AH_OUTPUT([HAVE_PLUGIN_ENTROPY], [/* Define to 1 if the entropy plugin is enabled. */
+m4trace:configure.ac:5642: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ENTROPY])
+m4trace:configure.ac:5642: -1- m4_pattern_allow([^HAVE_PLUGIN_ENTROPY$])
+m4trace:configure.ac:5642: -1- AH_OUTPUT([HAVE_PLUGIN_ENTROPY], [/* Define to 1 if the entropy plugin is enabled. */
 @%:@undef HAVE_PLUGIN_ENTROPY])
-m4trace:configure.ac:5642: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ETHSTAT])
-m4trace:configure.ac:5642: -1- m4_pattern_allow([^HAVE_PLUGIN_ETHSTAT$])
-m4trace:configure.ac:5642: -1- AH_OUTPUT([HAVE_PLUGIN_ETHSTAT], [/* Define to 1 if the ethstat plugin is enabled. */
+m4trace:configure.ac:5643: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ETHSTAT])
+m4trace:configure.ac:5643: -1- m4_pattern_allow([^HAVE_PLUGIN_ETHSTAT$])
+m4trace:configure.ac:5643: -1- AH_OUTPUT([HAVE_PLUGIN_ETHSTAT], [/* Define to 1 if the ethstat plugin is enabled. */
 @%:@undef HAVE_PLUGIN_ETHSTAT])
-m4trace:configure.ac:5643: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_EXEC])
-m4trace:configure.ac:5643: -1- m4_pattern_allow([^HAVE_PLUGIN_EXEC$])
-m4trace:configure.ac:5643: -1- AH_OUTPUT([HAVE_PLUGIN_EXEC], [/* Define to 1 if the exec plugin is enabled. */
+m4trace:configure.ac:5644: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_EXEC])
+m4trace:configure.ac:5644: -1- m4_pattern_allow([^HAVE_PLUGIN_EXEC$])
+m4trace:configure.ac:5644: -1- AH_OUTPUT([HAVE_PLUGIN_EXEC], [/* Define to 1 if the exec plugin is enabled. */
 @%:@undef HAVE_PLUGIN_EXEC])
-m4trace:configure.ac:5644: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_FHCOUNT])
-m4trace:configure.ac:5644: -1- m4_pattern_allow([^HAVE_PLUGIN_FHCOUNT$])
-m4trace:configure.ac:5644: -1- AH_OUTPUT([HAVE_PLUGIN_FHCOUNT], [/* Define to 1 if the fhcount plugin is enabled. */
+m4trace:configure.ac:5645: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_FHCOUNT])
+m4trace:configure.ac:5645: -1- m4_pattern_allow([^HAVE_PLUGIN_FHCOUNT$])
+m4trace:configure.ac:5645: -1- AH_OUTPUT([HAVE_PLUGIN_FHCOUNT], [/* Define to 1 if the fhcount plugin is enabled. */
 @%:@undef HAVE_PLUGIN_FHCOUNT])
-m4trace:configure.ac:5645: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_FILECOUNT])
-m4trace:configure.ac:5645: -1- m4_pattern_allow([^HAVE_PLUGIN_FILECOUNT$])
-m4trace:configure.ac:5645: -1- AH_OUTPUT([HAVE_PLUGIN_FILECOUNT], [/* Define to 1 if the filecount plugin is enabled. */
+m4trace:configure.ac:5646: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_FILECOUNT])
+m4trace:configure.ac:5646: -1- m4_pattern_allow([^HAVE_PLUGIN_FILECOUNT$])
+m4trace:configure.ac:5646: -1- AH_OUTPUT([HAVE_PLUGIN_FILECOUNT], [/* Define to 1 if the filecount plugin is enabled. */
 @%:@undef HAVE_PLUGIN_FILECOUNT])
-m4trace:configure.ac:5646: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_FSCACHE])
-m4trace:configure.ac:5646: -1- m4_pattern_allow([^HAVE_PLUGIN_FSCACHE$])
-m4trace:configure.ac:5646: -1- AH_OUTPUT([HAVE_PLUGIN_FSCACHE], [/* Define to 1 if the fscache plugin is enabled. */
+m4trace:configure.ac:5647: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_FSCACHE])
+m4trace:configure.ac:5647: -1- m4_pattern_allow([^HAVE_PLUGIN_FSCACHE$])
+m4trace:configure.ac:5647: -1- AH_OUTPUT([HAVE_PLUGIN_FSCACHE], [/* Define to 1 if the fscache plugin is enabled. */
 @%:@undef HAVE_PLUGIN_FSCACHE])
-m4trace:configure.ac:5647: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_GMOND])
-m4trace:configure.ac:5647: -1- m4_pattern_allow([^HAVE_PLUGIN_GMOND$])
-m4trace:configure.ac:5647: -1- AH_OUTPUT([HAVE_PLUGIN_GMOND], [/* Define to 1 if the gmond plugin is enabled. */
+m4trace:configure.ac:5648: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_GMOND])
+m4trace:configure.ac:5648: -1- m4_pattern_allow([^HAVE_PLUGIN_GMOND$])
+m4trace:configure.ac:5648: -1- AH_OUTPUT([HAVE_PLUGIN_GMOND], [/* Define to 1 if the gmond plugin is enabled. */
 @%:@undef HAVE_PLUGIN_GMOND])
-m4trace:configure.ac:5648: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_HDDTEMP])
-m4trace:configure.ac:5648: -1- m4_pattern_allow([^HAVE_PLUGIN_HDDTEMP$])
-m4trace:configure.ac:5648: -1- AH_OUTPUT([HAVE_PLUGIN_HDDTEMP], [/* Define to 1 if the hddtemp plugin is enabled. */
+m4trace:configure.ac:5649: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_HDDTEMP])
+m4trace:configure.ac:5649: -1- m4_pattern_allow([^HAVE_PLUGIN_HDDTEMP$])
+m4trace:configure.ac:5649: -1- AH_OUTPUT([HAVE_PLUGIN_HDDTEMP], [/* Define to 1 if the hddtemp plugin is enabled. */
 @%:@undef HAVE_PLUGIN_HDDTEMP])
-m4trace:configure.ac:5649: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_INTERFACE])
-m4trace:configure.ac:5649: -1- m4_pattern_allow([^HAVE_PLUGIN_INTERFACE$])
-m4trace:configure.ac:5649: -1- AH_OUTPUT([HAVE_PLUGIN_INTERFACE], [/* Define to 1 if the interface plugin is enabled. */
+m4trace:configure.ac:5650: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_INTERFACE])
+m4trace:configure.ac:5650: -1- m4_pattern_allow([^HAVE_PLUGIN_INTERFACE$])
+m4trace:configure.ac:5650: -1- AH_OUTPUT([HAVE_PLUGIN_INTERFACE], [/* Define to 1 if the interface plugin is enabled. */
 @%:@undef HAVE_PLUGIN_INTERFACE])
-m4trace:configure.ac:5650: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IPC])
-m4trace:configure.ac:5650: -1- m4_pattern_allow([^HAVE_PLUGIN_IPC$])
-m4trace:configure.ac:5650: -1- AH_OUTPUT([HAVE_PLUGIN_IPC], [/* Define to 1 if the ipc plugin is enabled. */
+m4trace:configure.ac:5651: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IPC])
+m4trace:configure.ac:5651: -1- m4_pattern_allow([^HAVE_PLUGIN_IPC$])
+m4trace:configure.ac:5651: -1- AH_OUTPUT([HAVE_PLUGIN_IPC], [/* Define to 1 if the ipc plugin is enabled. */
 @%:@undef HAVE_PLUGIN_IPC])
-m4trace:configure.ac:5651: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IPMI])
-m4trace:configure.ac:5651: -1- m4_pattern_allow([^HAVE_PLUGIN_IPMI$])
-m4trace:configure.ac:5651: -1- AH_OUTPUT([HAVE_PLUGIN_IPMI], [/* Define to 1 if the ipmi plugin is enabled. */
+m4trace:configure.ac:5652: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IPMI])
+m4trace:configure.ac:5652: -1- m4_pattern_allow([^HAVE_PLUGIN_IPMI$])
+m4trace:configure.ac:5652: -1- AH_OUTPUT([HAVE_PLUGIN_IPMI], [/* Define to 1 if the ipmi plugin is enabled. */
 @%:@undef HAVE_PLUGIN_IPMI])
-m4trace:configure.ac:5652: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IPTABLES])
-m4trace:configure.ac:5652: -1- m4_pattern_allow([^HAVE_PLUGIN_IPTABLES$])
-m4trace:configure.ac:5652: -1- AH_OUTPUT([HAVE_PLUGIN_IPTABLES], [/* Define to 1 if the iptables plugin is enabled. */
+m4trace:configure.ac:5653: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IPTABLES])
+m4trace:configure.ac:5653: -1- m4_pattern_allow([^HAVE_PLUGIN_IPTABLES$])
+m4trace:configure.ac:5653: -1- AH_OUTPUT([HAVE_PLUGIN_IPTABLES], [/* Define to 1 if the iptables plugin is enabled. */
 @%:@undef HAVE_PLUGIN_IPTABLES])
-m4trace:configure.ac:5653: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IPVS])
-m4trace:configure.ac:5653: -1- m4_pattern_allow([^HAVE_PLUGIN_IPVS$])
-m4trace:configure.ac:5653: -1- AH_OUTPUT([HAVE_PLUGIN_IPVS], [/* Define to 1 if the ipvs plugin is enabled. */
+m4trace:configure.ac:5654: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IPVS])
+m4trace:configure.ac:5654: -1- m4_pattern_allow([^HAVE_PLUGIN_IPVS$])
+m4trace:configure.ac:5654: -1- AH_OUTPUT([HAVE_PLUGIN_IPVS], [/* Define to 1 if the ipvs plugin is enabled. */
 @%:@undef HAVE_PLUGIN_IPVS])
-m4trace:configure.ac:5654: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IRQ])
-m4trace:configure.ac:5654: -1- m4_pattern_allow([^HAVE_PLUGIN_IRQ$])
-m4trace:configure.ac:5654: -1- AH_OUTPUT([HAVE_PLUGIN_IRQ], [/* Define to 1 if the irq plugin is enabled. */
+m4trace:configure.ac:5655: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_IRQ])
+m4trace:configure.ac:5655: -1- m4_pattern_allow([^HAVE_PLUGIN_IRQ$])
+m4trace:configure.ac:5655: -1- AH_OUTPUT([HAVE_PLUGIN_IRQ], [/* Define to 1 if the irq plugin is enabled. */
 @%:@undef HAVE_PLUGIN_IRQ])
-m4trace:configure.ac:5655: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_JAVA])
-m4trace:configure.ac:5655: -1- m4_pattern_allow([^HAVE_PLUGIN_JAVA$])
-m4trace:configure.ac:5655: -1- AH_OUTPUT([HAVE_PLUGIN_JAVA], [/* Define to 1 if the java plugin is enabled. */
+m4trace:configure.ac:5656: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_JAVA])
+m4trace:configure.ac:5656: -1- m4_pattern_allow([^HAVE_PLUGIN_JAVA$])
+m4trace:configure.ac:5656: -1- AH_OUTPUT([HAVE_PLUGIN_JAVA], [/* Define to 1 if the java plugin is enabled. */
 @%:@undef HAVE_PLUGIN_JAVA])
-m4trace:configure.ac:5656: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LOAD])
-m4trace:configure.ac:5656: -1- m4_pattern_allow([^HAVE_PLUGIN_LOAD$])
-m4trace:configure.ac:5656: -1- AH_OUTPUT([HAVE_PLUGIN_LOAD], [/* Define to 1 if the load plugin is enabled. */
+m4trace:configure.ac:5657: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LOAD])
+m4trace:configure.ac:5657: -1- m4_pattern_allow([^HAVE_PLUGIN_LOAD$])
+m4trace:configure.ac:5657: -1- AH_OUTPUT([HAVE_PLUGIN_LOAD], [/* Define to 1 if the load plugin is enabled. */
 @%:@undef HAVE_PLUGIN_LOAD])
-m4trace:configure.ac:5657: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LOGFILE])
-m4trace:configure.ac:5657: -1- m4_pattern_allow([^HAVE_PLUGIN_LOGFILE$])
-m4trace:configure.ac:5657: -1- AH_OUTPUT([HAVE_PLUGIN_LOGFILE], [/* Define to 1 if the logfile plugin is enabled. */
+m4trace:configure.ac:5658: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LOGFILE])
+m4trace:configure.ac:5658: -1- m4_pattern_allow([^HAVE_PLUGIN_LOGFILE$])
+m4trace:configure.ac:5658: -1- AH_OUTPUT([HAVE_PLUGIN_LOGFILE], [/* Define to 1 if the logfile plugin is enabled. */
 @%:@undef HAVE_PLUGIN_LOGFILE])
-m4trace:configure.ac:5658: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LOG_LOGSTASH])
-m4trace:configure.ac:5658: -1- m4_pattern_allow([^HAVE_PLUGIN_LOG_LOGSTASH$])
-m4trace:configure.ac:5658: -1- AH_OUTPUT([HAVE_PLUGIN_LOG_LOGSTASH], [/* Define to 1 if the log_logstash plugin is enabled. */
+m4trace:configure.ac:5659: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LOG_LOGSTASH])
+m4trace:configure.ac:5659: -1- m4_pattern_allow([^HAVE_PLUGIN_LOG_LOGSTASH$])
+m4trace:configure.ac:5659: -1- AH_OUTPUT([HAVE_PLUGIN_LOG_LOGSTASH], [/* Define to 1 if the log_logstash plugin is enabled. */
 @%:@undef HAVE_PLUGIN_LOG_LOGSTASH])
-m4trace:configure.ac:5659: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LPAR])
-m4trace:configure.ac:5659: -1- m4_pattern_allow([^HAVE_PLUGIN_LPAR$])
-m4trace:configure.ac:5659: -1- AH_OUTPUT([HAVE_PLUGIN_LPAR], [/* Define to 1 if the lpar plugin is enabled. */
+m4trace:configure.ac:5660: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LPAR])
+m4trace:configure.ac:5660: -1- m4_pattern_allow([^HAVE_PLUGIN_LPAR$])
+m4trace:configure.ac:5660: -1- AH_OUTPUT([HAVE_PLUGIN_LPAR], [/* Define to 1 if the lpar plugin is enabled. */
 @%:@undef HAVE_PLUGIN_LPAR])
-m4trace:configure.ac:5660: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LVM])
-m4trace:configure.ac:5660: -1- m4_pattern_allow([^HAVE_PLUGIN_LVM$])
-m4trace:configure.ac:5660: -1- AH_OUTPUT([HAVE_PLUGIN_LVM], [/* Define to 1 if the lvm plugin is enabled. */
+m4trace:configure.ac:5661: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_LVM])
+m4trace:configure.ac:5661: -1- m4_pattern_allow([^HAVE_PLUGIN_LVM$])
+m4trace:configure.ac:5661: -1- AH_OUTPUT([HAVE_PLUGIN_LVM], [/* Define to 1 if the lvm plugin is enabled. */
 @%:@undef HAVE_PLUGIN_LVM])
-m4trace:configure.ac:5661: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MADWIFI])
-m4trace:configure.ac:5661: -1- m4_pattern_allow([^HAVE_PLUGIN_MADWIFI$])
-m4trace:configure.ac:5661: -1- AH_OUTPUT([HAVE_PLUGIN_MADWIFI], [/* Define to 1 if the madwifi plugin is enabled. */
+m4trace:configure.ac:5662: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MADWIFI])
+m4trace:configure.ac:5662: -1- m4_pattern_allow([^HAVE_PLUGIN_MADWIFI$])
+m4trace:configure.ac:5662: -1- AH_OUTPUT([HAVE_PLUGIN_MADWIFI], [/* Define to 1 if the madwifi plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MADWIFI])
-m4trace:configure.ac:5662: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_EMPTY_COUNTER])
-m4trace:configure.ac:5662: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_EMPTY_COUNTER$])
-m4trace:configure.ac:5662: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_EMPTY_COUNTER], [/* Define to 1 if the match_empty_counter plugin is enabled. */
+m4trace:configure.ac:5663: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_EMPTY_COUNTER])
+m4trace:configure.ac:5663: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_EMPTY_COUNTER$])
+m4trace:configure.ac:5663: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_EMPTY_COUNTER], [/* Define to 1 if the match_empty_counter plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MATCH_EMPTY_COUNTER])
-m4trace:configure.ac:5663: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_HASHED])
-m4trace:configure.ac:5663: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_HASHED$])
-m4trace:configure.ac:5663: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_HASHED], [/* Define to 1 if the match_hashed plugin is enabled. */
+m4trace:configure.ac:5664: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_HASHED])
+m4trace:configure.ac:5664: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_HASHED$])
+m4trace:configure.ac:5664: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_HASHED], [/* Define to 1 if the match_hashed plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MATCH_HASHED])
-m4trace:configure.ac:5664: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_REGEX])
-m4trace:configure.ac:5664: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_REGEX$])
-m4trace:configure.ac:5664: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_REGEX], [/* Define to 1 if the match_regex plugin is enabled. */
+m4trace:configure.ac:5665: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_REGEX])
+m4trace:configure.ac:5665: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_REGEX$])
+m4trace:configure.ac:5665: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_REGEX], [/* Define to 1 if the match_regex plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MATCH_REGEX])
-m4trace:configure.ac:5665: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_TIMEDIFF])
-m4trace:configure.ac:5665: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_TIMEDIFF$])
-m4trace:configure.ac:5665: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_TIMEDIFF], [/* Define to 1 if the match_timediff plugin is enabled. */
+m4trace:configure.ac:5666: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_TIMEDIFF])
+m4trace:configure.ac:5666: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_TIMEDIFF$])
+m4trace:configure.ac:5666: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_TIMEDIFF], [/* Define to 1 if the match_timediff plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MATCH_TIMEDIFF])
-m4trace:configure.ac:5666: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_VALUE])
-m4trace:configure.ac:5666: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_VALUE$])
-m4trace:configure.ac:5666: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_VALUE], [/* Define to 1 if the match_value plugin is enabled. */
+m4trace:configure.ac:5667: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_VALUE])
+m4trace:configure.ac:5667: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_VALUE$])
+m4trace:configure.ac:5667: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_VALUE], [/* Define to 1 if the match_value plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MATCH_VALUE])
-m4trace:configure.ac:5667: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_THROTTLE_METADATA_KEYS])
-m4trace:configure.ac:5667: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_THROTTLE_METADATA_KEYS$])
-m4trace:configure.ac:5667: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_THROTTLE_METADATA_KEYS], [/* Define to 1 if the match_throttle_metadata_keys plugin is enabled. */
+m4trace:configure.ac:5668: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MATCH_THROTTLE_METADATA_KEYS])
+m4trace:configure.ac:5668: -1- m4_pattern_allow([^HAVE_PLUGIN_MATCH_THROTTLE_METADATA_KEYS$])
+m4trace:configure.ac:5668: -1- AH_OUTPUT([HAVE_PLUGIN_MATCH_THROTTLE_METADATA_KEYS], [/* Define to 1 if the match_throttle_metadata_keys plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MATCH_THROTTLE_METADATA_KEYS])
-m4trace:configure.ac:5668: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MBMON])
-m4trace:configure.ac:5668: -1- m4_pattern_allow([^HAVE_PLUGIN_MBMON$])
-m4trace:configure.ac:5668: -1- AH_OUTPUT([HAVE_PLUGIN_MBMON], [/* Define to 1 if the mbmon plugin is enabled. */
+m4trace:configure.ac:5669: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MBMON])
+m4trace:configure.ac:5669: -1- m4_pattern_allow([^HAVE_PLUGIN_MBMON$])
+m4trace:configure.ac:5669: -1- AH_OUTPUT([HAVE_PLUGIN_MBMON], [/* Define to 1 if the mbmon plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MBMON])
-m4trace:configure.ac:5669: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MD])
-m4trace:configure.ac:5669: -1- m4_pattern_allow([^HAVE_PLUGIN_MD$])
-m4trace:configure.ac:5669: -1- AH_OUTPUT([HAVE_PLUGIN_MD], [/* Define to 1 if the md plugin is enabled. */
+m4trace:configure.ac:5670: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MD])
+m4trace:configure.ac:5670: -1- m4_pattern_allow([^HAVE_PLUGIN_MD$])
+m4trace:configure.ac:5670: -1- AH_OUTPUT([HAVE_PLUGIN_MD], [/* Define to 1 if the md plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MD])
-m4trace:configure.ac:5670: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MEMCACHEC])
-m4trace:configure.ac:5670: -1- m4_pattern_allow([^HAVE_PLUGIN_MEMCACHEC$])
-m4trace:configure.ac:5670: -1- AH_OUTPUT([HAVE_PLUGIN_MEMCACHEC], [/* Define to 1 if the memcachec plugin is enabled. */
+m4trace:configure.ac:5671: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MEMCACHEC])
+m4trace:configure.ac:5671: -1- m4_pattern_allow([^HAVE_PLUGIN_MEMCACHEC$])
+m4trace:configure.ac:5671: -1- AH_OUTPUT([HAVE_PLUGIN_MEMCACHEC], [/* Define to 1 if the memcachec plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MEMCACHEC])
-m4trace:configure.ac:5671: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MEMCACHED])
-m4trace:configure.ac:5671: -1- m4_pattern_allow([^HAVE_PLUGIN_MEMCACHED$])
-m4trace:configure.ac:5671: -1- AH_OUTPUT([HAVE_PLUGIN_MEMCACHED], [/* Define to 1 if the memcached plugin is enabled. */
+m4trace:configure.ac:5672: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MEMCACHED])
+m4trace:configure.ac:5672: -1- m4_pattern_allow([^HAVE_PLUGIN_MEMCACHED$])
+m4trace:configure.ac:5672: -1- AH_OUTPUT([HAVE_PLUGIN_MEMCACHED], [/* Define to 1 if the memcached plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MEMCACHED])
-m4trace:configure.ac:5672: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MEMORY])
-m4trace:configure.ac:5672: -1- m4_pattern_allow([^HAVE_PLUGIN_MEMORY$])
-m4trace:configure.ac:5672: -1- AH_OUTPUT([HAVE_PLUGIN_MEMORY], [/* Define to 1 if the memory plugin is enabled. */
+m4trace:configure.ac:5673: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MEMORY])
+m4trace:configure.ac:5673: -1- m4_pattern_allow([^HAVE_PLUGIN_MEMORY$])
+m4trace:configure.ac:5673: -1- AH_OUTPUT([HAVE_PLUGIN_MEMORY], [/* Define to 1 if the memory plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MEMORY])
-m4trace:configure.ac:5673: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MIC])
-m4trace:configure.ac:5673: -1- m4_pattern_allow([^HAVE_PLUGIN_MIC$])
-m4trace:configure.ac:5673: -1- AH_OUTPUT([HAVE_PLUGIN_MIC], [/* Define to 1 if the mic plugin is enabled. */
+m4trace:configure.ac:5674: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MIC])
+m4trace:configure.ac:5674: -1- m4_pattern_allow([^HAVE_PLUGIN_MIC$])
+m4trace:configure.ac:5674: -1- AH_OUTPUT([HAVE_PLUGIN_MIC], [/* Define to 1 if the mic plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MIC])
-m4trace:configure.ac:5674: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MODBUS])
-m4trace:configure.ac:5674: -1- m4_pattern_allow([^HAVE_PLUGIN_MODBUS$])
-m4trace:configure.ac:5674: -1- AH_OUTPUT([HAVE_PLUGIN_MODBUS], [/* Define to 1 if the modbus plugin is enabled. */
+m4trace:configure.ac:5675: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MODBUS])
+m4trace:configure.ac:5675: -1- m4_pattern_allow([^HAVE_PLUGIN_MODBUS$])
+m4trace:configure.ac:5675: -1- AH_OUTPUT([HAVE_PLUGIN_MODBUS], [/* Define to 1 if the modbus plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MODBUS])
-m4trace:configure.ac:5675: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MONGODB])
-m4trace:configure.ac:5675: -1- m4_pattern_allow([^HAVE_PLUGIN_MONGODB$])
-m4trace:configure.ac:5675: -1- AH_OUTPUT([HAVE_PLUGIN_MONGODB], [/* Define to 1 if the mongodb plugin is enabled. */
+m4trace:configure.ac:5676: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MONGODB])
+m4trace:configure.ac:5676: -1- m4_pattern_allow([^HAVE_PLUGIN_MONGODB$])
+m4trace:configure.ac:5676: -1- AH_OUTPUT([HAVE_PLUGIN_MONGODB], [/* Define to 1 if the mongodb plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MONGODB])
-m4trace:configure.ac:5676: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MULTIMETER])
-m4trace:configure.ac:5676: -1- m4_pattern_allow([^HAVE_PLUGIN_MULTIMETER$])
-m4trace:configure.ac:5676: -1- AH_OUTPUT([HAVE_PLUGIN_MULTIMETER], [/* Define to 1 if the multimeter plugin is enabled. */
+m4trace:configure.ac:5677: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MULTIMETER])
+m4trace:configure.ac:5677: -1- m4_pattern_allow([^HAVE_PLUGIN_MULTIMETER$])
+m4trace:configure.ac:5677: -1- AH_OUTPUT([HAVE_PLUGIN_MULTIMETER], [/* Define to 1 if the multimeter plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MULTIMETER])
-m4trace:configure.ac:5677: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MYSQL])
-m4trace:configure.ac:5677: -1- m4_pattern_allow([^HAVE_PLUGIN_MYSQL$])
-m4trace:configure.ac:5677: -1- AH_OUTPUT([HAVE_PLUGIN_MYSQL], [/* Define to 1 if the mysql plugin is enabled. */
+m4trace:configure.ac:5678: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_MYSQL])
+m4trace:configure.ac:5678: -1- m4_pattern_allow([^HAVE_PLUGIN_MYSQL$])
+m4trace:configure.ac:5678: -1- AH_OUTPUT([HAVE_PLUGIN_MYSQL], [/* Define to 1 if the mysql plugin is enabled. */
 @%:@undef HAVE_PLUGIN_MYSQL])
-m4trace:configure.ac:5678: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NETAPP])
-m4trace:configure.ac:5678: -1- m4_pattern_allow([^HAVE_PLUGIN_NETAPP$])
-m4trace:configure.ac:5678: -1- AH_OUTPUT([HAVE_PLUGIN_NETAPP], [/* Define to 1 if the netapp plugin is enabled. */
+m4trace:configure.ac:5679: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NETAPP])
+m4trace:configure.ac:5679: -1- m4_pattern_allow([^HAVE_PLUGIN_NETAPP$])
+m4trace:configure.ac:5679: -1- AH_OUTPUT([HAVE_PLUGIN_NETAPP], [/* Define to 1 if the netapp plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NETAPP])
-m4trace:configure.ac:5679: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NETLINK])
-m4trace:configure.ac:5679: -1- m4_pattern_allow([^HAVE_PLUGIN_NETLINK$])
-m4trace:configure.ac:5679: -1- AH_OUTPUT([HAVE_PLUGIN_NETLINK], [/* Define to 1 if the netlink plugin is enabled. */
+m4trace:configure.ac:5680: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NETLINK])
+m4trace:configure.ac:5680: -1- m4_pattern_allow([^HAVE_PLUGIN_NETLINK$])
+m4trace:configure.ac:5680: -1- AH_OUTPUT([HAVE_PLUGIN_NETLINK], [/* Define to 1 if the netlink plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NETLINK])
-m4trace:configure.ac:5680: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NETWORK])
-m4trace:configure.ac:5680: -1- m4_pattern_allow([^HAVE_PLUGIN_NETWORK$])
-m4trace:configure.ac:5680: -1- AH_OUTPUT([HAVE_PLUGIN_NETWORK], [/* Define to 1 if the network plugin is enabled. */
+m4trace:configure.ac:5681: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NETWORK])
+m4trace:configure.ac:5681: -1- m4_pattern_allow([^HAVE_PLUGIN_NETWORK$])
+m4trace:configure.ac:5681: -1- AH_OUTPUT([HAVE_PLUGIN_NETWORK], [/* Define to 1 if the network plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NETWORK])
-m4trace:configure.ac:5681: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NFS])
-m4trace:configure.ac:5681: -1- m4_pattern_allow([^HAVE_PLUGIN_NFS$])
-m4trace:configure.ac:5681: -1- AH_OUTPUT([HAVE_PLUGIN_NFS], [/* Define to 1 if the nfs plugin is enabled. */
+m4trace:configure.ac:5682: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NFS])
+m4trace:configure.ac:5682: -1- m4_pattern_allow([^HAVE_PLUGIN_NFS$])
+m4trace:configure.ac:5682: -1- AH_OUTPUT([HAVE_PLUGIN_NFS], [/* Define to 1 if the nfs plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NFS])
-m4trace:configure.ac:5682: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NGINX])
-m4trace:configure.ac:5682: -1- m4_pattern_allow([^HAVE_PLUGIN_NGINX$])
-m4trace:configure.ac:5682: -1- AH_OUTPUT([HAVE_PLUGIN_NGINX], [/* Define to 1 if the nginx plugin is enabled. */
+m4trace:configure.ac:5683: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NGINX])
+m4trace:configure.ac:5683: -1- m4_pattern_allow([^HAVE_PLUGIN_NGINX$])
+m4trace:configure.ac:5683: -1- AH_OUTPUT([HAVE_PLUGIN_NGINX], [/* Define to 1 if the nginx plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NGINX])
-m4trace:configure.ac:5683: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NOTIFY_DESKTOP])
-m4trace:configure.ac:5683: -1- m4_pattern_allow([^HAVE_PLUGIN_NOTIFY_DESKTOP$])
-m4trace:configure.ac:5683: -1- AH_OUTPUT([HAVE_PLUGIN_NOTIFY_DESKTOP], [/* Define to 1 if the notify_desktop plugin is enabled. */
+m4trace:configure.ac:5684: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NOTIFY_DESKTOP])
+m4trace:configure.ac:5684: -1- m4_pattern_allow([^HAVE_PLUGIN_NOTIFY_DESKTOP$])
+m4trace:configure.ac:5684: -1- AH_OUTPUT([HAVE_PLUGIN_NOTIFY_DESKTOP], [/* Define to 1 if the notify_desktop plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NOTIFY_DESKTOP])
-m4trace:configure.ac:5684: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NOTIFY_EMAIL])
-m4trace:configure.ac:5684: -1- m4_pattern_allow([^HAVE_PLUGIN_NOTIFY_EMAIL$])
-m4trace:configure.ac:5684: -1- AH_OUTPUT([HAVE_PLUGIN_NOTIFY_EMAIL], [/* Define to 1 if the notify_email plugin is enabled. */
+m4trace:configure.ac:5685: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NOTIFY_EMAIL])
+m4trace:configure.ac:5685: -1- m4_pattern_allow([^HAVE_PLUGIN_NOTIFY_EMAIL$])
+m4trace:configure.ac:5685: -1- AH_OUTPUT([HAVE_PLUGIN_NOTIFY_EMAIL], [/* Define to 1 if the notify_email plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NOTIFY_EMAIL])
-m4trace:configure.ac:5685: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NTPD])
-m4trace:configure.ac:5685: -1- m4_pattern_allow([^HAVE_PLUGIN_NTPD$])
-m4trace:configure.ac:5685: -1- AH_OUTPUT([HAVE_PLUGIN_NTPD], [/* Define to 1 if the ntpd plugin is enabled. */
+m4trace:configure.ac:5686: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NTPD])
+m4trace:configure.ac:5686: -1- m4_pattern_allow([^HAVE_PLUGIN_NTPD$])
+m4trace:configure.ac:5686: -1- AH_OUTPUT([HAVE_PLUGIN_NTPD], [/* Define to 1 if the ntpd plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NTPD])
-m4trace:configure.ac:5686: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NUMA])
-m4trace:configure.ac:5686: -1- m4_pattern_allow([^HAVE_PLUGIN_NUMA$])
-m4trace:configure.ac:5686: -1- AH_OUTPUT([HAVE_PLUGIN_NUMA], [/* Define to 1 if the numa plugin is enabled. */
+m4trace:configure.ac:5687: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NUMA])
+m4trace:configure.ac:5687: -1- m4_pattern_allow([^HAVE_PLUGIN_NUMA$])
+m4trace:configure.ac:5687: -1- AH_OUTPUT([HAVE_PLUGIN_NUMA], [/* Define to 1 if the numa plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NUMA])
-m4trace:configure.ac:5687: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NUT])
-m4trace:configure.ac:5687: -1- m4_pattern_allow([^HAVE_PLUGIN_NUT$])
-m4trace:configure.ac:5687: -1- AH_OUTPUT([HAVE_PLUGIN_NUT], [/* Define to 1 if the nut plugin is enabled. */
+m4trace:configure.ac:5688: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_NUT])
+m4trace:configure.ac:5688: -1- m4_pattern_allow([^HAVE_PLUGIN_NUT$])
+m4trace:configure.ac:5688: -1- AH_OUTPUT([HAVE_PLUGIN_NUT], [/* Define to 1 if the nut plugin is enabled. */
 @%:@undef HAVE_PLUGIN_NUT])
-m4trace:configure.ac:5688: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_OLSRD])
-m4trace:configure.ac:5688: -1- m4_pattern_allow([^HAVE_PLUGIN_OLSRD$])
-m4trace:configure.ac:5688: -1- AH_OUTPUT([HAVE_PLUGIN_OLSRD], [/* Define to 1 if the olsrd plugin is enabled. */
+m4trace:configure.ac:5689: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_OLSRD])
+m4trace:configure.ac:5689: -1- m4_pattern_allow([^HAVE_PLUGIN_OLSRD$])
+m4trace:configure.ac:5689: -1- AH_OUTPUT([HAVE_PLUGIN_OLSRD], [/* Define to 1 if the olsrd plugin is enabled. */
 @%:@undef HAVE_PLUGIN_OLSRD])
-m4trace:configure.ac:5689: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ONEWIRE])
-m4trace:configure.ac:5689: -1- m4_pattern_allow([^HAVE_PLUGIN_ONEWIRE$])
-m4trace:configure.ac:5689: -1- AH_OUTPUT([HAVE_PLUGIN_ONEWIRE], [/* Define to 1 if the onewire plugin is enabled. */
+m4trace:configure.ac:5690: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ONEWIRE])
+m4trace:configure.ac:5690: -1- m4_pattern_allow([^HAVE_PLUGIN_ONEWIRE$])
+m4trace:configure.ac:5690: -1- AH_OUTPUT([HAVE_PLUGIN_ONEWIRE], [/* Define to 1 if the onewire plugin is enabled. */
 @%:@undef HAVE_PLUGIN_ONEWIRE])
-m4trace:configure.ac:5690: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_OPENLDAP])
-m4trace:configure.ac:5690: -1- m4_pattern_allow([^HAVE_PLUGIN_OPENLDAP$])
-m4trace:configure.ac:5690: -1- AH_OUTPUT([HAVE_PLUGIN_OPENLDAP], [/* Define to 1 if the openldap plugin is enabled. */
+m4trace:configure.ac:5691: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_OPENLDAP])
+m4trace:configure.ac:5691: -1- m4_pattern_allow([^HAVE_PLUGIN_OPENLDAP$])
+m4trace:configure.ac:5691: -1- AH_OUTPUT([HAVE_PLUGIN_OPENLDAP], [/* Define to 1 if the openldap plugin is enabled. */
 @%:@undef HAVE_PLUGIN_OPENLDAP])
-m4trace:configure.ac:5691: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_OPENVPN])
-m4trace:configure.ac:5691: -1- m4_pattern_allow([^HAVE_PLUGIN_OPENVPN$])
-m4trace:configure.ac:5691: -1- AH_OUTPUT([HAVE_PLUGIN_OPENVPN], [/* Define to 1 if the openvpn plugin is enabled. */
+m4trace:configure.ac:5692: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_OPENVPN])
+m4trace:configure.ac:5692: -1- m4_pattern_allow([^HAVE_PLUGIN_OPENVPN$])
+m4trace:configure.ac:5692: -1- AH_OUTPUT([HAVE_PLUGIN_OPENVPN], [/* Define to 1 if the openvpn plugin is enabled. */
 @%:@undef HAVE_PLUGIN_OPENVPN])
-m4trace:configure.ac:5692: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ORACLE])
-m4trace:configure.ac:5692: -1- m4_pattern_allow([^HAVE_PLUGIN_ORACLE$])
-m4trace:configure.ac:5692: -1- AH_OUTPUT([HAVE_PLUGIN_ORACLE], [/* Define to 1 if the oracle plugin is enabled. */
+m4trace:configure.ac:5693: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ORACLE])
+m4trace:configure.ac:5693: -1- m4_pattern_allow([^HAVE_PLUGIN_ORACLE$])
+m4trace:configure.ac:5693: -1- AH_OUTPUT([HAVE_PLUGIN_ORACLE], [/* Define to 1 if the oracle plugin is enabled. */
 @%:@undef HAVE_PLUGIN_ORACLE])
-m4trace:configure.ac:5693: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PERL])
-m4trace:configure.ac:5693: -1- m4_pattern_allow([^HAVE_PLUGIN_PERL$])
-m4trace:configure.ac:5693: -1- AH_OUTPUT([HAVE_PLUGIN_PERL], [/* Define to 1 if the perl plugin is enabled. */
+m4trace:configure.ac:5694: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PERL])
+m4trace:configure.ac:5694: -1- m4_pattern_allow([^HAVE_PLUGIN_PERL$])
+m4trace:configure.ac:5694: -1- AH_OUTPUT([HAVE_PLUGIN_PERL], [/* Define to 1 if the perl plugin is enabled. */
 @%:@undef HAVE_PLUGIN_PERL])
-m4trace:configure.ac:5694: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PF])
-m4trace:configure.ac:5694: -1- m4_pattern_allow([^HAVE_PLUGIN_PF$])
-m4trace:configure.ac:5694: -1- AH_OUTPUT([HAVE_PLUGIN_PF], [/* Define to 1 if the pf plugin is enabled. */
+m4trace:configure.ac:5695: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PF])
+m4trace:configure.ac:5695: -1- m4_pattern_allow([^HAVE_PLUGIN_PF$])
+m4trace:configure.ac:5695: -1- AH_OUTPUT([HAVE_PLUGIN_PF], [/* Define to 1 if the pf plugin is enabled. */
 @%:@undef HAVE_PLUGIN_PF])
-m4trace:configure.ac:5696: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PINBA])
-m4trace:configure.ac:5696: -1- m4_pattern_allow([^HAVE_PLUGIN_PINBA$])
-m4trace:configure.ac:5696: -1- AH_OUTPUT([HAVE_PLUGIN_PINBA], [/* Define to 1 if the pinba plugin is enabled. */
+m4trace:configure.ac:5697: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PINBA])
+m4trace:configure.ac:5697: -1- m4_pattern_allow([^HAVE_PLUGIN_PINBA$])
+m4trace:configure.ac:5697: -1- AH_OUTPUT([HAVE_PLUGIN_PINBA], [/* Define to 1 if the pinba plugin is enabled. */
 @%:@undef HAVE_PLUGIN_PINBA])
-m4trace:configure.ac:5697: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PING])
-m4trace:configure.ac:5697: -1- m4_pattern_allow([^HAVE_PLUGIN_PING$])
-m4trace:configure.ac:5697: -1- AH_OUTPUT([HAVE_PLUGIN_PING], [/* Define to 1 if the ping plugin is enabled. */
+m4trace:configure.ac:5698: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PING])
+m4trace:configure.ac:5698: -1- m4_pattern_allow([^HAVE_PLUGIN_PING$])
+m4trace:configure.ac:5698: -1- AH_OUTPUT([HAVE_PLUGIN_PING], [/* Define to 1 if the ping plugin is enabled. */
 @%:@undef HAVE_PLUGIN_PING])
-m4trace:configure.ac:5698: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PLUGIN_MEM])
-m4trace:configure.ac:5698: -1- m4_pattern_allow([^HAVE_PLUGIN_PLUGIN_MEM$])
-m4trace:configure.ac:5698: -1- AH_OUTPUT([HAVE_PLUGIN_PLUGIN_MEM], [/* Define to 1 if the plugin_mem plugin is enabled. */
+m4trace:configure.ac:5699: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PLUGIN_MEM])
+m4trace:configure.ac:5699: -1- m4_pattern_allow([^HAVE_PLUGIN_PLUGIN_MEM$])
+m4trace:configure.ac:5699: -1- AH_OUTPUT([HAVE_PLUGIN_PLUGIN_MEM], [/* Define to 1 if the plugin_mem plugin is enabled. */
 @%:@undef HAVE_PLUGIN_PLUGIN_MEM])
-m4trace:configure.ac:5699: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_POSTGRESQL])
-m4trace:configure.ac:5699: -1- m4_pattern_allow([^HAVE_PLUGIN_POSTGRESQL$])
-m4trace:configure.ac:5699: -1- AH_OUTPUT([HAVE_PLUGIN_POSTGRESQL], [/* Define to 1 if the postgresql plugin is enabled. */
+m4trace:configure.ac:5700: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_POSTGRESQL])
+m4trace:configure.ac:5700: -1- m4_pattern_allow([^HAVE_PLUGIN_POSTGRESQL$])
+m4trace:configure.ac:5700: -1- AH_OUTPUT([HAVE_PLUGIN_POSTGRESQL], [/* Define to 1 if the postgresql plugin is enabled. */
 @%:@undef HAVE_PLUGIN_POSTGRESQL])
-m4trace:configure.ac:5700: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_POWERDNS])
-m4trace:configure.ac:5700: -1- m4_pattern_allow([^HAVE_PLUGIN_POWERDNS$])
-m4trace:configure.ac:5700: -1- AH_OUTPUT([HAVE_PLUGIN_POWERDNS], [/* Define to 1 if the powerdns plugin is enabled. */
+m4trace:configure.ac:5701: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_POWERDNS])
+m4trace:configure.ac:5701: -1- m4_pattern_allow([^HAVE_PLUGIN_POWERDNS$])
+m4trace:configure.ac:5701: -1- AH_OUTPUT([HAVE_PLUGIN_POWERDNS], [/* Define to 1 if the powerdns plugin is enabled. */
 @%:@undef HAVE_PLUGIN_POWERDNS])
-m4trace:configure.ac:5701: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PROCESSES])
-m4trace:configure.ac:5701: -1- m4_pattern_allow([^HAVE_PLUGIN_PROCESSES$])
-m4trace:configure.ac:5701: -1- AH_OUTPUT([HAVE_PLUGIN_PROCESSES], [/* Define to 1 if the processes plugin is enabled. */
+m4trace:configure.ac:5702: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PROCESSES])
+m4trace:configure.ac:5702: -1- m4_pattern_allow([^HAVE_PLUGIN_PROCESSES$])
+m4trace:configure.ac:5702: -1- AH_OUTPUT([HAVE_PLUGIN_PROCESSES], [/* Define to 1 if the processes plugin is enabled. */
 @%:@undef HAVE_PLUGIN_PROCESSES])
-m4trace:configure.ac:5702: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PROTOCOLS])
-m4trace:configure.ac:5702: -1- m4_pattern_allow([^HAVE_PLUGIN_PROTOCOLS$])
-m4trace:configure.ac:5702: -1- AH_OUTPUT([HAVE_PLUGIN_PROTOCOLS], [/* Define to 1 if the protocols plugin is enabled. */
+m4trace:configure.ac:5703: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PROTOCOLS])
+m4trace:configure.ac:5703: -1- m4_pattern_allow([^HAVE_PLUGIN_PROTOCOLS$])
+m4trace:configure.ac:5703: -1- AH_OUTPUT([HAVE_PLUGIN_PROTOCOLS], [/* Define to 1 if the protocols plugin is enabled. */
 @%:@undef HAVE_PLUGIN_PROTOCOLS])
-m4trace:configure.ac:5703: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PYTHON])
-m4trace:configure.ac:5703: -1- m4_pattern_allow([^HAVE_PLUGIN_PYTHON$])
-m4trace:configure.ac:5703: -1- AH_OUTPUT([HAVE_PLUGIN_PYTHON], [/* Define to 1 if the python plugin is enabled. */
+m4trace:configure.ac:5704: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_PYTHON])
+m4trace:configure.ac:5704: -1- m4_pattern_allow([^HAVE_PLUGIN_PYTHON$])
+m4trace:configure.ac:5704: -1- AH_OUTPUT([HAVE_PLUGIN_PYTHON], [/* Define to 1 if the python plugin is enabled. */
 @%:@undef HAVE_PLUGIN_PYTHON])
-m4trace:configure.ac:5704: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_REDIS])
-m4trace:configure.ac:5704: -1- m4_pattern_allow([^HAVE_PLUGIN_REDIS$])
-m4trace:configure.ac:5704: -1- AH_OUTPUT([HAVE_PLUGIN_REDIS], [/* Define to 1 if the redis plugin is enabled. */
+m4trace:configure.ac:5705: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_REDIS])
+m4trace:configure.ac:5705: -1- m4_pattern_allow([^HAVE_PLUGIN_REDIS$])
+m4trace:configure.ac:5705: -1- AH_OUTPUT([HAVE_PLUGIN_REDIS], [/* Define to 1 if the redis plugin is enabled. */
 @%:@undef HAVE_PLUGIN_REDIS])
-m4trace:configure.ac:5705: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ROUTEROS])
-m4trace:configure.ac:5705: -1- m4_pattern_allow([^HAVE_PLUGIN_ROUTEROS$])
-m4trace:configure.ac:5705: -1- AH_OUTPUT([HAVE_PLUGIN_ROUTEROS], [/* Define to 1 if the routeros plugin is enabled. */
+m4trace:configure.ac:5706: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ROUTEROS])
+m4trace:configure.ac:5706: -1- m4_pattern_allow([^HAVE_PLUGIN_ROUTEROS$])
+m4trace:configure.ac:5706: -1- AH_OUTPUT([HAVE_PLUGIN_ROUTEROS], [/* Define to 1 if the routeros plugin is enabled. */
 @%:@undef HAVE_PLUGIN_ROUTEROS])
-m4trace:configure.ac:5706: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_RRDCACHED])
-m4trace:configure.ac:5706: -1- m4_pattern_allow([^HAVE_PLUGIN_RRDCACHED$])
-m4trace:configure.ac:5706: -1- AH_OUTPUT([HAVE_PLUGIN_RRDCACHED], [/* Define to 1 if the rrdcached plugin is enabled. */
+m4trace:configure.ac:5707: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_RRDCACHED])
+m4trace:configure.ac:5707: -1- m4_pattern_allow([^HAVE_PLUGIN_RRDCACHED$])
+m4trace:configure.ac:5707: -1- AH_OUTPUT([HAVE_PLUGIN_RRDCACHED], [/* Define to 1 if the rrdcached plugin is enabled. */
 @%:@undef HAVE_PLUGIN_RRDCACHED])
-m4trace:configure.ac:5707: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_RRDTOOL])
-m4trace:configure.ac:5707: -1- m4_pattern_allow([^HAVE_PLUGIN_RRDTOOL$])
-m4trace:configure.ac:5707: -1- AH_OUTPUT([HAVE_PLUGIN_RRDTOOL], [/* Define to 1 if the rrdtool plugin is enabled. */
+m4trace:configure.ac:5708: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_RRDTOOL])
+m4trace:configure.ac:5708: -1- m4_pattern_allow([^HAVE_PLUGIN_RRDTOOL$])
+m4trace:configure.ac:5708: -1- AH_OUTPUT([HAVE_PLUGIN_RRDTOOL], [/* Define to 1 if the rrdtool plugin is enabled. */
 @%:@undef HAVE_PLUGIN_RRDTOOL])
-m4trace:configure.ac:5708: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SENSORS])
-m4trace:configure.ac:5708: -1- m4_pattern_allow([^HAVE_PLUGIN_SENSORS$])
-m4trace:configure.ac:5708: -1- AH_OUTPUT([HAVE_PLUGIN_SENSORS], [/* Define to 1 if the sensors plugin is enabled. */
+m4trace:configure.ac:5709: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SENSORS])
+m4trace:configure.ac:5709: -1- m4_pattern_allow([^HAVE_PLUGIN_SENSORS$])
+m4trace:configure.ac:5709: -1- AH_OUTPUT([HAVE_PLUGIN_SENSORS], [/* Define to 1 if the sensors plugin is enabled. */
 @%:@undef HAVE_PLUGIN_SENSORS])
-m4trace:configure.ac:5709: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SERIAL])
-m4trace:configure.ac:5709: -1- m4_pattern_allow([^HAVE_PLUGIN_SERIAL$])
-m4trace:configure.ac:5709: -1- AH_OUTPUT([HAVE_PLUGIN_SERIAL], [/* Define to 1 if the serial plugin is enabled. */
+m4trace:configure.ac:5710: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SERIAL])
+m4trace:configure.ac:5710: -1- m4_pattern_allow([^HAVE_PLUGIN_SERIAL$])
+m4trace:configure.ac:5710: -1- AH_OUTPUT([HAVE_PLUGIN_SERIAL], [/* Define to 1 if the serial plugin is enabled. */
 @%:@undef HAVE_PLUGIN_SERIAL])
-m4trace:configure.ac:5710: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SIGROK])
-m4trace:configure.ac:5710: -1- m4_pattern_allow([^HAVE_PLUGIN_SIGROK$])
-m4trace:configure.ac:5710: -1- AH_OUTPUT([HAVE_PLUGIN_SIGROK], [/* Define to 1 if the sigrok plugin is enabled. */
+m4trace:configure.ac:5711: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SIGROK])
+m4trace:configure.ac:5711: -1- m4_pattern_allow([^HAVE_PLUGIN_SIGROK$])
+m4trace:configure.ac:5711: -1- AH_OUTPUT([HAVE_PLUGIN_SIGROK], [/* Define to 1 if the sigrok plugin is enabled. */
 @%:@undef HAVE_PLUGIN_SIGROK])
-m4trace:configure.ac:5711: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SMART])
-m4trace:configure.ac:5711: -1- m4_pattern_allow([^HAVE_PLUGIN_SMART$])
-m4trace:configure.ac:5711: -1- AH_OUTPUT([HAVE_PLUGIN_SMART], [/* Define to 1 if the smart plugin is enabled. */
+m4trace:configure.ac:5712: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SMART])
+m4trace:configure.ac:5712: -1- m4_pattern_allow([^HAVE_PLUGIN_SMART$])
+m4trace:configure.ac:5712: -1- AH_OUTPUT([HAVE_PLUGIN_SMART], [/* Define to 1 if the smart plugin is enabled. */
 @%:@undef HAVE_PLUGIN_SMART])
-m4trace:configure.ac:5712: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SNMP])
-m4trace:configure.ac:5712: -1- m4_pattern_allow([^HAVE_PLUGIN_SNMP$])
-m4trace:configure.ac:5712: -1- AH_OUTPUT([HAVE_PLUGIN_SNMP], [/* Define to 1 if the snmp plugin is enabled. */
+m4trace:configure.ac:5713: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SNMP])
+m4trace:configure.ac:5713: -1- m4_pattern_allow([^HAVE_PLUGIN_SNMP$])
+m4trace:configure.ac:5713: -1- AH_OUTPUT([HAVE_PLUGIN_SNMP], [/* Define to 1 if the snmp plugin is enabled. */
 @%:@undef HAVE_PLUGIN_SNMP])
-m4trace:configure.ac:5713: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_STATSD])
-m4trace:configure.ac:5713: -1- m4_pattern_allow([^HAVE_PLUGIN_STATSD$])
-m4trace:configure.ac:5713: -1- AH_OUTPUT([HAVE_PLUGIN_STATSD], [/* Define to 1 if the statsd plugin is enabled. */
+m4trace:configure.ac:5714: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_STACKDRIVER_AGENT])
+m4trace:configure.ac:5714: -1- m4_pattern_allow([^HAVE_PLUGIN_STACKDRIVER_AGENT$])
+m4trace:configure.ac:5714: -1- AH_OUTPUT([HAVE_PLUGIN_STACKDRIVER_AGENT], [/* Define to 1 if the stackdriver_agent plugin is enabled. */
+@%:@undef HAVE_PLUGIN_STACKDRIVER_AGENT])
+m4trace:configure.ac:5715: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_STATSD])
+m4trace:configure.ac:5715: -1- m4_pattern_allow([^HAVE_PLUGIN_STATSD$])
+m4trace:configure.ac:5715: -1- AH_OUTPUT([HAVE_PLUGIN_STATSD], [/* Define to 1 if the statsd plugin is enabled. */
 @%:@undef HAVE_PLUGIN_STATSD])
-m4trace:configure.ac:5714: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SWAP])
-m4trace:configure.ac:5714: -1- m4_pattern_allow([^HAVE_PLUGIN_SWAP$])
-m4trace:configure.ac:5714: -1- AH_OUTPUT([HAVE_PLUGIN_SWAP], [/* Define to 1 if the swap plugin is enabled. */
+m4trace:configure.ac:5716: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SWAP])
+m4trace:configure.ac:5716: -1- m4_pattern_allow([^HAVE_PLUGIN_SWAP$])
+m4trace:configure.ac:5716: -1- AH_OUTPUT([HAVE_PLUGIN_SWAP], [/* Define to 1 if the swap plugin is enabled. */
 @%:@undef HAVE_PLUGIN_SWAP])
-m4trace:configure.ac:5715: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SYSLOG])
-m4trace:configure.ac:5715: -1- m4_pattern_allow([^HAVE_PLUGIN_SYSLOG$])
-m4trace:configure.ac:5715: -1- AH_OUTPUT([HAVE_PLUGIN_SYSLOG], [/* Define to 1 if the syslog plugin is enabled. */
+m4trace:configure.ac:5717: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_SYSLOG])
+m4trace:configure.ac:5717: -1- m4_pattern_allow([^HAVE_PLUGIN_SYSLOG$])
+m4trace:configure.ac:5717: -1- AH_OUTPUT([HAVE_PLUGIN_SYSLOG], [/* Define to 1 if the syslog plugin is enabled. */
 @%:@undef HAVE_PLUGIN_SYSLOG])
-m4trace:configure.ac:5716: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TABLE])
-m4trace:configure.ac:5716: -1- m4_pattern_allow([^HAVE_PLUGIN_TABLE$])
-m4trace:configure.ac:5716: -1- AH_OUTPUT([HAVE_PLUGIN_TABLE], [/* Define to 1 if the table plugin is enabled. */
+m4trace:configure.ac:5718: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TABLE])
+m4trace:configure.ac:5718: -1- m4_pattern_allow([^HAVE_PLUGIN_TABLE$])
+m4trace:configure.ac:5718: -1- AH_OUTPUT([HAVE_PLUGIN_TABLE], [/* Define to 1 if the table plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TABLE])
-m4trace:configure.ac:5717: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TAIL])
-m4trace:configure.ac:5717: -1- m4_pattern_allow([^HAVE_PLUGIN_TAIL$])
-m4trace:configure.ac:5717: -1- AH_OUTPUT([HAVE_PLUGIN_TAIL], [/* Define to 1 if the tail plugin is enabled. */
+m4trace:configure.ac:5719: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TAIL])
+m4trace:configure.ac:5719: -1- m4_pattern_allow([^HAVE_PLUGIN_TAIL$])
+m4trace:configure.ac:5719: -1- AH_OUTPUT([HAVE_PLUGIN_TAIL], [/* Define to 1 if the tail plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TAIL])
-m4trace:configure.ac:5718: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TAIL_CSV])
-m4trace:configure.ac:5718: -1- m4_pattern_allow([^HAVE_PLUGIN_TAIL_CSV$])
-m4trace:configure.ac:5718: -1- AH_OUTPUT([HAVE_PLUGIN_TAIL_CSV], [/* Define to 1 if the tail_csv plugin is enabled. */
+m4trace:configure.ac:5720: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TAIL_CSV])
+m4trace:configure.ac:5720: -1- m4_pattern_allow([^HAVE_PLUGIN_TAIL_CSV$])
+m4trace:configure.ac:5720: -1- AH_OUTPUT([HAVE_PLUGIN_TAIL_CSV], [/* Define to 1 if the tail_csv plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TAIL_CSV])
-m4trace:configure.ac:5719: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TAPE])
-m4trace:configure.ac:5719: -1- m4_pattern_allow([^HAVE_PLUGIN_TAPE$])
-m4trace:configure.ac:5719: -1- AH_OUTPUT([HAVE_PLUGIN_TAPE], [/* Define to 1 if the tape plugin is enabled. */
+m4trace:configure.ac:5721: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TAPE])
+m4trace:configure.ac:5721: -1- m4_pattern_allow([^HAVE_PLUGIN_TAPE$])
+m4trace:configure.ac:5721: -1- AH_OUTPUT([HAVE_PLUGIN_TAPE], [/* Define to 1 if the tape plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TAPE])
-m4trace:configure.ac:5720: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_NOTIFICATION])
-m4trace:configure.ac:5720: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_NOTIFICATION$])
-m4trace:configure.ac:5720: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_NOTIFICATION], [/* Define to 1 if the target_notification plugin is enabled. */
+m4trace:configure.ac:5722: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_NOTIFICATION])
+m4trace:configure.ac:5722: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_NOTIFICATION$])
+m4trace:configure.ac:5722: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_NOTIFICATION], [/* Define to 1 if the target_notification plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TARGET_NOTIFICATION])
-m4trace:configure.ac:5721: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_REPLACE])
-m4trace:configure.ac:5721: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_REPLACE$])
-m4trace:configure.ac:5721: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_REPLACE], [/* Define to 1 if the target_replace plugin is enabled. */
+m4trace:configure.ac:5723: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_REPLACE])
+m4trace:configure.ac:5723: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_REPLACE$])
+m4trace:configure.ac:5723: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_REPLACE], [/* Define to 1 if the target_replace plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TARGET_REPLACE])
-m4trace:configure.ac:5722: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_SCALE])
-m4trace:configure.ac:5722: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_SCALE$])
-m4trace:configure.ac:5722: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_SCALE], [/* Define to 1 if the target_scale plugin is enabled. */
+m4trace:configure.ac:5724: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_SCALE])
+m4trace:configure.ac:5724: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_SCALE$])
+m4trace:configure.ac:5724: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_SCALE], [/* Define to 1 if the target_scale plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TARGET_SCALE])
-m4trace:configure.ac:5723: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_SET])
-m4trace:configure.ac:5723: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_SET$])
-m4trace:configure.ac:5723: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_SET], [/* Define to 1 if the target_set plugin is enabled. */
+m4trace:configure.ac:5725: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_SET])
+m4trace:configure.ac:5725: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_SET$])
+m4trace:configure.ac:5725: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_SET], [/* Define to 1 if the target_set plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TARGET_SET])
-m4trace:configure.ac:5724: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_V5UPGRADE])
-m4trace:configure.ac:5724: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_V5UPGRADE$])
-m4trace:configure.ac:5724: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_V5UPGRADE], [/* Define to 1 if the target_v5upgrade plugin is enabled. */
+m4trace:configure.ac:5726: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TARGET_V5UPGRADE])
+m4trace:configure.ac:5726: -1- m4_pattern_allow([^HAVE_PLUGIN_TARGET_V5UPGRADE$])
+m4trace:configure.ac:5726: -1- AH_OUTPUT([HAVE_PLUGIN_TARGET_V5UPGRADE], [/* Define to 1 if the target_v5upgrade plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TARGET_V5UPGRADE])
-m4trace:configure.ac:5725: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TCPCONNS])
-m4trace:configure.ac:5725: -1- m4_pattern_allow([^HAVE_PLUGIN_TCPCONNS$])
-m4trace:configure.ac:5725: -1- AH_OUTPUT([HAVE_PLUGIN_TCPCONNS], [/* Define to 1 if the tcpconns plugin is enabled. */
+m4trace:configure.ac:5727: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TCPCONNS])
+m4trace:configure.ac:5727: -1- m4_pattern_allow([^HAVE_PLUGIN_TCPCONNS$])
+m4trace:configure.ac:5727: -1- AH_OUTPUT([HAVE_PLUGIN_TCPCONNS], [/* Define to 1 if the tcpconns plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TCPCONNS])
-m4trace:configure.ac:5726: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TEAMSPEAK2])
-m4trace:configure.ac:5726: -1- m4_pattern_allow([^HAVE_PLUGIN_TEAMSPEAK2$])
-m4trace:configure.ac:5726: -1- AH_OUTPUT([HAVE_PLUGIN_TEAMSPEAK2], [/* Define to 1 if the teamspeak2 plugin is enabled. */
+m4trace:configure.ac:5728: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TEAMSPEAK2])
+m4trace:configure.ac:5728: -1- m4_pattern_allow([^HAVE_PLUGIN_TEAMSPEAK2$])
+m4trace:configure.ac:5728: -1- AH_OUTPUT([HAVE_PLUGIN_TEAMSPEAK2], [/* Define to 1 if the teamspeak2 plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TEAMSPEAK2])
-m4trace:configure.ac:5727: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TED])
-m4trace:configure.ac:5727: -1- m4_pattern_allow([^HAVE_PLUGIN_TED$])
-m4trace:configure.ac:5727: -1- AH_OUTPUT([HAVE_PLUGIN_TED], [/* Define to 1 if the ted plugin is enabled. */
+m4trace:configure.ac:5729: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TED])
+m4trace:configure.ac:5729: -1- m4_pattern_allow([^HAVE_PLUGIN_TED$])
+m4trace:configure.ac:5729: -1- AH_OUTPUT([HAVE_PLUGIN_TED], [/* Define to 1 if the ted plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TED])
-m4trace:configure.ac:5728: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_THERMAL])
-m4trace:configure.ac:5728: -1- m4_pattern_allow([^HAVE_PLUGIN_THERMAL$])
-m4trace:configure.ac:5728: -1- AH_OUTPUT([HAVE_PLUGIN_THERMAL], [/* Define to 1 if the thermal plugin is enabled. */
+m4trace:configure.ac:5730: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_THERMAL])
+m4trace:configure.ac:5730: -1- m4_pattern_allow([^HAVE_PLUGIN_THERMAL$])
+m4trace:configure.ac:5730: -1- AH_OUTPUT([HAVE_PLUGIN_THERMAL], [/* Define to 1 if the thermal plugin is enabled. */
 @%:@undef HAVE_PLUGIN_THERMAL])
-m4trace:configure.ac:5729: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_THRESHOLD])
-m4trace:configure.ac:5729: -1- m4_pattern_allow([^HAVE_PLUGIN_THRESHOLD$])
-m4trace:configure.ac:5729: -1- AH_OUTPUT([HAVE_PLUGIN_THRESHOLD], [/* Define to 1 if the threshold plugin is enabled. */
+m4trace:configure.ac:5731: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_THRESHOLD])
+m4trace:configure.ac:5731: -1- m4_pattern_allow([^HAVE_PLUGIN_THRESHOLD$])
+m4trace:configure.ac:5731: -1- AH_OUTPUT([HAVE_PLUGIN_THRESHOLD], [/* Define to 1 if the threshold plugin is enabled. */
 @%:@undef HAVE_PLUGIN_THRESHOLD])
-m4trace:configure.ac:5730: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TOKYOTYRANT])
-m4trace:configure.ac:5730: -1- m4_pattern_allow([^HAVE_PLUGIN_TOKYOTYRANT$])
-m4trace:configure.ac:5730: -1- AH_OUTPUT([HAVE_PLUGIN_TOKYOTYRANT], [/* Define to 1 if the tokyotyrant plugin is enabled. */
+m4trace:configure.ac:5732: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TOKYOTYRANT])
+m4trace:configure.ac:5732: -1- m4_pattern_allow([^HAVE_PLUGIN_TOKYOTYRANT$])
+m4trace:configure.ac:5732: -1- AH_OUTPUT([HAVE_PLUGIN_TOKYOTYRANT], [/* Define to 1 if the tokyotyrant plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TOKYOTYRANT])
-m4trace:configure.ac:5731: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TURBOSTAT])
-m4trace:configure.ac:5731: -1- m4_pattern_allow([^HAVE_PLUGIN_TURBOSTAT$])
-m4trace:configure.ac:5731: -1- AH_OUTPUT([HAVE_PLUGIN_TURBOSTAT], [/* Define to 1 if the turbostat plugin is enabled. */
+m4trace:configure.ac:5733: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_TURBOSTAT])
+m4trace:configure.ac:5733: -1- m4_pattern_allow([^HAVE_PLUGIN_TURBOSTAT$])
+m4trace:configure.ac:5733: -1- AH_OUTPUT([HAVE_PLUGIN_TURBOSTAT], [/* Define to 1 if the turbostat plugin is enabled. */
 @%:@undef HAVE_PLUGIN_TURBOSTAT])
-m4trace:configure.ac:5732: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_UNIXSOCK])
-m4trace:configure.ac:5732: -1- m4_pattern_allow([^HAVE_PLUGIN_UNIXSOCK$])
-m4trace:configure.ac:5732: -1- AH_OUTPUT([HAVE_PLUGIN_UNIXSOCK], [/* Define to 1 if the unixsock plugin is enabled. */
+m4trace:configure.ac:5734: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_UNIXSOCK])
+m4trace:configure.ac:5734: -1- m4_pattern_allow([^HAVE_PLUGIN_UNIXSOCK$])
+m4trace:configure.ac:5734: -1- AH_OUTPUT([HAVE_PLUGIN_UNIXSOCK], [/* Define to 1 if the unixsock plugin is enabled. */
 @%:@undef HAVE_PLUGIN_UNIXSOCK])
-m4trace:configure.ac:5733: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_UPTIME])
-m4trace:configure.ac:5733: -1- m4_pattern_allow([^HAVE_PLUGIN_UPTIME$])
-m4trace:configure.ac:5733: -1- AH_OUTPUT([HAVE_PLUGIN_UPTIME], [/* Define to 1 if the uptime plugin is enabled. */
+m4trace:configure.ac:5735: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_UPTIME])
+m4trace:configure.ac:5735: -1- m4_pattern_allow([^HAVE_PLUGIN_UPTIME$])
+m4trace:configure.ac:5735: -1- AH_OUTPUT([HAVE_PLUGIN_UPTIME], [/* Define to 1 if the uptime plugin is enabled. */
 @%:@undef HAVE_PLUGIN_UPTIME])
-m4trace:configure.ac:5734: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_USERS])
-m4trace:configure.ac:5734: -1- m4_pattern_allow([^HAVE_PLUGIN_USERS$])
-m4trace:configure.ac:5734: -1- AH_OUTPUT([HAVE_PLUGIN_USERS], [/* Define to 1 if the users plugin is enabled. */
+m4trace:configure.ac:5736: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_USERS])
+m4trace:configure.ac:5736: -1- m4_pattern_allow([^HAVE_PLUGIN_USERS$])
+m4trace:configure.ac:5736: -1- AH_OUTPUT([HAVE_PLUGIN_USERS], [/* Define to 1 if the users plugin is enabled. */
 @%:@undef HAVE_PLUGIN_USERS])
-m4trace:configure.ac:5735: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_UUID])
-m4trace:configure.ac:5735: -1- m4_pattern_allow([^HAVE_PLUGIN_UUID$])
-m4trace:configure.ac:5735: -1- AH_OUTPUT([HAVE_PLUGIN_UUID], [/* Define to 1 if the uuid plugin is enabled. */
+m4trace:configure.ac:5737: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_UUID])
+m4trace:configure.ac:5737: -1- m4_pattern_allow([^HAVE_PLUGIN_UUID$])
+m4trace:configure.ac:5737: -1- AH_OUTPUT([HAVE_PLUGIN_UUID], [/* Define to 1 if the uuid plugin is enabled. */
 @%:@undef HAVE_PLUGIN_UUID])
-m4trace:configure.ac:5736: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_VARNISH])
-m4trace:configure.ac:5736: -1- m4_pattern_allow([^HAVE_PLUGIN_VARNISH$])
-m4trace:configure.ac:5736: -1- AH_OUTPUT([HAVE_PLUGIN_VARNISH], [/* Define to 1 if the varnish plugin is enabled. */
+m4trace:configure.ac:5738: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_VARNISH])
+m4trace:configure.ac:5738: -1- m4_pattern_allow([^HAVE_PLUGIN_VARNISH$])
+m4trace:configure.ac:5738: -1- AH_OUTPUT([HAVE_PLUGIN_VARNISH], [/* Define to 1 if the varnish plugin is enabled. */
 @%:@undef HAVE_PLUGIN_VARNISH])
-m4trace:configure.ac:5737: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_VIRT])
-m4trace:configure.ac:5737: -1- m4_pattern_allow([^HAVE_PLUGIN_VIRT$])
-m4trace:configure.ac:5737: -1- AH_OUTPUT([HAVE_PLUGIN_VIRT], [/* Define to 1 if the virt plugin is enabled. */
+m4trace:configure.ac:5739: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_VIRT])
+m4trace:configure.ac:5739: -1- m4_pattern_allow([^HAVE_PLUGIN_VIRT$])
+m4trace:configure.ac:5739: -1- AH_OUTPUT([HAVE_PLUGIN_VIRT], [/* Define to 1 if the virt plugin is enabled. */
 @%:@undef HAVE_PLUGIN_VIRT])
-m4trace:configure.ac:5738: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_VMEM])
-m4trace:configure.ac:5738: -1- m4_pattern_allow([^HAVE_PLUGIN_VMEM$])
-m4trace:configure.ac:5738: -1- AH_OUTPUT([HAVE_PLUGIN_VMEM], [/* Define to 1 if the vmem plugin is enabled. */
+m4trace:configure.ac:5740: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_VMEM])
+m4trace:configure.ac:5740: -1- m4_pattern_allow([^HAVE_PLUGIN_VMEM$])
+m4trace:configure.ac:5740: -1- AH_OUTPUT([HAVE_PLUGIN_VMEM], [/* Define to 1 if the vmem plugin is enabled. */
 @%:@undef HAVE_PLUGIN_VMEM])
-m4trace:configure.ac:5739: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_VSERVER])
-m4trace:configure.ac:5739: -1- m4_pattern_allow([^HAVE_PLUGIN_VSERVER$])
-m4trace:configure.ac:5739: -1- AH_OUTPUT([HAVE_PLUGIN_VSERVER], [/* Define to 1 if the vserver plugin is enabled. */
+m4trace:configure.ac:5741: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_VSERVER])
+m4trace:configure.ac:5741: -1- m4_pattern_allow([^HAVE_PLUGIN_VSERVER$])
+m4trace:configure.ac:5741: -1- AH_OUTPUT([HAVE_PLUGIN_VSERVER], [/* Define to 1 if the vserver plugin is enabled. */
 @%:@undef HAVE_PLUGIN_VSERVER])
-m4trace:configure.ac:5740: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WIRELESS])
-m4trace:configure.ac:5740: -1- m4_pattern_allow([^HAVE_PLUGIN_WIRELESS$])
-m4trace:configure.ac:5740: -1- AH_OUTPUT([HAVE_PLUGIN_WIRELESS], [/* Define to 1 if the wireless plugin is enabled. */
+m4trace:configure.ac:5742: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WIRELESS])
+m4trace:configure.ac:5742: -1- m4_pattern_allow([^HAVE_PLUGIN_WIRELESS$])
+m4trace:configure.ac:5742: -1- AH_OUTPUT([HAVE_PLUGIN_WIRELESS], [/* Define to 1 if the wireless plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WIRELESS])
-m4trace:configure.ac:5741: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_GRAPHITE])
-m4trace:configure.ac:5741: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_GRAPHITE$])
-m4trace:configure.ac:5741: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_GRAPHITE], [/* Define to 1 if the write_graphite plugin is enabled. */
+m4trace:configure.ac:5743: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_GRAPHITE])
+m4trace:configure.ac:5743: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_GRAPHITE$])
+m4trace:configure.ac:5743: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_GRAPHITE], [/* Define to 1 if the write_graphite plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_GRAPHITE])
-m4trace:configure.ac:5742: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_HTTP])
-m4trace:configure.ac:5742: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_HTTP$])
-m4trace:configure.ac:5742: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_HTTP], [/* Define to 1 if the write_http plugin is enabled. */
+m4trace:configure.ac:5744: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_HTTP])
+m4trace:configure.ac:5744: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_HTTP$])
+m4trace:configure.ac:5744: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_HTTP], [/* Define to 1 if the write_http plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_HTTP])
-m4trace:configure.ac:5743: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_GCM])
-m4trace:configure.ac:5743: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_GCM$])
-m4trace:configure.ac:5743: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_GCM], [/* Define to 1 if the write_gcm plugin is enabled. */
+m4trace:configure.ac:5745: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_GCM])
+m4trace:configure.ac:5745: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_GCM$])
+m4trace:configure.ac:5745: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_GCM], [/* Define to 1 if the write_gcm plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_GCM])
-m4trace:configure.ac:5744: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_KAFKA])
-m4trace:configure.ac:5744: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_KAFKA$])
-m4trace:configure.ac:5744: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_KAFKA], [/* Define to 1 if the write_kafka plugin is enabled. */
+m4trace:configure.ac:5746: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_KAFKA])
+m4trace:configure.ac:5746: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_KAFKA$])
+m4trace:configure.ac:5746: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_KAFKA], [/* Define to 1 if the write_kafka plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_KAFKA])
-m4trace:configure.ac:5745: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_LOG])
-m4trace:configure.ac:5745: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_LOG$])
-m4trace:configure.ac:5745: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_LOG], [/* Define to 1 if the write_log plugin is enabled. */
+m4trace:configure.ac:5747: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_LOG])
+m4trace:configure.ac:5747: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_LOG$])
+m4trace:configure.ac:5747: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_LOG], [/* Define to 1 if the write_log plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_LOG])
-m4trace:configure.ac:5746: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_MONGODB])
-m4trace:configure.ac:5746: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_MONGODB$])
-m4trace:configure.ac:5746: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_MONGODB], [/* Define to 1 if the write_mongodb plugin is enabled. */
+m4trace:configure.ac:5748: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_MONGODB])
+m4trace:configure.ac:5748: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_MONGODB$])
+m4trace:configure.ac:5748: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_MONGODB], [/* Define to 1 if the write_mongodb plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_MONGODB])
-m4trace:configure.ac:5747: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_REDIS])
-m4trace:configure.ac:5747: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_REDIS$])
-m4trace:configure.ac:5747: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_REDIS], [/* Define to 1 if the write_redis plugin is enabled. */
+m4trace:configure.ac:5749: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_REDIS])
+m4trace:configure.ac:5749: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_REDIS$])
+m4trace:configure.ac:5749: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_REDIS], [/* Define to 1 if the write_redis plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_REDIS])
-m4trace:configure.ac:5748: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_RIEMANN])
-m4trace:configure.ac:5748: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_RIEMANN$])
-m4trace:configure.ac:5748: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_RIEMANN], [/* Define to 1 if the write_riemann plugin is enabled. */
+m4trace:configure.ac:5750: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_RIEMANN])
+m4trace:configure.ac:5750: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_RIEMANN$])
+m4trace:configure.ac:5750: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_RIEMANN], [/* Define to 1 if the write_riemann plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_RIEMANN])
-m4trace:configure.ac:5749: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_SENSU])
-m4trace:configure.ac:5749: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_SENSU$])
-m4trace:configure.ac:5749: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_SENSU], [/* Define to 1 if the write_sensu plugin is enabled. */
+m4trace:configure.ac:5751: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_SENSU])
+m4trace:configure.ac:5751: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_SENSU$])
+m4trace:configure.ac:5751: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_SENSU], [/* Define to 1 if the write_sensu plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_SENSU])
-m4trace:configure.ac:5750: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_TSDB])
-m4trace:configure.ac:5750: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_TSDB$])
-m4trace:configure.ac:5750: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_TSDB], [/* Define to 1 if the write_tsdb plugin is enabled. */
+m4trace:configure.ac:5752: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_WRITE_TSDB])
+m4trace:configure.ac:5752: -1- m4_pattern_allow([^HAVE_PLUGIN_WRITE_TSDB$])
+m4trace:configure.ac:5752: -1- AH_OUTPUT([HAVE_PLUGIN_WRITE_TSDB], [/* Define to 1 if the write_tsdb plugin is enabled. */
 @%:@undef HAVE_PLUGIN_WRITE_TSDB])
-m4trace:configure.ac:5751: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_XMMS])
-m4trace:configure.ac:5751: -1- m4_pattern_allow([^HAVE_PLUGIN_XMMS$])
-m4trace:configure.ac:5751: -1- AH_OUTPUT([HAVE_PLUGIN_XMMS], [/* Define to 1 if the xmms plugin is enabled. */
+m4trace:configure.ac:5753: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_XMMS])
+m4trace:configure.ac:5753: -1- m4_pattern_allow([^HAVE_PLUGIN_XMMS$])
+m4trace:configure.ac:5753: -1- AH_OUTPUT([HAVE_PLUGIN_XMMS], [/* Define to 1 if the xmms plugin is enabled. */
 @%:@undef HAVE_PLUGIN_XMMS])
-m4trace:configure.ac:5752: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ZFS_ARC])
-m4trace:configure.ac:5752: -1- m4_pattern_allow([^HAVE_PLUGIN_ZFS_ARC$])
-m4trace:configure.ac:5752: -1- AH_OUTPUT([HAVE_PLUGIN_ZFS_ARC], [/* Define to 1 if the zfs_arc plugin is enabled. */
+m4trace:configure.ac:5754: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ZFS_ARC])
+m4trace:configure.ac:5754: -1- m4_pattern_allow([^HAVE_PLUGIN_ZFS_ARC$])
+m4trace:configure.ac:5754: -1- AH_OUTPUT([HAVE_PLUGIN_ZFS_ARC], [/* Define to 1 if the zfs_arc plugin is enabled. */
 @%:@undef HAVE_PLUGIN_ZFS_ARC])
-m4trace:configure.ac:5753: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ZOOKEEPER])
-m4trace:configure.ac:5753: -1- m4_pattern_allow([^HAVE_PLUGIN_ZOOKEEPER$])
-m4trace:configure.ac:5753: -1- AH_OUTPUT([HAVE_PLUGIN_ZOOKEEPER], [/* Define to 1 if the zookeeper plugin is enabled. */
+m4trace:configure.ac:5755: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PLUGIN_ZOOKEEPER])
+m4trace:configure.ac:5755: -1- m4_pattern_allow([^HAVE_PLUGIN_ZOOKEEPER$])
+m4trace:configure.ac:5755: -1- AH_OUTPUT([HAVE_PLUGIN_ZOOKEEPER], [/* Define to 1 if the zookeeper plugin is enabled. */
 @%:@undef HAVE_PLUGIN_ZOOKEEPER])
-m4trace:configure.ac:5792: -1- AC_SUBST([LOAD_PLUGIN_SYSLOG])
-m4trace:configure.ac:5792: -1- AC_SUBST_TRACE([LOAD_PLUGIN_SYSLOG])
-m4trace:configure.ac:5792: -1- m4_pattern_allow([^LOAD_PLUGIN_SYSLOG$])
-m4trace:configure.ac:5793: -1- AC_SUBST([LOAD_PLUGIN_LOGFILE])
-m4trace:configure.ac:5793: -1- AC_SUBST_TRACE([LOAD_PLUGIN_LOGFILE])
-m4trace:configure.ac:5793: -1- m4_pattern_allow([^LOAD_PLUGIN_LOGFILE$])
-m4trace:configure.ac:5794: -1- AC_SUBST([LOAD_PLUGIN_LOG_LOGSTASH])
-m4trace:configure.ac:5794: -1- AC_SUBST_TRACE([LOAD_PLUGIN_LOG_LOGSTASH])
-m4trace:configure.ac:5794: -1- m4_pattern_allow([^LOAD_PLUGIN_LOG_LOGSTASH$])
-m4trace:configure.ac:5801: -1- AC_SUBST([DEFAULT_LOG_LEVEL])
-m4trace:configure.ac:5801: -1- AC_SUBST_TRACE([DEFAULT_LOG_LEVEL])
-m4trace:configure.ac:5801: -1- m4_pattern_allow([^DEFAULT_LOG_LEVEL$])
-m4trace:configure.ac:5842: -1- AC_SUBST([LOAD_PLUGIN_RRDTOOL])
-m4trace:configure.ac:5842: -1- AC_SUBST_TRACE([LOAD_PLUGIN_RRDTOOL])
-m4trace:configure.ac:5842: -1- m4_pattern_allow([^LOAD_PLUGIN_RRDTOOL$])
-m4trace:configure.ac:5843: -1- AC_SUBST([LOAD_PLUGIN_NETWORK])
-m4trace:configure.ac:5843: -1- AC_SUBST_TRACE([LOAD_PLUGIN_NETWORK])
-m4trace:configure.ac:5843: -1- m4_pattern_allow([^LOAD_PLUGIN_NETWORK$])
-m4trace:configure.ac:5844: -1- AC_SUBST([LOAD_PLUGIN_CSV])
-m4trace:configure.ac:5844: -1- AC_SUBST_TRACE([LOAD_PLUGIN_CSV])
-m4trace:configure.ac:5844: -1- m4_pattern_allow([^LOAD_PLUGIN_CSV$])
-m4trace:configure.ac:5884: -1- AC_SUBST([PERL_BINDINGS])
-m4trace:configure.ac:5884: -1- AC_SUBST_TRACE([PERL_BINDINGS])
-m4trace:configure.ac:5884: -1- m4_pattern_allow([^PERL_BINDINGS$])
-m4trace:configure.ac:5885: -1- AC_SUBST([PERL_BINDINGS_OPTIONS])
-m4trace:configure.ac:5885: -1- AC_SUBST_TRACE([PERL_BINDINGS_OPTIONS])
-m4trace:configure.ac:5885: -1- m4_pattern_allow([^PERL_BINDINGS_OPTIONS$])
-m4trace:configure.ac:5896: -1- AC_SUBST([LCC_VERSION_MAJOR])
-m4trace:configure.ac:5896: -1- AC_SUBST_TRACE([LCC_VERSION_MAJOR])
-m4trace:configure.ac:5896: -1- m4_pattern_allow([^LCC_VERSION_MAJOR$])
-m4trace:configure.ac:5897: -1- AC_SUBST([LCC_VERSION_MINOR])
-m4trace:configure.ac:5897: -1- AC_SUBST_TRACE([LCC_VERSION_MINOR])
-m4trace:configure.ac:5897: -1- m4_pattern_allow([^LCC_VERSION_MINOR$])
-m4trace:configure.ac:5898: -1- AC_SUBST([LCC_VERSION_PATCH])
-m4trace:configure.ac:5898: -1- AC_SUBST_TRACE([LCC_VERSION_PATCH])
-m4trace:configure.ac:5898: -1- m4_pattern_allow([^LCC_VERSION_PATCH$])
-m4trace:configure.ac:5899: -1- AC_SUBST([LCC_VERSION_EXTRA])
-m4trace:configure.ac:5899: -1- AC_SUBST_TRACE([LCC_VERSION_EXTRA])
-m4trace:configure.ac:5899: -1- m4_pattern_allow([^LCC_VERSION_EXTRA$])
-m4trace:configure.ac:5900: -1- AC_SUBST([LCC_VERSION_STRING])
-m4trace:configure.ac:5900: -1- AC_SUBST_TRACE([LCC_VERSION_STRING])
-m4trace:configure.ac:5900: -1- m4_pattern_allow([^LCC_VERSION_STRING$])
-m4trace:configure.ac:5902: -1- AC_CONFIG_FILES([src/libcollectdclient/collectd/lcc_features.h])
-m4trace:configure.ac:5904: -1- AC_CONFIG_FILES([Makefile src/Makefile src/daemon/Makefile src/collectd.conf src/libcollectdclient/Makefile src/libcollectdclient/libcollectdclient.pc src/liboconfig/Makefile bindings/Makefile bindings/java/Makefile])
-m4trace:configure.ac:5905: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([LIB@&t@OBJS])
-m4trace:configure.ac:5905: -1- m4_pattern_allow([^LIB@&t@OBJS$])
-m4trace:configure.ac:5905: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([LTLIBOBJS])
-m4trace:configure.ac:5905: -1- m4_pattern_allow([^LTLIBOBJS$])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([top_builddir])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([top_build_prefix])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([srcdir])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([abs_srcdir])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([top_srcdir])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([abs_top_srcdir])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([builddir])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([abs_builddir])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([abs_top_builddir])
-m4trace:configure.ac:5905: -1- AC_SUBST_TRACE([INSTALL])
+m4trace:configure.ac:5794: -1- AC_SUBST([LOAD_PLUGIN_SYSLOG])
+m4trace:configure.ac:5794: -1- AC_SUBST_TRACE([LOAD_PLUGIN_SYSLOG])
+m4trace:configure.ac:5794: -1- m4_pattern_allow([^LOAD_PLUGIN_SYSLOG$])
+m4trace:configure.ac:5795: -1- AC_SUBST([LOAD_PLUGIN_LOGFILE])
+m4trace:configure.ac:5795: -1- AC_SUBST_TRACE([LOAD_PLUGIN_LOGFILE])
+m4trace:configure.ac:5795: -1- m4_pattern_allow([^LOAD_PLUGIN_LOGFILE$])
+m4trace:configure.ac:5796: -1- AC_SUBST([LOAD_PLUGIN_LOG_LOGSTASH])
+m4trace:configure.ac:5796: -1- AC_SUBST_TRACE([LOAD_PLUGIN_LOG_LOGSTASH])
+m4trace:configure.ac:5796: -1- m4_pattern_allow([^LOAD_PLUGIN_LOG_LOGSTASH$])
+m4trace:configure.ac:5803: -1- AC_SUBST([DEFAULT_LOG_LEVEL])
+m4trace:configure.ac:5803: -1- AC_SUBST_TRACE([DEFAULT_LOG_LEVEL])
+m4trace:configure.ac:5803: -1- m4_pattern_allow([^DEFAULT_LOG_LEVEL$])
+m4trace:configure.ac:5844: -1- AC_SUBST([LOAD_PLUGIN_RRDTOOL])
+m4trace:configure.ac:5844: -1- AC_SUBST_TRACE([LOAD_PLUGIN_RRDTOOL])
+m4trace:configure.ac:5844: -1- m4_pattern_allow([^LOAD_PLUGIN_RRDTOOL$])
+m4trace:configure.ac:5845: -1- AC_SUBST([LOAD_PLUGIN_NETWORK])
+m4trace:configure.ac:5845: -1- AC_SUBST_TRACE([LOAD_PLUGIN_NETWORK])
+m4trace:configure.ac:5845: -1- m4_pattern_allow([^LOAD_PLUGIN_NETWORK$])
+m4trace:configure.ac:5846: -1- AC_SUBST([LOAD_PLUGIN_CSV])
+m4trace:configure.ac:5846: -1- AC_SUBST_TRACE([LOAD_PLUGIN_CSV])
+m4trace:configure.ac:5846: -1- m4_pattern_allow([^LOAD_PLUGIN_CSV$])
+m4trace:configure.ac:5886: -1- AC_SUBST([PERL_BINDINGS])
+m4trace:configure.ac:5886: -1- AC_SUBST_TRACE([PERL_BINDINGS])
+m4trace:configure.ac:5886: -1- m4_pattern_allow([^PERL_BINDINGS$])
+m4trace:configure.ac:5887: -1- AC_SUBST([PERL_BINDINGS_OPTIONS])
+m4trace:configure.ac:5887: -1- AC_SUBST_TRACE([PERL_BINDINGS_OPTIONS])
+m4trace:configure.ac:5887: -1- m4_pattern_allow([^PERL_BINDINGS_OPTIONS$])
+m4trace:configure.ac:5898: -1- AC_SUBST([LCC_VERSION_MAJOR])
+m4trace:configure.ac:5898: -1- AC_SUBST_TRACE([LCC_VERSION_MAJOR])
+m4trace:configure.ac:5898: -1- m4_pattern_allow([^LCC_VERSION_MAJOR$])
+m4trace:configure.ac:5899: -1- AC_SUBST([LCC_VERSION_MINOR])
+m4trace:configure.ac:5899: -1- AC_SUBST_TRACE([LCC_VERSION_MINOR])
+m4trace:configure.ac:5899: -1- m4_pattern_allow([^LCC_VERSION_MINOR$])
+m4trace:configure.ac:5900: -1- AC_SUBST([LCC_VERSION_PATCH])
+m4trace:configure.ac:5900: -1- AC_SUBST_TRACE([LCC_VERSION_PATCH])
+m4trace:configure.ac:5900: -1- m4_pattern_allow([^LCC_VERSION_PATCH$])
+m4trace:configure.ac:5901: -1- AC_SUBST([LCC_VERSION_EXTRA])
+m4trace:configure.ac:5901: -1- AC_SUBST_TRACE([LCC_VERSION_EXTRA])
+m4trace:configure.ac:5901: -1- m4_pattern_allow([^LCC_VERSION_EXTRA$])
+m4trace:configure.ac:5902: -1- AC_SUBST([LCC_VERSION_STRING])
+m4trace:configure.ac:5902: -1- AC_SUBST_TRACE([LCC_VERSION_STRING])
+m4trace:configure.ac:5902: -1- m4_pattern_allow([^LCC_VERSION_STRING$])
+m4trace:configure.ac:5904: -1- AC_CONFIG_FILES([src/libcollectdclient/collectd/lcc_features.h])
+m4trace:configure.ac:5906: -1- AC_CONFIG_FILES([Makefile src/Makefile src/daemon/Makefile src/collectd.conf src/libcollectdclient/Makefile src/libcollectdclient/libcollectdclient.pc src/liboconfig/Makefile bindings/Makefile bindings/java/Makefile])
+m4trace:configure.ac:5907: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([LIB@&t@OBJS])
+m4trace:configure.ac:5907: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:5907: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([LTLIBOBJS])
+m4trace:configure.ac:5907: -1- m4_pattern_allow([^LTLIBOBJS$])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([top_builddir])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([top_build_prefix])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([srcdir])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([abs_srcdir])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([top_srcdir])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([abs_top_srcdir])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([builddir])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([abs_builddir])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([abs_top_builddir])
+m4trace:configure.ac:5907: -1- AC_SUBST_TRACE([INSTALL])

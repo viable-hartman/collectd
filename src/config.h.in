@@ -979,6 +979,9 @@
 /* Define to 1 if the snmp plugin is enabled. */
 #undef HAVE_PLUGIN_SNMP
 
+/* Define to 1 if the stackdriver_agent plugin is enabled. */
+#undef HAVE_PLUGIN_STACKDRIVER_AGENT
+
 /* Define to 1 if the statsd plugin is enabled. */
 #undef HAVE_PLUGIN_STATSD
 

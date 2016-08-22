@@ -737,6 +737,8 @@ BUILD_PLUGIN_SWAP_FALSE
 BUILD_PLUGIN_SWAP_TRUE
 BUILD_PLUGIN_STATSD_FALSE
 BUILD_PLUGIN_STATSD_TRUE
+BUILD_PLUGIN_STACKDRIVER_AGENT_FALSE
+BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE
 BUILD_PLUGIN_SNMP_FALSE
 BUILD_PLUGIN_SNMP_TRUE
 BUILD_PLUGIN_SMART_FALSE
@@ -1481,6 +1483,7 @@ enable_serial
 enable_sigrok
 enable_smart
 enable_snmp
+enable_stackdriver_agent
 enable_statsd
 enable_swap
 enable_syslog
@@ -2286,6 +2289,8 @@ collectd plugins:
   --enable-sigrok         sigrok acquisition sources
   --enable-smart          SMART statistics
   --enable-snmp           SNMP querying plugin
+  --enable-stackdriver_agent
+                          Metrics from the Stackdriver agent itself
   --enable-statsd         StatsD plugin
   --enable-swap           Swap usage statistics
   --enable-syslog         Syslog logging plugin
@@ -28113,6 +28118,7 @@ if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
 then
 	plugin_write_gcm="yes"
         match_throttle_metadata_keys="yes"
+        plugin_stackdriver_agent="yes"
 fi
 
 if test "x$have_getutent" = "xyes"
@@ -33976,6 +33982,66 @@ fi
 
     enable_plugin="no"
     force="no"
+    # Check whether --enable-stackdriver_agent was given.
+if test "${enable_stackdriver_agent+set}" = set; then :
+  enableval=$enable_stackdriver_agent;
+     if test "x$enableval" = "xyes"
+     then
+	     enable_plugin="yes"
+     else if test "x$enableval" = "xforce"
+     then
+	     enable_plugin="yes"
+	     force="yes"
+     else
+	     enable_plugin="no (disabled on command line)"
+     fi; fi
+
+else
+
+	 if test "x$enable_all_plugins" = "xauto"
+	 then
+	     if test "x$plugin_stackdriver_agent" = "xyes"
+	     then
+		     enable_plugin="yes"
+	     else
+		     enable_plugin="no"
+	     fi
+	 else
+	     enable_plugin="$enable_all_plugins"
+	 fi
+
+fi
+
+    if test "x$enable_plugin" = "xyes"
+    then
+	    if test "x$plugin_stackdriver_agent" = "xyes" || test "x$force" = "xyes"
+	    then
+
+$as_echo "#define HAVE_PLUGIN_STACKDRIVER_AGENT 1" >>confdefs.h
+
+		    if test "x$plugin_stackdriver_agent" != "xyes"
+		    then
+			    dependency_warning="yes"
+		    fi
+	    else # User passed "yes" but dependency checking yielded "no" => Dependency problem.
+		    dependency_error="yes"
+		    enable_plugin="no (dependency error)"
+	    fi
+    fi
+     if test "x$enable_plugin" = "xyes"; then
+  BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE=
+  BUILD_PLUGIN_STACKDRIVER_AGENT_FALSE='#'
+else
+  BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE='#'
+  BUILD_PLUGIN_STACKDRIVER_AGENT_FALSE=
+fi
+
+    enable_stackdriver_agent="$enable_plugin"
+
+
+
+    enable_plugin="no"
+    force="no"
     # Check whether --enable-statsd was given.
 if test "${enable_statsd+set}" = set; then :
   enableval=$enable_statsd;
@@ -37385,6 +37451,10 @@ if test -z "${BUILD_PLUGIN_SNMP_TRUE}" && test -z "${BUILD_PLUGIN_SNMP_FALSE}"; 
   as_fn_error $? "conditional \"BUILD_PLUGIN_SNMP\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE}" && test -z "${BUILD_PLUGIN_STACKDRIVER_AGENT_FALSE}"; then
+  as_fn_error $? "conditional \"BUILD_PLUGIN_STACKDRIVER_AGENT\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${BUILD_PLUGIN_STATSD_TRUE}" && test -z "${BUILD_PLUGIN_STATSD_FALSE}"; then
   as_fn_error $? "conditional \"BUILD_PLUGIN_STATSD\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -40121,6 +40191,7 @@ Configuration:
     sigrok  . . . . . . . $enable_sigrok
     smart . . . . . . . . $enable_smart
     snmp  . . . . . . . . $enable_snmp
+    stackdriver_agent . . $enable_stackdriver_agent
     statsd  . . . . . . . $enable_statsd
     swap  . . . . . . . . $enable_swap
     syslog  . . . . . . . $enable_syslog

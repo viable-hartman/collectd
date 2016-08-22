@@ -300,17 +300,18 @@ bin_PROGRAMS = collectd-nagios$(EXEEXT) collectdctl$(EXEEXT) \
 @BUILD_PLUGIN_WRITE_GCM_TRUE@@BUILD_WITH_LIBSSL_TRUE@am__append_212 = $(BUILD_WITH_LIBSSL_LIBS)
 @BUILD_PLUGIN_WRITE_GCM_TRUE@@BUILD_WITH_LIBCURL_TRUE@am__append_213 = $(BUILD_WITH_LIBCURL_CFLAGS)
 @BUILD_PLUGIN_WRITE_GCM_TRUE@@BUILD_WITH_LIBCURL_TRUE@am__append_214 = $(BUILD_WITH_LIBCURL_LIBS)
-@BUILD_PLUGIN_WRITE_MONGODB_TRUE@am__append_215 = write_mongodb.la
-@BUILD_PLUGIN_WRITE_REDIS_TRUE@am__append_216 = write_redis.la
-@BUILD_PLUGIN_WRITE_RIEMANN_TRUE@am__append_217 = write_riemann.la
-@BUILD_PLUGIN_WRITE_SENSU_TRUE@am__append_218 = write_sensu.la
-@BUILD_PLUGIN_WRITE_TSDB_TRUE@am__append_219 = write_tsdb.la
-@BUILD_PLUGIN_XMMS_TRUE@am__append_220 = xmms.la
-@BUILD_PLUGIN_ZFS_ARC_TRUE@am__append_221 = zfs_arc.la
-@BUILD_PLUGIN_ZOOKEEPER_TRUE@am__append_222 = zookeeper.la
-@HAVE_PROTOC_C_TRUE@am__append_223 = pinba.pb-c.c pinba.pb-c.h \
-@HAVE_PROTOC_C_TRUE@	riemann.pb-c.c riemann.pb-c.h
+@BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE@am__append_215 = stackdriver_agent.la
+@BUILD_PLUGIN_WRITE_MONGODB_TRUE@am__append_216 = write_mongodb.la
+@BUILD_PLUGIN_WRITE_REDIS_TRUE@am__append_217 = write_redis.la
+@BUILD_PLUGIN_WRITE_RIEMANN_TRUE@am__append_218 = write_riemann.la
+@BUILD_PLUGIN_WRITE_SENSU_TRUE@am__append_219 = write_sensu.la
+@BUILD_PLUGIN_WRITE_TSDB_TRUE@am__append_220 = write_tsdb.la
+@BUILD_PLUGIN_XMMS_TRUE@am__append_221 = xmms.la
+@BUILD_PLUGIN_ZFS_ARC_TRUE@am__append_222 = zfs_arc.la
+@BUILD_PLUGIN_ZOOKEEPER_TRUE@am__append_223 = zookeeper.la
 @HAVE_PROTOC_C_TRUE@am__append_224 = pinba.pb-c.c pinba.pb-c.h \
+@HAVE_PROTOC_C_TRUE@	riemann.pb-c.c riemann.pb-c.h
+@HAVE_PROTOC_C_TRUE@am__append_225 = pinba.pb-c.c pinba.pb-c.h \
 @HAVE_PROTOC_C_TRUE@	riemann.pb-c.c riemann.pb-c.h
 check_PROGRAMS = test_utils_mount$(EXEEXT) \
 	test_utils_vl_lookup$(EXEEXT)
@@ -1328,6 +1329,17 @@ snmp_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(snmp_la_CFLAGS) \
 	$(CFLAGS) $(snmp_la_LDFLAGS) $(LDFLAGS) -o $@
 @BUILD_PLUGIN_SNMP_TRUE@am_snmp_la_rpath = -rpath $(pkglibdir)
+stackdriver_agent_la_LIBADD =
+am__stackdriver_agent_la_SOURCES_DIST = stackdriver_agent.c
+@BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE@am_stackdriver_agent_la_OBJECTS =  \
+@BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE@	stackdriver_agent.lo
+stackdriver_agent_la_OBJECTS = $(am_stackdriver_agent_la_OBJECTS)
+stackdriver_agent_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(stackdriver_agent_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+@BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE@am_stackdriver_agent_la_rpath =  \
+@BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE@	-rpath $(pkglibdir)
 statsd_la_DEPENDENCIES =
 am__statsd_la_SOURCES_DIST = statsd.c utils_latency.h utils_latency.c
 @BUILD_PLUGIN_STATSD_TRUE@am_statsd_la_OBJECTS = statsd.lo \
@@ -1858,29 +1870,29 @@ SOURCES = $(aggregation_la_SOURCES) $(amqp_la_SOURCES) \
 	$(routeros_la_SOURCES) $(rrdcached_la_SOURCES) \
 	$(rrdtool_la_SOURCES) $(sensors_la_SOURCES) \
 	$(serial_la_SOURCES) $(sigrok_la_SOURCES) $(smart_la_SOURCES) \
-	$(snmp_la_SOURCES) $(statsd_la_SOURCES) $(swap_la_SOURCES) \
-	$(syslog_la_SOURCES) $(table_la_SOURCES) $(tail_la_SOURCES) \
-	$(tail_csv_la_SOURCES) $(tape_la_SOURCES) \
-	$(target_notification_la_SOURCES) $(target_replace_la_SOURCES) \
-	$(target_scale_la_SOURCES) $(target_set_la_SOURCES) \
-	$(target_v5upgrade_la_SOURCES) $(tcpconns_la_SOURCES) \
-	$(teamspeak2_la_SOURCES) $(ted_la_SOURCES) \
-	$(thermal_la_SOURCES) $(threshold_la_SOURCES) \
-	$(tokyotyrant_la_SOURCES) $(turbostat_la_SOURCES) \
-	$(unixsock_la_SOURCES) $(uptime_la_SOURCES) \
-	$(users_la_SOURCES) $(uuid_la_SOURCES) $(varnish_la_SOURCES) \
-	$(virt_la_SOURCES) $(vmem_la_SOURCES) $(vserver_la_SOURCES) \
-	$(wireless_la_SOURCES) $(write_gcm_la_SOURCES) \
-	$(write_graphite_la_SOURCES) $(write_http_la_SOURCES) \
-	$(write_kafka_la_SOURCES) $(write_log_la_SOURCES) \
-	$(write_mongodb_la_SOURCES) $(write_redis_la_SOURCES) \
-	$(write_riemann_la_SOURCES) $(nodist_write_riemann_la_SOURCES) \
-	$(write_sensu_la_SOURCES) $(write_tsdb_la_SOURCES) \
-	$(xmms_la_SOURCES) $(zfs_arc_la_SOURCES) \
-	$(zookeeper_la_SOURCES) $(collectd_nagios_SOURCES) \
-	$(collectd_tg_SOURCES) $(collectdctl_SOURCES) \
-	$(collectdmon_SOURCES) $(test_utils_mount_SOURCES) \
-	$(test_utils_vl_lookup_SOURCES)
+	$(snmp_la_SOURCES) $(stackdriver_agent_la_SOURCES) \
+	$(statsd_la_SOURCES) $(swap_la_SOURCES) $(syslog_la_SOURCES) \
+	$(table_la_SOURCES) $(tail_la_SOURCES) $(tail_csv_la_SOURCES) \
+	$(tape_la_SOURCES) $(target_notification_la_SOURCES) \
+	$(target_replace_la_SOURCES) $(target_scale_la_SOURCES) \
+	$(target_set_la_SOURCES) $(target_v5upgrade_la_SOURCES) \
+	$(tcpconns_la_SOURCES) $(teamspeak2_la_SOURCES) \
+	$(ted_la_SOURCES) $(thermal_la_SOURCES) \
+	$(threshold_la_SOURCES) $(tokyotyrant_la_SOURCES) \
+	$(turbostat_la_SOURCES) $(unixsock_la_SOURCES) \
+	$(uptime_la_SOURCES) $(users_la_SOURCES) $(uuid_la_SOURCES) \
+	$(varnish_la_SOURCES) $(virt_la_SOURCES) $(vmem_la_SOURCES) \
+	$(vserver_la_SOURCES) $(wireless_la_SOURCES) \
+	$(write_gcm_la_SOURCES) $(write_graphite_la_SOURCES) \
+	$(write_http_la_SOURCES) $(write_kafka_la_SOURCES) \
+	$(write_log_la_SOURCES) $(write_mongodb_la_SOURCES) \
+	$(write_redis_la_SOURCES) $(write_riemann_la_SOURCES) \
+	$(nodist_write_riemann_la_SOURCES) $(write_sensu_la_SOURCES) \
+	$(write_tsdb_la_SOURCES) $(xmms_la_SOURCES) \
+	$(zfs_arc_la_SOURCES) $(zookeeper_la_SOURCES) \
+	$(collectd_nagios_SOURCES) $(collectd_tg_SOURCES) \
+	$(collectdctl_SOURCES) $(collectdmon_SOURCES) \
+	$(test_utils_mount_SOURCES) $(test_utils_vl_lookup_SOURCES)
 DIST_SOURCES = $(am__aggregation_la_SOURCES_DIST) \
 	$(am__amqp_la_SOURCES_DIST) $(am__apache_la_SOURCES_DIST) \
 	$(am__apcups_la_SOURCES_DIST) \
@@ -1944,6 +1956,7 @@ DIST_SOURCES = $(am__aggregation_la_SOURCES_DIST) \
 	$(am__rrdtool_la_SOURCES_DIST) $(am__sensors_la_SOURCES_DIST) \
 	$(am__serial_la_SOURCES_DIST) $(am__sigrok_la_SOURCES_DIST) \
 	$(am__smart_la_SOURCES_DIST) $(am__snmp_la_SOURCES_DIST) \
+	$(am__stackdriver_agent_la_SOURCES_DIST) \
 	$(am__statsd_la_SOURCES_DIST) $(am__swap_la_SOURCES_DIST) \
 	$(am__syslog_la_SOURCES_DIST) $(am__table_la_SOURCES_DIST) \
 	$(am__tail_la_SOURCES_DIST) $(am__tail_csv_la_SOURCES_DIST) \
@@ -2579,9 +2592,9 @@ pkglib_LTLIBRARIES = $(am__append_11) $(am__append_12) \
 	$(am__append_209) $(am__append_210) $(am__append_215) \
 	$(am__append_216) $(am__append_217) $(am__append_218) \
 	$(am__append_219) $(am__append_220) $(am__append_221) \
-	$(am__append_222)
-BUILT_SOURCES = $(dist_man_MANS) $(am__append_224)
-CLEANFILES = $(am__append_223)
+	$(am__append_222) $(am__append_223)
+BUILT_SOURCES = $(dist_man_MANS) $(am__append_225)
+CLEANFILES = $(am__append_224)
 @BUILD_PLUGIN_AGGREGATION_TRUE@aggregation_la_SOURCES = aggregation.c \
 @BUILD_PLUGIN_AGGREGATION_TRUE@                         utils_vl_lookup.c utils_vl_lookup.h
 
@@ -3126,6 +3139,8 @@ CLEANFILES = $(am__append_223)
 @BUILD_PLUGIN_WRITE_GCM_TRUE@	$(BUILD_WITH_LIBYAJL_LIBS) \
 @BUILD_PLUGIN_WRITE_GCM_TRUE@	$(am__append_212) \
 @BUILD_PLUGIN_WRITE_GCM_TRUE@	$(am__append_214)
+@BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE@stackdriver_agent_la_SOURCES = stackdriver_agent.c
+@BUILD_PLUGIN_STACKDRIVER_AGENT_TRUE@stackdriver_agent_la_LDFLAGS = -module -avoid-version
 @BUILD_PLUGIN_WRITE_MONGODB_TRUE@write_mongodb_la_SOURCES = write_mongodb.c
 @BUILD_PLUGIN_WRITE_MONGODB_TRUE@write_mongodb_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBMONGOC_CPPFLAGS)
 @BUILD_PLUGIN_WRITE_MONGODB_TRUE@write_mongodb_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(BUILD_WITH_LIBMONGOC_LDFLAGS)
@@ -3583,6 +3598,9 @@ smart.la: $(smart_la_OBJECTS) $(smart_la_DEPENDENCIES) $(EXTRA_smart_la_DEPENDEN
 snmp.la: $(snmp_la_OBJECTS) $(snmp_la_DEPENDENCIES) $(EXTRA_snmp_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(snmp_la_LINK) $(am_snmp_la_rpath) $(snmp_la_OBJECTS) $(snmp_la_LIBADD) $(LIBS)
 
+stackdriver_agent.la: $(stackdriver_agent_la_OBJECTS) $(stackdriver_agent_la_DEPENDENCIES) $(EXTRA_stackdriver_agent_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(stackdriver_agent_la_LINK) $(am_stackdriver_agent_la_rpath) $(stackdriver_agent_la_OBJECTS) $(stackdriver_agent_la_LIBADD) $(LIBS)
+
 statsd.la: $(statsd_la_OBJECTS) $(statsd_la_DEPENDENCIES) $(EXTRA_statsd_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(statsd_la_LINK) $(am_statsd_la_rpath) $(statsd_la_OBJECTS) $(statsd_la_LIBADD) $(LIBS)
 
@@ -3965,6 +3983,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/smart_la-smart.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/smart_la-utils_ignorelist.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/snmp_la-snmp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stackdriver_agent.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/statsd.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/swap_la-swap.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/syslog.Plo@am__quote@
