@@ -46,14 +46,20 @@ struct tr_meta_data_action_s;
 typedef struct tr_meta_data_action_s tr_meta_data_action_t;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
 struct tr_meta_data_action_s {
 =======
 struct tr_meta_data_action_s
 {
 >>>>>>> Allow replacing within and deleting metadata keys.
+<<<<<<< HEAD
 =======
 struct tr_meta_data_action_s {
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
   char *key;
   regex_t re;
   char *replacement;
@@ -61,6 +67,7 @@ struct tr_meta_data_action_s {
   tr_meta_data_action_t *next;
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 struct tr_data_s {
@@ -71,6 +78,13 @@ struct tr_data_s
 =======
 struct tr_data_s {
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+struct tr_data_s {
+=======
+struct tr_data_s
+{
+>>>>>>> Allow replacing within and deleting metadata keys.
+>>>>>>> Allow replacing within and deleting metadata keys.
   tr_action_t *host;
   tr_action_t *plugin;
   tr_action_t *plugin_instance;
@@ -114,6 +128,9 @@ static void tr_action_destroy(tr_action_t *act) /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
 static void tr_meta_data_action_destroy(tr_meta_data_action_t *act) /* {{{ */
 =======
 static void tr_meta_data_action_destroy (tr_meta_data_action_t *act) /* {{{ */
@@ -133,6 +150,7 @@ static void tr_meta_data_action_destroy (tr_meta_data_action_t *act) /* {{{ */
 
 static int tr_config_add_action (tr_action_t **dest, /* {{{ */
 <<<<<<< HEAD
+<<<<<<< HEAD
     const oconfig_item_t *ci, int may_be_empty)
 >>>>>>> Allow replacing within and deleting metadata keys.
 =======
@@ -141,6 +159,10 @@ static int tr_config_add_action (tr_action_t **dest, /* {{{ */
 =======
 static void tr_meta_data_action_destroy(tr_meta_data_action_t *act) /* {{{ */
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+    const oconfig_item_t *ci, int may_be_empty)
+>>>>>>> Allow replacing within and deleting metadata keys.
+>>>>>>> Allow replacing within and deleting metadata keys.
 {
   if (act == NULL)
     return;
@@ -233,6 +255,7 @@ static int tr_config_add_action(tr_action_t **dest, /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
                                      const oconfig_item_t *ci,
 <<<<<<< HEAD
@@ -250,14 +273,27 @@ static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
                                      const oconfig_item_t *ci,
                                      bool should_delete) {
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
+                                     const oconfig_item_t *ci,
+                                     bool should_delete) {
+=======
+static int tr_config_add_meta_action (tr_meta_data_action_t **dest, /* {{{ */
+    const oconfig_item_t *ci, int should_delete)
+{
+>>>>>>> Allow replacing within and deleting metadata keys.
+>>>>>>> Allow replacing within and deleting metadata keys.
   tr_meta_data_action_t *act;
   int status;
 
   if (dest == NULL)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
     return -EINVAL;
 
   if (should_delete) {
@@ -331,13 +367,17 @@ static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
     ERROR ("tr_config_add_meta_action: calloc failed.");
     return (-ENOMEM);
 >>>>>>> Allow replacing within and deleting metadata keys.
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
   }
 
   act->key = NULL;
   act->replacement = NULL;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   status = regcomp(&act->re, ci->values[1].value.string, REG_EXTENDED);
@@ -411,6 +451,8 @@ static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
       return (-ENOMEM);
 >>>>>>> Allow replacing within and deleting metadata keys.
 =======
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
   status = regcomp(&act->re, ci->values[1].value.string, REG_EXTENDED);
   if (status != 0) {
     char errbuf[1024] = "";
@@ -438,7 +480,44 @@ static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
       ERROR("tr_config_add_meta_action: tr_strdup failed.");
       tr_meta_data_action_destroy(act);
       return -ENOMEM;
+<<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+=======
+  act->key = tr_strdup (ci->values[0].value.string);
+  if (act->key == NULL)
+  {
+    ERROR ("tr_config_add_meta_action: tr_strdup failed.");
+    sfree (act);
+    return (-ENOMEM);
+  }
+
+  status = regcomp (&act->re, ci->values[1].value.string, REG_EXTENDED);
+  if (status != 0)
+  {
+    char errbuf[1024] = "";
+
+    /* regerror assures null termination. */
+    regerror (status, &act->re, errbuf, sizeof (errbuf));
+    ERROR ("Target `replace': Compiling the regular expression `%s' "
+        "failed: %s.",
+        ci->values[1].value.string, errbuf);
+    sfree (act->key);
+    sfree (act);
+    return (-EINVAL);
+  }
+
+  if (!should_delete) {
+    act->replacement = tr_strdup (ci->values[2].value.string);
+    if (act->replacement == NULL)
+    {
+      ERROR ("tr_config_add_meta_action: tr_strdup failed.");
+      sfree (act->key);
+      regfree (&act->re);
+      sfree (act);
+      return (-ENOMEM);
+>>>>>>> Allow replacing within and deleting metadata keys.
+>>>>>>> Allow replacing within and deleting metadata keys.
     }
   }
 
@@ -447,14 +526,20 @@ static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
     *dest = act;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
   else {
 =======
   else
   {
 >>>>>>> Allow replacing within and deleting metadata keys.
+<<<<<<< HEAD
 =======
   else {
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
     tr_meta_data_action_t *prev;
 
     prev = *dest;
@@ -466,8 +551,11 @@ static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
   return 0;
 } /* }}} int tr_config_add_meta_action */
 
@@ -486,10 +574,21 @@ static int tr_action_invoke (tr_action_t *act_head, /* {{{ */
 >>>>>>> Allow replacing within and deleting metadata keys.
 =======
                             bool may_be_empty) {
+<<<<<<< HEAD
 >>>>>>> Treewide: use bool instead of _Bool
 =======
                             bool may_be_empty) {
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+=======
+  return (0);
+} /* }}} int tr_config_add_meta_action */
+
+static int tr_action_invoke (tr_action_t *act_head, /* {{{ */
+    char *buffer_in, size_t buffer_in_size, int may_be_empty)
+{
+>>>>>>> Allow replacing within and deleting metadata keys.
+>>>>>>> Allow replacing within and deleting metadata keys.
   int status;
   char buffer[DATA_MAX_NAME_LEN];
   regmatch_t matches[8] = {[0] = {0}};
@@ -547,8 +646,11 @@ static int tr_action_invoke (tr_action_t *act_head, /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
 static int tr_meta_data_action_invoke(/* {{{ */
                                       tr_meta_data_action_t *act_head,
                                       meta_data_t **dest) {
@@ -563,6 +665,9 @@ static int tr_meta_data_action_invoke(/* {{{ */
 
   for (tr_meta_data_action_t *act = act_head; act != NULL; act = act->next) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
 =======
 static int tr_meta_data_action_invoke ( /* {{{ */
     tr_meta_data_action_t *act_head, meta_data_t **dest)
@@ -579,8 +684,11 @@ static int tr_meta_data_action_invoke ( /* {{{ */
   for (tr_meta_data_action_t *act = act_head; act != NULL; act = act->next)
   {
 >>>>>>> Allow replacing within and deleting metadata keys.
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
     char temp[DATA_MAX_NAME_LEN];
     char *subst_status;
     int value_type;
@@ -588,6 +696,9 @@ static int tr_meta_data_action_invoke ( /* {{{ */
     char *value;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
     meta_data_t *result;
 
     value_type = meta_data_type(*dest, act->key);
@@ -677,17 +788,25 @@ static int tr_meta_data_action_invoke ( /* {{{ */
 
 static int tr_destroy(void **user_data) /* {{{ */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
     meta_data_t *result;
 >>>>>>> Address review comments:
+=======
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
 
     value_type = meta_data_type (*dest, act->key);
     if (value_type == 0)  /* not found */
       continue;
     if (value_type != MD_TYPE_STRING)
     {
+<<<<<<< HEAD
       WARNING ("Target `replace': Attempting replace on metadata key `%s', "
+=======
+      ERROR ("Target `replace': Attempting replace on metadata key `%s', "
+>>>>>>> Allow replacing within and deleting metadata keys.
           "which isn't a string.",
           act->key);
       continue;
@@ -708,10 +827,14 @@ static int tr_destroy(void **user_data) /* {{{ */
         STATIC_ARRAY_SIZE (matches), matches,
         /* flags = */ 0);
     if (status == REG_NOMATCH)
+<<<<<<< HEAD
     {
       sfree (value);
       continue;
     }
+=======
+      continue;
+>>>>>>> Allow replacing within and deleting metadata keys.
     else if (status != 0)
     {
       char errbuf[1024] = "";
@@ -719,6 +842,7 @@ static int tr_destroy(void **user_data) /* {{{ */
       regerror (status, &act->re, errbuf, sizeof (errbuf));
       ERROR ("Target `replace': Executing a regular expression failed: %s.",
           errbuf);
+<<<<<<< HEAD
       sfree (value);
       continue;
     }
@@ -769,6 +893,55 @@ static int tr_destroy(void **user_data) /* {{{ */
     meta_data_clone_merge (dest, result);
     meta_data_destroy (result);
     sfree (value);
+=======
+      continue;
+    }
+
+    if (act->replacement != NULL)
+    {
+      meta_data_t *result;
+
+      subst_status = subst (temp, sizeof (temp), value,
+          (size_t) matches[0].rm_so, (size_t) matches[0].rm_eo,
+          act->replacement);
+      if (subst_status == NULL)
+      {
+        ERROR ("Target `replace': subst (value = %s, start = %zu, end = %zu, "
+            "replacement = %s) failed.",
+            value, (size_t) matches[0].rm_so, (size_t) matches[0].rm_eo,
+            act->replacement);
+        continue;
+      }
+
+      DEBUG ("target_replace plugin: tr_meta_data_action_invoke: `%s' "
+          "value `%s' -> `%s'", act->key, value, temp);
+
+      if ((result = meta_data_create()) == NULL)
+      {
+        ERROR ("Target `replace': failed to create metadata for `%s'.",
+            act->key);
+        return (-ENOMEM);
+      }
+
+      meta_data_status = meta_data_add_string (result, act->key, temp);
+
+      if (meta_data_status != 0)
+      {
+        ERROR ("Target `replace': Unable to set metadata value for `%s'.",
+            act->key);
+        return (meta_data_status);
+      }
+
+      meta_data_clone_merge (dest, result);
+      meta_data_destroy (result);
+    }
+    else  /* no replacement; delete the key */
+    {
+      DEBUG ("target_replace plugin: tr_meta_data_action_invoke: "
+          "deleting `%s'", act->key);
+      meta_data_delete (*dest, act->key);
+    }
+>>>>>>> Allow replacing within and deleting metadata keys.
   } /* for (act = act_head; act != NULL; act = act->next) */
 
   return (0);
@@ -776,8 +949,11 @@ static int tr_destroy(void **user_data) /* {{{ */
 
 static int tr_destroy (void **user_data) /* {{{ */
 >>>>>>> Allow replacing within and deleting metadata keys.
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
 {
   tr_data_t *data;
 
@@ -794,6 +970,9 @@ static int tr_destroy (void **user_data) /* {{{ */
   /* tr_action_destroy (data->type); */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
   tr_action_destroy(data->type_instance);
   tr_meta_data_action_destroy(data->meta);
   sfree(data);
@@ -802,11 +981,14 @@ static int tr_destroy (void **user_data) /* {{{ */
   tr_meta_data_action_destroy (data->meta);
   sfree (data);
 >>>>>>> Allow replacing within and deleting metadata keys.
+<<<<<<< HEAD
 =======
   tr_action_destroy(data->type_instance);
   tr_meta_data_action_destroy(data->meta);
   sfree(data);
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
 
   return 0;
 } /* }}} int tr_destroy */
@@ -850,8 +1032,11 @@ static int tr_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
 #endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
     else if (strcasecmp("TypeInstance", child->key) == 0)
       status = tr_config_add_action(&data->type_instance, child,
                                     /* may be empty = */ true);
@@ -866,6 +1051,9 @@ static int tr_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
             "and will be ignored.",
             child->key);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
 =======
     else if (strcasecmp ("TypeInstance", child->key) == 0)
       status = tr_config_add_action (&data->type_instance, child,
@@ -881,8 +1069,11 @@ static int tr_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
       ERROR ("Target `replace': The `%s' configuration option is not understood "
           "and will be ignored.", child->key);
 >>>>>>> Allow replacing within and deleting metadata keys.
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
       status = 0;
     }
 
@@ -895,6 +1086,7 @@ static int tr_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
     if ((data->host == NULL) && (data->plugin == NULL) &&
         (data->plugin_instance == NULL)
         /* && (data->type == NULL) */
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         && (data->type_instance == NULL) && (data->meta == NULL)) {
@@ -912,6 +1104,18 @@ static int tr_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
       ERROR("Target `replace': You need to set at least one of `Host', "
             "`Plugin', `PluginInstance' or `TypeInstance'.");
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+        && (data->type_instance == NULL) && (data->meta == NULL)) {
+      ERROR("Target `replace': You need to set at least one of `Host', "
+            "`Plugin', `PluginInstance' or `TypeInstance'.");
+=======
+        && (data->type_instance == NULL)
+        && (data->meta == NULL))
+    {
+      ERROR ("Target `replace': You need to set at least one of `Host', "
+          "`Plugin', `PluginInstance' or `TypeInstance'.");
+>>>>>>> Allow replacing within and deleting metadata keys.
+>>>>>>> Allow replacing within and deleting metadata keys.
       status = -1;
     }
 
@@ -947,6 +1151,7 @@ static int tr_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define HANDLE_FIELD(f, e)                                                     \
   if (data->f != NULL)                                                         \
   tr_action_invoke(data->f, vl->f, sizeof(vl->f), e)
@@ -973,6 +1178,8 @@ static int tr_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 >>>>>>> Allow replacing within and deleting metadata keys.
 =======
 =======
+=======
+>>>>>>> Allow replacing within and deleting metadata keys.
 #define HANDLE_FIELD(f, e)                                                     \
   if (data->f != NULL)                                                         \
   tr_action_invoke(data->f, vl->f, sizeof(vl->f), e)
@@ -983,9 +1190,27 @@ static int tr_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
   /* HANDLE_FIELD (type, false); */
   HANDLE_FIELD(type_instance, true);
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Use true and false for assignments to bool
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+=======
+  if (data->meta != NULL)
+  {
+    tr_meta_data_action_invoke (data->meta, &(vl->meta));
+  }
+
+#define HANDLE_FIELD(f,e) \
+  if (data->f != NULL) \
+    tr_action_invoke (data->f, vl->f, sizeof (vl->f), e)
+  HANDLE_FIELD (host, 0);
+  HANDLE_FIELD (plugin, 0);
+  HANDLE_FIELD (plugin_instance, 1);
+  /* HANDLE_FIELD (type, 0); */
+  HANDLE_FIELD (type_instance, 1);
+>>>>>>> Allow replacing within and deleting metadata keys.
+>>>>>>> Allow replacing within and deleting metadata keys.
 
   return FC_TARGET_CONTINUE;
 } /* }}} int tr_invoke */
