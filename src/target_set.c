@@ -33,14 +33,20 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow deleting metadata keys.
 struct ts_key_list_s {
 =======
 struct ts_key_list_s
 {
 >>>>>>> Allow deleting metadata keys.
+<<<<<<< HEAD
 =======
 struct ts_key_list_s {
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow deleting metadata keys.
   char *key;
   struct ts_key_list_s *next;
 };
@@ -55,15 +61,24 @@ static void ts_key_list_free (ts_key_list_t *l) /* {{{ */
   if (l == NULL)
     return;
 
+<<<<<<< HEAD
   sfree (l->key);
+=======
+  free (l->key);
+>>>>>>> Allow deleting metadata keys.
 
   if (l->next != NULL)
     ts_key_list_free (l->next);
 
+<<<<<<< HEAD
   sfree (l);
 } /* }}} void ts_name_list_free */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+  free (l);
+} /* }}} void ts_name_list_free */
+>>>>>>> Allow deleting metadata keys.
 
 struct ts_data_s
 >>>>>>> Allow deleting metadata keys.
@@ -96,8 +111,11 @@ static int ts_util_get_key_and_string_wo_strdup(const oconfig_item_t *ci,
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow deleting metadata keys.
   if ((ci->values_num != 2) || (ci->values[0].type != OCONFIG_TYPE_STRING) ||
       (ci->values[1].type != OCONFIG_TYPE_STRING)) {
     ERROR("ts_util_get_key_and_string_wo_strdup: The %s option requires "
@@ -105,6 +123,9 @@ static int ts_util_get_key_and_string_wo_strdup(const oconfig_item_t *ci,
           ci->key);
     return -1;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow deleting metadata keys.
 =======
   if ((ci->values_num != 2)
       || (ci->values[0].type != OCONFIG_TYPE_STRING)
@@ -114,8 +135,11 @@ static int ts_util_get_key_and_string_wo_strdup(const oconfig_item_t *ci,
         "exactly two string arguments.", ci->key);
     return (-1);
 >>>>>>> Allow deleting metadata keys.
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow deleting metadata keys.
   }
 
   *ret_key = ci->values[0].value.string;
@@ -156,8 +180,11 @@ static int ts_config_add_meta(meta_data_t **dest, /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow deleting metadata keys.
   if (strlen(key) == 0) {
     ERROR("Target `set': The `%s' option does not accept empty string as "
           "first argument.",
@@ -298,6 +325,7 @@ static int ts_config_add_meta_delete (ts_key_list_t **dest, /* {{{ */
 {
   ts_key_list_t *entry = NULL;
 
+<<<<<<< HEAD
   entry = calloc (1, sizeof (*entry));
   if (entry == NULL)
   {
@@ -441,6 +469,39 @@ static int ts_destroy (void **user_data) /* {{{ */
 
 static int ts_destroy(void **user_data) /* {{{ */
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+  if ((ci->values_num != 1)
+      || (ci->values[0].type != OCONFIG_TYPE_STRING))
+  {
+    ERROR ("ts_config_add_meta_delete: The %s option requires "
+        "exactly one string argument.", ci->key);
+    return (-1);
+  }
+
+  if (strlen (ci->values[0].value.string) == 0)
+  {
+    ERROR ("Target `set': The `%s' option does not accept empty string as "
+        "first argument.", ci->key);
+    return (-1);
+  }
+
+  entry = calloc (1, sizeof (*entry));
+  if (entry == NULL)
+  {
+    ERROR ("ts_config_add_meta_delete: calloc failed.");
+    return (-ENOMEM);
+  }
+
+  entry->key = sstrdup (ci->values[0].value.string);
+  entry->next = *dest;
+  *dest = entry;
+
+  return (0);
+} /* }}} int ts_config_add_meta_delete */
+
+static int ts_destroy (void **user_data) /* {{{ */
+>>>>>>> Allow deleting metadata keys.
+>>>>>>> Allow deleting metadata keys.
 {
   ts_data_t *data;
 
@@ -459,6 +520,7 @@ static int ts_destroy(void **user_data) /* {{{ */
   meta_data_destroy(data->meta);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ts_key_list_free(data->meta_delete);
   free(data);
 =======
@@ -469,6 +531,14 @@ static int ts_destroy(void **user_data) /* {{{ */
   ts_key_list_free(data->meta_delete);
   free(data);
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+  ts_key_list_free(data->meta_delete);
+  free(data);
+=======
+  ts_key_list_free (data->meta_delete);
+  free (data);
+>>>>>>> Allow deleting metadata keys.
+>>>>>>> Allow deleting metadata keys.
 
   return 0;
 } /* }}} int ts_destroy */
@@ -513,8 +583,11 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
 #endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow deleting metadata keys.
     else if (strcasecmp("TypeInstance", child->key) == 0)
       status = ts_config_add_string(&data->type_instance, child,
                                     /* may be empty = */ 1);
@@ -528,6 +601,9 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
             "and will be ignored.",
             child->key);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow deleting metadata keys.
 =======
     else if (strcasecmp ("TypeInstance", child->key) == 0)
       status = ts_config_add_string (&data->type_instance, child,
@@ -542,8 +618,11 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
       ERROR ("Target `set': The `%s' configuration option is not understood "
           "and will be ignored.", child->key);
 >>>>>>> Allow deleting metadata keys.
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow deleting metadata keys.
       status = 0;
     }
 
@@ -558,8 +637,11 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
         /* && (data->type == NULL) */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow deleting metadata keys.
         && (data->type_instance == NULL) && (data->meta == NULL) &&
         (data->meta_delete == NULL)) {
       ERROR("Target `set': You need to set at least one of `Host', "
@@ -576,6 +658,9 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
           ERROR("Target `set': Can only have one of `MetaData' or "
                 "`DeleteMetaData' for any given key.");
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow deleting metadata keys.
 =======
         && (data->type_instance == NULL)
         && (data->meta == NULL)
@@ -598,8 +683,11 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
           ERROR ("Target `set': Can only have one of `MetaData' or "
               "`DeleteMetaData' for any given key.");
 >>>>>>> Allow deleting metadata keys.
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow deleting metadata keys.
           status = -1;
         }
       }
@@ -781,6 +869,9 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
   /* If data->meta_delete is NULL, this loop is a no-op. */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow deleting metadata keys.
   for (ts_key_list_t *l = data->meta_delete; l != NULL; l = l->next) {
     DEBUG("target_set: ts_invoke: deleting metadata value for key `%s'.",
           l->key);
@@ -789,6 +880,7 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 =======
   for (ts_key_list_t *l=data->meta_delete; l != NULL; l = l->next)
   {
+<<<<<<< HEAD
     DEBUG ("target_set: ts_invoke: deleting metadata value for key `%s'.",
         l->key);
 =======
@@ -800,6 +892,11 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
   }
 
 <<<<<<< HEAD
+=======
+    meta_data_delete(vl->meta, l->key);
+  }
+
+>>>>>>> Allow deleting metadata keys.
 #define SET_FIELD(f) if (data->f != NULL) { sstrncpy (vl->f, data->f, sizeof (vl->f)); }
   SET_FIELD (host);
   SET_FIELD (plugin);
