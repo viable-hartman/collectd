@@ -30,6 +30,7 @@
 #include "common.h"
 #include "daemon/collectd.h"
 #include "daemon/utils_cache.h"
+#include "daemon/utils_time.h"
 #include "plugin.h"
 #include "configfile.h"
 #include "stackdriver-agent-keys.h"
@@ -39,6 +40,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "curl/curl.h"
@@ -78,6 +80,9 @@ static const char gcp_metadata_header[] = "Metadata-Flavor: Google";
 // with a single %s placeholder which holds the name of the project.
 static const char agent_translation_service_default_format_string[] =
   "https://monitoring.googleapis.com/v3/projects/%s/collectdTimeSeries";
+
+static const char custom_metrics_default_format_string[] =
+  "https://monitoring.googleapis.com/v3/projects/%s/timeSeries";
 
 // The application/JSON content header.
 static const char json_content_type_header[] = "Content-Type: application/json";
@@ -1062,6 +1067,7 @@ static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
       headers, num_headers) != 0) {
     return -1;
   }
+  DEBUG("I have a response which looks like this: %s", response);
 
   // Fill ctx->auth_header with the string "Authorization: Bearer $TOKEN"
   char *resultp = ctx->auth_header;
@@ -1810,6 +1816,7 @@ typedef struct {
   char *passphrase;
   char *json_log_file;
   char *agent_translation_service_format_string;
+  char *custom_metrics_format_string;
   int throttling_low_water_mark;
   int throttling_high_water_mark;
   int throttling_chunk_interval_secs;
@@ -1849,6 +1856,7 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
       "PrivateKeyPass",
       "JSONLogFile",
       "AgentTranslationServiceFormatString",
+      "CustomMetricsDefaultFormatString",
   };
   char **string_locations[] = {
       &cb->cloud_provider,
@@ -1863,6 +1871,7 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
       &cb->passphrase,
       &cb->json_log_file,
       &cb->agent_translation_service_format_string,
+      &cb->custom_metrics_format_string,
   };
   static const char *int_keys[] = {
       "ThrottlingLowWaterMark",
@@ -1888,8 +1897,8 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
   assert(STATIC_ARRAY_SIZE(bool_keys) == STATIC_ARRAY_SIZE(bool_locations));
 
   // Set some defaults.
-  cb->throttling_low_water_mark = 150000000;  // 150M
-  cb->throttling_high_water_mark = 200000000;  // 200M
+  cb->throttling_low_water_mark = 800000000;  // 800M
+  cb->throttling_high_water_mark = 950000000;  // 950M
   cb->throttling_chunk_interval_secs = 30 * 60;  // 30 minutes
   cb->throttling_purge_interval_secs = 24 * 60 * 60;  // 24 hours
 
@@ -1989,6 +1998,7 @@ static void wg_configbuilder_destroy(wg_configbuilder_t *cb) {
     return;
   }
   sfree(cb->agent_translation_service_format_string);
+  sfree(cb->custom_metrics_format_string);
   sfree(cb->json_log_file);
   sfree(cb->passphrase);
   sfree(cb->key_file);
@@ -2390,6 +2400,7 @@ typedef struct {
   FILE *json_log_file;
   monitored_resource_t *resource;
   char *agent_translation_service_url;
+  char *custom_metrics_url;
   credential_ctx_t *cred_ctx;
   oauth2_ctx_t *oauth2_ctx;
   wg_queue_t *queue;
@@ -2513,19 +2524,33 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
     goto leave;
   }
 
-  const char *format_string_to_use =
+  const char *ats_format_string_to_use =
       cb->agent_translation_service_format_string != NULL ?
           cb->agent_translation_service_format_string :
           agent_translation_service_default_format_string;
 
-  char url[512];  // Big enough?
-  int sprintf_result = snprintf(url, sizeof(url), format_string_to_use,
+  char ats_url[512];  // Big enough?
+  int sprintf_result = snprintf(ats_url, sizeof(ats_url), ats_format_string_to_use,
       build->resource->project_id);
-  if (sprintf_result < 0 || sprintf_result >= sizeof(url)) {
+  if (sprintf_result < 0 || sprintf_result >= sizeof(ats_url)) {
     ERROR("write_gcm: overflowed url buffer");
     goto leave;
   }
-  build->agent_translation_service_url = sstrdup(url);
+  build->agent_translation_service_url = sstrdup(ats_url);
+
+  const char *cm_format_string_to_use =
+    cb->custom_metrics_format_string != NULL ?
+    cb->custom_metrics_format_string :
+    custom_metrics_default_format_string;
+
+  char cm_url[512];  // Big enough?
+  sprintf_result = snprintf(cm_url, sizeof(cm_url), cm_format_string_to_use,
+      build->resource->project_id);
+  if (sprintf_result < 0 || sprintf_result >= sizeof(cm_url)) {
+    ERROR("write_gcm: overflowed url buffer");
+    goto leave;
+  }
+  build->custom_metrics_url = sstrdup(cm_url);
 
   // Create the subcontext holding the oauth2 state.
   build->oauth2_ctx = wg_oauth2_cxt_create();
@@ -2570,6 +2595,7 @@ static void wg_context_destroy(wg_context_t *ctx) {
   wg_oauth2_ctx_destroy(ctx->oauth2_ctx);
   wg_credential_ctx_destroy(ctx->cred_ctx);
   sfree(ctx->agent_translation_service_url);
+  sfree(ctx->custom_metrics_url);
   wg_monitored_resource_destroy(ctx->resource);
   if (ctx->json_log_file != NULL) {
     fclose(ctx->json_log_file);
@@ -2697,6 +2723,9 @@ static void wg_json_bool(json_ctx_t *jc, _Bool value);
 static json_ctx_t *wg_json_ctx_create(_Bool pretty);
 static void wg_json_ctx_destroy(json_ctx_t *jc);
 
+static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp);
+
+
 // From google/monitoring/v3/agent_service.proto
 // message CreateCollectdTimeSeriesRequest {
 //   string name = 5;
@@ -2734,6 +2763,161 @@ static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
 
   wg_json_string(jc, "collectdPayloads");
   wg_json_CollectdPayloads(jc, head, new_head);
+  wg_json_map_close(jc);
+
+  const unsigned char *buffer_address;
+  wg_yajl_callback_size_t buffer_length;
+  yajl_gen_get_buf(jc->gen, &buffer_address, &buffer_length);
+
+  char *json_result = malloc(buffer_length + 1);
+  if (json_result == NULL) {
+    wg_json_ctx_destroy(jc);
+    return NULL;
+  }
+
+  memcpy(json_result, buffer_address, buffer_length);
+  json_result[buffer_length] = 0;
+  wg_json_ctx_destroy(jc);
+  return json_result;
+}
+
+static void wg_json_Metric(json_ctx_t *jc,
+			   const wg_payload_t *element) {
+  wg_json_map_open(jc);
+  wg_json_string(jc, "type");
+  wg_json_string(jc, "custom.googleapis.com/tail_metric1");
+
+  wg_json_string(jc, "labels");
+  {
+    wg_json_map_open(jc);
+    wg_json_string(jc, "type");
+    wg_json_string(jc, element->key.type);
+    wg_json_string(jc, "typeInstance");
+    wg_json_string(jc, element->key.type_instance);
+    wg_json_map_close(jc);
+  }
+
+  wg_json_map_close(jc);
+}
+
+static void wg_json_Points(json_ctx_t *jc,
+			   const wg_payload_t *element) {
+  wg_json_array_open(jc);
+
+  int i;
+  for (i = 0; i < element->num_values; ++i) {
+    const wg_payload_value_t *value = &element->values[i];
+
+    wg_typed_value_t typed_value;
+    const char *data_source_type_static;
+    if (wg_typed_value_create_from_value_t_inline(&typed_value,
+						  value->ds_type, value->val, &data_source_type_static) != 0) {
+      WARNING("write_gcm: wg_typed_value_create_from_value_t_inline failed for "
+	      "%s/%s/%s! Continuing.",
+	      element->key.plugin, element->key.type, value->name);
+      continue;
+    }
+    wg_json_map_open(jc);
+
+    wg_json_string(jc, "interval");
+    {
+      wg_json_map_open(jc);
+      wg_json_string(jc, "startTime");
+      wg_json_RFC3339Timestamp(jc, element->start_time);
+      wg_json_string(jc, "endTime");
+      wg_json_RFC3339Timestamp(jc, element->end_time);
+      wg_json_map_close(jc);
+    }
+
+    wg_json_string(jc, "value");
+    wg_json_TypedValue(jc, &typed_value);
+
+    wg_json_map_close(jc);
+  }
+
+  wg_json_array_close(jc);
+}
+
+static void wg_json_CreateTimeSeries(json_ctx_t *jc,
+				     const monitored_resource_t *resource,
+				     const wg_payload_t *head, const wg_payload_t **new_head) {
+  WARNING("wg_json_CreateTimeSeries");
+
+  wg_json_array_open(jc);
+  while (head != NULL && jc->error == 0) {
+    // Also exit the loop if the message size has reached our target.
+    const unsigned char *buffer_address;
+    wg_yajl_callback_size_t buffer_length;
+    yajl_gen_get_buf(jc->gen, &buffer_address, &buffer_length);
+    if (buffer_length >= JSON_SOFT_TARGET_SIZE) {
+      break;
+    }
+
+    if(strncmp(head->key.plugin, "tail", 4) != 0) {
+      head = head->next;
+      continue;
+    }
+
+    WARNING("type: %s, typeInstance: %s", head->key.type, head->key.type_instance);
+
+    wg_json_map_open(jc);
+
+    wg_json_string(jc, "resource");
+    wg_json_MonitoredResource(jc, resource);
+
+    wg_json_string(jc, "metric");
+    wg_json_Metric(jc, head);
+
+    if(strncmp(head->key.type, "counter", 7) == 0) {
+      wg_json_string(jc, "metricKind");
+      wg_json_string(jc, "CUMULATIVE");
+      wg_json_string(jc, "valueType");
+      wg_json_string(jc, "INT64");
+    }
+
+    wg_json_string(jc, "points");
+    wg_json_Points(jc, head);
+
+    wg_json_map_close(jc);
+
+    head = head->next;
+  }
+
+  if(new_head != NULL) {
+    *new_head = head;
+  }
+
+  wg_json_array_close(jc);
+}
+
+// message CreateTimeSeriesRequest {
+//   string name = 3;
+//   repeated TimeSeries time_series = 2;
+// }
+
+static char *wg_json_CreateTimeseriesRequest(_Bool pretty,
+    const monitored_resource_t *monitored_resource,
+    const wg_payload_t *head, const wg_payload_t **new_head) {
+  WARNING("HERE: wg_json_CreateTimeseriesRequest");
+
+  char name[256];
+  int result = snprintf(name, sizeof(name), "project/%s",
+      monitored_resource->project_id);
+  if (result < 0 || result >= sizeof(name)) {
+    ERROR("write_gcm: project_id %s doesn't fit in buffer.",
+        monitored_resource->project_id);
+    return NULL;
+  }
+
+  json_ctx_t *jc = wg_json_ctx_create(pretty);
+  if (jc == NULL) {
+    ERROR("write_gcm: wg_json_ctx_create failed");
+    return NULL;
+  }
+
+  wg_json_map_open(jc);
+  wg_json_string(jc, "timeSeries");
+  wg_json_CreateTimeSeries(jc, monitored_resource, head, new_head);
   wg_json_map_close(jc);
 
   const unsigned char *buffer_address;
@@ -2801,12 +2985,19 @@ static void wg_json_CollectdPayloads(json_ctx_t *jc,
       break;
     }
 
+    if(strncmp(head->key.plugin, "tail", 4) == 0) {
+      head = head->next;
+      continue;
+    }
+
     wg_json_map_open(jc);
     wg_json_string(jc, "startTime");
     wg_json_Timestamp(jc, head->start_time);
 
     wg_json_string(jc, "endTime");
     wg_json_Timestamp(jc, head->end_time);
+
+    WARNING("plugin: %s", head->key.plugin);
 
     wg_json_string(jc, "plugin");
     wg_json_string(jc, head->key.plugin);
@@ -2925,6 +3116,25 @@ static void wg_json_TypedValue(json_ctx_t *jc, const wg_typed_value_t *tv) {
     }
   }
   wg_json_map_close(jc);
+}
+
+static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp) {
+  char time_str[32];
+  int len = cdtime_to_iso8601(time_str, sizeof(time_str), time_stamp);
+  if(len == 0) {
+    ERROR("Failed to encode time.");
+    return;
+  }
+  if(sizeof(time_str)-len > 1) {
+    int n = snprintf(time_str+len, sizeof(time_str)-len, "Z");
+    if(n != 1) {
+      ERROR("Failed to encode time.");
+    }
+  } else {
+    ERROR("Failed to encode time.");
+  }
+
+  wg_json_string(jc, time_str);
 }
 
 //message Timestamp {
@@ -3143,7 +3353,11 @@ static int wg_extract_distinct_payloads(wg_payload_t *src,
 // element of *list has been processed. It is intended that the caller calls
 // this method repeatedly until the list has been completely processsed.
 // Returns 0 on success, <0 on error.
-static int wg_format_some_of_list(
+static int wg_format_some_of_list_ctr(
+    const monitored_resource_t *monitored_resource, const wg_payload_t *list,
+    const wg_payload_t **new_list, char **json, _Bool pretty);
+
+static int wg_format_some_of_list_custom(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty);
 
@@ -3396,13 +3610,13 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
     }
 
     const wg_payload_t *new_list;
-    if (wg_format_some_of_list(ctx->resource, list, &new_list, &json,
+    if (wg_format_some_of_list_ctr(ctx->resource, list, NULL, &json,
         ctx->pretty_print_json) != 0) {
       ERROR("write_gcm: Error formatting list as JSON");
       goto leave;
     }
 
-    wg_log_json_message(ctx, "Sending json:\n%s\n", json);
+    wg_log_json_message(ctx, "Sending json (CollectdTimeseriesRequest):\n%s\n", json);
 
     // By the way, a successful response is an empty JSON record (i.e. "{}").
     // An unsuccessful response is a detailed error message from Monarch.
@@ -3422,7 +3636,33 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
       goto leave;
     }
 
-    wg_log_json_message(ctx, "Server response:\n%s\n", response);
+    wg_log_json_message(ctx, "Server response (CollectdTimeseriesRequest):\n%s\n", response);
+    // Since the response is expected to be valid JSON, we don't
+    // look at the characters beyond the closing brace.
+    if (strncmp(response, "{}", 2) != 0) {
+      goto leave;
+    }
+
+    sfree(json);
+    json = NULL;
+
+    if (wg_format_some_of_list_custom(ctx->resource, list, &new_list, &json,
+        ctx->pretty_print_json) != 0) {
+      ERROR("write_gcm: Error formatting list as JSON");
+      goto leave;
+    }
+
+    wg_log_json_message(ctx, "Sending json (TimeseriesRequest) to %s:\n%s\n", ctx->custom_metrics_url, json);
+
+    if (wg_curl_get_or_post(response, sizeof(response),
+        ctx->custom_metrics_url, json,
+        headers, STATIC_ARRAY_SIZE(headers)) != 0) {
+      wg_log_json_message(ctx, "Error contacting server.\n");
+      ERROR("write_gcm: Error talking to the endpoint.");
+      goto leave;
+    }
+
+    wg_log_json_message(ctx, "Server response (TimeseriesRequest):\n%s\n", response);
     // Since the response is expected to be valid JSON, we don't
     // look at the characters beyond the closing brace.
     if (strncmp(response, "{}", 2) != 0) {
@@ -3432,6 +3672,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
     }
 
     ++ctx->stats->api_successes;
+
     sfree(json);
     json = NULL;
     list = new_list;
@@ -3444,7 +3685,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
   return result;
 }
 
-static int wg_format_some_of_list(
+static int wg_format_some_of_list_ctr(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty) {
   char *result = wg_json_CreateCollectdTimeseriesRequest(pretty,
@@ -3455,7 +3696,26 @@ static int wg_format_some_of_list(
     return -1;
   }
   if (list == *new_list) {
-    ERROR("write_gcm: wg_format_some_of_list failed to make progress.");
+    ERROR("write_gcm: wg_format_some_of_list_ctr failed to make progress.");
+    sfree(result);
+    return -1;
+  }
+  *json = result;
+  return 0;
+}
+
+static int wg_format_some_of_list_custom(
+    const monitored_resource_t *monitored_resource, const wg_payload_t *list,
+    const wg_payload_t **new_list, char **json, _Bool pretty) {
+  char *result = wg_json_CreateTimeseriesRequest(pretty,
+      monitored_resource, list, new_list);
+  if (result == NULL) {
+    ERROR("write_gcm: wg_json_CreateTimeseriesRequest"
+        " failed.");
+    return -1;
+  }
+  if (list == *new_list) {
+    ERROR("write_gcm: wg_format_some_of_list_custom failed to make progress.");
     sfree(result);
     return -1;
   }
