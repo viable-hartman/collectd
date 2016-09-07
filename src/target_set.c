@@ -499,6 +499,109 @@ static int ts_destroy(void **user_data) /* {{{ */
   return (0);
 } /* }}} int ts_config_add_meta_delete */
 
+static void ts_subst (char *dest, size_t size, const char *string, /* {{{ */
+    const value_list_t *vl)
+{
+  char temp[DATA_MAX_NAME_LEN];
+  int meta_entries;
+  char **meta_toc;
+
+  /* Initialize the field with the template. */
+  sstrncpy (dest, string, size);
+
+#define REPLACE_FIELD(t, v) \
+  if (subst_string (temp, sizeof (temp), dest, t, v) != NULL) \
+    sstrncpy (dest, temp, size);
+  REPLACE_FIELD ("%{host}", vl->host);
+  REPLACE_FIELD ("%{plugin}", vl->plugin);
+  REPLACE_FIELD ("%{plugin_instance}", vl->plugin_instance);
+  REPLACE_FIELD ("%{type}", vl->type);
+  REPLACE_FIELD ("%{type_instance}", vl->type_instance);
+
+  meta_entries = meta_data_toc (vl->meta, &meta_toc);
+  for (int i = 0; i < meta_entries; i++)
+  {
+    char meta_name[DATA_MAX_NAME_LEN];
+    char value_str[DATA_MAX_NAME_LEN];
+    int meta_type;
+    const char *key = meta_toc[i];
+
+    ssnprintf (meta_name, sizeof (meta_name), "%%{meta:%s}", key);
+
+    meta_type = meta_data_type (vl->meta, key);
+    switch (meta_type)
+    {
+      case MD_TYPE_STRING:
+        {
+          char *meta_value;
+          if (meta_data_get_string (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get string metadata value `%s'.",
+                key);
+            continue;
+          }
+          sstrncpy (value_str, meta_value, sizeof (value_str));
+        }
+        break;
+      case MD_TYPE_SIGNED_INT:
+        {
+          int64_t meta_value;
+          if (meta_data_get_signed_int (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get signed int metadata value "
+                "`%s'.", key);
+            continue;
+          }
+          ssnprintf (value_str, sizeof (value_str), "%"PRIi64, meta_value);
+        }
+        break;
+      case MD_TYPE_UNSIGNED_INT:
+        {
+          uint64_t meta_value;
+          if (meta_data_get_unsigned_int (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get unsigned int metadata value "
+                "`%s'.", key);
+            continue;
+          }
+          ssnprintf (value_str, sizeof (value_str), "%"PRIu64, meta_value);
+        }
+        break;
+      case MD_TYPE_DOUBLE:
+        {
+          double meta_value;
+          if (meta_data_get_double (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get double metadata value `%s'.",
+                key);
+            continue;
+          }
+          ssnprintf (value_str, sizeof (value_str), GAUGE_FORMAT, meta_value);
+        }
+        break;
+      case MD_TYPE_BOOLEAN:
+        {
+          _Bool meta_value;
+          if (meta_data_get_boolean (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get boolean metadata value `%s'.",
+                key);
+            continue;
+          }
+          sstrncpy (value_str, meta_value ? "true" : "false",
+              sizeof (value_str));
+        }
+        break;
+      default:
+        ERROR ("Target `set': Unable to retrieve metadata type for `%s'.",
+            key);
+        continue;
+    }
+
+    REPLACE_FIELD (meta_name, value_str);
+  }
+} /* }}} int ts_subst */
+
 static int ts_destroy (void **user_data) /* {{{ */
 >>>>>>> Allow deleting metadata keys.
 >>>>>>> Allow deleting metadata keys.
@@ -725,8 +828,11 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Implement interpolation.
   if (data->meta != NULL) {
     char temp[DATA_MAX_NAME_LEN * 2];
     char **meta_toc;
@@ -746,6 +852,9 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 
     for (size_t i = 0; i < meta_entries; i++) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Implement interpolation.
 =======
   if (data->meta != NULL)
   {
@@ -763,16 +872,22 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
     for (int i = 0; i < meta_entries; i++)
     {
 >>>>>>> Implement interpolation.
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Implement interpolation.
       const char *key = meta_toc[i];
       char *string;
       int status;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Implement interpolation.
       status = meta_data_get_string(data->meta, key, &string);
       if (status) {
         ERROR("Target `set': Unable to get replacement metadata value `%s'.",
@@ -816,13 +931,19 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
   /* Need to merge the metadata in now, because of the shallow copy. */
   if (new_meta != NULL) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Implement interpolation.
 =======
       status = meta_data_get_string (data->meta, key, &string);
       if (status)
       {
         ERROR ("Target `set': Unable to get replacement metadata value `%s'.",
             key);
+<<<<<<< HEAD
         strarray_free (meta_toc, (size_t) meta_entries);
+=======
+>>>>>>> Implement interpolation.
         return (status);
       }
 
@@ -831,6 +952,7 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
       DEBUG ("target_set: ts_invoke: setting metadata value for key `%s': "
           "`%s'.", key, temp);
 
+<<<<<<< HEAD
       sfree (string);
 
       status = meta_data_add_string (new_meta, key, temp);
@@ -843,6 +965,16 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
     }
 
     strarray_free (meta_toc, (size_t) meta_entries);
+=======
+      status = meta_data_add_string (new_meta, key, temp);
+
+      if (status)
+      {
+        ERROR ("Target `set': Unable to set metadata value `%s'.", key);
+        return (status);
+      }
+    }
+>>>>>>> Implement interpolation.
   }
 
 #define SUBST_FIELD(f) \
@@ -860,8 +992,11 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
   if (new_meta != NULL)
   {
 >>>>>>> Implement interpolation.
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Implement interpolation.
     meta_data_clone_merge(&(vl->meta), new_meta);
     meta_data_destroy(new_meta);
   }
@@ -881,6 +1016,7 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
   for (ts_key_list_t *l=data->meta_delete; l != NULL; l = l->next)
   {
 <<<<<<< HEAD
+<<<<<<< HEAD
     DEBUG ("target_set: ts_invoke: deleting metadata value for key `%s'.",
         l->key);
 =======
@@ -897,6 +1033,14 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
   }
 
 >>>>>>> Allow deleting metadata keys.
+=======
+    DEBUG ("target_set: ts_invoke: deleting metadata value for key `%s'.",
+        l->key);
+    meta_data_delete(vl->meta, l->key);
+  }
+
+<<<<<<< HEAD
+>>>>>>> Implement interpolation.
 #define SET_FIELD(f) if (data->f != NULL) { sstrncpy (vl->f, data->f, sizeof (vl->f)); }
   SET_FIELD (host);
   SET_FIELD (plugin);
