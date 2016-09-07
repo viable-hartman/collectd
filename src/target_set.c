@@ -163,50 +163,110 @@ static int ts_config_add_meta_delete(ts_key_list_t **dest, /* {{{ */
   return 0;
 } /* }}} int ts_config_add_meta_delete */
 
-static void ts_subst(char *dest, size_t size, const char *string, /* {{{ */
-                     const value_list_t *vl) {
+static void ts_subst (char *dest, size_t size, const char *string, /* {{{ */
+    const value_list_t *vl)
+{
   char temp[DATA_MAX_NAME_LEN];
+  int meta_entries;
+  char **meta_toc;
 
   /* Initialize the field with the template. */
-  sstrncpy(dest, string, size);
+  sstrncpy (dest, string, size);
 
-  if (strchr(dest, '%') == NULL)
-    return;
+#define REPLACE_FIELD(t, v) \
+  if (subst_string (temp, sizeof (temp), dest, t, v) != NULL) \
+    sstrncpy (dest, temp, size);
+  REPLACE_FIELD ("%{host}", vl->host);
+  REPLACE_FIELD ("%{plugin}", vl->plugin);
+  REPLACE_FIELD ("%{plugin_instance}", vl->plugin_instance);
+  REPLACE_FIELD ("%{type}", vl->type);
+  REPLACE_FIELD ("%{type_instance}", vl->type_instance);
 
-#define REPLACE_FIELD(t, v)                                                    \
-  if (subst_string(temp, sizeof(temp), dest, t, v) != NULL)                    \
-    sstrncpy(dest, temp, size);
-  REPLACE_FIELD("%{host}", vl->host);
-  REPLACE_FIELD("%{plugin}", vl->plugin);
-  REPLACE_FIELD("%{plugin_instance}", vl->plugin_instance);
-  REPLACE_FIELD("%{type}", vl->type);
-  REPLACE_FIELD("%{type_instance}", vl->type_instance);
+  meta_entries = meta_data_toc (vl->meta, &meta_toc);
+  for (int i = 0; i < meta_entries; i++)
+  {
+    char meta_name[DATA_MAX_NAME_LEN];
+    char value_str[DATA_MAX_NAME_LEN];
+    int meta_type;
+    const char *key = meta_toc[i];
 
-  if (vl->meta != NULL) {
-    char **meta_toc = NULL;
-    int status = meta_data_toc(vl->meta, &meta_toc);
-    if (status <= 0)
-      return;
-    size_t meta_entries = (size_t)status;
+    ssnprintf (meta_name, sizeof (meta_name), "%%{meta:%s}", key);
 
-    for (size_t i = 0; i < meta_entries; i++) {
-      char meta_name[DATA_MAX_NAME_LEN];
-      char *value_str;
-      const char *key = meta_toc[i];
-
-      snprintf(meta_name, sizeof(meta_name), "%%{meta:%s}", key);
-      if (meta_data_as_string(vl->meta, key, &value_str) != 0)
+    meta_type = meta_data_type (vl->meta, key);
+    switch (meta_type)
+    {
+      case MD_TYPE_STRING:
+        {
+          char *meta_value;
+          if (meta_data_get_string (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get string metadata value `%s'.",
+                key);
+            continue;
+          }
+          sstrncpy (value_str, meta_value, sizeof (value_str));
+        }
+        break;
+      case MD_TYPE_SIGNED_INT:
+        {
+          int64_t meta_value;
+          if (meta_data_get_signed_int (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get signed int metadata value "
+                "`%s'.", key);
+            continue;
+          }
+          ssnprintf (value_str, sizeof (value_str), "%"PRIi64, meta_value);
+        }
+        break;
+      case MD_TYPE_UNSIGNED_INT:
+        {
+          uint64_t meta_value;
+          if (meta_data_get_unsigned_int (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get unsigned int metadata value "
+                "`%s'.", key);
+            continue;
+          }
+          ssnprintf (value_str, sizeof (value_str), "%"PRIu64, meta_value);
+        }
+        break;
+      case MD_TYPE_DOUBLE:
+        {
+          double meta_value;
+          if (meta_data_get_double (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get double metadata value `%s'.",
+                key);
+            continue;
+          }
+          ssnprintf (value_str, sizeof (value_str), GAUGE_FORMAT, meta_value);
+        }
+        break;
+      case MD_TYPE_BOOLEAN:
+        {
+          _Bool meta_value;
+          if (meta_data_get_boolean (vl->meta, key, &meta_value))
+          {
+            ERROR ("Target `set': Unable to get boolean metadata value `%s'.",
+                key);
+            continue;
+          }
+          sstrncpy (value_str, meta_value ? "true" : "false",
+              sizeof (value_str));
+        }
+        break;
+      default:
+        ERROR ("Target `set': Unable to retrieve metadata type for `%s'.",
+            key);
         continue;
-
-      REPLACE_FIELD(meta_name, value_str);
-      sfree(value_str);
     }
 
-    strarray_free(meta_toc, (size_t)meta_entries);
+    REPLACE_FIELD (meta_name, value_str);
   }
 } /* }}} int ts_subst */
 
-static int ts_destroy(void **user_data) /* {{{ */
+static int ts_destroy (void **user_data) /* {{{ */
 {
   ts_data_t *data;
 
@@ -341,82 +401,75 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 
   orig = *vl;
 
-  if (data->meta != NULL) {
-    char temp[DATA_MAX_NAME_LEN * 2];
+  if (data->meta != NULL)
+  {
+    char temp[DATA_MAX_NAME_LEN*2];
+    int meta_entries;
     char **meta_toc;
 
-    if ((new_meta = meta_data_create()) == NULL) {
-      ERROR("Target `set': failed to create replacement metadata.");
-      return -ENOMEM;
+    if ((new_meta = meta_data_create()) == NULL)
+    {
+      ERROR ("Target `set': failed to create replacement metadata.");
+      return (-ENOMEM);
     }
 
-    int status = meta_data_toc(data->meta, &meta_toc);
-    if (status < 0) {
-      ERROR("Target `set': meta_data_toc failed with status %d.", status);
-      meta_data_destroy(new_meta);
-      return status;
-    }
-    size_t meta_entries = (size_t)status;
-
-    for (size_t i = 0; i < meta_entries; i++) {
+    meta_entries = meta_data_toc (data->meta, &meta_toc);
+    for (int i = 0; i < meta_entries; i++)
+    {
       const char *key = meta_toc[i];
       char *string;
       int status;
 
-      status = meta_data_get_string(data->meta, key, &string);
-      if (status) {
-        ERROR("Target `set': Unable to get replacement metadata value `%s'.",
-              key);
-        strarray_free(meta_toc, meta_entries);
-        meta_data_destroy(new_meta);
-        return status;
+      status = meta_data_get_string (data->meta, key, &string);
+      if (status)
+      {
+        ERROR ("Target `set': Unable to get replacement metadata value `%s'.",
+            key);
+        return (status);
       }
 
-      ts_subst(temp, sizeof(temp), string, &orig);
+      ts_subst (temp, sizeof (temp), string, &orig);
 
-      DEBUG("target_set: ts_invoke: setting metadata value for key `%s': "
-            "`%s'.",
-            key, temp);
+      DEBUG ("target_set: ts_invoke: setting metadata value for key `%s': "
+          "`%s'.", key, temp);
 
-      sfree(string);
+      status = meta_data_add_string (new_meta, key, temp);
 
-      status = meta_data_add_string(new_meta, key, temp);
-      if (status) {
-        ERROR("Target `set': Unable to set metadata value `%s'.", key);
-        strarray_free(meta_toc, meta_entries);
-        meta_data_destroy(new_meta);
-        return status;
+      if (status)
+      {
+        ERROR ("Target `set': Unable to set metadata value `%s'.", key);
+        return (status);
       }
     }
-
-    strarray_free(meta_toc, meta_entries);
   }
 
-#define SUBST_FIELD(f)                                                         \
-  if (data->f != NULL) {                                                       \
-    ts_subst(vl->f, sizeof(vl->f), data->f, &orig);                            \
-    DEBUG("target_set: ts_invoke: setting " #f ": `%s'.", vl->f);              \
+#define SUBST_FIELD(f) \
+  if (data->f != NULL) { \
+    ts_subst (vl->f, sizeof (vl->f), data->f, &orig); \
+    DEBUG ("target_set: ts_invoke: setting "#f": `%s'.", vl->f); \
   }
-  SUBST_FIELD(host);
-  SUBST_FIELD(plugin);
-  SUBST_FIELD(plugin_instance);
+  SUBST_FIELD (host);
+  SUBST_FIELD (plugin);
+  SUBST_FIELD (plugin_instance);
   /* SUBST_FIELD (type); */
-  SUBST_FIELD(type_instance);
+  SUBST_FIELD (type_instance);
 
   /* Need to merge the metadata in now, because of the shallow copy. */
-  if (new_meta != NULL) {
+  if (new_meta != NULL)
+  {
     meta_data_clone_merge(&(vl->meta), new_meta);
     meta_data_destroy(new_meta);
   }
 
   /* If data->meta_delete is NULL, this loop is a no-op. */
-  for (ts_key_list_t *l = data->meta_delete; l != NULL; l = l->next) {
-    DEBUG("target_set: ts_invoke: deleting metadata value for key `%s'.",
-          l->key);
+  for (ts_key_list_t *l=data->meta_delete; l != NULL; l = l->next)
+  {
+    DEBUG ("target_set: ts_invoke: deleting metadata value for key `%s'.",
+        l->key);
     meta_data_delete(vl->meta, l->key);
   }
 
-  return FC_TARGET_CONTINUE;
+  return (FC_TARGET_CONTINUE);
 } /* }}} int ts_invoke */
 
 void module_register(void) {
