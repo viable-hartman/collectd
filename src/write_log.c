@@ -40,6 +40,17 @@
 #define WL_FORMAT_GRAPHITE 1
 #define WL_FORMAT_JSON 2
 
+static int wl_write_graphite (const data_set_t *ds, const value_list_t *vl)
+{
+    char buffer[WL_BUF_SIZE] = { 0 };
+    int status;
+
+    if (0 != strcmp (ds->type, vl->type))
+    {
+        ERROR ("write_log plugin: DS type does not match value list type");
+        return -1;
+    }
+
 /* Plugin:WriteLog has to also operate without a config, so use a global. */
 int wl_format = WL_FORMAT_GRAPHITE;
 
