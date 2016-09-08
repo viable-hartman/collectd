@@ -10858,11 +10858,19 @@ Available options:
 =item B<TypeInstance> I<String>
 
 =item B<MetaData> I<String> I<String>
+<<<<<<< HEAD
 
 Set the appropriate field to the given string. The strings for plugin instance,
 type instance, and meta data may be empty, the strings for host and plugin may
 not be empty. It's currently not possible to set the type of a value this way.
 
+=======
+
+Set the appropriate field to the given string. The strings for plugin instance,
+type instance, and meta data may be empty, the strings for host and plugin may
+not be empty. It's currently not possible to set the type of a value this way.
+
+>>>>>>> Document interpolation and DeleteMetaData.
 The following placeholders will be replaced by an appropriate value:
 
 =over 4
