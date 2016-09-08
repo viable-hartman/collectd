@@ -1331,6 +1331,7 @@ write_log_la_SOURCES = write_log.c \
                         utils_format_graphite.c utils_format_graphite.h
 write_log_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 <<<<<<< HEAD
+<<<<<<< HEAD
 write_log_la_LIBADD = libformat_json.la
 endif
 
@@ -1356,6 +1357,9 @@ stackdriver_agent_la_SOURCES = stackdriver_agent.c
 stackdriver_agent_la_LDFLAGS = -module -avoid-version
 =======
 >>>>>>> plugin_mem
+=======
+write_log_la_LIBADD = libformat_json.la
+>>>>>>> Add optional configuration to write_log; allow writing JSON.
 endif
 
 if BUILD_PLUGIN_WRITE_GCM
