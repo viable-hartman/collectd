@@ -2951,7 +2951,7 @@ static void wg_json_CreateTimeSeries(
       wg_json_string(jc, "metricKind");
       wg_json_string(jc, "GAUGE");
       wg_json_string(jc, "valueType");
-      wg_json_string(jc, "FLOAT");
+      wg_json_string(jc, "DOUBLE");
       break;
 
       case DS_TYPE_DERIVE:
