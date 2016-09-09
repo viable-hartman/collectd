@@ -2802,7 +2802,7 @@ static void wg_json_Metric(json_ctx_t *jc,
   const char *metric_type = NULL;
   for (int i = 0; i < element->key.num_metadata_entries; ++i) {
     wg_metadata_entry_t *entry = &element->key.metadata_entries[i];
-    if (strcmp(entry->key, custom_metric_key) != 0) {
+    if (strcmp(entry->key, custom_metric_key) == 0) {
       metric_type = entry->value.value_text;
     }
   }
@@ -2817,7 +2817,7 @@ static void wg_json_Metric(json_ctx_t *jc,
     for (int i = 0; i < element->key.num_metadata_entries; ++i) {
       wg_metadata_entry_t *entry = &element->key.metadata_entries[i];
       const char *key_pref = custom_metric_label_prefix;
-      if (strncmp(entry->key, key_pref, strlen(key_pref)) != 0) {
+      if (strncmp(entry->key, key_pref, strlen(key_pref)) == 0) {
         wg_json_string(jc, &entry->key[strlen(key_pref)]);
         wg_json_string(jc, entry->value.value_text);
       }
@@ -3078,7 +3078,7 @@ static void wg_json_CollectdPayloads(json_ctx_t *jc,
     wg_json_string(jc, "endTime");
     wg_json_Timestamp(jc, head->end_time);
 
-    WARNING("plugin: %s", head->key.plugin);
+    //WARNING("plugin: %s", head->key.plugin);
 
     wg_json_string(jc, "plugin");
     wg_json_string(jc, head->key.plugin);
