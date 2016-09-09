@@ -2850,9 +2850,9 @@ static void wg_json_Points(json_ctx_t *jc,
   wg_json_array_close(jc);
 }
 
-static void wg_json_CreateTimeSeries(json_ctx_t *jc,
-				     const monitored_resource_t *resource,
-				     const wg_payload_t *head, const wg_payload_t **new_head) {
+static void wg_json_CreateTimeSeries(
+    json_ctx_t *jc, const monitored_resource_t *resource,
+    const wg_payload_t *head, const wg_payload_t **new_head) {
   WARNING("wg_json_CreateTimeSeries");
 
   wg_json_array_open(jc);
@@ -2865,11 +2865,6 @@ static void wg_json_CreateTimeSeries(json_ctx_t *jc,
       break;
     }
 
-    if(strncmp(head->key.plugin, "tail", 4) != 0) {
-      head = head->next;
-      continue;
-    }
-
     WARNING("type: %s, typeInstance: %s", head->key.type, head->key.type_instance);
 
     wg_json_map_open(jc);
@@ -2880,7 +2875,7 @@ static void wg_json_CreateTimeSeries(json_ctx_t *jc,
     wg_json_string(jc, "metric");
     wg_json_Metric(jc, head);
 
-    if(strncmp(head->key.type, "counter", 7) == 0) {
+    if(strcmp(head->key.type, "counter") == 0) {
       wg_json_string(jc, "metricKind");
       wg_json_string(jc, "CUMULATIVE");
       wg_json_string(jc, "valueType");
@@ -2895,9 +2890,7 @@ static void wg_json_CreateTimeSeries(json_ctx_t *jc,
     head = head->next;
   }
 
-  if(new_head != NULL) {
-    *new_head = head;
-  }
+  *new_head = head;
 
   wg_json_array_close(jc);
 }
@@ -2997,11 +2990,6 @@ static void wg_json_CollectdPayloads(json_ctx_t *jc,
       break;
     }
 
-    if(strncmp(head->key.plugin, "tail", 4) == 0) {
-      head = head->next;
-      continue;
-    }
-
     wg_json_map_open(jc);
     wg_json_string(jc, "startTime");
     wg_json_Timestamp(jc, head->start_time);
@@ -3037,9 +3025,7 @@ static void wg_json_CollectdPayloads(json_ctx_t *jc,
     head = head->next;
   }
 
-  if(new_head != NULL) {
-    *new_head = head;
-  }
+  *new_head = head;
 
   wg_json_array_close(jc);
 }
@@ -3676,7 +3662,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
       if (wg_format_some_of_list_custom(ctx->resource, list, &new_list, &json,
           ctx->pretty_print_json) != 0) {
-        ERROR("write_gcm: Error formatting list as JSON");
+        ERROR("write_gcm: Error formatting list as CreateTimeSeries request");
         goto leave;
       }
 
@@ -3731,7 +3717,7 @@ static int wg_format_some_of_list_ctr(
         " failed.");
     return -1;
   }
-  if (new_list != NULL && list == *new_list) {
+  if (list == *new_list) {
     ERROR("write_gcm: wg_format_some_of_list_ctr failed to make progress.");
     sfree(result);
     return -1;
@@ -3746,11 +3732,10 @@ static int wg_format_some_of_list_custom(
   char *result = wg_json_CreateTimeseriesRequest(pretty,
       monitored_resource, list, new_list);
   if (result == NULL) {
-    ERROR("write_gcm: wg_json_CreateTimeseriesRequest"
-        " failed.");
+    ERROR("write_gcm: wg_json_CreateTimeseriesRequest failed.");
     return -1;
   }
-  if (new_list != NULL && list == *new_list) {
+  if (list == *new_list) {
     ERROR("write_gcm: wg_format_some_of_list_custom failed to make progress.");
     sfree(result);
     return -1;
