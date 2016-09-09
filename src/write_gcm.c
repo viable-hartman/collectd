@@ -3203,8 +3203,8 @@ static void wg_json_TypedValue(json_ctx_t *jc, const wg_typed_value_t *tv) {
 
 static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp) {
   char time_str[RFC3339NANO_ZULU_SIZE];
-  int len = rfc3339nano_zulu(time_str, sizeof(time_str), time_stamp);
-  if(len == 0) {
+  int status = rfc3339nano_zulu(time_str, sizeof(time_str), time_stamp);
+  if (status != 0) {
     ERROR("Failed to encode time.");
     return;
   }
