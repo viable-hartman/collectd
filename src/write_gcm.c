@@ -72,6 +72,10 @@
 
 static const char this_plugin_name[] = "write_gcm";
 
+// Presence of this key in the metric meta_data causes the metric to be
+// sent to the GCMv3 API instead of the Agent Translation Service.
+static const char custom_metric_key[] = "stackdriver_metric_type";
+
 // The special HTTP header that needs to be added to any call to the GCP
 // metadata server.
 static const char gcp_metadata_header[] = "Metadata-Flavor: Google";
@@ -2388,6 +2392,8 @@ typedef struct {
   _Bool consumer_thread_created;
 } wg_queue_t;
 
+// TODO: Split these by API endpoint (ATS / GSD).
+// Currently, these counters contain the sum of both endpoints.
 typedef struct {
   size_t api_successes;
   size_t api_connectivity_failures;
@@ -2402,7 +2408,8 @@ typedef struct {
   char *custom_metrics_url;
   credential_ctx_t *cred_ctx;
   oauth2_ctx_t *oauth2_ctx;
-  wg_queue_t *queue;
+  wg_queue_t *ats_queue;  // Agent translation service (deprecated)
+  wg_queue_t *gsd_queue;  // Google Stackdriver (Custom metrics ingestion)
   wg_stats_t *stats;
 } wg_context_t;
 
@@ -2558,9 +2565,14 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
     goto leave;
   }
 
-  // Create the queue context.
-  build->queue = wg_queue_create();
-  if (build->queue == NULL) {
+  // Create the queue contexts.
+  build->ats_queue = wg_queue_create();
+  if (build->ats_queue == NULL) {
+    ERROR("write_gcm: wg_queue_create failed.");
+    goto leave;
+  }
+  build->gsd_queue = wg_queue_create();
+  if (build->gsd_queue == NULL) {
     ERROR("write_gcm: wg_queue_create failed.");
     goto leave;
   }
@@ -2590,7 +2602,8 @@ static void wg_context_destroy(wg_context_t *ctx) {
   }
   DEBUG("write_gcm: Tearing down context.");
   wg_stats_destroy(ctx->stats);
-  wg_queue_destroy(ctx->queue);
+  wg_queue_destroy(ctx->ats_queue);
+  wg_queue_destroy(ctx->gsd_queue);
   wg_oauth2_ctx_destroy(ctx->oauth2_ctx);
   wg_credential_ctx_destroy(ctx->cred_ctx);
   sfree(ctx->agent_translation_service_url);
@@ -3274,7 +3287,7 @@ static void wg_json_ctx_destroy(json_ctx_t *jc) {
 //==============================================================================
 //==============================================================================
 //==============================================================================
-static void *wg_process_queue(void *arg);
+static void *wg_process_queue(wg_context_t *arg, wg_queue_t *queue);
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
@@ -3314,12 +3327,12 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 // duplicate keys/labels. (why?) Returns 0 on success, <0 on error.
 // Takes ownership of 'list'.
 static int wg_transmit_unique_segments(const wg_context_t *ctx,
-    wg_payload_t *list);
+    wg_queue_t *queue, wg_payload_t *list);
 
 // Transmit a segment of the list, where it is guaranteed that all the items
 // in the list have distinct keys. Returns 0 on success, <0 on error.
 static int wg_transmit_unique_segment(const wg_context_t *ctx,
-    const wg_payload_t *list);
+    wg_queue_t *queue, const wg_payload_t *list);
 
 // Extracts as many distinct payloads as possible from the list, where the
 // notion of "distinct" is as defined by wg_payload_key_compare. Creates two
@@ -3363,9 +3376,7 @@ static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
     const wg_payload_t *payload, wg_deriv_tracker_value_t **tracker,
     _Bool *created);
 
-static void *wg_process_queue(void *arg) {
-  wg_context_t *ctx = arg;
-  wg_queue_t *queue = ctx->queue;
+static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue) {
 
   // Keeping track of the base values for derivative values.
   c_avl_tree_t *deriv_tree = wg_deriv_tree_create();
@@ -3391,7 +3402,7 @@ static void *wg_process_queue(void *arg) {
       wg_payload_destroy(payloads);
       break;
     }
-    if (wg_transmit_unique_segments(ctx, payloads) != 0) {
+    if (wg_transmit_unique_segments(ctx, queue, payloads) != 0) {
       // Not fatal. Connectivity problems? Server went away for a while?
       // Just drop the payloads on the floor and make a note of it.
       wg_some_error_occured_g = 1;
@@ -3409,6 +3420,18 @@ static void *wg_process_queue(void *arg) {
   wg_deriv_tree_destroy(deriv_tree);
   WARNING("write_gcm: Consumer thread is exiting.");
   return NULL;
+}
+
+static void *wg_process_ats_queue(void *arg) {
+  wg_context_t *ctx = arg;
+  wg_queue_t *queue = ctx->ats_queue;
+  return wg_process_queue(ctx, queue);
+}
+
+static void *wg_process_gsd_queue(void *arg) {
+  wg_context_t *ctx = arg;
+  wg_queue_t *queue = ctx->gsd_queue;
+  return wg_process_queue(ctx, queue);
 }
 
 static int wg_rebase_cumulative_values(c_avl_tree_t *deriv_tree,
@@ -3536,7 +3559,7 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 }
 
 static int wg_transmit_unique_segments(const wg_context_t *ctx,
-    wg_payload_t *list) {
+    wg_queue_t *queue, wg_payload_t *list) {
   while (list != NULL) {
     wg_payload_t *distinct_list;
     wg_payload_t *residual_list;
@@ -3549,7 +3572,7 @@ static int wg_transmit_unique_segments(const wg_context_t *ctx,
       return -1;
     }
     DEBUG("write_gcm: next distinct segment has size %d", distinct_size);
-    int result = wg_transmit_unique_segment(ctx, distinct_list);
+    int result = wg_transmit_unique_segment(ctx, queue, distinct_list);
     if (result != 0) {
       ERROR("write_gcm: wg_transmit_unique_segment failed.");
       wg_payload_destroy(distinct_list);
@@ -3574,7 +3597,7 @@ static void wg_log_json_message(const wg_context_t *ctx, const char *fmt, ...) {
 }
 
 static int wg_transmit_unique_segment(const wg_context_t *ctx,
-    const wg_payload_t *list) {
+    wg_queue_t *queue, const wg_payload_t *list) {
   if (list == NULL) {
     return 0;
   }
@@ -3594,80 +3617,100 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
     // We can spend a lot of time here talking to the server. If the producer
     // thread wants to shut us down, check for this explicitly and bail out
     // early.
-    pthread_mutex_lock(&ctx->queue->mutex);
-    int want_terminate = ctx->queue->request_terminate;
-    pthread_mutex_unlock(&ctx->queue->mutex);
+    pthread_mutex_lock(&queue->mutex);
+    int want_terminate = queue->request_terminate;
+    pthread_mutex_unlock(&queue->mutex);
     if (want_terminate) {
       ERROR("write_gcm: wg_transmit_unique_segment: "
           "Exiting early due to termination request.");
       goto leave;
     }
 
-    const wg_payload_t *new_list;
-    if (wg_format_some_of_list_ctr(ctx->resource, list, NULL, &json,
-        ctx->pretty_print_json) != 0) {
-      ERROR("write_gcm: Error formatting list as JSON");
-      goto leave;
-    }
-
-    wg_log_json_message(ctx, "Sending json (CollectdTimeseriesRequest):\n%s\n", json);
-
     // By the way, a successful response is an empty JSON record (i.e. "{}").
     // An unsuccessful response is a detailed error message from Monarch.
     char response[2048];
     const char *headers[] = { auth_header, json_content_type_header };
-    int wg_result = wg_curl_get_or_post(response, sizeof(response),
-      ctx->agent_translation_service_url, json,
-      headers, STATIC_ARRAY_SIZE(headers));
-    if (wg_result != 0) {
-      wg_log_json_message(ctx, "Error %d from wg_curl_get_or_post\n", wg_result);
-      ERROR("%s: Error %d from wg_curl_get_or_post", this_plugin_name, wg_result);
-      if (wg_result == -1) {
-        ++ctx->stats->api_connectivity_failures;
-      } else {
-        ++ctx->stats->api_errors;
+
+    // Leave the remainder here to send in a new request next loop iteration.
+    const wg_payload_t *new_list;
+
+    if (queue == ctx->ats_queue) {
+
+      if (wg_format_some_of_list_ctr(ctx->resource, list, &new_list, &json,
+          ctx->pretty_print_json) != 0) {
+        ERROR("write_gcm: Error formatting list as JSON");
+        goto leave;
       }
-      goto leave;
-    }
 
-    wg_log_json_message(ctx, "Server response (CollectdTimeseriesRequest):\n%s\n", response);
-    // Since the response is expected to be valid JSON, we don't
-    // look at the characters beyond the closing brace.
-    if (strncmp(response, "{}", 2) != 0) {
-      goto leave;
-    }
+      wg_log_json_message(
+          ctx, "Sending JSON (CollectdTimeseriesRequest):\n%s\n", json);
 
-    sfree(json);
-    json = NULL;
+      int wg_result = wg_curl_get_or_post(response, sizeof(response),
+        ctx->agent_translation_service_url, json,
+        headers, STATIC_ARRAY_SIZE(headers));
+      if (wg_result != 0) {
+        wg_log_json_message(ctx, "Error %d from wg_curl_get_or_post\n",
+                            wg_result);
+        ERROR("%s: Error %d from wg_curl_get_or_post",
+              this_plugin_name, wg_result);
+        if (wg_result == -1) {
+          ++ctx->stats->api_connectivity_failures;
+        } else {
+          ++ctx->stats->api_errors;
+        }
+        goto leave;
+      }
 
-    if (wg_format_some_of_list_custom(ctx->resource, list, &new_list, &json,
-        ctx->pretty_print_json) != 0) {
-      ERROR("write_gcm: Error formatting list as JSON");
-      goto leave;
-    }
+      wg_log_json_message(
+          ctx, "Server response (CollectdTimeseriesRequest):\n%s\n", response);
+      // Since the response is expected to be valid JSON, we don't
+      // look at the characters beyond the closing brace.
+      if (strncmp(response, "{}", 2) != 0) {
+        ++ctx->stats->api_errors;
+        goto leave;
+      }
 
-    wg_log_json_message(ctx, "Sending json (TimeseriesRequest) to %s:\n%s\n", ctx->custom_metrics_url, json);
+    } else {
 
-    if (wg_curl_get_or_post(response, sizeof(response),
-        ctx->custom_metrics_url, json,
-        headers, STATIC_ARRAY_SIZE(headers)) != 0) {
-      wg_log_json_message(ctx, "Error contacting server.\n");
-      ERROR("write_gcm: Error talking to the endpoint.");
-      goto leave;
-    }
+      assert(queue == ctx->gsd_queue);
 
-    wg_log_json_message(ctx, "Server response (TimeseriesRequest):\n%s\n", response);
-    // Since the response is expected to be valid JSON, we don't
-    // look at the characters beyond the closing brace.
-    if (strncmp(response, "{}", 2) != 0) {
-      ERROR("%s: Expected response not empty JSON object: %s", this_plugin_name, response);
-      ++ctx->stats->api_errors;
-      goto leave;
+      if (wg_format_some_of_list_custom(ctx->resource, list, &new_list, &json,
+          ctx->pretty_print_json) != 0) {
+        ERROR("write_gcm: Error formatting list as JSON");
+        goto leave;
+      }
+
+      wg_log_json_message(
+          ctx, "Sending JSON (TimeseriesRequest) to %s:\n%s\n",
+          ctx->custom_metrics_url, json);
+
+      if (wg_curl_get_or_post(response, sizeof(response),
+          ctx->custom_metrics_url, json,
+          headers, STATIC_ARRAY_SIZE(headers)) != 0) {
+        wg_log_json_message(ctx, "Error contacting server.\n");
+        ERROR("write_gcm: Error talking to the endpoint.");
+        ++ctx->stats->api_connectivity_failures;
+        goto leave;
+      }
+
+      // TODO: Validate API response properly.
+      wg_log_json_message(
+          ctx, "Server response (TimeseriesRequest):\n%s\n", response);
+      // Since the response is expected to be valid JSON, we don't
+      // look at the characters beyond the closing brace.
+      if (strncmp(response, "{}", 2) != 0) {
+        ERROR("%s: Expected non-empty JSON response: %s",
+              this_plugin_name, response);
+        ++ctx->stats->api_errors;
+        goto leave;
+      }
+
     }
 
     ++ctx->stats->api_successes;
     sfree(json);
     json = NULL;
+
     list = new_list;
   }
 
@@ -3894,13 +3937,34 @@ static int wg_update_stats(const wg_stats_t *stats)
 
 static wg_configbuilder_t *wg_configbuilder_g = NULL;
 
+
 // Transform incoming value_list into our "payload" format and append it to the
 // work queue.
 static int wg_write(const data_set_t *ds, const value_list_t *vl,
                     user_data_t *user_data) {
   assert(ds->ds_num > 0);
   wg_context_t *ctx = user_data->data;
-  wg_queue_t *queue = ctx->queue;
+
+  // Initially assume Agent Tranlation Service queue and processor
+  const char *queue_name = "ATS";
+  wg_queue_t *queue = ctx->ats_queue;
+  static void *(*processor)(void *) = wg_process_ats_queue;
+
+  // Unless it has a particular meta_data field in which case use the
+  // Stackdriver one.
+  char **toc = NULL;
+  int toc_size = meta_data_toc(vl->meta, &toc);
+  if (toc_size < 0) {
+    ERROR("write_gcm: wg_write: error reading metadata table of contents.");
+    return -1;
+  }
+  for (int i = 0; i < toc_size; ++i) {
+    if (!strcmp(toc[i], custom_metric_key)) {
+      queue_name = "GSD";
+      queue = ctx->gsd_queue;
+      processor = wg_process_gsd_queue;
+    }
+  }
 
   // Allocate the payload.
   wg_payload_t *payload = wg_payload_create(ds, vl);
@@ -3912,7 +3976,7 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
   pthread_mutex_lock(&queue->mutex);
   // One-time startup of the consumer thread.
   if (!queue->consumer_thread_created) {
-    if (plugin_thread_create(&queue->consumer_thread, NULL, &wg_process_queue,
+    if (plugin_thread_create(&queue->consumer_thread, NULL, processor,
         ctx) != 0) {
       ERROR("write_gcm: plugin_thread_create failed");
       pthread_mutex_unlock(&queue->mutex);
@@ -3948,7 +4012,7 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
   static cdtime_t next_message_time;
   cdtime_t now = cdtime();
   if (now >= next_message_time) {
-    DEBUG("write_gcm: current queue size is %zd", queue->size);
+    DEBUG("write_gcm: current %s queue size is %zd", queue_name, queue->size);
     next_message_time = now + TIME_T_TO_CDTIME_T(10);  // Report every 10 sec.
   }
   pthread_cond_signal(&queue->cond);
@@ -3961,21 +4025,26 @@ static int wg_flush(cdtime_t timeout,
                     const char *identifier __attribute__((unused)),
                     user_data_t *user_data) {
   wg_context_t *ctx = user_data->data;
-  wg_queue_t *queue = ctx->queue;
-  pthread_mutex_lock(&queue->mutex);
-  queue->request_flush = 1;
-  queue->flush_complete = 0;
-  pthread_cond_signal(&queue->cond);
+  // Flush all queues in sequence.
+  wg_queue_t *queues[] = { ctx->ats_queue, ctx->gsd_queue };
+  for (int i = 0; i < STATIC_ARRAY_SIZE(queues) ; ++i) {
+    wg_queue_t *queue = queues[i];
 
-  // If collectd is in the end-to-end test mode (command line option -T), then
-  // wait for the flush to complete.
-  if (wg_end_to_end_test_mode()) {
-    while (!queue->flush_complete) {
-      pthread_cond_wait(&queue->cond, &queue->mutex);
+    pthread_mutex_lock(&queue->mutex);
+    queue->request_flush = 1;
+    queue->flush_complete = 0;
+    pthread_cond_signal(&queue->cond);
+
+    // If collectd is in the end-to-end test mode (command line option -T), then
+    // wait for the flush to complete.
+    if (wg_end_to_end_test_mode()) {
+      while (!queue->flush_complete) {
+        pthread_cond_wait(&queue->cond, &queue->mutex);
+      }
     }
-  }
 
-  pthread_mutex_unlock(&queue->mutex);
+    pthread_mutex_unlock(&queue->mutex);
+  }
   return 0;
 }
 
