@@ -4017,17 +4017,19 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
 
   // Unless it has a particular meta_data field in which case use the
   // Stackdriver one.
-  char **toc = NULL;
-  int toc_size = meta_data_toc(vl->meta, &toc);
-  if (toc_size < 0) {
-    ERROR("write_gcm: wg_write: error reading metadata table of contents.");
-    return -1;
-  }
-  for (int i = 0; i < toc_size; ++i) {
-    if (!strcmp(toc[i], custom_metric_key)) {
-      queue_name = "GSD";
-      queue = ctx->gsd_queue;
-      processor = wg_process_gsd_queue;
+  if (vl->meta != NULL) {
+    char **toc = NULL;
+    int toc_size = meta_data_toc(vl->meta, &toc);
+    if (toc_size < 0) {
+      ERROR("write_gcm: wg_write: error reading metadata table of contents.");
+      return -1;
+    }
+    for (int i = 0; i < toc_size; ++i) {
+      if (!strcmp(toc[i], custom_metric_key)) {
+        queue_name = "GSD";
+        queue = ctx->gsd_queue;
+        processor = wg_process_gsd_queue;
+      }
     }
   }
 
