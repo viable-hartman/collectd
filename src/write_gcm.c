@@ -2920,19 +2920,20 @@ static void wg_json_CreateTimeSeries(
         const char *pref = custom_metric_prefix;
         if (strncmp(entry->value.value_text, pref, strlen(pref)) != 0) {
           ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
-                "type_instance: %s metric type is not a custom metric.",
+                "type_instance: %s metric type %s is not a custom metric "
+                "(should start with '%s').",
                 head->key.plugin, head->key.plugin_instance, head->key.type,
-                head->key.type_instance);
+                head->key.type_instance, entry->value.value_text, pref);
           continue;
         }
       }
       const char *key_pref = custom_metric_label_prefix;
-      if (strncmp(entry->key, key_pref, strlen(key_pref)) != 0) {
+      if (strncmp(entry->key, key_pref, strlen(key_pref)) == 0) {
         if (entry->value.value_type != wg_typed_value_string) {
           ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
-                "type_instance: %s metric label is not a string.",
+                "type_instance: %s metric label %s is not a string.",
                 head->key.plugin, head->key.plugin_instance, head->key.type,
-                head->key.type_instance);
+                head->key.type_instance, entry->key);
         }
       }
     }
