@@ -76,6 +76,10 @@ static const char this_plugin_name[] = "write_gcm";
 // sent to the GCMv3 API instead of the Agent Translation Service.
 static const char custom_metric_key[] = "stackdriver_metric_type";
 
+static const char custom_metric_prefix[] = "custom.googleapis.com/";
+
+static const char custom_metric_label_prefix[] = "label:";
+
 // The special HTTP header that needs to be added to any call to the GCP
 // metadata server.
 static const char gcp_metadata_header[] = "Metadata-Flavor: Google";
@@ -1412,6 +1416,7 @@ static int wg_typed_value_create_from_value_t_inline(wg_typed_value_t *result,
       break;
     }
     case DS_TYPE_ABSOLUTE: {
+      // TODO: Reject such metrics as they are not supported.
       if (value.absolute > INT64_MAX) {
         ERROR("write_gcm: Absolute is too large for an int64.");
         return -1;
@@ -2735,8 +2740,7 @@ static void wg_json_bool(json_ctx_t *jc, _Bool value);
 static json_ctx_t *wg_json_ctx_create(_Bool pretty);
 static void wg_json_ctx_destroy(json_ctx_t *jc);
 
-static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp);
-
+static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp); 
 
 // From google/monitoring/v3/agent_service.proto
 // message CreateCollectdTimeSeriesRequest {
@@ -2795,58 +2799,71 @@ static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
 
 static void wg_json_Metric(json_ctx_t *jc,
 			   const wg_payload_t *element) {
+  const char *metric_type = NULL;
+  for (int i = 0; i < element->key.num_metadata_entries; ++i) {
+    wg_metadata_entry_t *entry = &element->key.metadata_entries[i];
+    if (strcmp(entry->key, custom_metric_key) != 0) {
+      metric_type = entry->value.value_text;
+    }
+  }
+
   wg_json_map_open(jc);
   wg_json_string(jc, "type");
-  wg_json_string(jc, "custom.googleapis.com/tail_metric1");
+  wg_json_string(jc, metric_type);
 
   wg_json_string(jc, "labels");
   {
     wg_json_map_open(jc);
-    wg_json_string(jc, "type");
-    wg_json_string(jc, element->key.type);
-    wg_json_string(jc, "typeInstance");
-    wg_json_string(jc, element->key.type_instance);
+    for (int i = 0; i < element->key.num_metadata_entries; ++i) {
+      wg_metadata_entry_t *entry = &element->key.metadata_entries[i];
+      const char *key_pref = custom_metric_label_prefix;
+      if (strncmp(entry->key, key_pref, strlen(key_pref)) != 0) {
+        wg_json_string(jc, &entry->key[strlen(key_pref)]);
+        wg_json_string(jc, entry->value.value_text);
+      }
+    }
     wg_json_map_close(jc);
   }
 
   wg_json_map_close(jc);
 }
 
-static void wg_json_Points(json_ctx_t *jc,
-			   const wg_payload_t *element) {
+static void wg_json_Points(json_ctx_t *jc, const wg_payload_t *element) {
+
   wg_json_array_open(jc);
 
-  int i;
-  for (i = 0; i < element->num_values; ++i) {
-    const wg_payload_value_t *value = &element->values[i];
+  assert(element->num_values == 1);
+  const wg_payload_value_t *value = &element->values[0];
+  assert(!strcmp(value->name, "value"));
 
-    wg_typed_value_t typed_value;
-    const char *data_source_type_static;
-    if (wg_typed_value_create_from_value_t_inline(&typed_value,
-						  value->ds_type, value->val, &data_source_type_static) != 0) {
-      WARNING("write_gcm: wg_typed_value_create_from_value_t_inline failed for "
-	      "%s/%s/%s! Continuing.",
-	      element->key.plugin, element->key.type, value->name);
-      continue;
-    }
+  wg_typed_value_t typed_value;
+  // We don't care what the name of the type is.
+  const char *data_source_type_static;
+  if (wg_typed_value_create_from_value_t_inline(&typed_value,
+            value->ds_type, value->val, &data_source_type_static) != 0) {
+    ERROR("write_gcm: wg_typed_value_create_from_value_t_inline failed for "
+      "%s/%s/%s!.",
+      element->key.plugin, element->key.type, value->name);
+    goto leave;
+  }
+  wg_json_map_open(jc);
+
+  wg_json_string(jc, "interval");
+  {
     wg_json_map_open(jc);
-
-    wg_json_string(jc, "interval");
-    {
-      wg_json_map_open(jc);
-      wg_json_string(jc, "startTime");
-      wg_json_RFC3339Timestamp(jc, element->start_time);
-      wg_json_string(jc, "endTime");
-      wg_json_RFC3339Timestamp(jc, element->end_time);
-      wg_json_map_close(jc);
-    }
-
-    wg_json_string(jc, "value");
-    wg_json_TypedValue(jc, &typed_value);
-
+    wg_json_string(jc, "startTime");
+    wg_json_RFC3339Timestamp(jc, element->start_time);
+    wg_json_string(jc, "endTime");
+    wg_json_RFC3339Timestamp(jc, element->end_time);
     wg_json_map_close(jc);
   }
 
+  wg_json_string(jc, "value");
+  wg_json_TypedValue(jc, &typed_value);
+
+  wg_json_map_close(jc);
+
+  leave:
   wg_json_array_close(jc);
 }
 
@@ -2866,6 +2883,59 @@ static void wg_json_CreateTimeSeries(
     }
 
     WARNING("type: %s, typeInstance: %s", head->key.type, head->key.type_instance);
+    // Validate ahead of time, easily avoid sending a partial timeseries.
+    // If the metric doesn't match, we log an error and drop it.
+    if (head->num_values != 1) {
+      ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+            "type_instance: %s had more than one data source.",
+            head->key.plugin, head->key.plugin_instance, head->key.type,
+            head->key.type_instance);
+      continue;
+    }
+    if (strcmp(head->values[0].name, "value") != 0) {
+      ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+            "type_instance: %s data source was not called 'value'.",
+            head->key.plugin, head->key.plugin_instance, head->key.type,
+            head->key.type_instance);
+      continue;
+    }
+    if (head->values[0].ds_type == DS_TYPE_ABSOLUTE) {
+      ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+            "type_instance: %s type cannot be ABSOLUTE.",
+            head->key.plugin, head->key.plugin_instance, head->key.type,
+            head->key.type_instance);
+      continue;
+    }
+  
+    for (int i = 0; i < head->key.num_metadata_entries; ++i) {
+      wg_metadata_entry_t *entry = &head->key.metadata_entries[i];
+      if (strcmp(entry->key, custom_metric_key) != 0) {
+        if (entry->value.value_type != wg_typed_value_string) {
+          ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+                "type_instance: %s metric type must be string.",
+                head->key.plugin, head->key.plugin_instance, head->key.type,
+                head->key.type_instance);
+          continue;
+        }
+        const char *pref = custom_metric_prefix;
+        if (strncmp(entry->value.value_text, pref, strlen(pref)) != 0) {
+          ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+                "type_instance: %s metric type is not a custom metric.",
+                head->key.plugin, head->key.plugin_instance, head->key.type,
+                head->key.type_instance);
+          continue;
+        }
+      }
+      const char *key_pref = custom_metric_label_prefix;
+      if (strncmp(entry->key, key_pref, strlen(key_pref)) != 0) {
+        if (entry->value.value_type != wg_typed_value_string) {
+          ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+                "type_instance: %s metric label is not a string.",
+                head->key.plugin, head->key.plugin_instance, head->key.type,
+                head->key.type_instance);
+        }
+      }
+    }
 
     wg_json_map_open(jc);
 
@@ -2874,12 +2944,22 @@ static void wg_json_CreateTimeSeries(
 
     wg_json_string(jc, "metric");
     wg_json_Metric(jc, head);
+  
+    switch (head->values[0].ds_type) {
+      case DS_TYPE_GAUGE:
+      wg_json_string(jc, "metricKind");
+      wg_json_string(jc, "GAUGE");
+      wg_json_string(jc, "valueType");
+      wg_json_string(jc, "FLOAT");
+      break;
 
-    if(strcmp(head->key.type, "counter") == 0) {
+      case DS_TYPE_DERIVE:
+      case DS_TYPE_COUNTER:
       wg_json_string(jc, "metricKind");
       wg_json_string(jc, "CUMULATIVE");
       wg_json_string(jc, "valueType");
       wg_json_string(jc, "INT64");
+      break;
     }
 
     wg_json_string(jc, "points");
