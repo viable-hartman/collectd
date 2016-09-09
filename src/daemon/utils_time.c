@@ -199,8 +199,14 @@ static int format_zone (char *buffer, size_t buffer_size, struct tm const *tm) /
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Add RFC3339 Zulu time functions
 int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
                    long nsec, bool print_nano, char const *zone) /* {{{ */
+=======
+static int format_rfc3339 (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano, _Bool zulu) /* {{{ */
+>>>>>>> Add RFC3339 Zulu time functions
 {
   size_t len;
   char *pos = buffer;
@@ -289,6 +295,7 @@ int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
     status = format_zone (zone, sizeof (zone), &t_tm);
     if (status != 0)
       return status;
+<<<<<<< HEAD
 =======
 int format_rfc3339 (char *buffer, size_t buffer_size, struct tm const *t_tm, long nsec, _Bool print_nano, char const *zone) /* {{{ */
 {
@@ -307,6 +314,8 @@ int format_rfc3339 (char *buffer, size_t buffer_size, struct tm const *t_tm, lon
     pos += len;
     size_left -= len;
 >>>>>>> Address review comments:
+=======
+>>>>>>> Add RFC3339 Zulu time functions
   }
 >>>>>>> Add RFC3339 Zulu time functions
 
@@ -394,14 +403,18 @@ int rfc3339 (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Add RFC3339 Zulu time functions
   return format_rfc3339_utc(buffer, buffer_size, t, 0);
 } /* }}} int rfc3339 */
 =======
   return format_rfc3339 (buffer, buffer_size, t, 0, 0);
 } /* }}} size_t cdtime_to_rfc3339 */
 >>>>>>> Add RFC3339 Zulu time functions
+<<<<<<< HEAD
 =======
   return format_rfc3339_utc (buffer, buffer_size, t, 0, utc_zone);
 =======
@@ -409,6 +422,8 @@ int rfc3339 (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 >>>>>>> Address more review comments:
 } /* }}} int rfc3339 */
 >>>>>>> Address review comments:
+=======
+>>>>>>> Add RFC3339 Zulu time functions
 
 int rfc3339nano(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
@@ -419,8 +434,11 @@ int rfc3339nano(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Add RFC3339 Zulu time functions
   return format_rfc3339_utc(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
 
@@ -440,6 +458,7 @@ int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 =======
   return format_rfc3339 (buffer, buffer_size, t, 1, 0);
 } /* }}} size_t cdtime_to_rfc3339nano */
+<<<<<<< HEAD
 =======
   return format_rfc3339_utc (buffer, buffer_size, t, 1, utc_zone);
 =======
@@ -449,19 +468,28 @@ int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 >>>>>>> Address review comments:
 
 <<<<<<< HEAD
+=======
+
+>>>>>>> Add RFC3339 Zulu time functions
 int rfc3339_zulu (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339_ZULU_SIZE)
     return ENOMEM;
 
+<<<<<<< HEAD
   return format_rfc3339_utc (buffer, buffer_size, t, 0, zulu_zone);
 } /* }}} int rfc3339_zulu */
+=======
+  return format_rfc3339 (buffer, buffer_size, t, 0, 1);
+} /* }}} size_t cdtime_to_rfc3339 */
+>>>>>>> Add RFC3339 Zulu time functions
 
 int rfc3339nano_zulu (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339NANO_ZULU_SIZE)
     return ENOMEM;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   return format_rfc3339 (buffer, buffer_size, t, 1, 1);
 } /* }}} size_t cdtime_to_rfc3339nano */
@@ -493,6 +521,11 @@ int rfc3339nano_local (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 >>>>>>> Address review comments:
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+  return format_rfc3339 (buffer, buffer_size, t, 1, 1);
+} /* }}} size_t cdtime_to_rfc3339nano */
+>>>>>>> Add RFC3339 Zulu time functions
+>>>>>>> Add RFC3339 Zulu time functions
 
   return format_rfc3339_local(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */

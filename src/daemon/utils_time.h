@@ -50,8 +50,11 @@ extern cdtime_t cdtime_mock;
 /* 2^30 = 1073741824 */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from utils_time.h
+=======
+>>>>>>> Add RFC3339 Zulu time functions
 #define TIME_T_TO_CDTIME_T_STATIC(t) (((cdtime_t)(t)) << 30)
 #define TIME_T_TO_CDTIME_T(t)                                                  \
   (cdtime_t) { TIME_T_TO_CDTIME_T_STATIC(t) }
@@ -133,6 +136,9 @@ int rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t);
  * nanosecond precision, e.g., "2006-01-02T15:04:05.999999999+00:00". */
 int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Add RFC3339 Zulu time functions
 =======
 #define TIME_T_TO_CDTIME_T(t) (((cdtime_t) (t)) << 30)
 
@@ -168,6 +174,7 @@ int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t);
 
 cdtime_t cdtime (void);
 
+<<<<<<< HEAD
 #define RFC3339_SIZE     26  /* 2006-01-02T15:04:05+00:00 */
 #define RFC3339NANO_SIZE 36  /* 2006-01-02T15:04:05.999999999+00:00 */
 
@@ -189,5 +196,28 @@ int rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t);
 /* rfc3339nano formats a cdtime_t time as local in RFC 3339 format with
  * nanosecond precision, e.g., "2006-01-02T15:04:05.999999999+00:00". */
 int rfc3339nano_local (char *buffer, size_t buffer_size, cdtime_t t);
+=======
+#define RFC3339_SIZE     26
+#define RFC3339NANO_SIZE 36
+
+#define RFC3339_ZULU_SIZE     21
+#define RFC3339NANO_ZULU_SIZE 31
+
+/* rfc3339 formats a cdtime_t time in RFC 3339 format with second precision. */
+int rfc3339 (char *buffer, size_t buffer_size, cdtime_t t);
+
+/* rfc3339nano formats a cdtime_t time in RFC 3339 format with nanosecond
+ * precision. */
+int rfc3339nano (char *buffer, size_t buffer_size, cdtime_t t);
+>>>>>>> Add RFC3339 Zulu time functions
+
+/* rfc3339 formats a cdtime_t time in RFC 3339 zulu format with second
+ * precision. */
+int rfc3339_zulu (char *buffer, size_t buffer_size, cdtime_t t);
+
+/* rfc3339nano formats a cdtime_t time in RFC 3339 zulu format with nanosecond
+ * precision. */
+int rfc3339nano_zulu (char *buffer, size_t buffer_size, cdtime_t t);
+>>>>>>> Add RFC3339 Zulu time functions
 
 #endif /* UTILS_TIME_H */
