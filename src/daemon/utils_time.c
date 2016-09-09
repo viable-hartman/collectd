@@ -143,8 +143,12 @@ static int format_zone(char *buffer, size_t buffer_size,
   return 0;
 } /* }}} int format_zone */
 
+<<<<<<< HEAD
 int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
                    long nsec, bool print_nano, char const *zone) /* {{{ */
+=======
+static int format_rfc3339 (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano, _Bool zulu) /* {{{ */
+>>>>>>> Add RFC3339 Zulu time functions
 {
   size_t len;
   char *pos = buffer;
@@ -176,9 +180,29 @@ int format_rfc3339_utc(char *buffer, size_t buffer_size, cdtime_t t,
   if ((status = get_utc_time(t, &t_tm, &nsec)) != 0)
     return status; /* The error should have already be reported. */
 
+<<<<<<< HEAD
   return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano,
                         zulu_zone);
 } /* }}} int format_rfc3339_utc */
+=======
+  if (zulu) {
+    if (gmtime_r (&t_spec.tv_sec, &t_tm) == NULL) {
+      char errbuf[1024];
+      status = errno;
+      ERROR ("format_rfc3339: gmtime_r failed: %s",
+          sstrerror (status, errbuf, sizeof (errbuf)));
+      return (status);
+    }
+  } else {
+    if (localtime_r (&t_spec.tv_sec, &t_tm) == NULL) {
+      char errbuf[1024];
+      status = errno;
+      ERROR ("format_rfc3339: localtime_r failed: %s",
+          sstrerror (status, errbuf, sizeof (errbuf)));
+      return (status);
+    }
+  }
+>>>>>>> Add RFC3339 Zulu time functions
 
 int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
                          bool print_nano) /* {{{ */
@@ -191,8 +215,19 @@ int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
   if ((status = get_local_time(t, &t_tm, &nsec)) != 0)
     return status; /* The error should have already be reported. */
 
+<<<<<<< HEAD
   if ((status = format_zone(zone, sizeof(zone), &t_tm)) != 0)
     return status;
+=======
+  if (zulu) {
+    zone[0] = 'Z';
+    zone[1] = 0;
+  } else {
+    status = format_zone (zone, sizeof (zone), &t_tm);
+    if (status != 0)
+      return status;
+  }
+>>>>>>> Add RFC3339 Zulu time functions
 
   return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano, zone);
 } /* }}} int format_rfc3339_local */
@@ -206,14 +241,20 @@ int rfc3339(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
   if (buffer_size < RFC3339_SIZE)
     return ENOMEM;
 
+<<<<<<< HEAD
   return format_rfc3339_utc(buffer, buffer_size, t, 0);
 } /* }}} int rfc3339 */
+=======
+  return format_rfc3339 (buffer, buffer_size, t, 0, 0);
+} /* }}} size_t cdtime_to_rfc3339 */
+>>>>>>> Add RFC3339 Zulu time functions
 
 int rfc3339nano(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339NANO_SIZE)
     return ENOMEM;
 
+<<<<<<< HEAD
   return format_rfc3339_utc(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
 
@@ -229,6 +270,26 @@ int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339NANO_SIZE)
     return ENOMEM;
+=======
+  return format_rfc3339 (buffer, buffer_size, t, 1, 0);
+} /* }}} size_t cdtime_to_rfc3339nano */
+
+int rfc3339_zulu (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
+{
+  if (buffer_size < RFC3339_ZULU_SIZE)
+    return ENOMEM;
+
+  return format_rfc3339 (buffer, buffer_size, t, 0, 1);
+} /* }}} size_t cdtime_to_rfc3339 */
+
+int rfc3339nano_zulu (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
+{
+  if (buffer_size < RFC3339NANO_ZULU_SIZE)
+    return ENOMEM;
+
+  return format_rfc3339 (buffer, buffer_size, t, 1, 1);
+} /* }}} size_t cdtime_to_rfc3339nano */
+>>>>>>> Add RFC3339 Zulu time functions
 
   return format_rfc3339_local(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
