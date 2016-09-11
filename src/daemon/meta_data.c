@@ -32,6 +32,8 @@
 
 #define MD_MAX_NONSTRING_CHARS 128
 
+#define MD_MAX_NONSTRING_CHARS 128
+
 /*
  * Data types
  */
