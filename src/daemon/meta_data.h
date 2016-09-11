@@ -68,4 +68,9 @@ int meta_data_get_boolean(meta_data_t *md, const char *key, _Bool *value);
 /* Returns the value as a string, regardless of the type. */
 int meta_data_as_string(meta_data_t *md, const char *key, char **value);
 
+/* Returns the value as a string, regardless of the type. */
+int meta_data_as_string (meta_data_t *md,
+    const char *key,
+    char **value);
+
 #endif /* META_DATA_H */
