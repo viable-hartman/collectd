@@ -235,6 +235,14 @@ static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
     return -ENOMEM;
   }
 
+  act->key = tr_strdup (ci->values[0].value.string);
+  if (act->key == NULL)
+  {
+    ERROR ("tr_config_add_meta_action: tr_strdup failed.");
+    tr_meta_data_action_destroy (act);
+    return (-ENOMEM);
+  }
+
   if (!should_delete) {
     act->replacement = tr_strdup(ci->values[2].value.string);
     if (act->replacement == NULL) {
