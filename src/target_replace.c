@@ -123,8 +123,12 @@ static void tr_meta_data_action_destroy (tr_meta_data_action_t *act) /* {{{ */
 } /* }}} void tr_meta_data_action_destroy */
 
 static int tr_config_add_action (tr_action_t **dest, /* {{{ */
+<<<<<<< HEAD
     const oconfig_item_t *ci, int may_be_empty)
 >>>>>>> Allow replacing within and deleting metadata keys.
+=======
+    const oconfig_item_t *ci, _Bool may_be_empty)
+>>>>>>> Address review comments:
 {
   if (act == NULL)
     return;
@@ -177,11 +181,20 @@ static int tr_config_add_action(tr_action_t **dest, /* {{{ */
     return -EINVAL;
   }
 
+<<<<<<< HEAD
   act->replacement = tr_strdup(ci->values[1].value.string);
   if (act->replacement == NULL) {
     ERROR("tr_config_add_action: tr_strdup failed.");
     tr_action_destroy(act);
     return -ENOMEM;
+=======
+  act->replacement = tr_strdup (ci->values[1].value.string);
+  if (act->replacement == NULL)
+  {
+    ERROR ("tr_config_add_action: tr_strdup failed.");
+    tr_action_destroy (act);
+    return (-ENOMEM);
+>>>>>>> Address review comments:
   }
 
   /* Insert action at end of list. */
@@ -206,7 +219,7 @@ static int tr_config_add_meta_action(tr_meta_data_action_t **dest, /* {{{ */
                                      _Bool should_delete) {
 =======
 static int tr_config_add_meta_action (tr_meta_data_action_t **dest, /* {{{ */
-    const oconfig_item_t *ci, int should_delete)
+    const oconfig_item_t *ci, _Bool should_delete)
 {
 >>>>>>> Allow replacing within and deleting metadata keys.
   tr_meta_data_action_t *act;
@@ -292,6 +305,7 @@ static int tr_config_add_meta_action (tr_meta_data_action_t **dest, /* {{{ */
   act->replacement = NULL;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   status = regcomp(&act->re, ci->values[1].value.string, REG_EXTENDED);
   if (status != 0) {
     char errbuf[1024] = "";
@@ -328,6 +342,8 @@ static int tr_config_add_meta_action (tr_meta_data_action_t **dest, /* {{{ */
     return (-ENOMEM);
   }
 
+=======
+>>>>>>> Address review comments:
   status = regcomp (&act->re, ci->values[1].value.string, REG_EXTENDED);
   if (status != 0)
   {
@@ -343,14 +359,20 @@ static int tr_config_add_meta_action (tr_meta_data_action_t **dest, /* {{{ */
     return (-EINVAL);
   }
 
+  act->key = tr_strdup (ci->values[0].value.string);
+  if (act->key == NULL)
+  {
+    ERROR ("tr_config_add_meta_action: tr_strdup failed.");
+    tr_meta_data_action_destroy (act);
+    return (-ENOMEM);
+  }
+
   if (!should_delete) {
     act->replacement = tr_strdup (ci->values[2].value.string);
     if (act->replacement == NULL)
     {
       ERROR ("tr_config_add_meta_action: tr_strdup failed.");
-      sfree (act->key);
-      regfree (&act->re);
-      sfree (act);
+      tr_meta_data_action_destroy (act);
       return (-ENOMEM);
 >>>>>>> Allow replacing within and deleting metadata keys.
     }
@@ -386,7 +408,7 @@ static int tr_action_invoke(tr_action_t *act_head, /* {{{ */
 } /* }}} int tr_config_add_meta_action */
 
 static int tr_action_invoke (tr_action_t *act_head, /* {{{ */
-    char *buffer_in, size_t buffer_in_size, int may_be_empty)
+    char *buffer_in, size_t buffer_in_size, _Bool may_be_empty)
 {
 >>>>>>> Allow replacing within and deleting metadata keys.
   int status;
@@ -479,6 +501,7 @@ static int tr_meta_data_action_invoke ( /* {{{ */
     int meta_data_status;
     char *value;
 <<<<<<< HEAD
+<<<<<<< HEAD
     meta_data_t *result;
 
     value_type = meta_data_type(*dest, act->key);
@@ -567,13 +590,16 @@ static int tr_meta_data_action_invoke ( /* {{{ */
 
 static int tr_destroy(void **user_data) /* {{{ */
 =======
+=======
+    meta_data_t *result;
+>>>>>>> Address review comments:
 
     value_type = meta_data_type (*dest, act->key);
     if (value_type == 0)  /* not found */
       continue;
     if (value_type != MD_TYPE_STRING)
     {
-      ERROR ("Target `replace': Attempting replace on metadata key `%s', "
+      WARNING ("Target `replace': Attempting replace on metadata key `%s', "
           "which isn't a string.",
           act->key);
       continue;
@@ -594,7 +620,10 @@ static int tr_destroy(void **user_data) /* {{{ */
         STATIC_ARRAY_SIZE (matches), matches,
         /* flags = */ 0);
     if (status == REG_NOMATCH)
+    {
+      sfree (value);
       continue;
+    }
     else if (status != 0)
     {
       char errbuf[1024] = "";
@@ -602,53 +631,56 @@ static int tr_destroy(void **user_data) /* {{{ */
       regerror (status, &act->re, errbuf, sizeof (errbuf));
       ERROR ("Target `replace': Executing a regular expression failed: %s.",
           errbuf);
+      sfree (value);
       continue;
     }
 
-    if (act->replacement != NULL)
+    if (act->replacement == NULL)
     {
-      meta_data_t *result;
-
-      subst_status = subst (temp, sizeof (temp), value,
-          (size_t) matches[0].rm_so, (size_t) matches[0].rm_eo,
-          act->replacement);
-      if (subst_status == NULL)
-      {
-        ERROR ("Target `replace': subst (value = %s, start = %zu, end = %zu, "
-            "replacement = %s) failed.",
-            value, (size_t) matches[0].rm_so, (size_t) matches[0].rm_eo,
-            act->replacement);
-        continue;
-      }
-
-      DEBUG ("target_replace plugin: tr_meta_data_action_invoke: `%s' "
-          "value `%s' -> `%s'", act->key, value, temp);
-
-      if ((result = meta_data_create()) == NULL)
-      {
-        ERROR ("Target `replace': failed to create metadata for `%s'.",
-            act->key);
-        return (-ENOMEM);
-      }
-
-      meta_data_status = meta_data_add_string (result, act->key, temp);
-
-      if (meta_data_status != 0)
-      {
-        ERROR ("Target `replace': Unable to set metadata value for `%s'.",
-            act->key);
-        return (meta_data_status);
-      }
-
-      meta_data_clone_merge (dest, result);
-      meta_data_destroy (result);
-    }
-    else  /* no replacement; delete the key */
-    {
+      /* no replacement; delete the key */
       DEBUG ("target_replace plugin: tr_meta_data_action_invoke: "
           "deleting `%s'", act->key);
       meta_data_delete (*dest, act->key);
+      sfree (value);
+      continue;
     }
+
+    subst_status = subst (temp, sizeof (temp), value,
+        (size_t) matches[0].rm_so, (size_t) matches[0].rm_eo, act->replacement);
+    if (subst_status == NULL)
+    {
+      ERROR ("Target `replace': subst (value = %s, start = %zu, end = %zu, "
+          "replacement = %s) failed.",
+          value, (size_t) matches[0].rm_so, (size_t) matches[0].rm_eo,
+          act->replacement);
+      sfree (value);
+      continue;
+    }
+
+    DEBUG ("target_replace plugin: tr_meta_data_action_invoke: `%s' "
+        "value `%s' -> `%s'", act->key, value, temp);
+
+    if ((result = meta_data_create()) == NULL)
+    {
+      ERROR ("Target `replace': failed to create metadata for `%s'.",
+          act->key);
+      sfree (value);
+      return (-ENOMEM);
+    }
+
+    meta_data_status = meta_data_add_string (result, act->key, temp);
+    if (meta_data_status != 0)
+    {
+      ERROR ("Target `replace': Unable to set metadata value for `%s'.",
+          act->key);
+      meta_data_destroy (result);
+      sfree (value);
+      return (meta_data_status);
+    }
+
+    meta_data_clone_merge (dest, result);
+    meta_data_destroy (result);
+    sfree (value);
   } /* for (act = act_head; act != NULL; act = act->next) */
 
   return (0);
