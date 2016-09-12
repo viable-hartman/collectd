@@ -40,6 +40,9 @@
 #define WL_FORMAT_GRAPHITE 1
 #define WL_FORMAT_JSON 2
 
+/* Plugin:WriteLog has to also operate without a config, so use a global. */
+int wl_format = WL_FORMAT_GRAPHITE;
+
 static int wl_write_graphite (const data_set_t *ds, const value_list_t *vl)
 {
     char buffer[WL_BUF_SIZE] = { 0 };
