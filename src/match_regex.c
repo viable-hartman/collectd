@@ -61,8 +61,11 @@ struct mr_match_s;
 typedef struct mr_match_s mr_match_t;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow Match:Regex to match metadata.
 struct mr_match_s {
   mr_regex_t *host;
   mr_regex_t *plugin;
@@ -89,7 +92,21 @@ struct mr_match_s
 >>>>>>> Treewide: use bool instead of _Bool
 =======
   bool invert;
+<<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+=======
+struct mr_match_s
+{
+	mr_regex_t *host;
+	mr_regex_t *plugin;
+	mr_regex_t *plugin_instance;
+	mr_regex_t *type;
+	mr_regex_t *type_instance;
+	llist_t *meta;  /* Maps each meta key into mr_regex_t* */
+	_Bool invert;
+>>>>>>> Allow Match:Regex to match metadata.
+>>>>>>> Allow Match:Regex to match metadata.
 };
 
 /*
@@ -124,8 +141,11 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
 {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow Match:Regex to match metadata.
   if (m == NULL)
     return;
 
@@ -142,6 +162,9 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
 
   sfree(m);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Allow Match:Regex to match metadata.
 =======
 	if (m == NULL)
 		return;
@@ -153,11 +176,16 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
 	mr_free_regex (m->type_instance);
 	for (llentry_t *e = llist_head(m->meta); e != NULL; e = e->next)
 	{
+<<<<<<< HEAD
 		sfree (e->key);
+=======
+		free (e->key);
+>>>>>>> Allow Match:Regex to match metadata.
 		mr_free_regex ((mr_regex_t *) e->value);
 	}
 	llist_destroy (m->meta);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 	free (m);
 >>>>>>> Allow Match:Regex to match metadata.
@@ -166,6 +194,10 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
 >>>>>>> Address review comments:
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+	free (m);
+>>>>>>> Allow Match:Regex to match metadata.
+>>>>>>> Allow Match:Regex to match metadata.
 } /* }}} void mr_free_match */
 
 static int mr_match_regexen(mr_regex_t *re_head, /* {{{ */
@@ -194,8 +226,11 @@ static int mr_match_regexen(mr_regex_t *re_head, /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Allow Match:Regex to match metadata.
 static int mr_add_regex(mr_regex_t **re_head, const char *re_str, /* {{{ */
                         const char *option) {
   mr_regex_t *re;
@@ -384,7 +419,11 @@ static int mr_add_regex (mr_regex_t **re_head, const char *re_str, /* {{{ */
 	re->re_str = strdup (re_str);
 	if (re->re_str == NULL)
 	{
+<<<<<<< HEAD
 		sfree (re);
+=======
+		free (re);
+>>>>>>> Allow Match:Regex to match metadata.
 		log_err ("mr_add_regex: strdup failed.");
 		return (-1);
 	}
@@ -397,8 +436,13 @@ static int mr_add_regex (mr_regex_t **re_head, const char *re_str, /* {{{ */
 		errmsg[sizeof (errmsg) - 1] = 0;
 		log_err ("Compiling regex `%s' for `%s' failed: %s.",
 				re->re_str, option, errmsg);
+<<<<<<< HEAD
 		sfree (re->re_str);
 		sfree (re);
+=======
+		free (re->re_str);
+		free (re);
+>>>>>>> Allow Match:Regex to match metadata.
 		return (-1);
 	}
 
@@ -435,7 +479,11 @@ static int mr_config_add_regex (mr_regex_t **re_head, /* {{{ */
 static int mr_config_add_meta_regex (llist_t **meta, /* {{{ */
 		oconfig_item_t *ci)
 {
+<<<<<<< HEAD
 	char *meta_key;
+=======
+	char *key;
+>>>>>>> Allow Match:Regex to match metadata.
 	llentry_t *entry;
 	mr_regex_t *re_head;
 	int status;
@@ -459,16 +507,26 @@ static int mr_config_add_meta_regex (llist_t **meta, /* {{{ */
 		}
 	}
 
+<<<<<<< HEAD
 	meta_key = ci->values[0].value.string;
 	entry = llist_search (*meta, meta_key);
 	if (entry == NULL)
 	{
 		meta_key = strdup (meta_key);
 		if (meta_key == NULL)
+=======
+	key = ci->values[0].value.string;
+	entry = llist_search (*meta, key);
+	if (entry == NULL)
+	{
+		key = strdup (key);
+		if (key == NULL)
+>>>>>>> Allow Match:Regex to match metadata.
 		{
 			log_err ("mr_config_add_meta_regex: strdup failed.");
 			return (-1);
 		}
+<<<<<<< HEAD
 		entry = llentry_create (meta_key, NULL);
 		if (entry == NULL)
 		{
@@ -481,6 +539,20 @@ static int mr_config_add_meta_regex (llist_t **meta, /* {{{ */
 	}
 
 	ssnprintf (buffer, sizeof (buffer), "%s `%s'", ci->key, meta_key);
+=======
+		entry = llentry_create (key, NULL);
+		if (entry == NULL)
+		{
+			log_err ("mr_config_add_meta_regex: llentry_create failed.");
+			free (key);
+			return (-1);
+		}
+		/* key and entry will now be freed by mr_free_match(). */
+		llist_append (*meta, entry);
+	}
+
+	snprintf (buffer, sizeof (buffer), "%s `%s'", ci->key, key);
+>>>>>>> Allow Match:Regex to match metadata.
 	/* Can't pass &entry->value into mr_add_regex, so copy in/out. */
 	re_head = entry->value;
 	status = mr_add_regex (&re_head, ci->values[1].value.string, buffer);
@@ -562,6 +634,7 @@ static int mr_create (const oconfig_item_t *ci, void **user_data) /* {{{ */
 	*user_data = m;
 	return (0);
 >>>>>>> Allow Match:Regex to match metadata.
+<<<<<<< HEAD
 } /* }}} int mr_create */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
@@ -686,6 +759,8 @@ static int mr_match (const data_set_t __attribute__((unused)) *ds, /* {{{ */
 
   *user_data = m;
   return 0;
+=======
+>>>>>>> Allow Match:Regex to match metadata.
 } /* }}} int mr_create */
 
 static int mr_destroy(void **user_data) /* {{{ */
@@ -695,6 +770,7 @@ static int mr_destroy(void **user_data) /* {{{ */
   return 0;
 } /* }}} int mr_destroy */
 
+<<<<<<< HEAD
 static int mr_match(const data_set_t __attribute__((unused)) * ds, /* {{{ */
                     const value_list_t *vl,
                     notification_meta_t __attribute__((unused)) * *meta,
@@ -743,7 +819,64 @@ static int mr_match(const data_set_t __attribute__((unused)) * ds, /* {{{ */
   }
 
   return match_value;
+<<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+=======
+static int mr_match (const data_set_t __attribute__((unused)) *ds, /* {{{ */
+		const value_list_t *vl,
+		notification_meta_t __attribute__((unused)) **meta,
+		void **user_data)
+{
+	mr_match_t *m;
+	int match_value = FC_MATCH_MATCHES;
+	int nomatch_value = FC_MATCH_NO_MATCH;
+
+	if ((user_data == NULL) || (*user_data == NULL))
+		return (-1);
+
+	m = *user_data;
+
+	if (m->invert)
+	{
+		match_value = FC_MATCH_NO_MATCH;
+		nomatch_value = FC_MATCH_MATCHES;
+	}
+
+	if (mr_match_regexen (m->host, vl->host) == FC_MATCH_NO_MATCH)
+		return (nomatch_value);
+	if (mr_match_regexen (m->plugin, vl->plugin) == FC_MATCH_NO_MATCH)
+		return (nomatch_value);
+	if (mr_match_regexen (m->plugin_instance,
+				vl->plugin_instance) == FC_MATCH_NO_MATCH)
+		return (nomatch_value);
+	if (mr_match_regexen (m->type, vl->type) == FC_MATCH_NO_MATCH)
+		return (nomatch_value);
+	if (mr_match_regexen (m->type_instance,
+				vl->type_instance) == FC_MATCH_NO_MATCH)
+		return (nomatch_value);
+	if (vl->meta != NULL)
+	{
+		for (llentry_t *e = llist_head(m->meta); e != NULL; e = e->next)
+		{
+			mr_regex_t *meta_re = (mr_regex_t *) e->value;
+			char *value;
+			int status = meta_data_get_string (vl->meta, e->key, &value);
+			if (status == 0)  /* key is present */
+			{
+				if (mr_match_regexen (meta_re, value) == FC_MATCH_NO_MATCH)
+				{
+					free (value);
+					return (nomatch_value);
+				}
+				free (value);
+			}
+		}
+	}
+
+	return (match_value);
+>>>>>>> Allow Match:Regex to match metadata.
+>>>>>>> Allow Match:Regex to match metadata.
 } /* }}} int mr_match */
 
 void module_register(void) {
