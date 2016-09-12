@@ -145,13 +145,16 @@ static int ts_config_add_meta_delete(ts_key_list_t **dest, /* {{{ */
   }
 
   if (cf_util_get_string (ci, &entry->key) != 0)
+  {
+    ts_key_list_free (entry);
     return (-1);  /* An error has already been reported. */
+  }
 
   if (strlen (entry->key) == 0)
   {
     ERROR ("Target `set': The `%s' option does not accept empty string as "
         "first argument.", ci->key);
-    sfree (entry->key);
+    ts_key_list_free (entry);
     return (-1);
   }
 
