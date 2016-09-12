@@ -2909,7 +2909,7 @@ static void wg_json_CreateTimeSeries(
   
     for (int i = 0; i < head->key.num_metadata_entries; ++i) {
       wg_metadata_entry_t *entry = &head->key.metadata_entries[i];
-      if (strcmp(entry->key, custom_metric_key) != 0) {
+      if (strcmp(entry->key, custom_metric_key) == 0) {
         if (entry->value.value_type != wg_typed_value_string) {
           ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
                 "type_instance: %s metric type must be string.",
