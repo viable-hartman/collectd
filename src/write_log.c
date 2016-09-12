@@ -47,10 +47,13 @@
 /* Plugin:WriteLog has to also operate without a config, so use a global. */
 int wl_format = WL_FORMAT_GRAPHITE;
 
+<<<<<<< HEAD
 =======
 =======
 
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+>>>>>>> Address review comments:
 static int wl_write_graphite (const data_set_t *ds, const value_list_t *vl)
 {
     char buffer[WL_BUF_SIZE] = { 0 };
@@ -151,6 +154,7 @@ static int wl_write_json (const data_set_t *ds, const value_list_t *vl)
 
 static int wl_write (const data_set_t *ds, const value_list_t *vl,
 <<<<<<< HEAD
+<<<<<<< HEAD
         __attribute__ ((unused)) user_data_t *user_data)
 {
     int status = 0;
@@ -162,16 +166,22 @@ static int wl_write (const data_set_t *ds, const value_list_t *vl,
     else if (wl_format == WL_FORMAT_JSON)
 =======
         user_data_t *user_data)
+=======
+        __attribute__ ((unused)) user_data_t *user_data)
+>>>>>>> Address review comments:
 {
     int status = 0;
-    int mode = (int) (size_t) user_data->data;
 
-    if (mode == WL_FORMAT_GRAPHITE)
+    if (wl_format == WL_FORMAT_GRAPHITE)
     {
         status = wl_write_graphite (ds, vl);
     }
+<<<<<<< HEAD
     else if (mode == WL_FORMAT_JSON)
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+    else if (wl_format == WL_FORMAT_JSON)
+>>>>>>> Address review comments:
     {
         status = wl_write_json (ds, vl);
     }
@@ -221,8 +231,13 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
 =======
 static int wl_config (oconfig_item_t *ci) /* {{{ */
 {
+<<<<<<< HEAD
     int mode = 0;
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+    _Bool format_seen = 0;
+
+>>>>>>> Address review comments:
     for (int i = 0; i < ci->children_num; i++)
     {
         oconfig_item_t *child = ci->children + i;
@@ -230,12 +245,16 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
         if (strcasecmp ("Format", child->key) == 0)
         {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Address review comments:
             char str[16];
 
             if (cf_util_get_string_buffer (child, str, sizeof (str)) != 0)
                 continue;
 
             if (format_seen)
+<<<<<<< HEAD
 =======
             char *mode_str = NULL;
             if ((child->values_num != 1)
@@ -247,17 +266,23 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
             }
             if (mode != 0)
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+>>>>>>> Address review comments:
             {
                 WARNING ("write_log plugin: Redefining option `%s'.",
                     child->key);
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Address review comments:
             format_seen = 1;
 
             if (strcasecmp ("Graphite", str) == 0)
                 wl_format = WL_FORMAT_GRAPHITE;
             else if (strcasecmp ("JSON", str) == 0)
                 wl_format = WL_FORMAT_JSON;
+<<<<<<< HEAD
             else
             {
                 ERROR ("write_log plugin: Unknown format `%s' for option `%s'.",
@@ -273,6 +298,12 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
                 ERROR ("write_log plugin: Unknown mode `%s' for option `%s'.",
                     mode_str, child->key);
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+            else
+            {
+                ERROR ("write_log plugin: Unknown format `%s' for option `%s'.",
+                    str, child->key);
+>>>>>>> Address review comments:
                 return (-EINVAL);
             }
         }
@@ -280,6 +311,7 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
         {
             ERROR ("write_log plugin: Invalid configuration option: `%s'.",
                 child->key);
+<<<<<<< HEAD
 <<<<<<< HEAD
             return (-EINVAL);
         }
@@ -297,6 +329,11 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
 
     plugin_register_write ("write_log", wl_write, &ud);
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+            return (-EINVAL);
+        }
+    }
+>>>>>>> Address review comments:
 
     return (0);
 } /* }}} int wl_config */
@@ -304,6 +341,7 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
 void module_register (void)
 {
     plugin_register_complex_config ("write_log", wl_config);
+<<<<<<< HEAD
 <<<<<<< HEAD
     /* If config is supplied, the global wl_format will be set. */
     plugin_register_write ("write_log", wl_write, NULL);
@@ -319,6 +357,10 @@ void module_register (void)
     };
 
     plugin_register_write ("write_log", wl_write, &ud);
+=======
+    /* If config is supplied, the global wl_format will be set. */
+    plugin_register_write ("write_log", wl_write, NULL);
+>>>>>>> Address review comments:
 }
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
