@@ -578,6 +578,7 @@ static int mr_config_add_meta_regex (llist_t **meta, /* {{{ */
 	}
 
 	ssnprintf (buffer, sizeof (buffer), "%s `%s'", ci->key, meta_key);
+<<<<<<< HEAD
 =======
 		entry = llentry_create (key, NULL);
 =======
@@ -599,6 +600,8 @@ static int mr_config_add_meta_regex (llist_t **meta, /* {{{ */
 =======
 	snprintf (buffer, sizeof (buffer), "%s `%s'", ci->key, meta_key);
 >>>>>>> Address review comments:
+=======
+>>>>>>> regex match: snprintf → ssnprintf
 	/* Can't pass &entry->value into mr_add_regex, so copy in/out. */
 	re_head = entry->value;
 	status = mr_add_regex (&re_head, ci->values[1].value.string, buffer);
