@@ -119,6 +119,9 @@ static void mr_free_regex(mr_regex_t *r) /* {{{ */
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Address review comments:
   regfree(&r->re);
   memset(&r->re, 0, sizeof(r->re));
   sfree(r->re_str);
@@ -127,11 +130,14 @@ static void mr_free_regex(mr_regex_t *r) /* {{{ */
 	memset (&r->re, 0, sizeof (r->re));
 	sfree (r->re_str);
 >>>>>>> Address review comments:
+<<<<<<< HEAD
 =======
   regfree(&r->re);
   memset(&r->re, 0, sizeof(r->re));
   sfree(r->re_str);
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Address review comments:
 
   if (r->next != NULL)
     mr_free_regex(r->next);
@@ -177,27 +183,37 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
 	for (llentry_t *e = llist_head(m->meta); e != NULL; e = e->next)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 		sfree (e->key);
 =======
 		free (e->key);
 >>>>>>> Allow Match:Regex to match metadata.
+=======
+		sfree (e->key);
+>>>>>>> Address review comments:
 		mr_free_regex ((mr_regex_t *) e->value);
 	}
 	llist_destroy (m->meta);
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Address review comments:
 	free (m);
 >>>>>>> Allow Match:Regex to match metadata.
 =======
 	sfree (m);
 >>>>>>> Address review comments:
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 	free (m);
 >>>>>>> Allow Match:Regex to match metadata.
 >>>>>>> Allow Match:Regex to match metadata.
+=======
+>>>>>>> Address review comments:
 } /* }}} void mr_free_match */
 
 static int mr_match_regexen(mr_regex_t *re_head, /* {{{ */
@@ -420,10 +436,14 @@ static int mr_add_regex (mr_regex_t **re_head, const char *re_str, /* {{{ */
 	if (re->re_str == NULL)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 		sfree (re);
 =======
 		free (re);
 >>>>>>> Allow Match:Regex to match metadata.
+=======
+		sfree (re);
+>>>>>>> Address review comments:
 		log_err ("mr_add_regex: strdup failed.");
 		return (-1);
 	}
@@ -437,12 +457,17 @@ static int mr_add_regex (mr_regex_t **re_head, const char *re_str, /* {{{ */
 		log_err ("Compiling regex `%s' for `%s' failed: %s.",
 				re->re_str, option, errmsg);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		sfree (re->re_str);
 		sfree (re);
 =======
 		free (re->re_str);
 		free (re);
 >>>>>>> Allow Match:Regex to match metadata.
+=======
+		sfree (re->re_str);
+		sfree (re);
+>>>>>>> Address review comments:
 		return (-1);
 	}
 
@@ -480,10 +505,14 @@ static int mr_config_add_meta_regex (llist_t **meta, /* {{{ */
 		oconfig_item_t *ci)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	char *meta_key;
 =======
 	char *key;
 >>>>>>> Allow Match:Regex to match metadata.
+=======
+	char *meta_key;
+>>>>>>> Address review comments:
 	llentry_t *entry;
 	mr_regex_t *re_head;
 	int status;
@@ -508,6 +537,7 @@ static int mr_config_add_meta_regex (llist_t **meta, /* {{{ */
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	meta_key = ci->values[0].value.string;
 	entry = llist_search (*meta, meta_key);
 	if (entry == NULL)
@@ -522,10 +552,19 @@ static int mr_config_add_meta_regex (llist_t **meta, /* {{{ */
 		key = strdup (key);
 		if (key == NULL)
 >>>>>>> Allow Match:Regex to match metadata.
+=======
+	meta_key = ci->values[0].value.string;
+	entry = llist_search (*meta, meta_key);
+	if (entry == NULL)
+	{
+		meta_key = strdup (meta_key);
+		if (meta_key == NULL)
+>>>>>>> Address review comments:
 		{
 			log_err ("mr_config_add_meta_regex: strdup failed.");
 			return (-1);
 		}
+<<<<<<< HEAD
 <<<<<<< HEAD
 		entry = llentry_create (meta_key, NULL);
 		if (entry == NULL)
@@ -541,18 +580,25 @@ static int mr_config_add_meta_regex (llist_t **meta, /* {{{ */
 	ssnprintf (buffer, sizeof (buffer), "%s `%s'", ci->key, meta_key);
 =======
 		entry = llentry_create (key, NULL);
+=======
+		entry = llentry_create (meta_key, NULL);
+>>>>>>> Address review comments:
 		if (entry == NULL)
 		{
 			log_err ("mr_config_add_meta_regex: llentry_create failed.");
-			free (key);
+			sfree (meta_key);
 			return (-1);
 		}
-		/* key and entry will now be freed by mr_free_match(). */
+		/* meta_key and entry will now be freed by mr_free_match(). */
 		llist_append (*meta, entry);
 	}
 
+<<<<<<< HEAD
 	snprintf (buffer, sizeof (buffer), "%s `%s'", ci->key, key);
 >>>>>>> Allow Match:Regex to match metadata.
+=======
+	snprintf (buffer, sizeof (buffer), "%s `%s'", ci->key, meta_key);
+>>>>>>> Address review comments:
 	/* Can't pass &entry->value into mr_add_regex, so copy in/out. */
 	re_head = entry->value;
 	status = mr_add_regex (&re_head, ci->values[1].value.string, buffer);
@@ -741,6 +787,7 @@ static int mr_match (const data_set_t __attribute__((unused)) *ds, /* {{{ */
 			if (status != 0)  /* some other problem */
 				continue;  /* error will have already been printed. */
 			if (mr_match_regexen (meta_re, value) == FC_MATCH_NO_MATCH)
+<<<<<<< HEAD
 			{
 				sfree (value);
 				return (nomatch_value);
@@ -863,14 +910,13 @@ static int mr_match (const data_set_t __attribute__((unused)) *ds, /* {{{ */
 			char *value;
 			int status = meta_data_get_string (vl->meta, e->key, &value);
 			if (status == 0)  /* key is present */
+=======
+>>>>>>> Address review comments:
 			{
-				if (mr_match_regexen (meta_re, value) == FC_MATCH_NO_MATCH)
-				{
-					free (value);
-					return (nomatch_value);
-				}
-				free (value);
+				sfree (value);
+				return (nomatch_value);
 			}
+			sfree (value);
 		}
 	}
 
