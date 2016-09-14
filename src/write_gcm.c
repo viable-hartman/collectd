@@ -333,10 +333,10 @@ static credential_ctx_t *wg_credential_ctx_create_from_p12_file(
 }
 
 int wg_extract_toplevel_json_string(const char *json, const char *key,
-				    char **result);
+                                    char **result);
 
 static credential_ctx_t *wg_credential_ctx_create_from_json_file(
-								 const char *cred_file) {
+    const char *cred_file) {
   // Things to clean up upon exit.
   credential_ctx_t *result = NULL;
   credential_ctx_t *ctx = NULL;
@@ -354,7 +354,7 @@ static credential_ctx_t *wg_credential_ctx_create_from_json_file(
   creds = wg_read_all_bytes(cred_file, "r");
   if (creds == NULL) {
     ERROR("write_gcm: Failed to read application default credentials file %s",
-	  cred_file);
+          cred_file);
     goto leave;
   }
 
@@ -505,8 +505,8 @@ static int wg_curl_get_or_post(char *response_buffer,
     size_t response_buffer_size, const char *url, const char *body,
     const char **headers, int num_headers) {
   DEBUG("write_gcm: Doing %s request: url %s, body %s, num_headers %d",
-	body == NULL ? "GET" : "POST",
-	url, body, num_headers);
+        body == NULL ? "GET" : "POST",
+        url, body, num_headers);
   CURL *curl = curl_easy_init();
   if (curl == NULL) {
     ERROR("write_gcm: curl_easy_init failed");
@@ -547,14 +547,14 @@ static int wg_curl_get_or_post(char *response_buffer,
     goto leave;
   }
   DEBUG("write_gcm: Elapsed time for curl operation was %g seconds.",
-	CDTIME_T_TO_DOUBLE(cdtime() - start_time));
+        CDTIME_T_TO_DOUBLE(cdtime() - start_time));
 
   long response_code;
   curl_result = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
   write_ctx.data[0] = 0;
   if (response_code >= 400) {
     WARNING("write_gcm: Unsuccessful HTTP request %ld: %s",
-	    response_code, response_buffer);
+            response_code, response_buffer);
     result = -2;
     goto leave;
   }
@@ -1985,8 +1985,8 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
   // 'application_default_credentials_file'.
   if (num_set != 0 && cb->credentials_json_file != NULL) {
     ERROR("write_gcm: Error reading configuration. "
-	  "It is an error to set both CredentialsJSON and "
-	  "Email/PrivateKeyFile/PrivateKeyPass.");
+          "It is an error to set both CredentialsJSON and "
+          "Email/PrivateKeyFile/PrivateKeyPass.");
   }
 
   // Success!
@@ -2393,8 +2393,6 @@ typedef struct {
   _Bool consumer_thread_created;
 } wg_queue_t;
 
-// TODO: Split these by API endpoint (ATS / GSD).
-// Currently, these counters contain the sum of both endpoints.
 typedef struct {
   size_t api_successes;
   size_t api_connectivity_failures;
@@ -2410,8 +2408,9 @@ typedef struct {
   credential_ctx_t *cred_ctx;
   oauth2_ctx_t *oauth2_ctx;
   wg_queue_t *ats_queue;  // Agent translation service (deprecated)
+  wg_stats_t *ats_stats;
   wg_queue_t *gsd_queue;  // Google Stackdriver (Custom metrics ingestion)
-  wg_stats_t *stats;
+  wg_stats_t *gsd_stats;
 } wg_context_t;
 
 static wg_context_t *wg_context_create(const wg_configbuilder_t *cb);
@@ -2444,7 +2443,7 @@ static char * find_application_default_creds_path() {
       return NULL;
     }
     int result = snprintf(home_config_path, bytes_needed,
-			  "%s%s", home_path, suffix);
+                          "%s%s", home_path, suffix);
     if (result > 0 && access(home_config_path, R_OK) == 0) {
       return home_config_path;
     }
@@ -2510,7 +2509,7 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
       build->cred_ctx = wg_credential_ctx_create_from_json_file(cred_path);
       if (build->cred_ctx == NULL) {
         ERROR("write_gcm: wg_credential_ctx_create_from_json_file failed to "
-	      "parse %s", cred_path);
+              "parse %s", cred_path);
         goto leave;
       }
     }
@@ -2579,8 +2578,13 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
   }
 
   // Create the stats context.
-  build->stats = wg_stats_create();
-  if (build->stats == NULL) {
+  build->ats_stats = wg_stats_create();
+  if (build->ats_stats == NULL) {
+    ERROR("%s: wg_stats_create failed.", this_plugin_name);
+    goto leave;
+  }
+  build->gsd_stats = wg_stats_create();
+  if (build->gsd_stats == NULL) {
     ERROR("%s: wg_stats_create failed.", this_plugin_name);
     goto leave;
   }
@@ -2602,8 +2606,9 @@ static void wg_context_destroy(wg_context_t *ctx) {
     return;
   }
   DEBUG("write_gcm: Tearing down context.");
-  wg_stats_destroy(ctx->stats);
+  wg_stats_destroy(ctx->ats_stats);
   wg_queue_destroy(ctx->ats_queue);
+  wg_stats_destroy(ctx->gsd_stats);
   wg_queue_destroy(ctx->gsd_queue);
   wg_oauth2_ctx_destroy(ctx->oauth2_ctx);
   wg_credential_ctx_destroy(ctx->cred_ctx);
@@ -2704,12 +2709,13 @@ typedef struct {
 // is to try to always make well-formed JSON messages, even if the incoming list
 // is large. One consequence of this is that this routine is not guaranteed to
 // empty out the list. Callers need to repeatedly call this routine (making
-// fresh wg_json_CreateCollectdTimeseriesPointsRequest requests each
-// time) until the list is exhausted. Upon success, a json string is returned
-// (memory owned by caller). Otherwise, NULL is returned.
-static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
+// fresh CreateCollectdTimeseriesRequest requests each time) until the list is
+// exhausted. Upon success, the json argument is set to a json string (memory
+// owned by caller), and 0 is returned.
+static int wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
     const const monitored_resource_t *monitored_resource,
-    const wg_payload_t *head, const wg_payload_t **new_head);
+    const wg_payload_t *head, const wg_payload_t **new_head,
+    char **json);
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
@@ -2745,22 +2751,23 @@ static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp);
 //   string collectd_version = 3;
 //   repeated CollectdPayload collectd_payloads = 4;
 // }
-static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
+static int wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
     const monitored_resource_t *monitored_resource,
-    const wg_payload_t *head, const wg_payload_t **new_head) {
+    const wg_payload_t *head, const wg_payload_t **new_head,
+    char **json) {
   char name[256];
   int result = snprintf(name, sizeof(name), "project/%s",
       monitored_resource->project_id);
   if (result < 0 || result >= sizeof(name)) {
     ERROR("write_gcm: project_id %s doesn't fit in buffer.",
         monitored_resource->project_id);
-    return NULL;
+    return (-ENOMEM);
   }
 
   json_ctx_t *jc = wg_json_ctx_create(pretty);
   if (jc == NULL) {
     ERROR("write_gcm: wg_json_ctx_create failed");
-    return NULL;
+    return (-ENOMEM);
   }
 
   wg_json_map_open(jc);
@@ -2783,18 +2790,25 @@ static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
 
   char *json_result = malloc(buffer_length + 1);
   if (json_result == NULL) {
+    ERROR("write_gcm: malloc failed");
     wg_json_ctx_destroy(jc);
-    return NULL;
+    return (-ENOMEM);
   }
 
   memcpy(json_result, buffer_address, buffer_length);
   json_result[buffer_length] = 0;
   wg_json_ctx_destroy(jc);
-  return json_result;
+
+  *json = json_result;
+  return 0;
 }
 
+// message Metric {
+//   string type = 3;
+//   map<string, string> labels = 2;
+// }
 static void wg_json_Metric(json_ctx_t *jc,
-			   const wg_payload_t *element) {
+                           const wg_payload_t *element) {
   const char *metric_type = NULL;
   for (int i = 0; i < element->key.num_metadata_entries; ++i) {
     wg_metadata_entry_t *entry = &element->key.metadata_entries[i];
@@ -2824,6 +2838,14 @@ static void wg_json_Metric(json_ctx_t *jc,
   wg_json_map_close(jc);
 }
 
+// message Point {
+//   message TimeInterval {
+//     google.protobuf.Timestamp start_time = 1;
+//     google.protobuf.Timestamp end_time = 2;
+//   }
+//   TimeInterval interval = 1;
+//   google.monitoring.v3.TypedValue value = 2;
+// }
 static void wg_json_Points(json_ctx_t *jc, const wg_payload_t *element) {
 
   wg_json_array_open(jc);
@@ -2863,13 +2885,24 @@ static void wg_json_Points(json_ctx_t *jc, const wg_payload_t *element) {
   wg_json_array_close(jc);
 }
 
-static void wg_json_CreateTimeSeries(
+// message TimeSeries {
+//   google.api.MonitoredResource resource = 2;
+//   google.api.Metric metric = 1;
+//   google.api.MetricDescriptor.MetricKind metric_kind = 3;
+//   google.api.MetricDescriptor.ValueType value_type = 4;
+//   repeated Point points = 5;
+// }
+//
+// Returns the number of Timeseries created.
+static int wg_json_CreateTimeSeries(
     json_ctx_t *jc, const monitored_resource_t *resource,
     const wg_payload_t *head, const wg_payload_t **new_head) {
+  int count = 0;
   WARNING("wg_json_CreateTimeSeries");
 
   wg_json_array_open(jc);
-  for (; head != NULL && jc->error == 0; head = head->next) {
+
+  for (; head != NULL && jc->error == 0; head = head->next, ++count) {
     // Also exit the loop if the message size has reached our target.
     const unsigned char *buffer_address;
     wg_yajl_callback_size_t buffer_length;
@@ -2977,17 +3010,19 @@ static void wg_json_CreateTimeSeries(
   *new_head = head;
 
   wg_json_array_close(jc);
+
+  return count;
 }
 
 // message CreateTimeSeriesRequest {
 //   string name = 3;
 //   repeated TimeSeries time_series = 2;
 // }
-
-static char *wg_json_CreateTimeseriesRequest(_Bool pretty,
+static int wg_json_CreateTimeSeriesRequest(_Bool pretty,
     const monitored_resource_t *monitored_resource,
-    const wg_payload_t *head, const wg_payload_t **new_head) {
-  WARNING("HERE: wg_json_CreateTimeseriesRequest");
+    const wg_payload_t *head, const wg_payload_t **new_head,
+    char **json) {
+  WARNING("HERE: wg_json_CreateTimeSeriesRequest");
 
   char name[256];
   int result = snprintf(name, sizeof(name), "project/%s",
@@ -2995,19 +3030,24 @@ static char *wg_json_CreateTimeseriesRequest(_Bool pretty,
   if (result < 0 || result >= sizeof(name)) {
     ERROR("write_gcm: project_id %s doesn't fit in buffer.",
         monitored_resource->project_id);
-    return NULL;
+    return (-ENOMEM);
   }
 
   json_ctx_t *jc = wg_json_ctx_create(pretty);
   if (jc == NULL) {
     ERROR("write_gcm: wg_json_ctx_create failed");
-    return NULL;
+    return (-ENOMEM);
   }
 
   wg_json_map_open(jc);
   wg_json_string(jc, "timeSeries");
-  wg_json_CreateTimeSeries(jc, monitored_resource, head, new_head);
+  int count = wg_json_CreateTimeSeries(jc, monitored_resource, head, new_head);
   wg_json_map_close(jc);
+  if (count == 0) {  // Empty time series.
+    wg_json_ctx_destroy(jc);
+    *json = NULL;
+    return 0;
+  }
 
   const unsigned char *buffer_address;
   wg_yajl_callback_size_t buffer_length;
@@ -3015,14 +3055,17 @@ static char *wg_json_CreateTimeseriesRequest(_Bool pretty,
 
   char *json_result = malloc(buffer_length + 1);
   if (json_result == NULL) {
+    ERROR("write_gcm: malloc failed");
     wg_json_ctx_destroy(jc);
-    return NULL;
+    return (-ENOMEM);
   }
 
   memcpy(json_result, buffer_address, buffer_length);
   json_result[buffer_length] = 0;
   wg_json_ctx_destroy(jc);
-  return json_result;
+
+  *json = json_result;
+  return 0;
 }
 
 // From google/api/monitored_resource.proto
@@ -3357,7 +3400,8 @@ static void wg_json_ctx_destroy(json_ctx_t *jc) {
 //==============================================================================
 //==============================================================================
 //==============================================================================
-static void *wg_process_queue(wg_context_t *arg, wg_queue_t *queue);
+static void *wg_process_queue(wg_context_t *arg, wg_queue_t *queue,
+                              wg_stats_t *stats);
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
@@ -3446,7 +3490,8 @@ static int wg_lookup_or_create_tracker_value(c_avl_tree_t *tree,
     const wg_payload_t *payload, wg_deriv_tracker_value_t **tracker,
     _Bool *created);
 
-static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue) {
+static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
+                              wg_stats_t *stats) {
 
   // Keeping track of the base values for derivative values.
   c_avl_tree_t *deriv_tree = wg_deriv_tree_create();
@@ -3478,7 +3523,7 @@ static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue) {
       wg_some_error_occured_g = 1;
       WARNING("write_gcm: wg_transmit_unique_segments failed. Flushing.");
     }
-    if (wg_update_stats(ctx->stats) != 0) {
+    if (wg_update_stats(stats) != 0) {
       wg_some_error_occured_g = 1;
       WARNING("%s: wg_update_stats failed.", this_plugin_name);
       break;
@@ -3495,13 +3540,15 @@ static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue) {
 static void *wg_process_ats_queue(void *arg) {
   wg_context_t *ctx = arg;
   wg_queue_t *queue = ctx->ats_queue;
-  return wg_process_queue(ctx, queue);
+  wg_stats_t *stats = ctx->ats_stats;
+  return wg_process_queue(ctx, queue, stats);
 }
 
 static void *wg_process_gsd_queue(void *arg) {
   wg_context_t *ctx = arg;
   wg_queue_t *queue = ctx->gsd_queue;
-  return wg_process_queue(ctx, queue);
+  wg_stats_t *stats = ctx->gsd_stats;
+  return wg_process_queue(ctx, queue, stats);
 }
 
 static int wg_rebase_cumulative_values(c_avl_tree_t *deriv_tree,
@@ -3697,7 +3744,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
     }
 
     // By the way, a successful response is an empty JSON record (i.e. "{}").
-    // An unsuccessful response is a detailed error message from Monarch.
+    // An unsuccessful response is a detailed error message from the API.
     char response[2048];
     const char *headers[] = { auth_header, json_content_type_header };
 
@@ -3724,9 +3771,9 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
         ERROR("%s: Error %d from wg_curl_get_or_post",
               this_plugin_name, wg_result);
         if (wg_result == -1) {
-          ++ctx->stats->api_connectivity_failures;
+          ++ctx->ats_stats->api_connectivity_failures;
         } else {
-          ++ctx->stats->api_errors;
+          ++ctx->ats_stats->api_errors;
         }
         goto leave;
       }
@@ -3736,9 +3783,10 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
       // Since the response is expected to be valid JSON, we don't
       // look at the characters beyond the closing brace.
       if (strncmp(response, "{}", 2) != 0) {
-        ++ctx->stats->api_errors;
+        ++ctx->ats_stats->api_errors;
         goto leave;
       }
+      ++ctx->ats_stats->api_successes;
 
     } else {
 
@@ -3750,34 +3798,39 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
         goto leave;
       }
 
-      wg_log_json_message(
-          ctx, "Sending JSON (TimeseriesRequest) to %s:\n%s\n",
-          ctx->custom_metrics_url, json);
+      if (json != NULL) {
+        wg_log_json_message(
+            ctx, "Sending JSON (TimeseriesRequest) to %s:\n%s\n",
+            ctx->custom_metrics_url, json);
 
-      if (wg_curl_get_or_post(response, sizeof(response),
-          ctx->custom_metrics_url, json,
-          headers, STATIC_ARRAY_SIZE(headers)) != 0) {
-        wg_log_json_message(ctx, "Error contacting server.\n");
-        ERROR("write_gcm: Error talking to the endpoint.");
-        ++ctx->stats->api_connectivity_failures;
-        goto leave;
-      }
+        if (wg_curl_get_or_post(response, sizeof(response),
+            ctx->custom_metrics_url, json,
+            headers, STATIC_ARRAY_SIZE(headers)) != 0) {
+          wg_log_json_message(ctx, "Error contacting server.\n");
+          ERROR("write_gcm: Error talking to the endpoint.");
+          ++ctx->gsd_stats->api_connectivity_failures;
+          goto leave;
+        }
 
-      // TODO: Validate API response properly.
-      wg_log_json_message(
-          ctx, "Server response (TimeseriesRequest):\n%s\n", response);
-      // Since the response is expected to be valid JSON, we don't
-      // look at the characters beyond the closing brace.
-      if (strncmp(response, "{}", 2) != 0) {
-        ERROR("%s: Expected non-empty JSON response: %s",
-              this_plugin_name, response);
-        ++ctx->stats->api_errors;
-        goto leave;
+        // TODO: Validate API response properly.
+        wg_log_json_message(
+            ctx, "Server response (TimeseriesRequest):\n%s\n", response);
+        // Since the response is expected to be valid JSON, we don't
+        // look at the characters beyond the closing brace.
+        if (strncmp(response, "{}", 2) != 0) {
+          ERROR("%s: Expected non-empty JSON response: %s",
+                this_plugin_name, response);
+          ++ctx->gsd_stats->api_errors;
+          goto leave;
+        }
+      } else {
+        wg_log_json_message(
+            ctx, "Not sending an empty CreateTimeSeries request.\n");
       }
+      ++ctx->gsd_stats->api_successes;
 
     }
 
-    ++ctx->stats->api_successes;
     sfree(json);
     json = NULL;
 
@@ -3794,11 +3847,10 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 static int wg_format_some_of_list_ctr(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty) {
-  char *result = wg_json_CreateCollectdTimeseriesRequest(pretty,
-      monitored_resource, list, new_list);
-  if (result == NULL) {
-    ERROR("write_gcm: wg_json_CreateCollectdTimeseriesRequest"
-        " failed.");
+  char *result;
+  if (wg_json_CreateCollectdTimeseriesRequest(
+          pretty, monitored_resource, list, new_list, &result) != 0) {
+    ERROR("write_gcm: wg_json_CreateCollectdTimeseriesRequest failed.");
     return -1;
   }
   if (list == *new_list) {
@@ -3813,10 +3865,10 @@ static int wg_format_some_of_list_ctr(
 static int wg_format_some_of_list_custom(
     const monitored_resource_t *monitored_resource, const wg_payload_t *list,
     const wg_payload_t **new_list, char **json, _Bool pretty) {
-  char *result = wg_json_CreateTimeseriesRequest(pretty,
-      monitored_resource, list, new_list);
-  if (result == NULL) {
-    ERROR("write_gcm: wg_json_CreateTimeseriesRequest failed.");
+  char *result;
+  if (wg_json_CreateTimeSeriesRequest(
+          pretty, monitored_resource, list, new_list, &result) != 0) {
+    ERROR("write_gcm: wg_json_CreateTimeSeriesRequest failed.");
     return -1;
   }
   if (list == *new_list) {
