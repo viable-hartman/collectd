@@ -2888,6 +2888,7 @@ static void wg_json_CreateTimeSeries(
             head->key.type_instance);
       continue;
     }
+    // TODO: Do we need this check?
     if (strcmp(head->values[0].name, "value") != 0) {
       ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
             "type_instance: %s data source was not called 'value'.",
@@ -2900,6 +2901,14 @@ static void wg_json_CreateTimeSeries(
             "type_instance: %s type cannot be ABSOLUTE.",
             head->key.plugin, head->key.plugin_instance, head->key.type,
             head->key.type_instance);
+      continue;
+    }
+    if (head->values[0].ds_type == DS_TYPE_GAUGE
+        && !isfinite(head->values[0].val.gauge)) {
+      ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+            "type_instance: %s skipping non-finite gauge value %lf.",
+            head->key.plugin, head->key.plugin_instance, head->key.type,
+            head->key.type_instance, head->values[0].val.gauge);
       continue;
     }
 
