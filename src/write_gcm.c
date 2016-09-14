@@ -2869,7 +2869,7 @@ static void wg_json_CreateTimeSeries(
   WARNING("wg_json_CreateTimeSeries");
 
   wg_json_array_open(jc);
-  while (head != NULL && jc->error == 0) {
+  for (; head != NULL && jc->error == 0; head = head->next) {
     // Also exit the loop if the message size has reached our target.
     const unsigned char *buffer_address;
     wg_yajl_callback_size_t buffer_length;
@@ -2905,7 +2905,7 @@ static void wg_json_CreateTimeSeries(
     }
     if (head->values[0].ds_type == DS_TYPE_GAUGE
         && !isfinite(head->values[0].val.gauge)) {
-      ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+      DEBUG("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
             "type_instance: %s skipping non-finite gauge value %lf.",
             head->key.plugin, head->key.plugin_instance, head->key.type,
             head->key.type_instance, head->values[0].val.gauge);
@@ -2972,8 +2972,6 @@ static void wg_json_CreateTimeSeries(
     wg_json_Points(jc, head);
 
     wg_json_map_close(jc);
-
-    head = head->next;
   }
 
   *new_head = head;
