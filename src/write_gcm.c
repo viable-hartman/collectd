@@ -1578,11 +1578,7 @@ static int wg_payload_key_create_inline(wg_payload_key_t *item,
 
  leave:
   if (toc != NULL) {
-    int i;
-    for (i = 0; i < toc_size; ++i) {
-      sfree(toc[i]);
-    }
-    sfree(toc);
+    strarray_free(toc, toc_size);
   }
   return result;
 }
@@ -2740,7 +2736,7 @@ static void wg_json_bool(json_ctx_t *jc, _Bool value);
 static json_ctx_t *wg_json_ctx_create(_Bool pretty);
 static void wg_json_ctx_destroy(json_ctx_t *jc);
 
-static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp); 
+static void wg_json_RFC3339Timestamp(json_ctx_t *jc, cdtime_t time_stamp);
 
 // From google/monitoring/v3/agent_service.proto
 // message CreateCollectdTimeSeriesRequest {
@@ -2906,7 +2902,7 @@ static void wg_json_CreateTimeSeries(
             head->key.type_instance);
       continue;
     }
-  
+
     for (int i = 0; i < head->key.num_metadata_entries; ++i) {
       wg_metadata_entry_t *entry = &head->key.metadata_entries[i];
       if (strcmp(entry->key, custom_metric_key) == 0) {
@@ -2945,7 +2941,7 @@ static void wg_json_CreateTimeSeries(
 
     wg_json_string(jc, "metric");
     wg_json_Metric(jc, head);
-  
+
     switch (head->values[0].ds_type) {
       case DS_TYPE_GAUGE:
       wg_json_string(jc, "metricKind");
@@ -4032,6 +4028,7 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
         processor = wg_process_gsd_queue;
       }
     }
+    strarray_free (toc, toc_size);
   }
 
   // Allocate the payload.
