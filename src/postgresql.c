@@ -794,6 +794,7 @@ static int c_psql_write(const data_set_t *ds, const value_list_t *vl,
   assert(db->writers != NULL);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (rfc3339nano_local(time_str, sizeof(time_str), vl->time) != 0) {
     log_err("c_psql_write: Failed to convert time to RFC 3339 format");
     return -1;
@@ -801,6 +802,9 @@ static int c_psql_write(const data_set_t *ds, const value_list_t *vl,
 =======
 	/* TODO: Should this be rfc3339nano_local()? */
 	if (rfc3339nano (time_str, sizeof (time_str), vl->time) != 0) {
+=======
+	if (rfc3339nano_local (time_str, sizeof (time_str), vl->time) != 0) {
+>>>>>>> Force use of local time in the postgresql plugin.
 		log_err ("c_psql_write: Failed to convert time to RFC 3339 format");
 		return -1;
 	}
