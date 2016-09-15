@@ -797,10 +797,13 @@ static int c_psql_write(const data_set_t *ds, const value_list_t *vl,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Address review comments:
+=======
+>>>>>>> Force use of local time in the postgresql plugin.
   if (rfc3339nano_local(time_str, sizeof(time_str), vl->time) != 0) {
     log_err("c_psql_write: Failed to convert time to RFC 3339 format");
     return -1;
@@ -817,7 +820,13 @@ static int c_psql_write(const data_set_t *ds, const value_list_t *vl,
 =======
 	/* TODO: Should this be rfc3339nano_local()? */
 	if (rfc3339nano (time_str, sizeof (time_str), vl->time) != 0) {
+<<<<<<< HEAD
 >>>>>>> Address review comments:
+=======
+=======
+	if (rfc3339nano_local (time_str, sizeof (time_str), vl->time) != 0) {
+>>>>>>> Force use of local time in the postgresql plugin.
+>>>>>>> Force use of local time in the postgresql plugin.
 		log_err ("c_psql_write: Failed to convert time to RFC 3339 format");
 		return -1;
 	}
