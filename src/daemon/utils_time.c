@@ -43,6 +43,7 @@ cdtime_t cdtime(void) { return cdtime_mock; }
 cdtime_t cdtime(void) /* {{{ */
 {
   int status;
+<<<<<<< HEAD
   struct timespec ts = {0, 0};
 
   status = clock_gettime(CLOCK_REALTIME, &ts);
@@ -52,12 +53,27 @@ cdtime_t cdtime(void) /* {{{ */
   }
 
   return TIMESPEC_TO_CDTIME_T(&ts);
+=======
+  struct timespec ts = { 0, 0 };
+
+  status = clock_gettime (CLOCK_REALTIME, &ts);
+  if (status != 0)
+  {
+    char errbuf[1024];
+    ERROR ("cdtime: clock_gettime failed: %s",
+        sstrerror (errno, errbuf, sizeof (errbuf)));
+    return 0;
+  }
+
+  return TIMESPEC_TO_CDTIME_T (&ts);
+>>>>>>> Address review comments:
 } /* }}} cdtime_t cdtime */
 #else /* !HAVE_CLOCK_GETTIME */
 /* Work around for Mac OS X which doesn't have clock_gettime(2). *sigh* */
 cdtime_t cdtime(void) /* {{{ */
 {
   int status;
+<<<<<<< HEAD
   struct timeval tv = {0, 0};
 
   status = gettimeofday(&tv, /* struct timezone = */ NULL);
@@ -67,6 +83,20 @@ cdtime_t cdtime(void) /* {{{ */
   }
 
   return TIMEVAL_TO_CDTIME_T(&tv);
+=======
+  struct timeval tv = { 0, 0 };
+
+  status = gettimeofday (&tv, /* struct timezone = */ NULL);
+  if (status != 0)
+  {
+    char errbuf[1024];
+    ERROR ("cdtime: gettimeofday failed: %s",
+        sstrerror (errno, errbuf, sizeof (errbuf)));
+    return 0;
+  }
+
+  return TIMEVAL_TO_CDTIME_T (&tv);
+>>>>>>> Address review comments:
 } /* }}} cdtime_t cdtime */
 #endif
 #endif
@@ -111,19 +141,79 @@ static int get_local_time(cdtime_t t, struct tm *t_tm, long *nsec) /* {{{ */
 
 static const char zulu_zone[] = "Z";
 
+/**********************************************************************
+ Time retrieval functions
+***********************************************************************/
+
+static int get_utc_time (cdtime_t t, struct tm *t_tm, long *nsec) /* {{{ */
+{
+  struct timespec t_spec;
+  int status;
+
+  CDTIME_T_TO_TIMESPEC (t, &t_spec);
+  NORMALIZE_TIMESPEC (t_spec);
+
+  if (gmtime_r (&t_spec.tv_sec, t_tm) == NULL) {
+    char errbuf[1024];
+    status = errno;
+    ERROR ("get_utc_time: gmtime_r failed: %s",
+        sstrerror (status, errbuf, sizeof (errbuf)));
+    return status;
+  }
+
+  *nsec = t_spec.tv_nsec;
+  return 0;
+} /* }}} int get_utc_time */
+
+static int get_local_time (cdtime_t t, struct tm *t_tm, long *nsec) /* {{{ */
+{
+  struct timespec t_spec;
+  int status;
+
+  CDTIME_T_TO_TIMESPEC (t, &t_spec);
+  NORMALIZE_TIMESPEC (t_spec);
+
+  if (localtime_r (&t_spec.tv_sec, t_tm) == NULL) {
+    char errbuf[1024];
+    status = errno;
+    ERROR ("get_local_time: localtime_r failed: %s",
+        sstrerror (status, errbuf, sizeof (errbuf)));
+    return status;
+  }
+
+  *nsec = t_spec.tv_nsec;
+  return 0;
+} /* }}} int get_local_time */
+
+/**********************************************************************
+ Formatting functions
+***********************************************************************/
+
+static const char utc_zone[] = "+00:00";
+static const char zulu_zone[] = "Z";
+
 /* format_zone reads time zone information from "extern long timezone", exported
  * by <time.h>, and formats it according to RFC 3339. This differs from
  * strftime()'s "%z" format by including a colon between hour and minute. */
+<<<<<<< HEAD
 static int format_zone(char *buffer, size_t buffer_size,
                        struct tm const *tm) /* {{{ */
+=======
+static int format_zone (char *buffer, size_t buffer_size) /* {{{ */
+>>>>>>> Address review comments:
 {
+  struct tm t_tm = { 0 };  /* The value doesn't matter. */
   char tmp[7];
   size_t sz;
 
   if ((buffer == NULL) || (buffer_size < 7))
     return EINVAL;
 
+<<<<<<< HEAD
   sz = strftime(tmp, sizeof(tmp), "%z", tm);
+=======
+  sz = strftime (tmp, sizeof (tmp), "%z", &t_tm);
+>>>>>>> Address review comments:
   if (sz == 0)
     return ENOMEM;
   if (sz != 5) {
@@ -143,6 +233,7 @@ static int format_zone(char *buffer, size_t buffer_size,
   return 0;
 } /* }}} int format_zone */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
                    long nsec, bool print_nano, char const *zone) /* {{{ */
@@ -226,9 +317,28 @@ int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
     status = format_zone (zone, sizeof (zone), &t_tm);
     if (status != 0)
       return status;
+=======
+int format_rfc3339 (char *buffer, size_t buffer_size, struct tm const *t_tm, long nsec, _Bool print_nano, char const *zone) /* {{{ */
+{
+  int len;
+  char *pos = buffer;
+  size_t size_left = buffer_size;
+
+  if ((len = strftime (pos, size_left, "%Y-%m-%dT%H:%M:%S", t_tm)) == 0)
+    return ENOMEM;
+  pos += len;
+  size_left -= len;
+
+  if (print_nano) {
+    if ((len = ssnprintf (pos, size_left, ".%09ld", nsec)) == 0)
+      return ENOMEM;
+    pos += len;
+    size_left -= len;
+>>>>>>> Address review comments:
   }
 >>>>>>> Add RFC3339 Zulu time functions
 
+<<<<<<< HEAD
   return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano, zone);
 } /* }}} int format_rfc3339_local */
 
@@ -237,10 +347,50 @@ int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
 ***********************************************************************/
 
 int rfc3339(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
+=======
+  sstrncpy (buffer, zone, buffer_size);
+  return 0;
+} /* }}} int format_rfc3339 */
+
+int format_rfc3339_utc (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano, char const *zone) /* {{{ */
+{
+  struct tm t_tm;
+  long nsec;
+  int status;
+
+  if ((status = get_utc_time (t, &t_tm, &nsec)) != 0)
+    return status;  /* The error should have already be reported. */
+
+  return format_rfc3339 (buffer, buffer_size, &t_tm, nsec, print_nano, zone);
+} /* }}} int format_rfc3339_utc */
+
+int format_rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano) /* {{{ */
+{
+  struct tm t_tm;
+  long nsec;
+  int status;
+  char zone[7];  /* +00:00 */
+
+  if ((status = get_local_time (t, &t_tm, &nsec)) != 0)
+    return status;  /* The error should have already be reported. */
+
+  if ((status = format_zone (zone, sizeof (zone))) != 0)
+    return status;
+
+  return format_rfc3339 (buffer, buffer_size, &t_tm, nsec, print_nano, zone);
+} /* }}} int format_rfc3339_local */
+
+/**********************************************************************
+ Public functions
+***********************************************************************/
+
+int rfc3339 (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
+>>>>>>> Address review comments:
 {
   if (buffer_size < RFC3339_SIZE)
     return ENOMEM;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   return format_rfc3339_utc(buffer, buffer_size, t, 0);
 } /* }}} int rfc3339 */
@@ -248,12 +398,17 @@ int rfc3339(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
   return format_rfc3339 (buffer, buffer_size, t, 0, 0);
 } /* }}} size_t cdtime_to_rfc3339 */
 >>>>>>> Add RFC3339 Zulu time functions
+=======
+  return format_rfc3339_utc (buffer, buffer_size, t, 0, utc_zone);
+} /* }}} int rfc3339 */
+>>>>>>> Address review comments:
 
 int rfc3339nano(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339NANO_SIZE)
     return ENOMEM;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   return format_rfc3339_utc(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
@@ -273,23 +428,48 @@ int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 =======
   return format_rfc3339 (buffer, buffer_size, t, 1, 0);
 } /* }}} size_t cdtime_to_rfc3339nano */
+=======
+  return format_rfc3339_utc (buffer, buffer_size, t, 1, utc_zone);
+} /* }}} int rfc3339nano */
+>>>>>>> Address review comments:
 
 int rfc3339_zulu (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339_ZULU_SIZE)
     return ENOMEM;
 
-  return format_rfc3339 (buffer, buffer_size, t, 0, 1);
-} /* }}} size_t cdtime_to_rfc3339 */
+  return format_rfc3339_utc (buffer, buffer_size, t, 0, zulu_zone);
+} /* }}} int rfc3339_zulu */
 
 int rfc3339nano_zulu (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339NANO_ZULU_SIZE)
     return ENOMEM;
 
+<<<<<<< HEAD
   return format_rfc3339 (buffer, buffer_size, t, 1, 1);
 } /* }}} size_t cdtime_to_rfc3339nano */
 >>>>>>> Add RFC3339 Zulu time functions
+=======
+  return format_rfc3339_utc (buffer, buffer_size, t, 1, zulu_zone);
+} /* }}} int rfc3339nano_zulu */
+
+int rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
+{
+  if (buffer_size < RFC3339_SIZE)
+    return ENOMEM;
+
+  return format_rfc3339_local (buffer, buffer_size, t, 0);
+} /* }}} int rfc3339 */
+
+int rfc3339nano_local (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
+{
+  if (buffer_size < RFC3339NANO_SIZE)
+    return ENOMEM;
+
+  return format_rfc3339_local (buffer, buffer_size, t, 1);
+} /* }}} int rfc3339nano */
+>>>>>>> Address review comments:
 
   return format_rfc3339_local(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
