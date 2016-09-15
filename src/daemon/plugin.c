@@ -2465,8 +2465,10 @@ int plugin_dispatch_notification (const notification_t *notif)
 void plugin_log (int level, const char *format, ...)
 {
 	char msg[1024];
+	int bytes = 0;
 	va_list ap;
 	llentry_t *le;
+	pthread_t tid;
 
 #if !COLLECT_DEBUG
 	if (level >= LOG_DEBUG)
@@ -2474,7 +2476,9 @@ void plugin_log (int level, const char *format, ...)
 #endif
 
 	va_start (ap, format);
-	vsnprintf (msg, sizeof (msg), format, ap);
+	tid = pthread_self();
+	bytes = snprintf (msg, sizeof (msg), "(%lu) ", (unsigned long) tid);
+	vsnprintf (msg + bytes, sizeof (msg) - bytes, format, ap);
 	msg[sizeof (msg) - 1] = '\0';
 	va_end (ap);
 
