@@ -2898,7 +2898,6 @@ static int wg_json_CreateTimeSeries(
     json_ctx_t *jc, const monitored_resource_t *resource,
     const wg_payload_t *head, const wg_payload_t **new_head) {
   int count = 0;
-  WARNING("wg_json_CreateTimeSeries");
 
   wg_json_array_open(jc);
 
@@ -2911,7 +2910,8 @@ static int wg_json_CreateTimeSeries(
       break;
     }
 
-    WARNING("type: %s, typeInstance: %s", head->key.type, head->key.type_instance);
+    DEBUG("wg_json_CreateTimeSeries: type: %s, typeInstance: %s",
+        head->key.type, head->key.type_instance);
     // Validate ahead of time, easily avoid sending a partial timeseries.
     // If the metric doesn't match, we log an error and drop it.
     if (head->num_values != 1) {
@@ -3022,8 +3022,6 @@ static int wg_json_CreateTimeSeriesRequest(_Bool pretty,
     const monitored_resource_t *monitored_resource,
     const wg_payload_t *head, const wg_payload_t **new_head,
     char **json) {
-  WARNING("HERE: wg_json_CreateTimeSeriesRequest");
-
   char name[256];
   int result = snprintf(name, sizeof(name), "project/%s",
       monitored_resource->project_id);
@@ -3123,8 +3121,6 @@ static void wg_json_CollectdPayloads(json_ctx_t *jc,
 
     wg_json_string(jc, "endTime");
     wg_json_Timestamp(jc, head->end_time);
-
-    //WARNING("plugin: %s", head->key.plugin);
 
     wg_json_string(jc, "plugin");
     wg_json_string(jc, head->key.plugin);
