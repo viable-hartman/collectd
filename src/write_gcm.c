@@ -2605,10 +2605,10 @@ static void wg_context_destroy(wg_context_t *ctx) {
     return;
   }
   DEBUG("write_gcm: Tearing down context.");
-  wg_stats_destroy(ctx->ats_stats);
   wg_queue_destroy(ctx->ats_queue);
-  wg_stats_destroy(ctx->gsd_stats);
+  wg_stats_destroy(ctx->ats_stats);
   wg_queue_destroy(ctx->gsd_queue);
+  wg_stats_destroy(ctx->gsd_stats);
   wg_oauth2_ctx_destroy(ctx->oauth2_ctx);
   wg_credential_ctx_destroy(ctx->cred_ctx);
   sfree(ctx->agent_translation_service_url);
@@ -2671,6 +2671,8 @@ static void wg_queue_destroy(wg_queue_t *queue) {
   wg_payload_destroy(queue->head);
   pthread_cond_destroy(&queue->cond);
   pthread_mutex_destroy(&queue->mutex);
+
+  sfree(queue);
 }
 
 
@@ -2879,6 +2881,8 @@ static void wg_json_Points(json_ctx_t *jc, const wg_payload_t *element) {
   wg_json_TypedValue(jc, &typed_value);
 
   wg_json_map_close(jc);
+
+  wg_typed_value_destroy_inline(&typed_value);
 
   leave:
   wg_json_array_close(jc);
