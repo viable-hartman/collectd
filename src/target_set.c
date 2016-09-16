@@ -908,6 +908,7 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
           "`%s'.", key, temp);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       sfree (string);
 
       status = meta_data_add_string (new_meta, key, temp);
@@ -922,7 +923,11 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
     strarray_free (meta_toc, (size_t) meta_entries);
 =======
       status = meta_data_add_string (new_meta, key, temp);
+=======
+      sfree (string);
+>>>>>>> Plug a leak in Target:Set.
 
+      status = meta_data_add_string (new_meta, key, temp);
       if (status)
       {
         ERROR ("Target `set': Unable to set metadata value `%s'.", key);
