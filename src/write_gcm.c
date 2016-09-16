@@ -40,7 +40,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 #include <unistd.h>
 
 #include "curl/curl.h"
@@ -2701,7 +2700,7 @@ typedef struct {
 } json_ctx_t;
 
 // Formats some or all of the data in the payload_list as a
-// CreateCollectdTimeseriesPointsRequest.
+// CreateCollectdTimeseriesRequest.
 // JSON_SOFT_TARGET_SIZE is used to signal to this routine to finish things up
 // and close out the message. When the message has grown to be of size
 // JSON_SOFT_TARGET_SIZE, the method stops adding new items to the
