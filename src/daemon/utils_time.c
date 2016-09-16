@@ -175,7 +175,6 @@ static const char zulu_zone[] = "Z";
 static int format_zone(char *buffer, size_t buffer_size,
                        struct tm const *tm) /* {{{ */
 {
-  struct tm t_tm = { 0 };  /* The value doesn't matter. */
   char tmp[7];
   size_t sz;
 
@@ -246,7 +245,7 @@ int format_rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t, _Bool pr
   if ((status = get_local_time (t, &t_tm, &nsec)) != 0)
     return status;  /* The error should have already be reported. */
 
-  if ((status = format_zone (zone, sizeof (zone))) != 0)
+  if ((status = format_zone (zone, sizeof (zone), &t_tm)) != 0)
     return status;
 
   return format_rfc3339 (buffer, buffer_size, &t_tm, nsec, print_nano, zone);
