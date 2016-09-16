@@ -119,6 +119,12 @@ static _Bool wg_some_error_occured_g = 0;
 // The "soft target" for the max size of our json messages.
 #define JSON_SOFT_TARGET_SIZE 64000
 
+// The maximum size of the project id (platform-defined).
+#define MAX_PROJECT_ID_SIZE ((size_t) 64)
+
+// The size of the URL buffer.
+#define URL_BUFFER_SIZE ((size_t) 512)
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -383,6 +389,11 @@ static credential_ctx_t *wg_credential_ctx_create_from_json_file(
       project = strndup(at+1, dot - at - 1);
       ctx->project_id = project;
     }
+  }
+  if (strlen(ctx->project_id) > MAX_PROJECT_ID_SIZE) {
+    ERROR("write_gcm: project id length (%zu) is larger than %zu characters",
+          strlen(ctx->project_id), MAX_PROJECT_ID_SIZE);
+    goto leave;
   }
 
   if (wg_extract_toplevel_json_string(creds, "private_key", &private_key_pem)
@@ -1876,6 +1887,21 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
       &cb->agent_translation_service_format_string,
       &cb->custom_metrics_format_string,
   };
+  static size_t string_limits[] = {  /* -1 means effectively unlimited */
+      (size_t) -1,
+      MAX_PROJECT_ID_SIZE,
+      (size_t) -1,
+      (size_t) -1,
+      (size_t) -1,
+      (size_t) -1,
+      (size_t) -1,
+      (size_t) -1,
+      (size_t) -1,
+      (size_t) -1,
+      (size_t) -1,
+      URL_BUFFER_SIZE - MAX_PROJECT_ID_SIZE,
+      URL_BUFFER_SIZE - MAX_PROJECT_ID_SIZE,
+  };
   static const char *int_keys[] = {
       "ThrottlingLowWaterMark",
       "ThrottlingHighWaterMark",
@@ -1896,6 +1922,7 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
   };
 
   assert(STATIC_ARRAY_SIZE(string_keys) == STATIC_ARRAY_SIZE(string_locations));
+  assert(STATIC_ARRAY_SIZE(string_keys) == STATIC_ARRAY_SIZE(string_limits));
   assert(STATIC_ARRAY_SIZE(int_keys) == STATIC_ARRAY_SIZE(int_locations));
   assert(STATIC_ARRAY_SIZE(bool_keys) == STATIC_ARRAY_SIZE(bool_locations));
 
@@ -1914,6 +1941,10 @@ static wg_configbuilder_t *wg_configbuilder_create(int children_num,
         if (cf_util_get_string(child, string_locations[k]) != 0) {
           ERROR("write_gcm: cf_util_get_string failed for key %s",
                 child->key);
+          ++parse_errors;
+        } else if (strlen(*string_locations[k]) > string_limits[k]) {
+          ERROR("write_gcm: key %s cannot be longer than %zu characters",
+                child->key, string_limits[k]);
           ++parse_errors;
         }
         break;
@@ -2529,12 +2560,14 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
     goto leave;
   }
 
+  assert(sizeof(agent_translation_service_default_format_string)
+         <= URL_BUFFER_SIZE - MAX_PROJECT_ID_SIZE);
   const char *ats_format_string_to_use =
       cb->agent_translation_service_format_string != NULL ?
           cb->agent_translation_service_format_string :
           agent_translation_service_default_format_string;
 
-  char ats_url[512];  // Big enough?
+  char ats_url[URL_BUFFER_SIZE];
   int sprintf_result = snprintf(ats_url, sizeof(ats_url), ats_format_string_to_use,
       build->resource->project_id);
   if (sprintf_result < 0 || sprintf_result >= sizeof(ats_url)) {
@@ -2543,12 +2576,14 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
   }
   build->agent_translation_service_url = sstrdup(ats_url);
 
+  assert(sizeof(custom_metrics_default_format_string)
+         <= URL_BUFFER_SIZE - MAX_PROJECT_ID_SIZE);
   const char *cm_format_string_to_use =
     cb->custom_metrics_format_string != NULL ?
     cb->custom_metrics_format_string :
     custom_metrics_default_format_string;
 
-  char cm_url[512];  // Big enough?
+  char cm_url[URL_BUFFER_SIZE];
   sprintf_result = snprintf(cm_url, sizeof(cm_url), cm_format_string_to_use,
       build->resource->project_id);
   if (sprintf_result < 0 || sprintf_result >= sizeof(cm_url)) {
