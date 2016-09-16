@@ -232,21 +232,29 @@ static const char zulu_zone[] = "Z";
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Address review comments:
+=======
+>>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
 static int format_zone(char *buffer, size_t buffer_size,
                        struct tm const *tm) /* {{{ */
 =======
 static int format_zone (char *buffer, size_t buffer_size) /* {{{ */
 >>>>>>> Address review comments:
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static int format_zone (char *buffer, size_t buffer_size, struct tm const *tm) /* {{{ */
 >>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
 =======
 >>>>>>> Address review comments:
+=======
+=======
+static int format_zone (char *buffer, size_t buffer_size, struct tm const *tm) /* {{{ */
+>>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
+>>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
 {
-  struct tm t_tm = { 0 };  /* The value doesn't matter. */
   char tmp[7];
   size_t sz;
 
@@ -256,18 +264,27 @@ static int format_zone (char *buffer, size_t buffer_size, struct tm const *tm) /
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Address review comments:
+=======
+>>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
   sz = strftime(tmp, sizeof(tmp), "%z", tm);
 =======
   sz = strftime (tmp, sizeof (tmp), "%z", &t_tm);
 >>>>>>> Address review comments:
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   sz = strftime (tmp, sizeof (tmp), "%z", tm);
 >>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
 =======
 >>>>>>> Address review comments:
+=======
+=======
+  sz = strftime (tmp, sizeof (tmp), "%z", tm);
+>>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
+>>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
   if (sz == 0)
     return ENOMEM;
   if (sz != 5) {
@@ -496,6 +513,7 @@ int format_rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t, _Bool pr
     return status;  /* The error should have already be reported. */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if ((status = format_zone (zone, sizeof (zone), &t_tm)) != 0)
     return status;
 
@@ -513,6 +531,9 @@ int format_rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t, _Bool pr
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
   if ((status = format_zone (zone, sizeof (zone))) != 0)
+=======
+  if ((status = format_zone (zone, sizeof (zone), &t_tm)) != 0)
+>>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
     return status;
 
   return format_rfc3339 (buffer, buffer_size, &t_tm, nsec, print_nano, zone);
