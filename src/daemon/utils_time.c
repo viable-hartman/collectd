@@ -449,6 +449,7 @@ int rfc3339(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 =======
   sstrncpy (buffer, zone, buffer_size);
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   sstrncpy (pos, zone, size_left);
 >>>>>>> src/daemon/utils_time.c: Fix invalid strcpy position in format_rfc3339().
@@ -486,6 +487,11 @@ int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
   int status;
 <<<<<<< HEAD
 =======
+=======
+=======
+  sstrncpy (pos, zone, size_left);
+>>>>>>> src/daemon/utils_time.c: Fix invalid strcpy position in format_rfc3339().
+>>>>>>> src/daemon/utils_time.c: Fix invalid strcpy position in format_rfc3339().
   return 0;
 } /* }}} int format_rfc3339 */
 
