@@ -348,6 +348,7 @@ int format_rfc3339 (char *buffer, size_t buffer_size, struct tm const *t_tm, lon
   return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano, zone);
 } /* }}} int format_rfc3339_local */
 
+<<<<<<< HEAD
 /**********************************************************************
  Public functions
 ***********************************************************************/
@@ -355,6 +356,9 @@ int format_rfc3339 (char *buffer, size_t buffer_size, struct tm const *t_tm, lon
 int rfc3339(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 =======
   sstrncpy (buffer, zone, buffer_size);
+=======
+  sstrncpy (pos, zone, size_left);
+>>>>>>> src/daemon/utils_time.c: Fix invalid strcpy position in format_rfc3339().
   return 0;
 } /* }}} int format_rfc3339 */
 
