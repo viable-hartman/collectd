@@ -1,5 +1,6 @@
 #!/bin/bash -xe
 <<<<<<< HEAD
+<<<<<<< HEAD
 VERSION=5.5.2
 
 if [ "x$BRANCH" == "x" ]
@@ -9,6 +10,9 @@ fi
 =======
 VERSION=5.5.0
 >>>>>>> stackdriver install and readme
+=======
+VERSION=5.5.2
+>>>>>>> Bump package versions to 5.5.2.
 
 if [ "x$BRANCH" == "x" ]
 then
