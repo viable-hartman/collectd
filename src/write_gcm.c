@@ -148,6 +148,7 @@ static _Bool wg_some_error_occured_g = 0;
 // entries. If the consumer thread gets way backed up, we won't keep more than
 // this many items in our queue.
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define QUEUE_DROP_SIZE 100000
 
 // The number of metrics that need to be dropped from the queue to trigger
@@ -156,6 +157,9 @@ static _Bool wg_some_error_occured_g = 0;
 =======
 #define QUEUE_DROP_SIZE 1000
 >>>>>>> write_gcm plugin
+=======
+#define QUEUE_DROP_SIZE 100000
+>>>>>>> Bump queue drop size to 100k; add debug logging when dropping points.
 
 // Size of the JSON buffer sent to the server. At flush time we format a JSON
 // message to send to the server.  We would like it to be no more than a certain
@@ -5598,9 +5602,12 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
           to_remove->key.type,
           to_remove->key.type_instance,
           metadata);
+<<<<<<< HEAD
 =======
     to_remove->next = NULL;
 >>>>>>> write_gcm plugin
+=======
+>>>>>>> Bump queue drop size to 100k; add debug logging when dropping points.
     wg_payload_destroy(to_remove);
   }
 
