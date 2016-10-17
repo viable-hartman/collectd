@@ -170,6 +170,7 @@ static _Bool wg_some_error_occured_g = 0;
 
 // The "soft target" for the max size of our json messages.
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define JSON_SOFT_TARGET_SIZE 512000
 
 // The maximum size of the project id (platform-defined).
@@ -212,6 +213,9 @@ void EVP_MD_CTX_free(EVP_MD_CTX *ctx) {
 =======
 #define JSON_SOFT_TARGET_SIZE 64000
 >>>>>>> write_gcm plugin
+=======
+#define JSON_SOFT_TARGET_SIZE 512000
+>>>>>>> Bump the message size limit to 512000.
 
 // The maximum size of the project id (platform-defined).
 #define MAX_PROJECT_ID_SIZE ((size_t) 64)
