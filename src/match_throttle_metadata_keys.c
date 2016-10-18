@@ -663,10 +663,14 @@ static int mtg_add_new_entries(const mtg_context_t *ctx, cdtime_t now,
         ++tracker->num_key_history_entries;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         DEBUG("%s: %u history entries, %u distinct keys,"
 =======
         INFO("%s: %u history entries, %u distinct keys,"
 >>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
+=======
+        DEBUG("%s: %u history entries, %u distinct keys,"
+>>>>>>> Set Throttle Metadata Keys logging level to DEBUG (#84)
              " %zd bytes server memory.",
              this_plugin_name, tracker->num_key_history_entries,
              tracker->num_distinct_keys, tracker->server_memory_in_use);
