@@ -3130,12 +3130,16 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Prefer the project id from the configuration to the one from the credentials file.
   // If we have a project id in the configuration, use that one, otherwise use
   // the one from the credentials.
   const char *project_id;
   if (cb->project_id != NULL) {
     project_id = cb->project_id;
   } else if (build->cred_ctx != NULL && build->cred_ctx->project_id != NULL) {
+<<<<<<< HEAD
     project_id = build->cred_ctx->project_id;
   } else {
     project_id = NULL;
@@ -3147,6 +3151,11 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
   } else {
     project_id = cb->project_id;
 >>>>>>> write_gcm plugin
+=======
+    project_id = build->cred_ctx->project_id;
+  } else {
+    project_id = NULL;
+>>>>>>> Prefer the project id from the configuration to the one from the credentials file.
   }
 
   // Create the subcontext holding various pieces of server information.
