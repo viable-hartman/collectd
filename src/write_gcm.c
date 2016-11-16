@@ -2550,12 +2550,15 @@ static wg_context_t *wg_context_create(const wg_configbuilder_t *cb) {
     }
   }
 
-  // If we got a project id from the credentials, use that one
-  const char * project_id;
-  if (build->cred_ctx != NULL && build->cred_ctx->project_id != NULL) {
+  // If we have a project id in the configuration, use that one, otherwise use
+  // the one from the credentials.
+  const char *project_id;
+  if (cb->project_id != NULL) {
+    project_id = cb->project_id;
+  } else if (build->cred_ctx != NULL && build->cred_ctx->project_id != NULL) {
     project_id = build->cred_ctx->project_id;
   } else {
-    project_id = cb->project_id;
+    project_id = NULL;
   }
 
   // Create the subcontext holding various pieces of server information.
