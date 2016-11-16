@@ -393,7 +393,9 @@ static credential_ctx_t *wg_credential_ctx_create_from_json_file(
       ctx->project_id = project;
     }
   }
-  if (strlen(ctx->project_id) > MAX_PROJECT_ID_SIZE) {
+  if (ctx->project_id == NULL) {
+    INFO("write_gcm: No project id in credentials file.");
+  } else if (strlen(ctx->project_id) > MAX_PROJECT_ID_SIZE) {
     ERROR("write_gcm: project id length (%zu) is larger than %zu characters",
           strlen(ctx->project_id), MAX_PROJECT_ID_SIZE);
     goto leave;
