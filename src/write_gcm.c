@@ -515,12 +515,18 @@ static credential_ctx_t *wg_credential_ctx_create_from_json_file(
   }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (ctx->project_id == NULL) {
     INFO("write_gcm: No project id in credentials file.");
   } else if (strlen(ctx->project_id) > MAX_PROJECT_ID_SIZE) {
 =======
   if (strlen(ctx->project_id) > MAX_PROJECT_ID_SIZE) {
 >>>>>>> Send metrics with the 'stackdriver_metric_type' metadata key to timeSeries.create. (#81)
+=======
+  if (ctx->project_id == NULL) {
+    INFO("write_gcm: No project id in credentials file.");
+  } else if (strlen(ctx->project_id) > MAX_PROJECT_ID_SIZE) {
+>>>>>>> Guard against no project_id extracted from the credentials.
     ERROR("write_gcm: project id length (%zu) is larger than %zu characters",
           strlen(ctx->project_id), MAX_PROJECT_ID_SIZE);
     goto leave;
