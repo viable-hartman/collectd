@@ -13,27 +13,19 @@ then
     git clone git@github.com:Stackdriver/agent-deb.git --branch $BRANCH
     pushd agent-deb
     make clean
-    make DISTRO="$DISTRO" ARCH="$ARCH" VERSION="$VERSION" BUILD_NUM="$BUILD_NUM" build
-    if [ $? -ne 0 ]
-    then
-        exit $?
-    fi
-	popd
-	[ -d result ] && rm -rf result || true
-	cp -r agent-deb/result .
+    make DISTRO="$DISTRO" ARCH="$ARCH" VERSION="$VERSION" BUILD_NUM="$BUILD_NUM" build || exit $?
+    popd
+    [ -d result ] && rm -rf result || true
+    cp -r agent-deb/result .
 elif [ "x$PKGFORMAT" == "xrpm" ]
 then
     git clone git@github.com:Stackdriver/agent-rpm.git --branch $BRANCH
     pushd agent-rpm
     make clean
-    make DISTRO="$DISTRO" ARCH="$ARCH" VERSION="$VERSION" BUILD_NUM="$BUILD_NUM" build
-    if [ $? -ne 0 ]
-    then
-        exit $?
-    fi
+    make DISTRO="$DISTRO" ARCH="$ARCH" VERSION="$VERSION" BUILD_NUM="$BUILD_NUM" build || exit $?
     popd
     [ -d result ] && rm -rf result || true
-	cp -r agent-rpm/result .
+    cp -r agent-rpm/result .
 else
     echo "I don't know how to handle label '$PKGFORMAT'. Aborting build"
     exit 1
