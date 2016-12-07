@@ -86,12 +86,17 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	libltdl/config/config.guess libltdl/config/config.sub \
 	libltdl/config/depcomp libltdl/config/install-sh \
 <<<<<<< HEAD
+<<<<<<< HEAD
 	libltdl/config/missing libltdl/config/ylwrap \
 	libltdl/config/ltmain.sh $(top_srcdir)/libltdl/config/compile \
 =======
 	libltdl/config/missing libltdl/config/ltmain.sh \
 	$(top_srcdir)/libltdl/config/compile \
 >>>>>>> build stuff -- the result of running build.sh
+=======
+	libltdl/config/missing libltdl/config/ylwrap \
+	libltdl/config/ltmain.sh $(top_srcdir)/libltdl/config/compile \
+>>>>>>> Update generated files after 79b6a97de7c373fa8959c9f8ff1e95f3a85c45bc.
 	$(top_srcdir)/libltdl/config/config.guess \
 	$(top_srcdir)/libltdl/config/config.sub \
 	$(top_srcdir)/libltdl/config/install-sh \
