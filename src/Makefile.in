@@ -1742,7 +1742,8 @@ write_kafka_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$@
 @BUILD_PLUGIN_WRITE_KAFKA_TRUE@am_write_kafka_la_rpath = -rpath \
 @BUILD_PLUGIN_WRITE_KAFKA_TRUE@	$(pkglibdir)
-write_log_la_LIBADD =
+@BUILD_PLUGIN_WRITE_LOG_TRUE@write_log_la_DEPENDENCIES =  \
+@BUILD_PLUGIN_WRITE_LOG_TRUE@	libformat_json.la
 am__write_log_la_SOURCES_DIST = write_log.c utils_format_graphite.c \
 	utils_format_graphite.h
 @BUILD_PLUGIN_WRITE_LOG_TRUE@am_write_log_la_OBJECTS = write_log.lo \
@@ -3312,6 +3313,7 @@ CLEANFILES = $(am__append_18) $(am__append_230)
 @BUILD_PLUGIN_WRITE_LOG_TRUE@                        utils_format_graphite.c utils_format_graphite.h
 
 @BUILD_PLUGIN_WRITE_LOG_TRUE@write_log_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+@BUILD_PLUGIN_WRITE_LOG_TRUE@write_log_la_LIBADD = libformat_json.la
 @BUILD_PLUGIN_WRITE_GCM_TRUE@write_gcm_la_SOURCES = write_gcm.c
 @BUILD_PLUGIN_WRITE_GCM_TRUE@write_gcm_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBYAJL_LDFLAGS)
 @BUILD_PLUGIN_WRITE_GCM_TRUE@write_gcm_la_CFLAGS = $(AM_CFLAGS) \
