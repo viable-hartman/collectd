@@ -130,10 +130,14 @@ static const char json_content_type_header[] = "Content-Type: application/json";
 // indicate that some important error occurred during processing so that we can
 // bubble it back up to the exit status of collectd.
 <<<<<<< HEAD
+<<<<<<< HEAD
 static _Bool wg_some_error_occurred_g = 0;
 =======
 static _Bool wg_some_error_occured_g = 0;
 >>>>>>> write_gcm plugin
+=======
+static _Bool wg_some_error_occurred_g = 0;
+>>>>>>> Restart Consumer thread in case of non-shutdown thread exit. (#88)
 
 // The maximum number of entries we keep in our processing queue before flushing
 // it. Ordinarily a flush happens every minute or so, but we also flush if the
@@ -4702,6 +4706,7 @@ static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
     last_flush_time = cdtime();
     if (wg_rebase_cumulative_values(deriv_tree, &payloads) != 0) {
 <<<<<<< HEAD
+<<<<<<< HEAD
       // Couldn't update the counters — an error but not fatal.
       // Drop the payloads on the floor and make a note of it.
       ERROR("write_gcm: wg_rebase_cumulative_values failed. Flushing.");
@@ -4722,13 +4727,18 @@ static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
 =======
       // Also fatal.
       ERROR("write_gcm: wg_rebase_cumulative_values failed.");
+=======
+      // Couldn't update the counters — an error but not fatal.
+      // Drop the payloads on the floor and make a note of it.
+      ERROR("write_gcm: wg_rebase_cumulative_values failed. Flushing.");
+>>>>>>> Restart Consumer thread in case of non-shutdown thread exit. (#88)
       wg_payload_destroy(payloads);
-      break;
+      continue;
     }
     if (wg_transmit_unique_segments(ctx, queue, payloads) != 0) {
       // Not fatal. Connectivity problems? Server went away for a while?
       // Just drop the payloads on the floor and make a note of it.
-      wg_some_error_occured_g = 1;
+      wg_some_error_occurred_g = 1;
       WARNING("write_gcm: wg_transmit_unique_segments failed. Flushing.");
     }
 <<<<<<< HEAD
@@ -4738,10 +4748,14 @@ static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
     if (wg_update_stats(ctx->stats) != 0) {
 =======
     if (wg_update_stats(stats) != 0) {
+<<<<<<< HEAD
 >>>>>>> Send metrics with the 'stackdriver_metric_type' metadata key to timeSeries.create. (#81)
       wg_some_error_occured_g = 1;
+=======
+      wg_some_error_occurred_g = 1;
+>>>>>>> Restart Consumer thread in case of non-shutdown thread exit. (#88)
       WARNING("%s: wg_update_stats failed.", this_plugin_name);
-      break;
+      continue;
     }
 >>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
     payloads = NULL;
@@ -4750,12 +4764,16 @@ static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
  leave:
   wg_deriv_tree_destroy(deriv_tree);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Restart Consumer thread in case of non-shutdown thread exit. (#88)
   if (!queue->request_terminate) {
     queue->consumer_thread_created = 0;
     ERROR("write_gcm: Consumer thread unexpectedly exiting.");
   } else {
     WARNING("write_gcm: Consumer thread is shutting down.");
   }
+<<<<<<< HEAD
   return NULL;
 }
 
@@ -4775,6 +4793,8 @@ static void *wg_process_gsd_queue(void *arg) {
 
 =======
   WARNING("write_gcm: Consumer thread is exiting.");
+=======
+>>>>>>> Restart Consumer thread in case of non-shutdown thread exit. (#88)
   return NULL;
 }
 
@@ -5780,10 +5800,14 @@ static int wg_shutdown(void) {
     return 0;
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (wg_some_error_occurred_g) {
 =======
   if (wg_some_error_occured_g) {
 >>>>>>> write_gcm plugin
+=======
+  if (wg_some_error_occurred_g) {
+>>>>>>> Restart Consumer thread in case of non-shutdown thread exit. (#88)
     return -1;
   }
   return 0;
