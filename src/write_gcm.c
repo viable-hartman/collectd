@@ -156,6 +156,7 @@ static _Bool wg_some_error_occurred_g = 0;
 #define QUEUE_DROP_SIZE 100000
 
 // The number of metrics that need to be dropped from the queue to trigger
+<<<<<<< HEAD
 // a warning being logged.
 #define QUEUE_DROP_REPORT_LIMIT 1000
 =======
@@ -164,6 +165,10 @@ static _Bool wg_some_error_occurred_g = 0;
 =======
 #define QUEUE_DROP_SIZE 100000
 >>>>>>> Bump queue drop size to 100k; add debug logging when dropping points.
+=======
+// a warning being logged. 
+#define QUEUE_DROP_REPORT_LIMIT 1000
+>>>>>>> Collectd dropping points Logging (#89)
 
 // Size of the JSON buffer sent to the server. At flush time we format a JSON
 // message to send to the server.  We would like it to be no more than a certain
@@ -2927,10 +2932,15 @@ typedef struct {
   wg_payload_t *tail;
   size_t size;
 <<<<<<< HEAD
+<<<<<<< HEAD
   // A running counter of the number of metrics dropped from the agent queue.
   size_t drop_count;
 =======
 >>>>>>> write_gcm plugin
+=======
+  // A running counter of the number of metrics dropped from the agent queue.
+  size_t drop_count;
+>>>>>>> Collectd dropping points Logging (#89)
   // Set this to 1 to request that the consumer thread do a flush.
   int request_flush;
   // The consumer thread sets this to 1 when the last requested flush is
@@ -3389,9 +3399,13 @@ static wg_queue_t *wg_queue_create() {
   queue->tail = NULL;
   queue->size = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
   queue->drop_count = 0;
 =======
 >>>>>>> write_gcm plugin
+=======
+  queue->drop_count = 0;
+>>>>>>> Collectd dropping points Logging (#89)
   queue->request_flush = 0;
   queue->flush_complete = 0;
   queue->request_terminate = 0;
@@ -5617,6 +5631,9 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
     }
     --queue->size;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Collectd dropping points Logging (#89)
     ++queue->drop_count;
     if ((queue->drop_count % QUEUE_DROP_REPORT_LIMIT) == 0) {
       WARNING("write_gcm: %s queue dropped %d metric points due to dispatch"
