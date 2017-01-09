@@ -102,7 +102,7 @@ static _Bool wg_some_error_occurred_g = 0;
 // The maximum number of entries we keep in our processing queue before flushing
 // it. Ordinarily a flush happens every minute or so, but we also flush if the
 // list size exceeds a certain value.
-#define QUEUE_FLUSH_SIZE 100
+#define QUEUE_FLUSH_SIZE 2000
 
 // The maximum numbers of entries we keep in our queue before we start dropping
 // entries. If the consumer thread gets way backed up, we won't keep more than
