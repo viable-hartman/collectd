@@ -143,10 +143,14 @@ static _Bool wg_some_error_occurred_g = 0;
 // it. Ordinarily a flush happens every minute or so, but we also flush if the
 // list size exceeds a certain value.
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define QUEUE_FLUSH_SIZE 2000
 =======
 #define QUEUE_FLUSH_SIZE 100
 >>>>>>> write_gcm plugin
+=======
+#define QUEUE_FLUSH_SIZE 2000
+>>>>>>> Bump the queue flush size to 2000.
 
 // The maximum numbers of entries we keep in our queue before we start dropping
 // entries. If the consumer thread gets way backed up, we won't keep more than
