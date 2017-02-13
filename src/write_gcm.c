@@ -2554,6 +2554,9 @@ static monitored_resource_t *wg_monitored_resource_create(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Refactored code to construct a monitored resource to facilitate metadata agent
 typedef struct {
   const char *key;
   const char *value;
@@ -2562,6 +2565,7 @@ typedef struct {
 static monitored_resource_t *monitored_resource_create_from_array(
     const char *type, const char *project_id, const label_t *labels,
     size_t num_labels) {
+<<<<<<< HEAD
   monitored_resource_t *result = calloc(1, sizeof(*result));
   if (result == NULL) {
     ERROR("write_gcm: monitored_resource_create_from_array: calloc failed.");
@@ -2572,11 +2576,19 @@ static monitored_resource_t *monitored_resource_create_from_fields(
   if (result == NULL) {
     ERROR("write_gcm: monitored_resource_create_from_fields: calloc failed.");
 >>>>>>> write_gcm plugin
+=======
+  monitored_resource_t *result = calloc(1, sizeof(*result));
+  if (result == NULL) {
+    ERROR("write_gcm: monitored_resource_create_from_array: calloc failed.");
+>>>>>>> Refactored code to construct a monitored resource to facilitate metadata agent
     return NULL;
   }
   result->type = sstrdup(type);
   result->project_id = sstrdup(project_id);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Refactored code to construct a monitored resource to facilitate metadata agent
   result->num_labels = num_labels;
   result->keys = calloc(num_labels, sizeof(result->keys[0]));
   result->values = calloc(num_labels, sizeof(result->values[0]));
@@ -2601,6 +2613,7 @@ static monitored_resource_t *monitored_resource_create_from_fields(
 
 static monitored_resource_t *monitored_resource_create_from_fields(
     const char *type, const char *project_id, ...) {
+<<<<<<< HEAD
   // count keys/values
   va_list ap;
   va_start(ap, project_id);
@@ -2611,6 +2624,12 @@ static monitored_resource_t *monitored_resource_create_from_fields(
   va_start(ap, project_id);
   int num_labels = 0;
 >>>>>>> write_gcm plugin
+=======
+  // count keys/values
+  va_list ap;
+  va_start(ap, project_id);
+  size_t num_labels = 0;
+>>>>>>> Refactored code to construct a monitored resource to facilitate metadata agent
   while (1) {
     const char *nextKey = va_arg(ap, const char*);
     if (nextKey == NULL) {
@@ -2622,6 +2641,7 @@ static monitored_resource_t *monitored_resource_create_from_fields(
   }
   va_end(ap);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   label_t labels[num_labels];
   // Changes va_list into label_t array
@@ -2642,26 +2662,27 @@ static monitored_resource_t *monitored_resource_create_from_fields(
     goto error;
   }
 
+=======
+  label_t labels[num_labels];
+  // Changes va_list into label_t array
+>>>>>>> Refactored code to construct a monitored resource to facilitate metadata agent
   va_start(ap, project_id);
-  int i;
-  for (i = 0; i < num_labels; ++i) {
-    const char *nextKey = va_arg(ap, const char*);
-    const char *nextValue = va_arg(ap, const char*);
-    result->keys[i] = sstrdup(nextKey);
-    result->values[i] = sstrdup(nextValue);
-    if (result->keys[i] == NULL || result->values[i] == NULL) {
-      ERROR("write_gcm: monitored_resource_create_from_fields: calloc failed.");
-      va_end(ap);
-      goto error;
-    }
+  for (int i = 0; i < num_labels; i++) {
+    labels[i].key = va_arg(ap, const char*);
+    labels[i].value = va_arg(ap, const char*);
   }
   va_end(ap);
+<<<<<<< HEAD
   return result;
 
  error:
   wg_monitored_resource_destroy(result);
   return NULL;
 >>>>>>> write_gcm plugin
+=======
+  return monitored_resource_create_from_array(type, project_id, labels,
+                                              num_labels);
+>>>>>>> Refactored code to construct a monitored resource to facilitate metadata agent
 }
 
 static void wg_monitored_resource_destroy(monitored_resource_t *resource) {
