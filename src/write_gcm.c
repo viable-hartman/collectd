@@ -3019,25 +3019,16 @@ static int wg_json_CreateTimeSeries(
                 "type_instance: %s metric type must be string.",
                 head->key.plugin, head->key.plugin_instance, head->key.type,
                 head->key.type_instance);
-          continue;
-        }
-        const char *pref = custom_metric_prefix;
-        if (strncmp(entry->value.value_text, pref, strlen(pref)) != 0) {
-          ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
-                "type_instance: %s metric type %s is not a custom metric "
-                "(should start with '%s').",
-                head->key.plugin, head->key.plugin_instance, head->key.type,
-                head->key.type_instance, entry->value.value_text, pref);
-          continue;
+          goto next_payload;
         }
       }
       const char *key_pref = custom_metric_label_prefix;
       if (strncmp(entry->key, key_pref, strlen(key_pref)) == 0) {
         if (entry->value.value_type != wg_typed_value_string) {
-          ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
-                "type_instance: %s metric label %s is not a string.",
-                head->key.plugin, head->key.plugin_instance, head->key.type,
-                head->key.type_instance, entry->key);
+          WARNING("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+                  "type_instance: %s metric label %s is not a string.",
+                  head->key.plugin, head->key.plugin_instance, head->key.type,
+                  head->key.type_instance, entry->key);
         }
       }
     }
@@ -3072,6 +3063,8 @@ static int wg_json_CreateTimeSeries(
 
     wg_json_map_close(jc);
     ++count;
+
+  next_payload:;
   }
 
   *new_head = head;
