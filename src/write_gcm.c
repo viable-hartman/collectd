@@ -2288,9 +2288,9 @@ static monitored_resource_t *parse_monitored_resource(char *metadata,
   node = yajl_tree_parse(metadata, errbuf, sizeof(errbuf));
   if (node == NULL) {
     if (strlen(errbuf)) {
-      WARNING("write_gcm: parse_monitored_resource: parse_error: %s.\n", errbuf);
+      DEBUG("write_gcm: parse_monitored_resource %s", errbuf);
     } else {
-      WARNING("write_gcm: parse_monitored_resource: parse_error.");
+      DEBUG("write_gcm: parse_monitored_resource: Not valid JSON response.");
     }
     goto error;
   }
