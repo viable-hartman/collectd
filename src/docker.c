@@ -457,13 +457,10 @@ static int extract_container_ids_from_response(char ***container_list,
     }
     goto error;
   }
-<<<<<<< HEAD
-=======
   if (node->u.array.len == 0) {
     return 0;
   }
 
->>>>>>> origin/dhrupadb-docker-plugin
   const char *id_path[] = { "Id", (const char *) 0 };
   if (YAJL_IS_ARRAY(node)) {
     list = (char **) calloc(node->u.array.len, sizeof(char *));
@@ -1044,8 +1041,6 @@ static int dispatch_stats_all(void) {
   char **container_list = NULL;
   int count = get_container_list(&container_list, DOCKER_SOCKET,
 				 DOCKER_VERSION);
-<<<<<<< HEAD
-=======
   if (count == 0) {
     DEBUG("docker: No containers running on this machine.");
     goto leave;
@@ -1053,7 +1048,6 @@ static int dispatch_stats_all(void) {
     ERROR("docker: Unable to parse container information.");
     goto leave;
   }
->>>>>>> origin/dhrupadb-docker-plugin
   container_resource_t **containers = (container_resource_t **)
       calloc(count, sizeof(container_resource_t *));
   for (int i = 0; i < count; i++) {
@@ -1074,14 +1068,9 @@ static int dispatch_stats_all(void) {
     }
     sfree(containers[i]);
   }
-<<<<<<< HEAD
-  free_list((void ***) &container_list, count);
-  sfree(containers);
-=======
   sfree(containers);
  leave:
   free_list((void ***) &container_list, count);
->>>>>>> origin/dhrupadb-docker-plugin
   return 0;
 }
 
