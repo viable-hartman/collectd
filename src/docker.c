@@ -392,10 +392,14 @@ static void compute_cpu_stats(cpu_stats_t *stats, const char *container_id) {
           old_stats->old_percpu_usage[i];
       unsigned long delta_system = stats->system_cpu_usage -
           old_stats->old_system_usage;
-      double used_percent =
+      if (delta_system < delta_cpu) {
+        ERROR("docker.c: System seconds less than Core seconds."
+              " System Seconds: %lu, CPU Seconds: %lu", delta_system, delta_cpu);
+      }
+      unsigned long used_percent =
           delta_system > 0 ? 100.0*((delta_cpu*1.00)/(1.00*delta_system)) : 0.00;
-      stats->percpu_percent_used[i] = used_percent;
-      stats->percpu_percent_idle[i] = 100.00 - used_percent;
+      stats->percpu_percent_used[i] = (used_percent)%100;
+      stats->percpu_percent_idle[i] = 100.00 - ((used_percent)%100);
     counter_reset:
       stats->percpu_idle[i] = stats->system_cpu_usage - stats->percpu_usage[i];
       old_stats->old_percpu_usage[i] = stats->percpu_usage[i];
@@ -453,6 +457,13 @@ static int extract_container_ids_from_response(char ***container_list,
     }
     goto error;
   }
+<<<<<<< HEAD
+=======
+  if (node->u.array.len == 0) {
+    return 0;
+  }
+
+>>>>>>> origin/dhrupadb-docker-plugin
   const char *id_path[] = { "Id", (const char *) 0 };
   if (YAJL_IS_ARRAY(node)) {
     list = (char **) calloc(node->u.array.len, sizeof(char *));
@@ -1033,6 +1044,16 @@ static int dispatch_stats_all(void) {
   char **container_list = NULL;
   int count = get_container_list(&container_list, DOCKER_SOCKET,
 				 DOCKER_VERSION);
+<<<<<<< HEAD
+=======
+  if (count == 0) {
+    DEBUG("docker: No containers running on this machine.");
+    goto leave;
+  } else if (count == -1) {
+    ERROR("docker: Unable to parse container information.");
+    goto leave;
+  }
+>>>>>>> origin/dhrupadb-docker-plugin
   container_resource_t **containers = (container_resource_t **)
       calloc(count, sizeof(container_resource_t *));
   for (int i = 0; i < count; i++) {
@@ -1053,8 +1074,14 @@ static int dispatch_stats_all(void) {
     }
     sfree(containers[i]);
   }
+<<<<<<< HEAD
   free_list((void ***) &container_list, count);
   sfree(containers);
+=======
+  sfree(containers);
+ leave:
+  free_list((void ***) &container_list, count);
+>>>>>>> origin/dhrupadb-docker-plugin
   return 0;
 }
 
