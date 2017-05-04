@@ -287,7 +287,7 @@ static char *wg_read_all_bytes(const char *filename, const char *mode) {
   rewind(f);
   buffer = malloc(size + 1);
   if (buffer == NULL) {
-    ERROR("write_gcm: wg_read_all_bytes: malloc failed");
+    ERROR("write_gcm: wg_read_all_bytes: Memory allocation failed");
     goto leave;
   }
 
@@ -2172,13 +2172,13 @@ static monitored_resource_t *wg_monitored_resource_create(
 static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
     const char *metadata_agent_url, const char *project_id,
     const char *resource_id) {
+  monitored_resource_t *resource = NULL;
   if (resource_id == NULL) {
-    WARNING("write_gcm: Hostname not set. Cannot query Metadata Agent.");
-    return NULL;
+    WARNING("write_gcm: wg_monitored_resource_create_from_metadata_agent: "
+            "Expected Resource ID in the Hostname but the Hostname is not set. "
+            "Cannot query the Metadata Agent.");
+    return resource;
   }
-  char *body = NULL;
-  const char **headers = NULL;
-  int num_headers = 0;
   const char *url = metadata_agent_url != NULL ?
       metadata_agent_url : metadata_agent_default_url;
   char *response_buffer = (char *)
@@ -2186,7 +2186,7 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
   if (response_buffer == NULL) {
     ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent:"
           "calloc failed.");
-    return NULL;
+    return resource;
   }
   size_t url_size = strlen(url) + strlen(resource_id) +
       strlen("/monitoredResource/") + 1;
@@ -2200,19 +2200,19 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
   // ssnprintf returns number of characters written excluding the \0 character
   // but the size argument it takes requires \0 to be accounted for.
   if (url_size - written != 1) {
-    ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent: %s",
+    ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent: "
           "Could not create Metadata Agent URL.");
-    goto error;
+    sfree(response_buffer);
+    return resource;
   }
 
   wg_curl_get_or_post(response_buffer, METADATA_RESPONSE_BUFFER_SIZE, query,
-                      body, headers, num_headers);
-  return parse_monitored_resource(response_buffer,
-                                  METADATA_RESPONSE_BUFFER_SIZE, project_id);
+                      NULL, NULL, 0);
+   resource = parse_monitored_resource(response_buffer,
+                  METADATA_RESPONSE_BUFFER_SIZE, project_id);
+   sfree(response_buffer);
+   return resource;
   }
- error:
-  sfree(response_buffer);
-  return NULL;
 }
 
 typedef struct {
@@ -2283,16 +2283,16 @@ static monitored_resource_t *monitored_resource_create_from_fields(
 
 static monitored_resource_t *parse_monitored_resource(char *metadata,
     int metadata_size, const char *project_id) {
-  yajl_val node;
   char errbuf[1024];
-  node = yajl_tree_parse(metadata, errbuf, sizeof(errbuf));
+  monitored_resource_t *response = NULL;
+  yajl_val node = yajl_tree_parse(metadata, errbuf, sizeof(errbuf));
   if (node == NULL) {
     if (strlen(errbuf)) {
       DEBUG("write_gcm: parse_monitored_resource %s", errbuf);
     } else {
-      DEBUG("write_gcm: parse_monitored_resource: Not valid JSON response.");
+      DEBUG("write_gcm: parse_monitored_resource: Invalid JSON response.");
     }
-    goto error;
+    goto finish;
   }
   {
     const char * type_path[] = {"type", (const char *) 0};
@@ -2305,7 +2305,7 @@ static monitored_resource_t *parse_monitored_resource(char *metadata,
     } else {
       ERROR("write_gcm: wg_parse_monitored_resource: %s not correctly defined.",
             type_path[0]);
-      goto error;
+      goto finish;
     }
     size_t num_values;
     if (labels_v && YAJL_IS_OBJECT(labels_v)) {
@@ -2313,25 +2313,20 @@ static monitored_resource_t *parse_monitored_resource(char *metadata,
     } else {
       ERROR("write_gcm: wg_parse_monitored_resource: No such node %s.\n",
             labels_path[0]);
-      goto error;
+      goto finish;
     }
     label_t labels[num_values];
     for (int i = 0; i < num_values; i++) {
       labels[i].key = *(labels_v->u.object.keys + i);
       labels[i].value = YAJL_GET_STRING(*(labels_v->u.object.values + i));
     }
-    monitored_resource_t *response =
-        monitored_resource_create_from_array(type, project_id, labels,
-                                             num_values);
-    yajl_tree_free(node);
-    sfree(metadata);
-    return response;
+    response = monitored_resource_create_from_array(type, project_id, labels,
+                   num_values);
   }
 
- error:
+ finish:
   yajl_tree_free(node);
-  sfree(metadata);
-  return NULL;
+  return response;
 }
 
 static void wg_monitored_resource_destroy(monitored_resource_t *resource) {
@@ -2468,7 +2463,7 @@ static monitored_resource_t *wg_monitored_resource_create_for_aws(
     // The '5' is to hold space for "aws:" plus terminating NUL.
     region_to_use = malloc(strlen(aws_region) + 5);
     if (region_to_use == NULL) {
-      ERROR("write_gcm: malloc region_to_use failed.");
+      ERROR("write_gcm: Memory allocation region_to_use failed.");
       goto leave;
     }
     snprintf(region_to_use, strlen(aws_region) + 5, "aws:%s", aws_region);
@@ -2616,7 +2611,7 @@ static char * find_application_default_creds_path() {
     size_t bytes_needed = strlen(home_path) + sizeof(suffix);
     char *home_config_path = malloc(bytes_needed);
     if (home_config_path == NULL) {
-      ERROR("write_gcm: find_application_default_creds_path: malloc failed");
+      ERROR("write_gcm: find_application_default_creds_path: Memory allocation failed");
       return NULL;
     }
     int result = snprintf(home_config_path, bytes_needed,
@@ -2983,7 +2978,7 @@ static int wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
 
   char *json_result = malloc(buffer_length + 1);
   if (json_result == NULL) {
-    ERROR("write_gcm: malloc failed");
+    ERROR("write_gcm: Memory allocation failed");
     wg_json_ctx_destroy(jc);
     return (-ENOMEM);
   }
@@ -3242,7 +3237,7 @@ static int wg_json_CreateTimeSeriesRequest(_Bool pretty,
 
   char *json_result = malloc(buffer_length + 1);
   if (json_result == NULL) {
-    ERROR("write_gcm: malloc failed");
+    ERROR("write_gcm: Memory allocation failed");
     wg_json_ctx_destroy(jc);
     return (-ENOMEM);
   }
@@ -3884,7 +3879,7 @@ static c_avl_tree_t *wg_group_payloads_by_host(wg_payload_t *head, int *count) {
     if (c_avl_get(host_tree, (const void *) host, (void **) &value) != 0) {
       hook = (wg_payload_hook_t *) calloc(1, sizeof(wg_payload_hook_t));
       if (hook == NULL) {
-        ERROR("write_gcm: wg_group_by_host malloc failed");
+        ERROR("write_gcm: wg_group_by_host memory allocation failed");
         goto leave;
       }
       hook->payload = head;
