@@ -2172,12 +2172,11 @@ static monitored_resource_t *wg_monitored_resource_create(
 static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
     const char *metadata_agent_url, const char *project_id,
     const char *resource_id) {
-  monitored_resource_t *resource = NULL;
   if (resource_id == NULL) {
     WARNING("write_gcm: wg_monitored_resource_create_from_metadata_agent: "
             "Expected Resource ID in the Hostname but the Hostname is not set. "
             "Cannot query the Metadata Agent.");
-    return resource;
+    return NULL;
   }
   const char *url = metadata_agent_url != NULL ?
       metadata_agent_url : metadata_agent_default_url;
@@ -2186,11 +2185,10 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
   if (response_buffer == NULL) {
     ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent:"
           "calloc failed.");
-    return resource;
+    return NULL;
   }
   size_t url_size = strlen(url) + strlen(resource_id) +
       strlen("/monitoredResource/") + 1;
-  {
   char query[url_size];
   int written = ssnprintf(query, url_size, "%s/monitoredResource/%s", url,
                     resource_id);
@@ -2203,16 +2201,15 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
     ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent: "
           "Could not create Metadata Agent URL.");
     sfree(response_buffer);
-    return resource;
+    return NULL;
   }
 
   wg_curl_get_or_post(response_buffer, METADATA_RESPONSE_BUFFER_SIZE, query,
                       NULL, NULL, 0);
-   resource = parse_monitored_resource(response_buffer,
-                  METADATA_RESPONSE_BUFFER_SIZE, project_id);
+  monitored_resource_t *resource = parse_monitored_resource(response_buffer,
+      METADATA_RESPONSE_BUFFER_SIZE, project_id);
    sfree(response_buffer);
    return resource;
-  }
 }
 
 typedef struct {
@@ -3874,8 +3871,8 @@ static c_avl_tree_t *wg_group_payloads_by_host(wg_payload_t *head, int *count) {
   int host_count = 0;
   while (head != NULL) {
     const char *host = head->key.host;
-    wg_payload_hook_t *hook = NULL;
-    wg_payload_hook_t *value = NULL;
+    wg_payload_hook_t *hook;
+    wg_payload_hook_t *value;
     if (c_avl_get(host_tree, (const void *) host, (void **) &value) != 0) {
       hook = (wg_payload_hook_t *) calloc(1, sizeof(wg_payload_hook_t));
       if (hook == NULL) {
