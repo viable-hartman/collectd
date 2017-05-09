@@ -6157,10 +6157,6 @@ then
 	plugin_write_gcm="yes"
         match_throttle_metadata_keys="yes"
         plugin_stackdriver_agent="yes"
-fi
-
-if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
-then
 	plugin_docker="yes"
 fi
 
