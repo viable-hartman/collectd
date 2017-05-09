@@ -683,7 +683,8 @@ static int insert_blkio_stat_in_tree(c_avl_tree_t *tree, char *op,
 }
 
 // Extracts BlockIO (Disk) stats of a given type from the STATS API response.
-static int extract_blkio_values(yajl_val node, c_avl_tree_t *tree) {
+static int extract_blkio_values_into_device_tree(yajl_val node,
+    c_avl_tree_t *tree) {
   int result = -1;
   unsigned long major, minor, value;
   unsigned long *result_ptr[] = {
@@ -724,7 +725,8 @@ static void extract_blkio_struct(yajl_val node, const char *key,
   yajl_val val_node = yajl_tree_get(node, path, yajl_t_any);
   if (YAJL_IS_ARRAY(val_node) && val_node->u.array.len > 0) {
     for (int i = 0; i < val_node->u.array.len; i++) {
-      if(extract_blkio_values(val_node->u.array.values[i], device_tree) == -1) {
+      if(extract_blkio_values_into_device_tree(val_node->u.array.values[i],
+                                               device_tree) == -1) {
         c_avl_destroy(device_tree);
         *(result_ptr) = NULL;
       }
@@ -1201,12 +1203,12 @@ static void dispatch_container_network_stats(network_stats_t *stats,
 static void dispatch_container_stats(const char *id, container_stats_t *stats) {
   // This plugin sets the hostname to "container.{container_id}"
   // 75 = 64 (container ID) + len(container.) + len(\0).
-  char *hostname = (char *) calloc (75, sizeof(char));
+  char *hostname = (char *) calloc (76, sizeof(char));
   if (hostname == NULL) {
     ERROR("docker: dispatch_container_stats malloc failed!");
     return;
   }
-  ssnprintf(hostname, 74, "container.%s", id);
+  ssnprintf(hostname, 75, "container.%s", id);
   dispatch_container_blkio_stats(stats->blkio_stats, hostname);
   dispatch_container_cpu_stats(stats->cpu_stats->percpu_stats,
       stats->cpu_stats->num_cpus, hostname);
