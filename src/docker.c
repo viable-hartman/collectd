@@ -186,6 +186,14 @@ static int config_keys_num = STATIC_ARRAY_SIZE(config_keys);
 //==============================================================================
 //==============================================================================
 
+/* Purpose: Free a list of pointers and indiviual each individual element.
+ *
+ * Params: (void ***) p: Void reference to a list pointer.
+ *          (int)   size: Size of the list.
+ *
+ * Returns: N/A
+ **/
+
 static void free_list(void ***p, int size) {
   void **ptr = *p;
   for (int i = 0; i < size; i++) {
@@ -198,9 +206,17 @@ static void free_list(void ***p, int size) {
   ptr = NULL;
 }
 
-// Takes a string containing commas as a delimiter and creates an array of
-// strings terminated by a NULL string. Used to create paths required to
-// traverse the YAJL tree.
+/* Purpose: Takes a string containing commas as a delimiter and creates an
+ *           array of strings terminated by a NULL string. Used to create paths
+ *           required to traverse the YAJL tree.
+ *
+ * Params: (const char *) path: String of one or more comma separated tokens.
+ *          (int *)        len: Reference to int used to store the number of
+ *                               tokens extracted from the path.
+ *
+ * Returns: (const char **): List of string tokens with the null string as the
+ *                            final token.
+ **/
 static const char **tokenize_path(const char *path, int *len) {
   if (strlen(path) == 0) { *len = 0; return NULL; }
   int count = 1;
@@ -228,6 +244,13 @@ static const char **tokenize_path(const char *path, int *len) {
   return tok_ptr;
 }
 
+/* Purpose: Free memory held to store disk (blockIO) stats of
+ *           a particular type for each device.
+ *
+ * Params: (c_avl_tree *) tree: AVL tree holding the disk stats.
+ *
+ * Returns: N/A
+ **/
 static void free_blkio_device_tree(c_avl_tree_t *tree) {
   void *key;
   void *value;
@@ -238,6 +261,15 @@ static void free_blkio_device_tree(c_avl_tree_t *tree) {
   c_avl_destroy(tree);
 }
 
+/* Purpose: Free memory held to store each type of disk (blockIO) stats.
+ *
+ * Params: (blkio_stats_t *) stats: Struct holding a list of AVL trees (one
+ *                                   for each type of disk stats) with stats for
+ *                                   each device.
+ *
+ * Returns: N/A
+ *
+ **/
 static void free_blkio(blkio_stats_t *stats) {
   if (stats == NULL) return;
   c_avl_tree_t *ptrs[] = {
@@ -251,6 +283,13 @@ static void free_blkio(blkio_stats_t *stats) {
   sfree(stats);
 }
 
+/* Purpose: Free memory held to store CPU stats for each core.
+ *
+ * Params: (cpu_stats_t *) stats: Struct holding CPU stats.
+ *
+ * Returns: N/A
+ *
+ **/
 static void free_cpu(cpu_stats_t *stats) {
   if (stats == NULL) return;
   for (int i = 0; i < stats->num_cpus; i++) {
@@ -261,6 +300,14 @@ static void free_cpu(cpu_stats_t *stats) {
   sfree(stats);
 }
 
+/* Purpose: Free memory held to store network interface stats.
+ *
+ * Params: (network_stats_t *) stats: Struct holding network interface stats
+ *                                     for each interface (i.e. eth0 etc.).
+ *
+ * Returns: N/A
+ *
+ **/
 static void free_network_stats(network_stats_t *stats) {
   if (stats == NULL) return;
   for (int i = 0; i < stats->count; i++) {
@@ -272,6 +319,13 @@ static void free_network_stats(network_stats_t *stats) {
   sfree(stats);
 }
 
+/* Purpose: Free memory held to store stats for each container.
+ *
+ * Params: (container_stats_t *) stats: Struct holding CPU stats.
+ *
+ * Returns: N/A
+ *
+ **/
 static void free_stats(container_stats_t *stats) {
   if (stats == NULL) return;
   if (stats->blkio_stats != NULL) {
@@ -292,17 +346,18 @@ static void free_stats(container_stats_t *stats) {
  sfree(stats);
 }
 
-// Copied from src/write_gcm.c. As all collectd methods are static, copying this
-// instead of rewriting it as a separate utility method. This method 
-// implements the callback needed by curl_get_json() to retrieve data from cURL
-// call.
+/* Purpose: Implements the callback needed by curl_get_json() to retrieve data
+ *           from cURL call.
+ * Notes: Copied from src/write_gcm.c. As all collectd methods are static,
+ *        copying this instead of rewriting it as a separate utility method.
+ **/
 static size_t plugin_curl_write_callback(char *ptr, size_t size,
     size_t num_members, void *userdata) {
   curl_write_ctx_t *ctx = userdata;
   if (ctx->size == 0) {
     return 0;
   }
-  size_t requested_bytes = size *num_members;
+  size_t requested_bytes = size * num_members;
   size_t actual_bytes = requested_bytes;
   if (actual_bytes >= ctx->size) {
     actual_bytes = ctx->size - 1;
@@ -319,9 +374,23 @@ static size_t plugin_curl_write_callback(char *ptr, size_t size,
   return requested_bytes;
 }
 
-// Using implementation with modifications from src/write_gcm.c. Removed support
-// for POST requests as all calls to the Docker Engine API are GET requests.
-// Additionally this makes the call specifically to a UNIX socket.
+/* Purpose: Make cURL call to Docker stats enpoint and retrieve response.
+ *
+ * Params: (char *) response_buffer: Pointer to memory which will hold the
+ *                                     response of the call after the function
+ *                                     returns.
+ *          (size_t) response_buffer_size: Size of the response.
+ *          (const char *) url: URL to make the cURL call to.
+ *          (const char *) socket: The socket to connect. In case of Docker
+ *                                  the socket is a UNIX socket.
+ *
+ * Returns: int: Return code. 0 for success. < 0 for failure.
+ *
+ * Notes: Using implementation with modifications from src/write_gcm.c. Removed
+ *        support for POST requests as all calls to the Docker stats API are GET
+ *        requests. Additionally this makes the call specifically to a UNIX
+ *        socket.
+ **/
 static int curl_get_json(char *response_buffer, size_t response_buffer_size,
     const char *url, const char *socket) {
   CURL *curl = curl_easy_init();
@@ -382,18 +451,41 @@ static int curl_get_json(char *response_buffer, size_t response_buffer_size,
 //==============================================================================
 //==============================================================================
 
-// Computes percentages for CPU metrics in different states.
-static void compute_cpu_stats(cpu_core_stats_t **stats,
-    unsigned long system_cpu_usage, int total_cores, int active_cores,
-    const char *container_id) {
+/* Purpose: Computes CPU utilization percentage for each core for used and
+ *           idle states by the container since the last time the Docker API
+ *           was queried.
+ *
+ * Params: (cpu_core_stats_t **) stats: List of cpu_core_stats_t structs which
+ *                                        store metrics for each core.
+ *          (unsigned long) system_cpu_usage: Total number of CPU seconds used
+ *                                             by the whole system.
+ *          (int) total_cores: Number of cores on the machine.
+ *          (const char *) container_id: 64-character Docker container ID.
+ *
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of error.
+ **/
+static int compute_cpu_stats(cpu_core_stats_t **stats,
+    unsigned long system_cpu_usage, int total_cores, const char *container_id) {
   cdtime_t now = cdtime();
   cpu_state_t *old_stats = NULL;
+  int active_cores = total_cores;
   if (c_avl_get(cpu_hist_values, (void *) container_id,
                     (void **) &old_stats) == 0) {
     assert(total_cores == old_stats->num_cpus);
     assert(now >= old_stats->t);
     unsigned long delta_system_cpu = system_cpu_usage -
         old_stats->old_system_usage;
+    for (int i = 0; i < total_cores; i++) {
+      if (stats[i]->usage - old_stats->old_percpu_usage[i] == 0) --active_cores;
+    }
+
+    if (active_cores == 0) {
+      WARNING("docker: Container %s did not utilize any CPU cycles",
+              container_id);
+      active_cores = total_cores;
+    }
     // We divide the total number of CPU cycles used evenly among the cores
     // with a non-zero number of seconds used. This assumes the scheduler is
     // equally likely to pick the cores. We use cores with non-zero values
@@ -446,7 +538,7 @@ static void compute_cpu_stats(cpu_core_stats_t **stats,
     if (old_stats == NULL) {
       ERROR("docker: compute_cpu_stats. malloc failed! Could not allocate"
             " historical stats struct for container %s.", container_id);
-      return;
+      return -1;
     }
     old_stats->t = now;
     old_stats->num_cpus = total_cores;
@@ -458,7 +550,7 @@ static void compute_cpu_stats(cpu_core_stats_t **stats,
             " historical stats list for container %s", container_id);
       sfree(old_stats);
       old_stats = NULL;
-      return;
+      return -1;
     }
     for (int i = 0; i < total_cores; i++) {
       old_stats->old_percpu_usage[i] = stats[i]->usage;
@@ -479,18 +571,30 @@ static void compute_cpu_stats(cpu_core_stats_t **stats,
     if (c_avl_insert(cpu_hist_values, (void *) container_id,
            (void *) old_stats) < 0) {
       ERROR("docker: c_avl_insert failed!");
+      return -1;
     }
   }
+  return 0;
 }
 
-// Computes percentages for memory metrics in different states.
-static void compute_memory_stats(memory_stats_t *stats) {
+/* Purpose: Computes memory utilization percentage for used and free states by
+ *           the container since the last time the Docker API was queried.
+ *
+ * Params: (memory_stats_t *) stats: memory_stats_t struct which stores memory
+ *                                     metrics.
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of error.
+ **/
+static int compute_memory_stats(memory_stats_t *stats) {
   if (stats == NULL) {
     ERROR("docker: compute_memory_stats. memory stats NULL");
   }
   stats->free = stats->limit - stats->usage;
+  if (stats->limit == 0) return -1;
   stats->percent_used = (stats->usage * 100.00)/(stats->limit);
   stats->percent_free = 100.00 - stats->percent_used;
+  return 0;
 }
 
 //==============================================================================
@@ -501,8 +605,16 @@ static void compute_memory_stats(memory_stats_t *stats) {
 //==============================================================================
 //==============================================================================
 
-// Retrieves the list of 64 character container IDs from the containers/json
-// endpoint.
+/* Purpose: Retrieve the list of container IDs from the Docker API response.
+ *
+ * Params: (char ***) container_list: Pointer to a list of strings which hold
+ *                                      the container IDs after the function 
+ *                                      returns.
+ *          (char *) response_buffer: Docker API response string.
+ *
+ * Returns: N/A
+ *
+ **/
 static int extract_container_ids_from_response(char ***container_list,
     char *response_buffer) {
   yajl_val node;
@@ -548,6 +660,18 @@ static int extract_container_ids_from_response(char ***container_list,
   return num_containers;
 }
 
+/* Purpose: Queries the Docker API for the list of running containers and
+ *           stores them in a string list.
+ *
+ * Params: (const char *) socket: Docker API UNIX socket to connect to.
+ *          (const char *) version: Version of the Docker API to query.
+ *          (char ***) container_list: Pointer to a list of string holding
+ *                                      the container IDs after the function
+ *                                      returns.
+ * Returns: int
+ *          0 - if no running containers are found or an error occured.
+ *          Number of running containers.
+ **/
 static int get_container_list(const char *socket, const char *version,
     char ***container_list) {
   char *response_buffer = (char *) calloc(RESPONSE_BUFFER_SIZE, sizeof(char));
@@ -568,7 +692,17 @@ static int get_container_list(const char *socket, const char *version,
   return count;
 }
 
-// Extracts a string from the YAJL node and sets it to the result_ptr.
+/* Purpose: Extracts a string from the YAJL node and sets it to the result_ptr
+ *
+ * Params: (yajl_val) node: YAJL node struct with JSON parsed into a tree like
+ *                            structure.
+ *          (const char *) key: string key which describes the path to the
+ *                               value in the parsed JSON tree.
+ *         (char **) result_ptr: Pointer to a string which will hold the
+ *                                retrieved string value once the function
+ *                                returns.
+ * Returns: N/A
+ **/
 static void extract_string(yajl_val node, const char *key, char **result_ptr) {
   char *result = NULL;
   int tokens;
@@ -586,8 +720,19 @@ static void extract_string(yajl_val node, const char *key, char **result_ptr) {
   *(result_ptr) = result;
 }
 
-// Extracts an array of unsigned long values from the YAJL node.
-// Retuns the number of array elements. -1 in case of an error.
+/* Purpose: Extracts an array of unsigned long values from the YAJL node.
+ *
+ * Params: (yajl_val) node: YAJL node struct with JSON parsed into a tree like
+ *                            structure.
+ *          (const char *) key: string key which describes the path to the
+ *                               values in the parsed JSON tree.
+ *         (unsigned long **) result_ptr: Pointer to a unsigned long list which
+ *                                        will hold the retrieved values once the
+ *                                        function returns.
+ * Returns: int
+ *          Number of elements retrieved
+ *          -1 in case of an error.
+ **/
 static int extract_arr_value(yajl_val node, const char *key,
     unsigned long **result_ptr) {
   int tokens;
@@ -618,7 +763,19 @@ static int extract_arr_value(yajl_val node, const char *key,
   return len;
 }
 
-// Extracts a single unsigned long value from the YAJL node.
+/* Purpose: Extracts an unsigned long value from the YAJL node.
+ *
+ * Params: (yajl_val) node: YAJL node struct with JSON parsed into a tree like
+ *                            structure.
+ *          (const char *) key: string key which describes the path to the
+ *                               values in the parsed JSON tree.
+ *          (unsigned long *) result_ptr: Pointer to a unsigned long which will
+ *                                         hold the retrieved value once the
+ *                                         function returns.
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of an error.
+ **/
 static int extract_value(yajl_val node, const char *key,
     unsigned long *result_ptr) {
   int ret_val = -1; // Pessimistically assume error.
@@ -641,8 +798,22 @@ static int extract_value(yajl_val node, const char *key,
   return ret_val;
 }
 
-// Takes a parsed BlockIO stats and creates a stat structure for that device
-// or updates the stats for an existing device.
+/* Purpose: Insert parsed Disk (blockIO) stats and creates/updates the stats
+ *           struct for the device in the device tree.
+ *
+ * Params: (c_avl_tree_t *) tree: The tree which holds a map from device name
+ *                                  to stats struct.
+ *          (char *) op: string denoting the type of disk operation stat being
+ *                        stored.
+ *          (unsigned long) major: Primary number describing the device
+ *                                  (e.g. 8 for /sda)
+ *          (unsgined long) minor: Secondary number describing the device
+ *                                  (e.g. 0 for /sda)
+ *          (unsigned long) value: Value of the metric being stored.
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of ERROR.
+ **/
 static int insert_blkio_stat_in_tree(c_avl_tree_t *tree, char *op,
     unsigned long major, unsigned long minor, unsigned long value) {
   char *key = (char *) calloc(4, sizeof(char));
@@ -682,7 +853,17 @@ static int insert_blkio_stat_in_tree(c_avl_tree_t *tree, char *op,
   return 0;
 }
 
-// Extracts BlockIO (Disk) stats of a given type from the STATS API response.
+/* Purpose: Extracts Disk (blockIO) stats of a given type from the parsed JSON
+ *           tree (YAJL node) and inserts the stats in the device tree.
+ *
+ * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
+ *                             like structure.
+ *          (c_avl_tree_t *) tree: The tree which holds a map from device name
+ *                                  to stats struct.
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of ERROR.
+ **/
 static int extract_blkio_values_into_device_tree(yajl_val node,
     c_avl_tree_t *tree) {
   int result = -1;
@@ -709,8 +890,17 @@ static int extract_blkio_values_into_device_tree(yajl_val node,
   return result;
 }
 
-// Extracts all BlockIO (Disk) stats for all devices and populates the
-// device to stats tree.
+/* Purpose: Extracts Disk (blockIO) stats of each type from the parsed JSON
+ *           tree (YAJL node) and inserts the stats in the device tree.
+ *
+ * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
+ *                             like structure.
+ *          (const char *) key: string key which describes the path to the
+ *                               values in the parsed JSON tree.
+ *          (c_avl_tree_t *) tree: The tree which holds a map from device name
+ *                                  to stats struct after the function returns..
+ * Returns: N/A
+ **/
 static void extract_blkio_struct(yajl_val node, const char *key,
                                  c_avl_tree_t **result_ptr) {
   c_avl_tree_t *device_tree = c_avl_create((
@@ -741,16 +931,29 @@ static void extract_blkio_struct(yajl_val node, const char *key,
   return;
 }
 
-static void get_blkio_stats(yajl_val node, container_stats_t *stats) {
+/* Purpose: Retrieves all disk (blockIO) stats from the parsed JSON.
+ *
+ * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
+ *                             like structure.
+ *          (container_stats_t *) stats: Struct holding all metrics and stats
+ *                                        for the container.
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of error.
+ **/
+static int get_blkio_stats(yajl_val node, container_stats_t *stats) {
   stats->blkio_stats = (blkio_stats_t *) calloc(1, sizeof(blkio_stats_t));
   if (stats->blkio_stats == NULL) {
     ERROR("docker: get_block_io_stats: malloc failed!");
+    stats->blkio_stats = NULL;
+    return -1;
   }
   yajl_val blkio_node = yajl_tree_get(node, BLKIO_PATH, yajl_t_object);
   if (!YAJL_IS_OBJECT(blkio_node)) {
     ERROR("docker: BlockIO stats cannot be parsed. JSON Error.");
     sfree(stats->blkio_stats);
-    return;
+    stats->blkio_stats = NULL;
+    return -1;
   }
 
   c_avl_tree_t **result_ptrs[] = {
@@ -761,9 +964,19 @@ static void get_blkio_stats(yajl_val node, container_stats_t *stats) {
   for (int i = 0; i < STATIC_ARRAY_SIZE(BLKIO_KEYS); i++) {
     extract_blkio_struct(blkio_node, BLKIO_KEYS[i], result_ptrs[i]);
   }
+  return 0;
 }
 
-// Retrieves CPU statistics from the STATS API response
+/* Purpose: Retrieves all CPU stats for each core from the parsed JSON.
+ *
+ * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
+ *                             like structure.
+ *          (container_stats_t *) stats: Struct holding all metrics and stats
+ *                                        for the container.
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of error.
+ **/
 static int get_cpu_stats(yajl_val node, container_stats_t *stats,
     const char *container_id) {
   unsigned long *percpu_usage;
@@ -805,7 +1018,6 @@ static int get_cpu_stats(yajl_val node, container_stats_t *stats,
     sfree(percpu_usage);
     goto leave;
   }
-  int active_cores = 0;
   for (int i = 0; i < len; i++) {
     stats->cpu_stats->percpu_stats[i] =
         (cpu_core_stats_t *) calloc (1, sizeof(cpu_core_stats_t));
@@ -815,29 +1027,38 @@ static int get_cpu_stats(yajl_val node, container_stats_t *stats,
       continue;
     }
     stats->cpu_stats->percpu_stats[i]->usage = percpu_usage[i];
-    if (stats->cpu_stats->percpu_stats[i] > 0) active_cores++;
   }
 
-  compute_cpu_stats(stats->cpu_stats->percpu_stats,
-      stats->cpu_stats->system_cpu_usage, len, active_cores, container_id);
-  return 0;
+  return compute_cpu_stats(stats->cpu_stats->percpu_stats,
+      stats->cpu_stats->system_cpu_usage, len, container_id);
  leave:
   sfree(stats->cpu_stats);
   stats->cpu_stats = NULL;
   return -1;
 }
 
-// Retrieves Memory statistics from the STATS API response
-static void get_memory_stats(yajl_val node, container_stats_t *stats) {
+/* Purpose: Retrieves all memory stats from the parsed JSON.
+ *
+ * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
+ *                             like structure.
+ *          (container_stats_t *) stats: Struct holding all metrics and stats
+ *                                        for the container.
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of error.
+ **/
+static int get_memory_stats(yajl_val node, container_stats_t *stats) {
   stats->memory_stats = (memory_stats_t *) calloc(1, sizeof(memory_stats_t));
   if (stats->memory_stats == NULL) {
     ERROR("docker: get_memory_stats: malloc failed!");
+    return -1;
   }
   yajl_val memory_node = yajl_tree_get(node, MEMORY_PATH, yajl_t_object);
   if (!YAJL_IS_OBJECT(memory_node)) {
     ERROR("docker: memory stats cannot be parsed. JSON Error.");
     sfree(stats->memory_stats);
-    return;
+    stats->memory_stats = NULL;
+    return -1;
   }
 
   unsigned long *result_ptrs[] = {
@@ -848,13 +1069,26 @@ static void get_memory_stats(yajl_val node, container_stats_t *stats) {
   assert(STATIC_ARRAY_SIZE(MEMORY_RESPONSE_KEYS)
              == STATIC_ARRAY_SIZE(result_ptrs));
   for (int i = 0; i < STATIC_ARRAY_SIZE(MEMORY_RESPONSE_KEYS); i++) {
-    extract_value(memory_node, MEMORY_RESPONSE_KEYS[i], result_ptrs[i]);
+    if(extract_value(memory_node,
+                     MEMORY_RESPONSE_KEYS[i], result_ptrs[i]) != 0){
+      WARNING("docker: get_memory_stats: Error occured parsing stats for key:"
+              " %s", MEMORY_RESPONSE_KEYS[i]);
+    }
   }
-  compute_memory_stats(stats->memory_stats);
+  return compute_memory_stats(stats->memory_stats);
 }
 
-// Extracts stats for a given interface.
-static void get_interface_stats(yajl_val interface_node,
+/* Purpose: Retrieves interface stats for a given interface from the parsed JSON.
+ *
+ * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
+ *                             like structure.
+ *          (interface_stats_t *) stats: Struct holding stats for a given
+ *                                        interface.
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of error.
+ **/
+static int get_interface_stats(yajl_val interface_node,
     interface_stats_t *stats) {
   //Network Stats
   unsigned long *rx_result_ptrs[] = {
@@ -880,19 +1114,31 @@ static void get_interface_stats(yajl_val interface_node,
     if (tx_key == NULL || rx_key == NULL) {
       ERROR("docker: get_metrics_for_container: malloc failed. Unable to get"
             " network interface %s stats.", INTERFACE_KEYS[i]);
-      return;
+      return -1;
     }
     ssnprintf(tx_key, len, "tx_%s", INTERFACE_KEYS[i]);
     ssnprintf(rx_key, len, "rx_%s", INTERFACE_KEYS[i]);
-    extract_value(interface_node, tx_key, tx_result_ptrs[i]);
-    extract_value(interface_node, rx_key, rx_result_ptrs[i]);
+    if (extract_value(interface_node, tx_key, tx_result_ptrs[i]) != 0 ||
+        extract_value(interface_node, rx_key, rx_result_ptrs[i]) != 0) {
+      WARNING("docker: get_interface_stats: Error parsing stats for key: %s",
+              INTERFACE_KEYS[i]);
+    }
     sfree(tx_key);
     sfree(rx_key);
   }
+  return 0;
 }
 
-// Retrieves Network statistics for each networking interface from the STATS API
-// response.
+/* Purpose: Retrieves interface stats for all interfaces from the parsed JSON.
+ *
+ * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
+ *                             like structure.
+ *          (container_stats_t *) stats: Struct holding all metrics and stats
+ *                                        for the container.
+ * Returns: int
+ *          Number of interfaces for which stats were successfully parsed.
+ *          -1 in case of error.
+ **/
 static int get_network_stats(yajl_val node, container_stats_t *stats) {
   stats->network_stats = (network_stats_t *) calloc(1, sizeof(network_stats_t));
   if (stats->network_stats == NULL) {
@@ -956,33 +1202,60 @@ static int get_network_stats(yajl_val node, container_stats_t *stats) {
   return successes;
 }
 
-// Parses the JSON response from the Docker STATS API and extracts metrics
-// for memory, disk, CPU and networking interfaces.
-static void extract_stats_from_response(char *response_buffer,
+/* Purpose: Extract all the stats/metrics from the JSON response.
+ *
+ * Params: (char *) response_buffer: string holding the Docker stats response.
+ *          (constainer_stats_t **) stats: Pointer to the container_stats_t
+ *                                          struct which holds all the metrics
+ *                                          for a given container once the
+ *                                          function returns.
+ *          (const char *) container_id: 64-character container ID.
+ *
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of partial success.
+ *          -2 in case of error / complete failure.
+ **/
+static int extract_stats_from_response(char *response_buffer,
     container_stats_t **stats, const char *container_id) {
   yajl_val node;
   char errbuf[1024];
+  int errors = 0;
   container_stats_t *ptr = (container_stats_t *)
       calloc(1, sizeof(container_stats_t));
   if (ptr == NULL) {
     ERROR("docker: extract_stats_from_response: malloc failed!");
-    return;
+    return -2;
   }
   node = yajl_tree_parse(response_buffer, errbuf, sizeof(errbuf));
   if (node == NULL) {
     if (strlen(errbuf)) {
-      ERROR("docker: parse_error: %s.\n", errbuf);
+      ERROR("docker: extract_stats_from_response: parse_error: %s.\n", errbuf);
     } else {
-      ERROR("docker: parse_error.\n");
+      ERROR("docker: extract_stats_from_response: parse_error.\n");
     }
     free_stats(ptr);
-    return;
+    *stats = NULL;
+    return -2;
   }
-  get_memory_stats(node, ptr);
-  get_blkio_stats(node, ptr);
-  get_cpu_stats(node, ptr, container_id);
+  if (get_memory_stats(node, ptr) < 0) {
+    ERROR("docker: extract_stats_from_response: Memory stats could not be"
+            " parsed");
+    ++errors;
+  }
+  if (get_blkio_stats(node, ptr) < 0) {
+    ERROR("docker: extract_stats_from_response: Disk stats could not be"
+            " parsed");
+    ++errors;
+  }
+  if (get_cpu_stats(node, ptr, container_id) < 0) {
+    ERROR("docker: extract_stats_from_response: CPU stats could not be parsed");
+    ++errors;
+  }
   if (get_network_stats(node, ptr) <= 0) {
-    WARNING("Network stats could not be parsed");
+    ERROR("docker: extract_stats_from_response: Network stats could not be"
+            " parsed");
+    ++errors;
   }
   extract_string(node, "name", &(ptr->name));
   if (ptr->name == NULL) {
@@ -990,9 +1263,33 @@ static void extract_stats_from_response(char *response_buffer,
             " parsed from Docker API response.");
   }
   yajl_tree_free(node);
+  if (errors == 4) {
+    ERROR("docker: extract_stats_from_response: All stats could be not parsed"
+          " for container %s", container_id);
+    free_stats(ptr);
+    *(stats) = NULL;
+    return -2;
+  } else if (errors > 0) {
+    ERROR("docker: extract_stats_from_response: Some stats could be not parsed"
+          " for container %s", container_id);
+    *(stats) = ptr;
+    return -1;
+  }
   *(stats) = ptr;
+  return 0;
 }
 
+/* Purpose: Calls the Docker stats API and retrieves stats for a given
+ *           container.
+ *
+ * Params: (const char *) container_id: 64 character container ID.
+ *          (const char *) socket: UNIX socket to connect to Docker stats API.
+ *          (const char *) version: Version of the Docker stats API to query.
+ *
+ * Returns: (container_stats_t *) - struct with metrics/ stats for the given
+ *                                  container.
+ *          NULL in case of error.
+ **/
 static container_stats_t *get_stats_for_container(const char *container_id,
     const char *socket, const char *version) {
   char *response_buffer = (char *) calloc(RESPONSE_BUFFER_SIZE, sizeof(char));
@@ -1010,7 +1307,15 @@ static container_stats_t *get_stats_for_container(const char *container_id,
       container_id);
   curl_get_json(response_buffer, RESPONSE_BUFFER_SIZE, url, socket);
   container_stats_t *ptr;
-  extract_stats_from_response(response_buffer, &ptr, container_id);
+  int result = extract_stats_from_response(response_buffer, &ptr, container_id); 
+  if (result == -2) {
+    ERROR("docker: get_stats_for_container: failed for container %s",
+          container_id);
+    ptr = NULL;
+  } else if (result == -1) {
+    WARNING("docker: get_stats_for_container: partially failed for container %s",
+          container_id);
+  }
   sfree(response_buffer);
   sfree(url);
   return ptr;
@@ -1024,6 +1329,21 @@ static container_stats_t *get_stats_for_container(const char *container_id,
 //==============================================================================
 //==============================================================================
 
+/* Purpose: Send a formatted Collectd value list using plugin_dispatch_values.
+ *
+ * Params: (const char *) hostname: Collectd hostname. In this case it is 
+ *                                   of the format "container.{container_id}"
+ *          (const char *) plugin: Collectd plugin name.
+ *          (const char *) plugin_instance: Collectd plugin instance.
+ *          (const char *) type: Collectd type name.
+ *          (const char *) type_instance: Collectd type instance.
+ *          (meta_data_t *) md: Collectd metadata associated with the value
+ *                              list.
+ *          (size_t) count: Number of variable argument values being passed.
+ *          (value_t) value: Value being sent (Variable argument number).
+ *
+ * Returns: N/A
+ **/
 static void dispatch_value_list(const char *hostname, const char *plugin,
   const char *plugin_instance, const char *type, const char *type_instance,
   meta_data_t *md, size_t count, value_t value, ...) {
@@ -1065,10 +1385,20 @@ static void dispatch_value_list(const char *hostname, const char *plugin,
   sfree(plugin_name);
 }
 
-static void dispatch_container_blkio_devices(const char *path,
+/* Purpose: Send disk (blockIO) stats of a given type for all devices.
+ *
+ * Params: (const char *) type: Type of disk stats being sent (i.e.
+ *                              io_service_bytes_recursive etc.)
+ *         (c_avl_tree_t *) tree: AVL tree holding the specific type of stats
+ *                                for all devices.
+ *         (char *) hostname: Collectd hostname (i.e. "container.{container_id}")
+ *
+ * Returns: N/A
+ **/
+static void dispatch_container_blkio_devices(const char *type,
     c_avl_tree_t *tree, char *hostname) {
   if (tree == NULL) {
-    DEBUG("docker: No data for %s for container: %s", path, hostname);
+    DEBUG("docker: No data for %s for container: %s", type, hostname);
     return;
   }
   char *device;
@@ -1085,6 +1415,14 @@ static void dispatch_container_blkio_devices(const char *path,
   c_avl_iterator_destroy(iterator);
 }
 
+/* Purpose: Send all disk (blockIO) stats for all devices.
+ *
+ * Params: (blkio_stats_t *) stats: Struct with all disk stats for the
+ *                                  container.
+ *         (char *) hostname: Collectd hostname (i.e. "container.{container_id}")
+ *
+ * Returns: N/A
+ **/
 static void dispatch_container_blkio_stats(blkio_stats_t *stats,
     char *hostname) {
   c_avl_tree_t *result_ptrs[] = {
@@ -1097,6 +1435,14 @@ static void dispatch_container_blkio_stats(blkio_stats_t *stats,
   }
 }
 
+/* Purpose: Send all CPU stats for all cores.
+ *
+ * Params: (cpu_core_stats_t *) stats: List of structs with stats for each CPU
+ *                                     core.
+ *         (char *) hostname: Collectd hostname (i.e. "container.{container_id}")
+ *
+ * Returns: N/A
+ **/
 static void dispatch_container_cpu_stats(cpu_core_stats_t **stats, int num_cores,
     char *hostname) {
     value_t used;
@@ -1113,6 +1459,7 @@ static void dispatch_container_cpu_stats(cpu_core_stats_t **stats, int num_cores
     char *cpu_num = (char *) calloc (11, sizeof(char));
     if (cpu_num == NULL) {
       ERROR("docker: dispatch_container_cpu_stats malloc failed!");
+      return;
     }
     ssnprintf(cpu_num, 10, "%d", cpu_count);
     used.counter = stats[i]->usage;
@@ -1128,10 +1475,18 @@ static void dispatch_container_cpu_stats(cpu_core_stats_t **stats, int num_cores
   }
 }
 
+/* Purpose: Send memory stats for the container.
+ *
+ * Params: (memory_stats_t *) stats: Struct with memory stats for the container.
+ *         (char *) hostname: Collectd hostname (i.e. "container.{container_id}")
+ *
+ * Returns: N/A
+ **/
 static void dispatch_container_memory_stats(memory_stats_t *stats,
     char *hostname) {
   if (stats == NULL) {
     WARNING("docker: No memory stats for %s", hostname);
+    return;
   }
   unsigned long bytes_results[] = {
     stats->usage,
@@ -1155,6 +1510,14 @@ static void dispatch_container_memory_stats(memory_stats_t *stats,
   }
 }
 
+/* Purpose: Send interface stats for a given network interface for the container.
+ *
+ * Params: (interface_stats_t *) stats: Struct with network interface stats for
+ *                                      for a given interface.
+ *         (char *) hostname: Collectd hostname (i.e. "container.{container_id}")
+ *
+ * Returns: N/A
+ **/
 static void dispatch_container_interface_stats(interface_stats_t *stats,
     char *hostname) {
   unsigned long rx_results[] = {
@@ -1186,6 +1549,14 @@ static void dispatch_container_interface_stats(interface_stats_t *stats,
   }
 }
 
+/* Purpose: Send network interface stats for a all interfaces for the container.
+ *
+ * Params: (network_stats_t *) stats: Struct with network interface stats for
+ *                                    each interface.
+ *         (char *) hostname: Collectd hostname (i.e. "container.{container_id}")
+ *
+ * Returns: N/A
+ **/
 static void dispatch_container_network_stats(network_stats_t *stats,
     char *hostname) {
   if (stats == NULL) {
@@ -1200,6 +1571,14 @@ static void dispatch_container_network_stats(network_stats_t *stats,
   }
 }
 
+/* Purpose: Populate Collectd hostname and send all stats for the container.
+ *
+ * Params: (container_stats_t *) stats: Struct with all stats/metrics for the
+ *                                      container.
+ *         (const char *) id: 64 character container id.
+ *
+ * Returns: N/A
+ **/
 static void dispatch_container_stats(const char *id, container_stats_t *stats) {
   // This plugin sets the hostname to "container.{container_id}"
   // 75 = 64 (container ID) + len(container.) + len(\0).
@@ -1217,6 +1596,15 @@ static void dispatch_container_stats(const char *id, container_stats_t *stats) {
   sfree(hostname);
 }
 
+/* Purpose: Get the list of containers, retrieve stats for each container and
+ *          dispatch the stats/metrics.
+ *
+ * Params: N/A
+ *
+ * Returns: int (0).
+ *
+ * Notes: Collectd read entrypoint for the Docker plugin.
+ **/
 static int dispatch_stats_all(void) {
   char **container_list = NULL;
   int count = get_container_list(DOCKER_SOCKET, DOCKER_VERSION, &container_list);
@@ -1253,6 +1641,15 @@ static int dispatch_stats_all(void) {
 //==============================================================================
 //==============================================================================
 
+/* Purpose: Initialize configuration parameters parsed by Collectd.
+ *
+ * Params: (const char *) key: String config key.
+ *         (const char *) value: String config value.
+ *
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of error.
+ **/
 static int docker_config(const char *key, const char *value) {
   if (strcmp(key, "Socket") == 0) {
     config_socket = (const char *) sstrdup(value);
@@ -1273,6 +1670,16 @@ static int docker_config(const char *key, const char *value) {
   return -1;
 }
 
+/* Purpose: Initializes the global state of the Docker plugin.
+ *
+ * Params: N/A
+ *
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of error.
+ *
+ * Notes: Collectd entrypoint to initialize Docker plugin.
+ **/
 static int docker_init(void) {
   if (DOCKER_VERSION == NULL) {
     DOCKER_VERSION = (const char *)
@@ -1291,6 +1698,16 @@ static int docker_init(void) {
   return 0;
 }
 
+/* Purpose: Tears down / Cleanup for the Docker plugin.
+ *
+ * Params: N/A
+ *
+ * Returns: int
+ *          0 in case of success.
+ *          -1 in case of error.
+ *
+ * Notes: Collectd entrypoint to shutdown Docker plugin.
+ **/
 static int docker_shutdown(void) {
   void *key;
   void *value;
@@ -1303,6 +1720,14 @@ static int docker_shutdown(void) {
   return 0;
 }
 
+/* Purpose: Hook the Docker plugin into the Collectd plugin infrastructure.
+ *          Registers the configuration, initialization, read and shutdown
+ *          functions.
+ *
+ * Params: N/A
+ *
+ * Returns: N/A
+ **/
 void module_register(void) {
   plugin_register_config("docker", docker_config, config_keys, config_keys_num);
   plugin_register_init("docker", docker_init);
