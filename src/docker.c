@@ -35,6 +35,10 @@
 // Default size of the response buffer when calling the Docker stats API
 #define RESPONSE_BUFFER_SIZE 16400
 
+// Static error constants
+#define DOCKER_ERROR -1
+#define DOCKER_PARTIAL_SUCCESS -2
+
 // The default version of the Docker API engine and the default UNIX socket
 // to which the API writes responses.
 static const char *DEFAULT_SOCKET = "/var/run/docker.sock";
@@ -218,7 +222,10 @@ static void free_list(void ***p, int size) {
  *                            final token.
  **/
 static const char **tokenize_path(const char *path, int *len) {
-  if (strlen(path) == 0) { *len = 0; return NULL; }
+  if (strlen(path) == 0) {
+    *len = 0;
+    return NULL;
+  }
   int count = 1;
   for (int i = 0; i < strlen(path); i++) {
     if (path[i] == ',') {
@@ -396,7 +403,7 @@ static int curl_get_json(char *response_buffer, size_t response_buffer_size,
   CURL *curl = curl_easy_init();
   if (curl == NULL) {
     ERROR("docker: curl_easy_init failed");
-    return -1;
+    return DOCKER_ERROR;
   }
   curl_write_ctx_t write_ctx = {
     .data = response_buffer,
@@ -409,7 +416,7 @@ static int curl_get_json(char *response_buffer, size_t response_buffer_size,
   if (status != CURLE_OK) {
     ERROR("docker: curl_easy_setopt() failed: %s\n",
 	  curl_easy_strerror(status));
-    curl_easy_cleanup(curl); return -1;
+    curl_easy_cleanup(curl); return DOCKER_ERROR;
   }
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &plugin_curl_write_callback);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &write_ctx);
@@ -422,7 +429,7 @@ static int curl_get_json(char *response_buffer, size_t response_buffer_size,
   if (curl_result != CURLE_OK) {
     ERROR("docker: curl_easy_perform() failed: %s",
 	  curl_easy_strerror(curl_result));
-    curl_easy_cleanup(curl); return -1;
+    curl_easy_cleanup(curl); return DOCKER_ERROR;
   }
 
   long response_code;
@@ -431,13 +438,13 @@ static int curl_get_json(char *response_buffer, size_t response_buffer_size,
   if (response_code >= 400) {
     ERROR("docker: Unsuccessful HTTP request %ld: %s",
 	  response_code, response_buffer);
-    curl_easy_cleanup(curl); return -2;
+    curl_easy_cleanup(curl); return DOCKER_PARTIAL_SUCCESS;
   }
 
   if (write_ctx.size < 2) {
     ERROR("docker: curl_get_json: The receive buffer overflowed.");
     DEBUG("docker: curl_get_json: Received data is: %s", response_buffer);
-    curl_easy_cleanup(curl); return -2;
+    curl_easy_cleanup(curl); return DOCKER_PARTIAL_SUCCESS;
   }
 
   return 0;			// Success!
@@ -538,7 +545,7 @@ static int compute_cpu_stats(cpu_core_stats_t **stats,
     if (old_stats == NULL) {
       ERROR("docker: compute_cpu_stats. malloc failed! Could not allocate"
             " historical stats struct for container %s.", container_id);
-      return -1;
+      return DOCKER_ERROR;
     }
     old_stats->t = now;
     old_stats->num_cpus = total_cores;
@@ -550,7 +557,7 @@ static int compute_cpu_stats(cpu_core_stats_t **stats,
             " historical stats list for container %s", container_id);
       sfree(old_stats);
       old_stats = NULL;
-      return -1;
+      return DOCKER_ERROR;
     }
     for (int i = 0; i < total_cores; i++) {
       old_stats->old_percpu_usage[i] = stats[i]->usage;
@@ -571,7 +578,7 @@ static int compute_cpu_stats(cpu_core_stats_t **stats,
     if (c_avl_insert(cpu_hist_values, (void *) container_id,
            (void *) old_stats) < 0) {
       ERROR("docker: c_avl_insert failed!");
-      return -1;
+      return DOCKER_ERROR;
     }
   }
   return 0;
@@ -591,7 +598,7 @@ static int compute_memory_stats(memory_stats_t *stats) {
     ERROR("docker: compute_memory_stats. memory stats NULL");
   }
   stats->free = stats->limit - stats->usage;
-  if (stats->limit == 0) return -1;
+  if (stats->limit == 0) return DOCKER_ERROR;
   stats->percent_used = (stats->usage * 100.00)/(stats->limit);
   stats->percent_free = 100.00 - stats->percent_used;
   return 0;
@@ -641,7 +648,7 @@ static int extract_container_ids_from_response(char ***container_list,
     if (list == NULL) {
       ERROR("docker: extract_container_ids_from_response: malloc failed!");
       yajl_tree_free(node);
-      return -1;
+      return DOCKER_ERROR;
     }
     num_containers = node->u.array.len;
     for (int i = 0; i < num_containers; i++) {
@@ -747,7 +754,7 @@ static int extract_arr_value(yajl_val node, const char *key,
       // We don't want to free the tokens[len-1]th element as it is a NULL
       // string.
       free_list((void ***) &path, tokens-1);
-      return -1;
+      return DOCKER_ERROR;
     }
     for (int i = 0; i < val_node->u.array.len; i++) {
       ptrs[i] = YAJL_GET_INTEGER(val_node->u.array.values[i]);
@@ -819,7 +826,7 @@ static int insert_blkio_stat_in_tree(c_avl_tree_t *tree, char *op,
   char *key = (char *) calloc(4, sizeof(char));
   if (key == NULL) {
     ERROR("docker: insert_blkio_stat_in_tree: malloc failed");
-    return -1;
+    return DOCKER_ERROR;
   }
   ssnprintf(key, 4, "%lu.%lu", major, minor);
   blkio_device_stats_t *stats = NULL;
@@ -827,12 +834,12 @@ static int insert_blkio_stat_in_tree(c_avl_tree_t *tree, char *op,
     stats = (blkio_device_stats_t *) calloc (1, sizeof(blkio_device_stats_t));
     if (stats == NULL) {
       ERROR("docker: insert_blkio_stat_in_tree: malloc failed!");
-      return -1;
+      return DOCKER_ERROR;
     }
     if (c_avl_insert(tree, (void *) key, (void *) stats) < 0) {
       ERROR ("docker: c_avl_insert failed due to error.");
       sfree(stats);
-      return -1;
+      return DOCKER_ERROR;
     }
   }
   if (strcmp(op, "Read") == 0) {
@@ -857,7 +864,8 @@ static int insert_blkio_stat_in_tree(c_avl_tree_t *tree, char *op,
  *           tree (YAJL node) and inserts the stats in the device tree.
  *
  * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
- *                             like structure.
+ *                           like structure.
+ *                           (This will never be null)
  *          (c_avl_tree_t *) tree: The tree which holds a map from device name
  *                                  to stats struct.
  * Returns: int
@@ -878,7 +886,7 @@ static int extract_blkio_values_into_device_tree(yajl_val node,
   for (int i = 0; i < STATIC_ARRAY_SIZE(BLKIO_TYPE_KEYS); i++) {
     if(extract_value(node, BLKIO_TYPE_KEYS[i], result_ptr[i]) == -1) {
       ERROR("docker: extract_blkio_values failed");
-      return -1;
+      return DOCKER_ERROR;
     }
   }
   static const char *op_path[] = { "op", (const char *) 0 };
@@ -894,7 +902,8 @@ static int extract_blkio_values_into_device_tree(yajl_val node,
  *           tree (YAJL node) and inserts the stats in the device tree.
  *
  * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
- *                             like structure.
+ *                           like structure.
+ *                           (This will never be null)
  *          (const char *) key: string key which describes the path to the
  *                               values in the parsed JSON tree.
  *          (c_avl_tree_t *) tree: The tree which holds a map from device name
@@ -934,7 +943,8 @@ static void extract_blkio_struct(yajl_val node, const char *key,
 /* Purpose: Retrieves all disk (blockIO) stats from the parsed JSON.
  *
  * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
- *                             like structure.
+ *                           like structure.
+ *                           (This will never be null).
  *          (container_stats_t *) stats: Struct holding all metrics and stats
  *                                        for the container.
  * Returns: int
@@ -945,15 +955,14 @@ static int get_blkio_stats(yajl_val node, container_stats_t *stats) {
   stats->blkio_stats = (blkio_stats_t *) calloc(1, sizeof(blkio_stats_t));
   if (stats->blkio_stats == NULL) {
     ERROR("docker: get_block_io_stats: malloc failed!");
-    stats->blkio_stats = NULL;
-    return -1;
+    return DOCKER_ERROR;
   }
   yajl_val blkio_node = yajl_tree_get(node, BLKIO_PATH, yajl_t_object);
   if (!YAJL_IS_OBJECT(blkio_node)) {
     ERROR("docker: BlockIO stats cannot be parsed. JSON Error.");
     sfree(stats->blkio_stats);
     stats->blkio_stats = NULL;
-    return -1;
+    return DOCKER_ERROR;
   }
 
   c_avl_tree_t **result_ptrs[] = {
@@ -970,7 +979,8 @@ static int get_blkio_stats(yajl_val node, container_stats_t *stats) {
 /* Purpose: Retrieves all CPU stats for each core from the parsed JSON.
  *
  * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
- *                             like structure.
+ *                           like structure.
+ *                           (This will never be null)
  *          (container_stats_t *) stats: Struct holding all metrics and stats
  *                                        for the container.
  * Returns: int
@@ -983,7 +993,7 @@ static int get_cpu_stats(yajl_val node, container_stats_t *stats,
   stats->cpu_stats = (cpu_stats_t *) calloc(1, sizeof(cpu_stats_t));
   if (stats->cpu_stats == NULL) {
     ERROR("docker: get_cpu_stats: malloc failed!");
-    return -1;
+    return DOCKER_ERROR;
   }
   yajl_val cpu_node = yajl_tree_get(node, CPU_PATH, yajl_t_object);
   if (!YAJL_IS_OBJECT(cpu_node)) {
@@ -1034,13 +1044,14 @@ static int get_cpu_stats(yajl_val node, container_stats_t *stats,
  leave:
   sfree(stats->cpu_stats);
   stats->cpu_stats = NULL;
-  return -1;
+  return DOCKER_ERROR;
 }
 
 /* Purpose: Retrieves all memory stats from the parsed JSON.
  *
  * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
- *                             like structure.
+ *                           like structure.
+ *                           (This will never be null)
  *          (container_stats_t *) stats: Struct holding all metrics and stats
  *                                        for the container.
  * Returns: int
@@ -1051,14 +1062,14 @@ static int get_memory_stats(yajl_val node, container_stats_t *stats) {
   stats->memory_stats = (memory_stats_t *) calloc(1, sizeof(memory_stats_t));
   if (stats->memory_stats == NULL) {
     ERROR("docker: get_memory_stats: malloc failed!");
-    return -1;
+    return DOCKER_ERROR;
   }
   yajl_val memory_node = yajl_tree_get(node, MEMORY_PATH, yajl_t_object);
   if (!YAJL_IS_OBJECT(memory_node)) {
     ERROR("docker: memory stats cannot be parsed. JSON Error.");
     sfree(stats->memory_stats);
     stats->memory_stats = NULL;
-    return -1;
+    return DOCKER_ERROR;
   }
 
   unsigned long *result_ptrs[] = {
@@ -1081,7 +1092,8 @@ static int get_memory_stats(yajl_val node, container_stats_t *stats) {
 /* Purpose: Retrieves interface stats for a given interface from the parsed JSON.
  *
  * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
- *                             like structure.
+ *                           like structure.
+ *                           (This will never be null)
  *          (interface_stats_t *) stats: Struct holding stats for a given
  *                                        interface.
  * Returns: int
@@ -1114,7 +1126,7 @@ static int get_interface_stats(yajl_val interface_node,
     if (tx_key == NULL || rx_key == NULL) {
       ERROR("docker: get_metrics_for_container: malloc failed. Unable to get"
             " network interface %s stats.", INTERFACE_KEYS[i]);
-      return -1;
+      return DOCKER_ERROR;
     }
     ssnprintf(tx_key, len, "tx_%s", INTERFACE_KEYS[i]);
     ssnprintf(rx_key, len, "rx_%s", INTERFACE_KEYS[i]);
@@ -1132,7 +1144,8 @@ static int get_interface_stats(yajl_val interface_node,
 /* Purpose: Retrieves interface stats for all interfaces from the parsed JSON.
  *
  * Params: (yajl_node) node: YAJL struct holding the parsed JSON in a tree
- *                             like structure.
+ *                           like structure.
+ *                           (This will never be null)
  *          (container_stats_t *) stats: Struct holding all metrics and stats
  *                                        for the container.
  * Returns: int
@@ -1149,7 +1162,7 @@ static int get_network_stats(yajl_val node, container_stats_t *stats) {
   if (!YAJL_IS_OBJECT(network_node)) {
     ERROR("docker: network interface stats cannot be parsed. JSON Error.");
     sfree(stats->network_stats);
-    return -1;
+    return DOCKER_ERROR;
   }
   unsigned int num_interfaces = STATIC_ARRAY_SIZE(network_node->u.object.keys);
   stats->network_stats->interfaces = (interface_stats_t **)
@@ -1158,7 +1171,7 @@ static int get_network_stats(yajl_val node, container_stats_t *stats) {
     ERROR("docker: get_network_stats: malloc failed!");
     sfree(stats->network_stats);
     stats->network_stats = NULL;
-    return -1;
+    return DOCKER_ERROR;
   }
   int successes = 0;
   // This is the number of interfaces in the response from the Docker stats API.
@@ -1213,8 +1226,8 @@ static int get_network_stats(yajl_val node, container_stats_t *stats) {
  *
  * Returns: int
  *          0 in case of success.
- *          -1 in case of partial success.
- *          -2 in case of error / complete failure.
+ *          DOCKER_PARTIAL_SUCCESS in case of partial success.
+ *          DOCKER_ERROR in case of error / complete failure.
  **/
 static int extract_stats_from_response(char *response_buffer,
     container_stats_t **stats, const char *container_id) {
@@ -1225,7 +1238,7 @@ static int extract_stats_from_response(char *response_buffer,
       calloc(1, sizeof(container_stats_t));
   if (ptr == NULL) {
     ERROR("docker: extract_stats_from_response: malloc failed!");
-    return -2;
+    return DOCKER_ERROR;
   }
   node = yajl_tree_parse(response_buffer, errbuf, sizeof(errbuf));
   if (node == NULL) {
@@ -1236,7 +1249,7 @@ static int extract_stats_from_response(char *response_buffer,
     }
     free_stats(ptr);
     *stats = NULL;
-    return -2;
+    return DOCKER_ERROR;
   }
   if (get_memory_stats(node, ptr) < 0) {
     ERROR("docker: extract_stats_from_response: Memory stats could not be"
@@ -1268,12 +1281,12 @@ static int extract_stats_from_response(char *response_buffer,
           " for container %s", container_id);
     free_stats(ptr);
     *(stats) = NULL;
-    return -2;
+    return DOCKER_ERROR;
   } else if (errors > 0) {
     ERROR("docker: extract_stats_from_response: Some stats could be not parsed"
           " for container %s", container_id);
     *(stats) = ptr;
-    return -1;
+    return DOCKER_PARTIAL_SUCCESS;
   }
   *(stats) = ptr;
   return 0;
@@ -1305,14 +1318,19 @@ static container_stats_t *get_stats_for_container(const char *container_id,
   // 107 = 64 (for container id) + 3 (docker version) + text
   ssnprintf(url, 107, "http:/v%s/containers/%s/stats?stream=false", version,
       container_id);
-  curl_get_json(response_buffer, RESPONSE_BUFFER_SIZE, url, socket);
+  if (curl_get_json(response_buffer, RESPONSE_BUFFER_SIZE, url, socket) != 0) {
+    ERROR("docker: Unable to retrieve stats for container %s", container_id);
+    sfree(response_buffer);
+    sfree(url);
+    return NULL;
+  }
   container_stats_t *ptr;
   int result = extract_stats_from_response(response_buffer, &ptr, container_id); 
-  if (result == -2) {
+  if (result == DOCKER_ERROR) {
     ERROR("docker: get_stats_for_container: failed for container %s",
           container_id);
     ptr = NULL;
-  } else if (result == -1) {
+  } else if (result == DOCKER_PARTIAL_SUCCESS) {
     WARNING("docker: get_stats_for_container: partially failed for container %s",
           container_id);
   }
@@ -1667,7 +1685,7 @@ static int docker_config(const char *key, const char *value) {
     return 0;
   }
   WARNING("docker: Unknown config option found. Key: %s, Value: %s", key, value);
-  return -1;
+  return DOCKER_ERROR;
 }
 
 /* Purpose: Initializes the global state of the Docker plugin.
@@ -1693,7 +1711,7 @@ static int docker_init(void) {
   cpu_hist_values = c_avl_create((int(*)(const void *, const void *))&strcmp);
   if (cpu_hist_values == NULL) {
     ERROR("docker: c_avl_create failed.");
-    return -1;
+    return DOCKER_ERROR;
   }
   return 0;
 }
