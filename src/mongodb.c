@@ -201,14 +201,19 @@ static parse_info_t db_parse_infos[] = {
 
 // Fill in a few values and submit the value_t.
 static int mg_submit_helper(value_t *value, cdtime_t now, cdtime_t interval,
-    const char *type, const char *plugin_instance, const char *type_instance) {
+    const char *hostname, const char *type, const char *plugin_instance,
+    const char *type_instance) {
     value_list_t vl = {
         .values = value,
         .values_len = 1,
         .time = now,
         .interval = interval
     };
-    sstrncpy(vl.host, hostname_g, sizeof(vl.host));
+    if (hostname == NULL) {
+      sstrncpy(vl.host, hostname_g, sizeof(vl.host));
+    } else {
+      sstrncpy(vl.host, hostname, sizeof(vl.host));
+    }
     sstrncpy(vl.plugin, this_plugin_name, sizeof(vl.plugin));
     sstrncpy(vl.type, type, sizeof(vl.type));
     if (plugin_instance != NULL) {
@@ -226,7 +231,7 @@ static int mg_submit_helper(value_t *value, cdtime_t now, cdtime_t interval,
 }
 
 static int mg_parse_and_submit(
-    const bson_t *status, const char *plugin_instance,
+    const bson_t *status, const char *hostname, const char *plugin_instance,
     const parse_info_t *infos, size_t num_infos) {
   cdtime_t now = cdtime();
   cdtime_t interval = plugin_get_interval();
@@ -262,8 +267,8 @@ static int mg_parse_and_submit(
       return -1;
     }
 
-    if (mg_submit_helper(&value, now, interval, ip->type, plugin_instance,
-        ip->type_instance) != 0) {
+    if (mg_submit_helper(&value, now, interval, hostname, ip->type,
+        plugin_instance, ip->type_instance) != 0) {
       ERROR("mongodb plugin: mg_submit_helper failed on key %s.",
             ip->key);
       return -1;
@@ -291,7 +296,7 @@ static int mg_process_database(
     goto leave;
   }
 
-  if (mg_parse_and_submit(&reply, db_name, db_parse_infos,
+  if (mg_parse_and_submit(&reply, ctx->hostname, db_name, db_parse_infos,
                           STATIC_ARRAY_SIZE(db_parse_infos)) != 0) {
     ERROR("mongodb plugin: mg_parse_and_submit(db) failed.");
     goto leave;
@@ -371,7 +376,7 @@ static int mg_read(user_data_t *user_data) {
     goto leave;
   }
 
-  if (mg_parse_and_submit(&server_reply, NULL, server_parse_infos,
+  if (mg_parse_and_submit(&server_reply, ctx->hostname, NULL, server_parse_infos,
                           STATIC_ARRAY_SIZE(server_parse_infos)) != 0) {
     ERROR("mongodb plugin: mg_parse_and_submit(server) failed.");
     goto leave;
@@ -445,6 +450,7 @@ static int mg_make_uri(char *buffer, size_t buffer_size,
  * Read the configuration. If successful, register a read callback.
  */
 static int mg_config(oconfig_item_t *ci) {
+  char *collectd_hostname = NULL;
   char *hostname = NULL;
   int port = MONGOC_DEFAULT_PORT;
   char *user = NULL;
@@ -462,7 +468,13 @@ static int mg_config(oconfig_item_t *ci) {
     const char *error_template =
         "mongodb plugin: Error parsing \"%s\" in config.";
 
-    if (strcasecmp("Host", child->key) == 0) {
+    if (strcasecmp("Hostname", child->key) == 0) {
+      if (cf_util_get_string(child, &collectd_hostname) != 0) {
+        ERROR(error_template, "Hostname");
+        ++parse_errors;
+        continue;
+      }
+    } else if (strcasecmp("Host", child->key) == 0) {
       if (cf_util_get_string(child, &hostname) != 0) {
         ERROR(error_template, "Host");
         ++parse_errors;
@@ -529,7 +541,8 @@ static int mg_config(oconfig_item_t *ci) {
     goto leave;
   }
 
-  const char *stats_hostname = hostname != NULL ? hostname : hostname_g;
+  const char *stats_hostname =
+      collectd_hostname != NULL ? collectd_hostname : hostname_g;
   ctx = context_create(stats_hostname, uri, prefer_secondary_query);
   if (ctx == NULL) {
     ERROR("mongodb plugin: context_create failed.");
