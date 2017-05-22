@@ -37,19 +37,26 @@
 #define ZOOKEEPER_DEF_HOST "127.0.0.1"
 #define ZOOKEEPER_DEF_PORT "2181"
 
+static char *zk_hostname = NULL;
 static char *zk_host = NULL;
 static char *zk_port = NULL;
 
 static const char *config_keys[] =
 {
-	"Host",
+	"Hostname",
+        "Host",
 	"Port"
 };
 static int config_keys_num = STATIC_ARRAY_SIZE (config_keys);
 
 static int zookeeper_config(const char *key, const char *value)
 {
-	if (strncmp(key, "Host", strlen("Host")) == 0)
+	if (strncmp(key, "Hostname", strlen("Hostname")) == 0)
+	{
+		sfree (zk_hostname);
+		zk_hostname = strdup (value);
+	}
+	else if (strncmp(key, "Host", strlen("Host")) == 0)
 	{
 		sfree (zk_host);
 		zk_host = strdup (value);
@@ -75,7 +82,10 @@ static void zookeeper_submit_gauge (const char * type, const char * type_inst, g
 
 	vl.values = values;
 	vl.values_len = 1;
-	sstrncpy (vl.host, hostname_g, sizeof (vl.host));
+        if (zk_hostname == NULL)
+          sstrncpy (vl.host, hostname_g, sizeof (vl.host));
+        else
+          sstrncpy (vl.host, zk_hostname, sizeof (vl.host));
 	sstrncpy (vl.plugin, "zookeeper", sizeof (vl.plugin));
 	sstrncpy (vl.type, type, sizeof (vl.type));
 	if (type_inst != NULL)
