@@ -34,9 +34,11 @@
 
 #define REDIS_DEF_HOST   "localhost"
 #define REDIS_DEF_PASSWD ""
+#define REDIS_DEF_HOSTNAME ""
 #define REDIS_DEF_PORT    6379
 #define REDIS_DEF_TIMEOUT 2000
 #define MAX_REDIS_NODE_NAME 64
+#define MAX_REDIS_HOSTNAME 256
 #define MAX_REDIS_PASSWD_LENGTH 512
 #define MAX_REDIS_VAL_SIZE 256
 #define MAX_REDIS_QUERY 2048
@@ -69,6 +71,7 @@ struct redis_node_s
 {
   char name[MAX_REDIS_NODE_NAME];
   char host[HOST_NAME_MAX];
+  char hostname[MAX_REDIS_HOSTNAME];
   char passwd[MAX_REDIS_PASSWD_LENGTH];
   int port;
   struct timeval timeout;
@@ -185,6 +188,11 @@ static int redis_config_node (oconfig_item_t *ci) /* {{{ */
 
     if (strcasecmp ("Host", option->key) == 0)
       status = cf_util_get_string_buffer (option, rn.host, sizeof (rn.host));
+    else if (strcasecmp ("Hostname", option->key) == 0)
+    {
+      status = cf_util_get_string_buffer
+          (option, rn.hostname, sizeof (rn.hostname));
+    }
     else if (strcasecmp ("Port", option->key) == 0)
     {
       status = cf_util_get_port_number (option);
@@ -248,7 +256,7 @@ static int redis_config (oconfig_item_t *ci) /* {{{ */
 } /* }}} */
 
   __attribute__ ((nonnull(2)))
-static void redis_submit (char *plugin_instance,
+static void redis_submit (const char *hostname, char *plugin_instance,
     const char *type, const char *type_instance,
     value_t value) /* {{{ */
 {
@@ -259,7 +267,10 @@ static void redis_submit (char *plugin_instance,
 
   vl.values = values;
   vl.values_len = 1;
-  sstrncpy (vl.host, hostname_g, sizeof (vl.host));
+  if (hostname == NULL)
+    sstrncpy (vl.host, hostname_g, sizeof (vl.host));
+  else
+    sstrncpy (vl.host, hostname, sizeof (vl.host));
   sstrncpy (vl.plugin, "redis", sizeof (vl.plugin));
   if (plugin_instance != NULL)
     sstrncpy (vl.plugin_instance, plugin_instance,
@@ -277,6 +288,7 @@ static int redis_init (void) /* {{{ */
   redis_node_t rn = {
     .name = "default",
     .host = REDIS_DEF_HOST,
+    .hostname = REDIS_DEF_HOSTNAME,
     .port = REDIS_DEF_PORT,
     .timeout.tv_sec = 0,
     .timeout.tv_usec = REDIS_DEF_TIMEOUT,
@@ -289,7 +301,7 @@ static int redis_init (void) /* {{{ */
   return (0);
 } /* }}} int redis_init */
 
-static int redis_handle_info (char *node, char const *info_line, char const *type, char const *type_instance, char const *field_name, int ds_type) /* {{{ */
+static int redis_handle_info (char *node, char const *info_line, const char *hostname, char const *type, char const *type_instance, char const *field_name, int ds_type) /* {{{ */
 {
   char *str = strstr (info_line, field_name);
   static char buf[MAX_REDIS_VAL_SIZE];
@@ -309,7 +321,7 @@ static int redis_handle_info (char *node, char const *info_line, char const *typ
       return (-1);
     }
 
-    redis_submit (node, type, type_instance, val);
+    redis_submit (hostname, node, type, type_instance, val);
     return (0);
   }
   return (-1);
@@ -368,7 +380,7 @@ static int redis_handle_query (redisContext *rh, redis_node_t *rn, redis_query_t
         return (-1);
     }
 
-    redis_submit(rn->name, rq->type, (strlen(rq->instance) >0)?rq->instance:NULL, val);
+    redis_submit(rn->name, rq->type, rn->hostname, (strlen(rq->instance) >0)?rq->instance:NULL, val);
     freeReplyObject (rr);
     return 0;
 } /* }}} int redis_handle_query */
@@ -414,25 +426,25 @@ static int redis_read (void) /* {{{ */
       goto redis_fail;
     }
 
-    redis_handle_info (rn->name, rr->str, "uptime", NULL, "uptime_in_seconds", DS_TYPE_GAUGE);
-    redis_handle_info (rn->name, rr->str, "current_connections", "clients", "connected_clients", DS_TYPE_GAUGE);
-    redis_handle_info (rn->name, rr->str, "blocked_clients", NULL, "blocked_clients", DS_TYPE_GAUGE);
-    redis_handle_info (rn->name, rr->str, "memory", NULL, "used_memory", DS_TYPE_GAUGE);
-    redis_handle_info (rn->name, rr->str, "memory_lua", NULL, "used_memory_lua", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "uptime", NULL, "uptime_in_seconds", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "current_connections", "clients", "connected_clients", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "blocked_clients", NULL, "blocked_clients", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "memory", NULL, "used_memory", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "memory_lua", NULL, "used_memory_lua", DS_TYPE_GAUGE);
     /* changes_since_last_save: Deprecated in redis version 2.6 and above */
-    redis_handle_info (rn->name, rr->str, "volatile_changes", NULL, "changes_since_last_save", DS_TYPE_GAUGE);
-    redis_handle_info (rn->name, rr->str, "total_connections", NULL, "total_connections_received", DS_TYPE_DERIVE);
-    redis_handle_info (rn->name, rr->str, "total_operations", NULL, "total_commands_processed", DS_TYPE_DERIVE);
-    redis_handle_info (rn->name, rr->str, "operations_per_second", NULL, "instantaneous_ops_per_sec", DS_TYPE_GAUGE);
-    redis_handle_info (rn->name, rr->str, "expired_keys", NULL, "expired_keys", DS_TYPE_DERIVE);
-    redis_handle_info (rn->name, rr->str, "evicted_keys", NULL, "evicted_keys", DS_TYPE_DERIVE);
-    redis_handle_info (rn->name, rr->str, "pubsub", "channels", "pubsub_channels", DS_TYPE_GAUGE);
-    redis_handle_info (rn->name, rr->str, "pubsub", "patterns", "pubsub_patterns", DS_TYPE_GAUGE);
-    redis_handle_info (rn->name, rr->str, "current_connections", "slaves", "connected_slaves", DS_TYPE_GAUGE);
-    redis_handle_info (rn->name, rr->str, "cache_result", "hits", "keyspace_hits", DS_TYPE_DERIVE);
-    redis_handle_info (rn->name, rr->str, "cache_result", "misses", "keyspace_misses", DS_TYPE_DERIVE);
-    redis_handle_info (rn->name, rr->str, "total_bytes", "input", "total_net_input_bytes", DS_TYPE_DERIVE);
-    redis_handle_info (rn->name, rr->str, "total_bytes", "output", "total_net_output_bytes", DS_TYPE_DERIVE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "volatile_changes", NULL, "changes_since_last_save", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "total_connections", NULL, "total_connections_received", DS_TYPE_DERIVE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "total_operations", NULL, "total_commands_processed", DS_TYPE_DERIVE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "operations_per_second", NULL, "instantaneous_ops_per_sec", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "expired_keys", NULL, "expired_keys", DS_TYPE_DERIVE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "evicted_keys", NULL, "evicted_keys", DS_TYPE_DERIVE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "pubsub", "channels", "pubsub_channels", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "pubsub", "patterns", "pubsub_patterns", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "current_connections", "slaves", "connected_slaves", DS_TYPE_GAUGE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "cache_result", "hits", "keyspace_hits", DS_TYPE_DERIVE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "cache_result", "misses", "keyspace_misses", DS_TYPE_DERIVE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "total_bytes", "input", "total_net_input_bytes", DS_TYPE_DERIVE);
+    redis_handle_info (rn->name, rr->str, rn->hostname, "total_bytes", "output", "total_net_output_bytes", DS_TYPE_DERIVE);
 
     for (redis_query_t *rq = rn->queries; rq != NULL; rq = rq->next)
         redis_handle_query(rh, rn, rq);
