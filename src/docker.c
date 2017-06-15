@@ -33,7 +33,7 @@
 #include <curl/curl.h>
 
 // Default size of the response buffer when calling the Docker stats API
-#define RESPONSE_BUFFER_SIZE 16400
+#define RESPONSE_BUFFER_SIZE 128000
 
 // Static error constants
 #define DOCKER_ERROR -1
@@ -446,7 +446,7 @@ static int curl_get_json(char *response_buffer, size_t response_buffer_size,
     DEBUG("docker: curl_get_json: Received data is: %s", response_buffer);
     curl_easy_cleanup(curl); return DOCKER_PARTIAL_SUCCESS;
   }
-
+  curl_easy_cleanup(curl);
   return 0;			// Success!
 }
 
