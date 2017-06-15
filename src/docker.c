@@ -33,7 +33,7 @@
 #include <curl/curl.h>
 
 // Default size of the response buffer when calling the Docker stats API
-#define RESPONSE_BUFFER_SIZE 16400
+#define RESPONSE_BUFFER_SIZE 128000
 
 // Static error constants
 #define DOCKER_ERROR -1
