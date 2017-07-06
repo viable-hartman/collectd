@@ -2178,6 +2178,7 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
             "Cannot query the Metadata Agent.");
     return NULL;
   }
+  monitored_resource_t *resource = NULL;
   const char *url = metadata_agent_url != NULL ?
       metadata_agent_url : metadata_agent_default_url;
   char *response_buffer = (char *)
@@ -2190,6 +2191,9 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
   size_t url_size = strlen(url) + strlen(resource_id) +
       strlen("/monitoredResource/") + 1;
   char query[url_size];
+  const char **headers = NULL;
+  const char *body = NULL;
+  int num_headers = 0;
   int written = ssnprintf(query, url_size, "%s/monitoredResource/%s", url,
                     resource_id);
   DEBUG("write_gcm: wg_monitored_resource_create_from_metadata_agent: "
@@ -2200,14 +2204,15 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
   if (url_size - written != 1) {
     ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent: "
           "Could not create Metadata Agent URL.");
-    sfree(response_buffer);
-    return NULL;
+    goto error;
   }
 
   wg_curl_get_or_post(response_buffer, METADATA_RESPONSE_BUFFER_SIZE, query,
-                      NULL, NULL, 0);
-  monitored_resource_t *resource = parse_monitored_resource(response_buffer,
+                      body, headers, num_headers);
+  resource = parse_monitored_resource(response_buffer,
       METADATA_RESPONSE_BUFFER_SIZE, project_id);
+
+ error:
    sfree(response_buffer);
    return resource;
 }
