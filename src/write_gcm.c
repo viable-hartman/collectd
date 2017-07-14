@@ -4129,7 +4129,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     }
 
-    if (resource != ctx->resource) sfree(resource);
+    if (resource != ctx->resource) wg_monitored_resource_destroy(resource);
     sfree(json);
     json = NULL;
 
