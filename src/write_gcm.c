@@ -287,7 +287,7 @@ static char *wg_read_all_bytes(const char *filename, const char *mode) {
   rewind(f);
   buffer = malloc(size + 1);
   if (buffer == NULL) {
-    ERROR("write_gcm: wg_read_all_bytes: Memory allocation failed");
+    ERROR("write_gcm: wg_read_all_bytes: malloc failed");
     goto leave;
   }
 
@@ -2178,16 +2178,8 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
             "Cannot query the Metadata Agent.");
     return NULL;
   }
-  monitored_resource_t *resource = NULL;
   const char *url = metadata_agent_url != NULL ?
       metadata_agent_url : metadata_agent_default_url;
-  char *response_buffer = (char *)
-      calloc(METADATA_RESPONSE_BUFFER_SIZE, sizeof(char));
-  if (response_buffer == NULL) {
-    ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent:"
-          "calloc failed.");
-    return NULL;
-  }
   size_t url_size = strlen(url) + strlen(resource_id) +
       strlen("/monitoredResource/") + 1;
   char query[url_size];
@@ -2206,15 +2198,23 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
           "Could not create Metadata Agent URL.");
     goto error;
   }
+  char *response_buffer = (char *)
+      calloc(METADATA_RESPONSE_BUFFER_SIZE, sizeof(char));
+  if (response_buffer == NULL) {
+    ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent:"
+          "calloc failed.");
+    goto error;
+  }
 
   wg_curl_get_or_post(response_buffer, METADATA_RESPONSE_BUFFER_SIZE, query,
                       body, headers, num_headers);
-  resource = parse_monitored_resource(response_buffer,
+  monitored_resource_t *resource = parse_monitored_resource(response_buffer,
       METADATA_RESPONSE_BUFFER_SIZE, project_id);
-
- error:
    sfree(response_buffer);
    return resource;
+
+ error:
+   return NULL;
 }
 
 typedef struct {
@@ -2290,7 +2290,7 @@ static monitored_resource_t *parse_monitored_resource(char *metadata,
   yajl_val node = yajl_tree_parse(metadata, errbuf, sizeof(errbuf));
   if (node == NULL) {
     if (strlen(errbuf)) {
-      DEBUG("write_gcm: parse_monitored_resource %s", errbuf);
+      DEBUG("write_gcm: parse_monitored_resource: %s", errbuf);
     } else {
       DEBUG("write_gcm: parse_monitored_resource: Invalid JSON response.");
     }
@@ -3679,7 +3679,7 @@ typedef struct {
 } wg_payload_hook_t;
 
 static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
-    wg_stats_t *stats) {
+                              wg_stats_t *stats) {
 
   // Keeping track of the base values for derivative values.
   c_avl_tree_t *deriv_tree = wg_deriv_tree_create();
@@ -3872,7 +3872,7 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 static c_avl_tree_t *wg_group_payloads_by_host(wg_payload_t *head, int *count) {
   c_avl_tree_t *host_tree = c_avl_create((
       int (*)(const void*, const void*))&strcmp);
-  if (host_tree == NULL) return NULL;
+  if (host_tree == NULL) goto leave;
   int host_count = 0;
   while (head != NULL) {
     const char *host = head->key.host;
@@ -3887,6 +3887,7 @@ static c_avl_tree_t *wg_group_payloads_by_host(wg_payload_t *head, int *count) {
       hook->payload = head;
       if (c_avl_insert(host_tree, (void *) host, (void *) hook) < 0) {
         ERROR("write_gcm: wg_group_by_host tree insert failed");
+        sfree(hook);
         goto leave;
       }
       wg_payload_t *next = head->next;
@@ -3931,16 +3932,16 @@ static int wg_transmit_unique_segments(const wg_context_t *ctx,
       return -1;
     }
     DEBUG("write_gcm: next distinct segment has size %d", distinct_size);
-    c_avl_tree_t *host_tree = wg_group_payloads_by_host(
-        distinct_list, &num_hosts);
+    c_avl_tree_t *host_tree =
+        wg_group_payloads_by_host(distinct_list, &num_hosts);
     if (num_hosts == -1) {
       ERROR("write_gcm: wg_group_payloads_by_host failed.");
       wg_payload_destroy(residual_list);
       return -1;
     }
     while (c_avl_pick(host_tree, (void **) &resource_id, (void **) &hook) == 0) {
-      DEBUG("write_gcm: Dispatching payloads for host %s", resource_id);
-      wg_payload_t *list = ((wg_payload_hook_t *) hook)->payload;
+      DEBUG("write_gcm: Dispatching payloads for hostname %s", resource_id);
+      wg_payload_t *list = hook->payload;
       int result = wg_transmit_unique_segment(ctx, queue, list);
       if (result == -2) {
         WARNING("write_gcm: Dropped payload with hostname: %s", resource_id);
@@ -3982,28 +3983,23 @@ static char *wg_get_instance_id_from_monitored_resource(
 }
 
 // Determines which Monitored Resource to use for the payload being dispatched.
-static int wg_determine_monitored_resource_for_payload(
-    const char *host, monitored_resource_t **response_ptr,
-    const wg_context_t *ctx) {
-  int result = -1;
+static monitored_resource_t *wg_determine_monitored_resource_for_payload(
+    const char *host, const wg_context_t *ctx) {
   monitored_resource_t *resource = NULL;
-  if (host != NULL && ctx->enable_metadata_agent) {
+  if (ctx->enable_metadata_agent) {
     resource =
         wg_monitored_resource_create_from_metadata_agent(
             ctx->metadata_agent_url, ctx->resource->project_id, host);
-  }
-  if (resource != NULL) {
-    *response_ptr = resource;
-    result = 0;
-  } else {
-    char *instance_id =
-        wg_get_instance_id_from_monitored_resource(ctx->resource);
-    if (instance_id != NULL && strcmp(instance_id, host) == 0) {
-        *response_ptr = ctx->resource;
-        result = 0;
+    if (resource != NULL) {
+      return resource;
     }
   }
-  return result;
+  char *instance_id =
+      wg_get_instance_id_from_monitored_resource(ctx->resource);
+  if (instance_id != NULL && strcmp(instance_id, host) == 0) {
+      return ctx->resource;
+  }
+  return NULL;
 }
 
 static int wg_transmit_unique_segment(const wg_context_t *ctx,
@@ -4023,8 +4019,9 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
     goto leave;
   }
   const char *host = list->key.host;
-  monitored_resource_t *resource = NULL;
-  if (wg_determine_monitored_resource_for_payload(host,&resource, ctx) != 0) {
+  monitored_resource_t *resource =
+      wg_determine_monitored_resource_for_payload(host, ctx);
+  if (resource == NULL) {
     result = -2;
     goto leave;
   }
