@@ -416,7 +416,8 @@ static int curl_get_json(char *response_buffer, size_t response_buffer_size,
   if (status != CURLE_OK) {
     ERROR("docker: curl_easy_setopt() failed: %s\n",
 	  curl_easy_strerror(status));
-    curl_easy_cleanup(curl); return DOCKER_ERROR;
+    curl_easy_cleanup(curl);
+    return DOCKER_ERROR;
   }
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &plugin_curl_write_callback);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &write_ctx);
@@ -429,7 +430,8 @@ static int curl_get_json(char *response_buffer, size_t response_buffer_size,
   if (curl_result != CURLE_OK) {
     ERROR("docker: curl_easy_perform() failed: %s",
 	  curl_easy_strerror(curl_result));
-    curl_easy_cleanup(curl); return DOCKER_ERROR;
+    curl_easy_cleanup(curl);
+    return DOCKER_ERROR;
   }
 
   long response_code;
@@ -438,13 +440,15 @@ static int curl_get_json(char *response_buffer, size_t response_buffer_size,
   if (response_code >= 400) {
     ERROR("docker: Unsuccessful HTTP request %ld: %s",
 	  response_code, response_buffer);
-    curl_easy_cleanup(curl); return DOCKER_PARTIAL_SUCCESS;
+    curl_easy_cleanup(curl);
+    return DOCKER_PARTIAL_SUCCESS;
   }
 
   if (write_ctx.size < 2) {
     ERROR("docker: curl_get_json: The receive buffer overflowed.");
     DEBUG("docker: curl_get_json: Received data is: %s", response_buffer);
-    curl_easy_cleanup(curl); return DOCKER_PARTIAL_SUCCESS;
+    curl_easy_cleanup(curl);
+    return DOCKER_PARTIAL_SUCCESS;
   }
   curl_easy_cleanup(curl);
   return 0;			// Success!
@@ -596,9 +600,12 @@ static int compute_cpu_stats(cpu_core_stats_t **stats,
 static int compute_memory_stats(memory_stats_t *stats) {
   if (stats == NULL) {
     ERROR("docker: compute_memory_stats. memory stats NULL");
+    return DOCKER_ERROR;
   }
   stats->free = stats->limit - stats->usage;
-  if (stats->limit == 0) return DOCKER_ERROR;
+  if (stats->limit == 0) {
+    return DOCKER_ERROR;
+  }
   stats->percent_used = (stats->usage * 100.00)/(stats->limit);
   stats->percent_free = 100.00 - stats->percent_used;
   return 0;
@@ -637,7 +644,7 @@ static int extract_container_ids_from_response(char ***container_list,
     }
     return num_containers;
   }
-  if (node->u.array.len == 0) {
+  if (!YAJL_IS_ARRAY(node) || node->u.array.len == 0) {
     yajl_tree_free(node);
     return 0;
   }
@@ -686,6 +693,7 @@ static int get_container_list(const char *socket, const char *version,
   int count = 0;
   if (response_buffer == NULL || url == NULL) {
     ERROR("docker: get_container_list: malloc failed!");
+    return DOCKER_ERROR;
   }
   ssnprintf(url, 28, "http:/v%s/containers/json", version);
   int result = curl_get_json(response_buffer, RESPONSE_BUFFER_SIZE, url, socket);
