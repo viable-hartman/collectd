@@ -92,6 +92,7 @@ static const char this_plugin_name[] = "write_gcm";
 static const char custom_metric_key[] = "stackdriver_metric_type";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static const char custom_metric_label_prefix[] = "label:";
 
 =======
@@ -99,6 +100,8 @@ static const char custom_metric_label_prefix[] = "label:";
 =======
 static const char custom_metric_prefix[] = "custom.googleapis.com/";
 
+=======
+>>>>>>> Remove unused custom_metric_prefix variable (#101)
 static const char custom_metric_label_prefix[] = "label:";
 
 >>>>>>> Send metrics with the 'stackdriver_metric_type' metadata key to timeSeries.create. (#81)
