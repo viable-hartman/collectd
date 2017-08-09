@@ -35,6 +35,7 @@
 #include "configfile.h"
 #include "stackdriver-agent-keys.h"
 #include "utils_avltree.h"
+#include "utils_llist.h"
 
 #include <errno.h>
 #include <stdarg.h>
@@ -51,7 +52,6 @@
 
 #include <yajl/yajl_gen.h>
 #include <yajl/yajl_parse.h>
-#include <yajl/yajl_tree.h>
 #if HAVE_YAJL_YAJL_VERSION_H
 # include <yajl/yajl_version.h>
 #endif
@@ -287,7 +287,7 @@ static char *wg_read_all_bytes(const char *filename, const char *mode) {
   rewind(f);
   buffer = malloc(size + 1);
   if (buffer == NULL) {
-    ERROR("write_gcm: wg_read_all_bytes: Memory allocation failed");
+    ERROR("write_gcm: wg_read_all_bytes: malloc failed");
     goto leave;
   }
 
@@ -695,7 +695,7 @@ static int wg_handle_string(void *arg, const unsigned char *val,
 
 static int wg_handle_number(void *arg, const char *data,
     wg_yajl_callback_size_t length) {
-  return wg_handle_string(arg, (const unsigned char*)data, length);
+  return wg_handle_string(arg, (const unsigned char *) data, length);
 }
 
 static int wg_handle_start_map(void *arg) {
@@ -718,7 +718,7 @@ static int wg_handle_map_key(void *arg, const unsigned char *data,
   if (ctx->map_depth == 1 &&
       ctx->array_depth == 0 &&
       length == ctx->expected_key_len &&
-      strncmp(ctx->expected_key, (const char*)data, length) == 0) {
+      strncmp(ctx->expected_key, (const char *) data, length) == 0) {
     ctx->consume_next = 1;
   } else {
     ctx->consume_next = 0;
@@ -764,7 +764,7 @@ char *wg_extract_toplevel_value(const char *json, const char *key) {
   yajl_parser_config config = { 0, 1 };
   yajl_handle handle = yajl_alloc(&callbacks, &config, NULL, &context);
 #endif
-  if (yajl_parse(handle, (const unsigned char*)json, strlen(json))
+  if (yajl_parse(handle, (const unsigned char *) json, strlen(json))
       != yajl_status_ok) {
     ERROR("write_gcm: wg_extract_toplevel_value: error parsing JSON");
     goto leave;
@@ -1062,7 +1062,7 @@ static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
       return -1;
     }
     wg_oauth2_base64url_encode(&bptr, &bsize,
-                               (unsigned char*)claim_set, result);
+                               (unsigned char *) claim_set, result);
   }
 
   // Sign the bytes in the buffer that are in the range [jtw_header_start, bptr)
@@ -2180,16 +2180,12 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
   }
   const char *url = metadata_agent_url != NULL ?
       metadata_agent_url : metadata_agent_default_url;
-  char *response_buffer = (char *)
-      calloc(METADATA_RESPONSE_BUFFER_SIZE, sizeof(char));
-  if (response_buffer == NULL) {
-    ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent:"
-          "calloc failed.");
-    return NULL;
-  }
   size_t url_size = strlen(url) + strlen(resource_id) +
       strlen("/monitoredResource/") + 1;
   char query[url_size];
+  const char **headers = NULL;
+  const char *body = NULL;
+  int num_headers = 0;
   int written = ssnprintf(query, url_size, "%s/monitoredResource/%s", url,
                     resource_id);
   DEBUG("write_gcm: wg_monitored_resource_create_from_metadata_agent: "
@@ -2200,21 +2196,30 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
   if (url_size - written != 1) {
     ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent: "
           "Could not create Metadata Agent URL.");
-    sfree(response_buffer);
-    return NULL;
+    goto error;
+  }
+  char *response_buffer = (char *)
+      calloc(METADATA_RESPONSE_BUFFER_SIZE, sizeof(char));
+  if (response_buffer == NULL) {
+    ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent:"
+          "calloc failed.");
+    goto error;
   }
 
   wg_curl_get_or_post(response_buffer, METADATA_RESPONSE_BUFFER_SIZE, query,
-                      NULL, NULL, 0);
+                      body, headers, num_headers);
   monitored_resource_t *resource = parse_monitored_resource(response_buffer,
       METADATA_RESPONSE_BUFFER_SIZE, project_id);
    sfree(response_buffer);
    return resource;
+
+ error:
+   return NULL;
 }
 
 typedef struct {
-  const char *key;
-  const char *value;
+  char *key;
+  char *value;
 } label_t;
 
 static monitored_resource_t *monitored_resource_create_from_array(
@@ -2270,59 +2275,136 @@ static monitored_resource_t *monitored_resource_create_from_fields(
   // Changes va_list into label_t array
   va_start(ap, project_id);
   for (int i = 0; i < num_labels; i++) {
-    labels[i].key = va_arg(ap, const char*);
-    labels[i].value = va_arg(ap, const char*);
+    labels[i].key = va_arg(ap, char*);
+    labels[i].value = va_arg(ap, char*);
   }
   va_end(ap);
   return monitored_resource_create_from_array(type, project_id, labels,
                                               num_labels);
 }
 
+typedef struct {
+  char *type;
+  _Bool processing_labels;
+  char *label_name;
+  llist_t *label_list;
+} wg_mr_parse_context_t;
+
+static int wg_mr_handle_string(void *arg, const unsigned char *val,
+    wg_yajl_callback_size_t length) {
+  wg_mr_parse_context_t *ctx = (wg_mr_parse_context_t *) arg;
+  const char *str = (const char *) val;
+
+  if (ctx->processing_labels) {
+    llist_append(ctx->label_list, 
+                 llentry_create(ctx->label_name, strndup(str, length)));
+  } else {
+    // The only other key we expect when not processing 'labels' is 'type'.
+    ctx->type = strndup(str, length);
+  }
+
+  return 1;
+}
+
+static int wg_mr_handle_map_key(void *arg, const unsigned char *data,
+    wg_yajl_callback_size_t length) {
+  wg_mr_parse_context_t *ctx = (wg_mr_parse_context_t *) arg;
+  const char *str = (const char *) data;
+
+  if (ctx->processing_labels) {
+    ctx->label_name = strndup(str, length);
+  } else if (strncmp(str, "labels", length) == 0) {
+    ctx->processing_labels = 1;
+    ctx->label_list = llist_create();
+  } else if (strncmp(str, "type", length) != 0) {
+    ERROR("wg_handle_map_key: Unexpected key in JSON.");
+    return 0;
+  }
+
+  return 1;
+}
+
+static int wg_mr_handle_end_map(void *arg) {
+  wg_mr_parse_context_t *ctx = (wg_mr_parse_context_t *) arg;
+
+  if (ctx->processing_labels) {
+    ctx->processing_labels = 0;
+  }
+
+  return 1;
+}
+
 static monitored_resource_t *parse_monitored_resource(char *metadata,
     int metadata_size, const char *project_id) {
-  char errbuf[1024];
+  yajl_handle handle;
   monitored_resource_t *response = NULL;
-  yajl_val node = yajl_tree_parse(metadata, errbuf, sizeof(errbuf));
-  if (node == NULL) {
-    if (strlen(errbuf)) {
-      DEBUG("write_gcm: parse_monitored_resource %s", errbuf);
-    } else {
-      DEBUG("write_gcm: parse_monitored_resource: Invalid JSON response.");
-    }
-    goto finish;
-  }
+
+  wg_mr_parse_context_t ctx = {
+    .processing_labels = 0
+  };
+
   {
-    const char * type_path[] = {"type", (const char *) 0};
-    const char * labels_path[] = {"labels", (const char *) 0};
-    char *type;
-    yajl_val type_v = yajl_tree_get(node, type_path, yajl_t_string);
-    yajl_val labels_v = yajl_tree_get(node, labels_path, yajl_t_object);
-    if (type_v && YAJL_IS_STRING(type_v)) {
-      type = YAJL_GET_STRING(type_v);
-    } else {
-      ERROR("write_gcm: wg_parse_monitored_resource: %s not correctly defined.",
-            type_path[0]);
+    yajl_callbacks callbacks = {
+      .yajl_null = NULL,
+      .yajl_boolean = NULL,
+      .yajl_integer = NULL,
+      .yajl_double = NULL,
+      .yajl_number = NULL,
+      .yajl_string = &wg_mr_handle_string,
+      .yajl_start_map = NULL,
+      .yajl_map_key = &wg_mr_handle_map_key,
+      .yajl_end_map = &wg_mr_handle_end_map,
+      .yajl_start_array = NULL,
+      .yajl_end_array = NULL
+    };
+
+  #if defined(YAJL_MAJOR) && YAJL_MAJOR >= 2
+    handle = yajl_alloc(&callbacks, NULL, &ctx);
+  #else
+    yajl_parser_config config = { 0, 1 };
+    handle = yajl_alloc(&callbacks, &config, NULL, &ctx);
+  #endif
+
+    if (yajl_parse(handle, (const unsigned char *) metadata, strlen(metadata))
+        != yajl_status_ok) {
+      ERROR("write_gcm: parse_monitored_resource: Invalid JSON response.");
       goto finish;
     }
-    size_t num_values;
-    if (labels_v && YAJL_IS_OBJECT(labels_v)) {
-      num_values = labels_v->u.object.len;
-    } else {
-      ERROR("write_gcm: wg_parse_monitored_resource: No such node %s.\n",
-            labels_path[0]);
+
+    int parse_result;
+  #if defined(YAJL_MAJOR) && YAJL_MAJOR >= 2
+    parse_result = yajl_complete_parse(handle);
+  #else
+    parse_result = yajl_parse_complete(handle);
+  #endif
+
+    if (parse_result != yajl_status_ok) {
+      ERROR("write_gcm: parse_monitored_resource: Invalid JSON response.");
       goto finish;
     }
-    label_t labels[num_values];
-    for (int i = 0; i < num_values; i++) {
-      labels[i].key = *(labels_v->u.object.keys + i);
-      labels[i].value = YAJL_GET_STRING(*(labels_v->u.object.values + i));
+
+    int total_labels = llist_size(ctx.label_list);
+    label_t labels[total_labels];
+
+    llentry_t *curr = llist_head(ctx.label_list);
+    for (int i = 0; curr != NULL; curr = curr->next, ++i) {
+      labels[i].key = curr->key;
+      labels[i].value = (char *) curr->value;
     }
-    response = monitored_resource_create_from_array(type, project_id, labels,
-                   num_values);
+
+    response = monitored_resource_create_from_array(ctx.type, project_id, 
+                                                    labels, total_labels);
   }
 
  finish:
-  yajl_tree_free(node);
+  sfree(ctx.type);
+  llentry_t *curr = llist_head(ctx.label_list);
+  for (int i = 0; curr != NULL; curr = curr->next, ++i) {
+    sfree(curr->key);
+    sfree(curr->value);
+  }
+  llist_destroy(ctx.label_list);
+  yajl_free(handle);
   return response;
 }
 
@@ -3503,7 +3585,7 @@ static void wg_json_string(json_ctx_t *jc, const char *s) {
     return;
   }
 
-  int result = yajl_gen_string(jc->gen, (const unsigned char*)s, strlen(s));
+  int result = yajl_gen_string(jc->gen, (const unsigned char *) s, strlen(s));
   if (result != yajl_gen_status_ok) {
     ERROR("yajl_gen_string returned %d", result);
     jc->error = -1;
@@ -3674,7 +3756,7 @@ typedef struct {
 } wg_payload_hook_t;
 
 static void *wg_process_queue(wg_context_t *ctx, wg_queue_t *queue,
-    wg_stats_t *stats) {
+                              wg_stats_t *stats) {
 
   // Keeping track of the base values for derivative values.
   c_avl_tree_t *deriv_tree = wg_deriv_tree_create();
@@ -3867,7 +3949,7 @@ static int wg_rebase_item(c_avl_tree_t *deriv_tree, wg_payload_t *payload,
 static c_avl_tree_t *wg_group_payloads_by_host(wg_payload_t *head, int *count) {
   c_avl_tree_t *host_tree = c_avl_create((
       int (*)(const void*, const void*))&strcmp);
-  if (host_tree == NULL) return NULL;
+  if (host_tree == NULL) goto leave;
   int host_count = 0;
   while (head != NULL) {
     const char *host = head->key.host;
@@ -3882,6 +3964,7 @@ static c_avl_tree_t *wg_group_payloads_by_host(wg_payload_t *head, int *count) {
       hook->payload = head;
       if (c_avl_insert(host_tree, (void *) host, (void *) hook) < 0) {
         ERROR("write_gcm: wg_group_by_host tree insert failed");
+        sfree(hook);
         goto leave;
       }
       wg_payload_t *next = head->next;
@@ -3926,16 +4009,16 @@ static int wg_transmit_unique_segments(const wg_context_t *ctx,
       return -1;
     }
     DEBUG("write_gcm: next distinct segment has size %d", distinct_size);
-    c_avl_tree_t *host_tree = wg_group_payloads_by_host(
-        distinct_list, &num_hosts);
+    c_avl_tree_t *host_tree =
+        wg_group_payloads_by_host(distinct_list, &num_hosts);
     if (num_hosts == -1) {
       ERROR("write_gcm: wg_group_payloads_by_host failed.");
       wg_payload_destroy(residual_list);
       return -1;
     }
     while (c_avl_pick(host_tree, (void **) &resource_id, (void **) &hook) == 0) {
-      DEBUG("write_gcm: Dispatching payloads for host %s", resource_id);
-      wg_payload_t *list = ((wg_payload_hook_t *) hook)->payload;
+      DEBUG("write_gcm: Dispatching payloads for hostname %s", resource_id);
+      wg_payload_t *list = hook->payload;
       int result = wg_transmit_unique_segment(ctx, queue, list);
       if (result == -2) {
         WARNING("write_gcm: Dropped payload with hostname: %s", resource_id);
@@ -3977,28 +4060,23 @@ static char *wg_get_instance_id_from_monitored_resource(
 }
 
 // Determines which Monitored Resource to use for the payload being dispatched.
-static int wg_determine_monitored_resource_for_payload(
-    const char *host, monitored_resource_t **response_ptr,
-    const wg_context_t *ctx) {
-  int result = -1;
+static monitored_resource_t *wg_determine_monitored_resource_for_payload(
+    const char *host, const wg_context_t *ctx) {
   monitored_resource_t *resource = NULL;
-  if (host != NULL && ctx->enable_metadata_agent) {
+  if (ctx->enable_metadata_agent) {
     resource =
         wg_monitored_resource_create_from_metadata_agent(
             ctx->metadata_agent_url, ctx->resource->project_id, host);
-  }
-  if (resource != NULL) {
-    *response_ptr = resource;
-    result = 0;
-  } else {
-    char *instance_id =
-        wg_get_instance_id_from_monitored_resource(ctx->resource);
-    if (instance_id != NULL && strcmp(instance_id, host) == 0) {
-        *response_ptr = ctx->resource;
-        result = 0;
+    if (resource != NULL) {
+      return resource;
     }
   }
-  return result;
+  char *instance_id =
+      wg_get_instance_id_from_monitored_resource(ctx->resource);
+  if (instance_id != NULL && strcmp(instance_id, host) == 0) {
+      return ctx->resource;
+  }
+  return NULL;
 }
 
 static int wg_transmit_unique_segment(const wg_context_t *ctx,
@@ -4018,8 +4096,9 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
     goto leave;
   }
   const char *host = list->key.host;
-  monitored_resource_t *resource = NULL;
-  if (wg_determine_monitored_resource_for_payload(host,&resource, ctx) != 0) {
+  monitored_resource_t *resource =
+      wg_determine_monitored_resource_for_payload(host, ctx);
+  if (resource == NULL) {
     result = -2;
     goto leave;
   }
@@ -4124,7 +4203,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     }
 
-    if (resource != ctx->resource) sfree(resource);
+    if (resource != ctx->resource) wg_monitored_resource_destroy(resource);
     sfree(json);
     json = NULL;
 
