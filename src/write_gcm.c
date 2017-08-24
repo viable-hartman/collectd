@@ -76,6 +76,8 @@ static const char this_plugin_name[] = "write_gcm";
 // sent to the GCMv3 API instead of the Agent Translation Service.
 static const char custom_metric_key[] = "stackdriver_metric_type";
 
+static const char custom_metric_conversion[] = "stackdriver_metric_conversion";
+
 static const char custom_metric_prefix[] = "custom.googleapis.com/";
 
 static const char custom_metric_label_prefix[] = "label:";
@@ -225,7 +227,8 @@ static void wg_value_subtract(int ds_type, value_t *dest, const value_t *a,
       dest->counter = a->counter - b->counter;
       return;
     }
-    case DS_TYPE_GAUGE: {
+    case DS_TYPE_GAUGE:
+    case DS_TYPE_GAUGE_INT: {
       dest->gauge = a->gauge - b->gauge;
       return;
     }
@@ -249,7 +252,8 @@ static _Bool wg_value_less(int ds_type, const value_t *a, const value_t *b) {
     case DS_TYPE_COUNTER: {
       return a->counter < b->counter;
     }
-    case DS_TYPE_GAUGE: {
+    case DS_TYPE_GAUGE:
+    case DS_TYPE_GAUGE_INT: {
       return a->gauge < b->gauge;
     }
     case DS_TYPE_DERIVE: {
@@ -1423,6 +1427,16 @@ static int wg_typed_value_create_from_value_t_inline(wg_typed_value_t *result,
       *dataSourceType_static = "gauge";
       result->field_name_static = "doubleValue";
       snprintf(buffer, sizeof(buffer), "%f", value.gauge);
+      break;
+    }
+    case DS_TYPE_GAUGE_INT: {
+      if (!isfinite(value.gauge)) {
+        ERROR("write_gcm: can not take infinite value");
+        return -1;
+      }
+      *dataSourceType_static = "gauge";
+      result->field_name_static = "int64Value";
+      snprintf(buffer, sizeof(buffer), "%" PRIi64, (int64_t)value.gauge);
       break;
     }
     case DS_TYPE_COUNTER: {
@@ -3198,21 +3212,6 @@ static int wg_json_CreateTimeSeries(
             head->key.type_instance);
       continue;
     }
-    if (head->values[0].ds_type == DS_TYPE_ABSOLUTE) {
-      ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
-            "type_instance: %s type cannot be ABSOLUTE.",
-            head->key.plugin, head->key.plugin_instance, head->key.type,
-            head->key.type_instance);
-      continue;
-    }
-    if (head->values[0].ds_type == DS_TYPE_GAUGE
-        && !isfinite(head->values[0].val.gauge)) {
-      DEBUG("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
-            "type_instance: %s skipping non-finite gauge value %lf.",
-            head->key.plugin, head->key.plugin_instance, head->key.type,
-            head->key.type_instance, head->values[0].val.gauge);
-      continue;
-    }
 
     for (int i = 0; i < head->key.num_metadata_entries; ++i) {
       wg_metadata_entry_t *entry = &head->key.metadata_entries[i];
@@ -3234,6 +3233,28 @@ static int wg_json_CreateTimeSeries(
                   head->key.type_instance, entry->key);
         }
       }
+
+      const char *conversion_pref = custom_metric_conversion;
+      if(strcmp(entry->key, conversion_pref) == 0) {
+        head->values[0].ds_type = DS_TYPE_FROM_STRING(entry->value.value_text);
+      }
+    }
+
+    if (head->values[0].ds_type == DS_TYPE_ABSOLUTE) {
+      ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+            "type_instance: %s type cannot be ABSOLUTE.",
+            head->key.plugin, head->key.plugin_instance, head->key.type,
+            head->key.type_instance);
+      continue;
+    }
+    if ((head->values[0].ds_type == DS_TYPE_GAUGE
+         || head->values[0].ds_type == DS_TYPE_GAUGE_INT)
+        && !isfinite(head->values[0].val.gauge)) {
+      DEBUG("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+            "type_instance: %s skipping non-finite gauge value %lf.",
+            head->key.plugin, head->key.plugin_instance, head->key.type,
+            head->key.type_instance, head->values[0].val.gauge);
+      continue;
     }
 
     wg_json_map_open(jc);
@@ -3250,6 +3271,12 @@ static int wg_json_CreateTimeSeries(
       wg_json_string(jc, "GAUGE");
       wg_json_string(jc, "valueType");
       wg_json_string(jc, "DOUBLE");
+      break;
+      case DS_TYPE_GAUGE_INT:
+      wg_json_string(jc, "metricKind");
+      wg_json_string(jc, "GAUGE");
+      wg_json_string(jc, "valueType");
+      wg_json_string(jc, "INT64");
       break;
 
       case DS_TYPE_DERIVE:
