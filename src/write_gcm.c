@@ -1470,7 +1470,6 @@ static int wg_typed_value_create_from_value_t_inline(wg_typed_value_t *result,
     }
     case DS_TYPE_DERIVE: {
       *dataSourceType_static = "derive";
-      result->field_name_static = "int64Value";
       switch (metric_value_type) {
         case METRIC_VALUE_TYPE_INT64:
           result->field_name_static = "int64Value";
