@@ -76,7 +76,7 @@ static const char this_plugin_name[] = "write_gcm";
 // sent to the GCMv3 API instead of the Agent Translation Service.
 static const char custom_metric_key[] = "stackdriver_metric_type";
 
-static const char custom_metric_value_type[] = "stackdriver_metric_value_type";
+static const char custom_metric_value_type_key[] = "stackdriver_metric_value_type";
 
 static const char custom_metric_prefix[] = "custom.googleapis.com/";
 
@@ -106,11 +106,13 @@ static const char metadata_agent_default_url[] =
 static _Bool wg_some_error_occurred_g = 0;
 
 // Supported metric value types that can be sent to GCM.
-#define METRIC_VALUE_TYPE_BOOL   0
-#define METRIC_VALUE_TYPE_DOUBLE 1
-#define METRIC_VALUE_TYPE_INT64  2
+#define METRIC_VALUE_TYPE_UNKNOWN 0
+#define METRIC_VALUE_TYPE_BOOL    1
+#define METRIC_VALUE_TYPE_DOUBLE  2
+#define METRIC_VALUE_TYPE_INT64   3
 
 char *metric_value_type_strings[] = {
+  "UNKNOWN",
   "BOOL",
   "DOUBLE",
   "INT64"
@@ -1461,7 +1463,7 @@ static int wg_typed_value_create_from_value_t_inline(wg_typed_value_t *result,
           break;
         case METRIC_VALUE_TYPE_DOUBLE:
           result->field_name_static = "doubleValue";
-          snprintf(buffer, sizeof(buffer), "%f", (float)value.counter);
+          snprintf(buffer, sizeof(buffer), "%f", (double)value.counter);
           break;
       }
       break;
@@ -1469,15 +1471,14 @@ static int wg_typed_value_create_from_value_t_inline(wg_typed_value_t *result,
     case DS_TYPE_DERIVE: {
       *dataSourceType_static = "derive";
       result->field_name_static = "int64Value";
-      snprintf(buffer, sizeof(buffer), "%" PRIi64, value.derive);
       switch (metric_value_type) {
         case METRIC_VALUE_TYPE_INT64:
           result->field_name_static = "int64Value";
-          snprintf(buffer, sizeof(buffer), "%" PRIi64, (int64_t)value.derive);
+          snprintf(buffer, sizeof(buffer), "%" PRIi64, value.derive);
           break;
         case METRIC_VALUE_TYPE_DOUBLE:
           result->field_name_static = "doubleValue";
-          snprintf(buffer, sizeof(buffer), "%f", (float)value.derive);
+          snprintf(buffer, sizeof(buffer), "%f", (double)value.derive);
           break;
       }
       break;
@@ -3146,12 +3147,29 @@ static void wg_json_Metric(json_ctx_t *jc,
   wg_json_map_close(jc);
 }
 
+static int wg_default_metric_value_type_from_ds_type(int ds_type) {
+  int metric_value_type = METRIC_VALUE_TYPE_UNKNOWN;
+
+  switch(ds_type) {
+    case DS_TYPE_GAUGE:
+      metric_value_type = METRIC_VALUE_TYPE_DOUBLE;
+      break;
+    case DS_TYPE_DERIVE:
+    case DS_TYPE_COUNTER:
+      metric_value_type = METRIC_VALUE_TYPE_INT64;
+      break;
+  }
+
+  return metric_value_type;
+}
+
 static int wg_metric_value_type_from_wg_payload_t(
     const wg_payload_t *element) {
-  int metric_value_type = -1;
+  int metric_value_type = METRIC_VALUE_TYPE_UNKNOWN;
+
   for (int i = 0; i < element->key.num_metadata_entries; ++i) {
     wg_metadata_entry_t *entry = &element->key.metadata_entries[i];
-    if (strcmp(entry->key, custom_metric_value_type) == 0) {
+    if (strcmp(entry->key, custom_metric_value_type_key) == 0) {
       if (strcmp(entry->value.value_text, "INT64") == 0) {
         metric_value_type = METRIC_VALUE_TYPE_INT64;
       } else if (strcmp(entry->value.value_text, "DOUBLE") == 0) {
@@ -3159,7 +3177,8 @@ static int wg_metric_value_type_from_wg_payload_t(
       } else if (strcmp(entry->value.value_text, "BOOL") == 0) {
         metric_value_type = METRIC_VALUE_TYPE_BOOL;
       } else {
-        WARNING("write_gcm: unsupported metric value type provided: %s", 
+        WARNING("write_gcm: ignoring metric value type provided: %s, will use"
+                "default instead.", 
                 entry->value.value_text);
       }
       break;
@@ -3167,16 +3186,9 @@ static int wg_metric_value_type_from_wg_payload_t(
   }
 
   // Failover to sane defaults for each DS type.
-  if(metric_value_type == -1) {
-    switch (element->values[0].ds_type) {
-      case DS_TYPE_GAUGE:
-        metric_value_type = METRIC_VALUE_TYPE_DOUBLE;
-        break;
-      case DS_TYPE_DERIVE:
-      case DS_TYPE_COUNTER:
-        metric_value_type = METRIC_VALUE_TYPE_INT64;
-        break;
-    }
+  if (metric_value_type == METRIC_VALUE_TYPE_UNKNOWN) {
+    metric_value_type = wg_default_metric_value_type_from_ds_type(
+                          element->values[0].ds_type);
   }
 
   return metric_value_type;
@@ -3185,7 +3197,7 @@ static int wg_metric_value_type_from_wg_payload_t(
 static char *wg_metric_value_type_to_string(int metric_value_type) {
   if (metric_value_type < 0 || 
       metric_value_type > STATIC_ARRAY_SIZE(metric_value_type_strings)) {
-    WARNING("write_gcm: invalid metric value type converted to a string: %d", 
+    ERROR("write_gcm: invalid metric value type converted to a string: %d", 
             metric_value_type);
     return NULL;
   }
@@ -3215,7 +3227,7 @@ static void wg_json_Points(json_ctx_t *jc, const wg_payload_t *element) {
   // We don't care what the name of the type is.
   const char *data_source_type_static;
   if (wg_typed_value_create_from_value_t_inline(&typed_value, value->ds_type, 
-      metric_value_type, value->val, &data_source_type_static) != 0) {
+        metric_value_type, value->val, &data_source_type_static) != 0) {
     ERROR("write_gcm: wg_typed_value_create_from_value_t_inline failed for "
       "%s/%s/%s!.",
       element->key.plugin, element->key.type, value->name);
@@ -3288,6 +3300,21 @@ static int wg_json_CreateTimeSeries(
             head->key.type_instance);
       continue;
     }
+    if (head->values[0].ds_type == DS_TYPE_ABSOLUTE) {
+      ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+            "type_instance: %s type cannot be ABSOLUTE.",
+            head->key.plugin, head->key.plugin_instance, head->key.type,
+            head->key.type_instance);
+      continue;
+    }
+    if ((head->values[0].ds_type == DS_TYPE_GAUGE)
+        && !isfinite(head->values[0].val.gauge)) {
+      DEBUG("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
+            "type_instance: %s skipping non-finite gauge value %lf.",
+            head->key.plugin, head->key.plugin_instance, head->key.type,
+            head->key.type_instance, head->values[0].val.gauge);
+      continue;
+    }
 
     for (int i = 0; i < head->key.num_metadata_entries; ++i) {
       wg_metadata_entry_t *entry = &head->key.metadata_entries[i];
@@ -3309,22 +3336,6 @@ static int wg_json_CreateTimeSeries(
                   head->key.type_instance, entry->key);
         }
       }
-    }
-
-    if (head->values[0].ds_type == DS_TYPE_ABSOLUTE) {
-      ERROR("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
-            "type_instance: %s type cannot be ABSOLUTE.",
-            head->key.plugin, head->key.plugin_instance, head->key.type,
-            head->key.type_instance);
-      continue;
-    }
-    if ((head->values[0].ds_type == DS_TYPE_GAUGE)
-        && !isfinite(head->values[0].val.gauge)) {
-      DEBUG("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
-            "type_instance: %s skipping non-finite gauge value %lf.",
-            head->key.plugin, head->key.plugin_instance, head->key.type,
-            head->key.type_instance, head->values[0].val.gauge);
-      continue;
     }
 
     wg_json_map_open(jc);
@@ -3358,7 +3369,6 @@ static int wg_json_CreateTimeSeries(
     wg_json_string(jc, "points");
     wg_json_Points(jc, head);
 
-    sfree(metric_value_type_string);
     wg_json_map_close(jc);
     ++count;
 
@@ -3544,10 +3554,11 @@ static void wg_json_CollectdValues(json_ctx_t *jc,
     const wg_payload_value_t *value = &element->values[i];
 
     wg_typed_value_t typed_value;
-    int metric_value_type = wg_metric_value_type_from_wg_payload_t(element);
+    int metric_value_type = wg_default_metric_value_type_from_ds_type(
+                              value->ds_type);
     const char *data_source_type_static;
     if (wg_typed_value_create_from_value_t_inline(&typed_value, value->ds_type, 
-        metric_value_type, value->val, &data_source_type_static) != 0) {
+          metric_value_type, value->val, &data_source_type_static) != 0) {
       WARNING("write_gcm: wg_typed_value_create_from_value_t_inline failed for "
           "%s/%s/%s! Continuing.",
           element->key.plugin, element->key.type, value->name);
