@@ -42,25 +42,16 @@
 # define DATA_MAX_NAME_LEN 128
 #endif
 
-#define DS_TYPE_COUNTER   0
-#define DS_TYPE_GAUGE     1
-#define DS_TYPE_DERIVE    2
-#define DS_TYPE_ABSOLUTE  3
-#define DS_TYPE_GAUGE_INT 4
+#define DS_TYPE_COUNTER  0
+#define DS_TYPE_GAUGE    1
+#define DS_TYPE_DERIVE   2
+#define DS_TYPE_ABSOLUTE 3
 
 #define DS_TYPE_TO_STRING(t) (t == DS_TYPE_COUNTER)     ? "counter"  : \
-        (t == DS_TYPE_GAUGE)     ? "gauge"    : \
-        (t == DS_TYPE_DERIVE)    ? "derive"   : \
-        (t == DS_TYPE_ABSOLUTE)  ? "absolute" : \
-        (t == DS_TYPE_GAUGE_INT) ? "gauge_int" : \
-				"unknown"
-
-#define DS_TYPE_FROM_STRING(t) (strcmp(t, "counter") == 0)    ? DS_TYPE_COUNTER  : \
-       (strcmp(t, "gauge") == 0)     ? DS_TYPE_GAUGE    : \
-       (strcmp(t, "derive") == 0)    ? DS_TYPE_DERIVE   : \
-       (strcmp(t, "absolute") == 0)  ? DS_TYPE_ABSOLUTE : \
-       (strcmp(t, "gauge_int") == 0) ? DS_TYPE_GAUGE_INT : \
-       -1
+        (t == DS_TYPE_GAUGE)    ? "gauge"    : \
+        (t == DS_TYPE_DERIVE)   ? "derive"   : \
+        (t == DS_TYPE_ABSOLUTE) ? "absolute" : \
+        "unknown"
 
 
 #ifndef LOG_ERR
