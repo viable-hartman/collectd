@@ -1587,7 +1587,7 @@ static int wg_typed_value_copy(wg_typed_value_t *dest,
   dest->field_name_static = src->field_name_static;
   dest->value_type = src->value_type;
   dest->value_text = sstrdup(src->value_text);
-  if (dest->value_text == NULL) {
+  if (src->value_text != NULL && dest->value_text == NULL) {
     ERROR("write_gcm: wg_typed_value_copy: sstrdup failed");
     return -1;
   }
