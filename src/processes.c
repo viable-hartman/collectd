@@ -173,6 +173,7 @@
 #include <sys/capability.h>
 #endif
 
+<<<<<<< HEAD
 #ifndef CMDLINE_BUFFER_SIZE
 #if defined(ARG_MAX) && (ARG_MAX < 4096)
 #define CMDLINE_BUFFER_SIZE ARG_MAX
@@ -180,6 +181,44 @@
 #define CMDLINE_BUFFER_SIZE 4096
 #endif
 #endif
+=======
+typedef struct procstat_entry_s
+{
+	unsigned long id;
+	unsigned long age;
+
+	unsigned long num_proc;
+	unsigned long num_lwp;
+	unsigned long vmem_size;
+	unsigned long vmem_rss;
+	unsigned long vmem_data;
+	unsigned long vmem_code;
+	unsigned long stack_size;
+
+	unsigned long vmem_minflt;
+	unsigned long vmem_majflt;
+	derive_t      vmem_minflt_counter;
+	derive_t      vmem_majflt_counter;
+
+	unsigned long cpu_user;
+	unsigned long cpu_system;
+	derive_t      cpu_user_counter;
+	derive_t      cpu_system_counter;
+
+	/* io data */
+	derive_t io_rchar;
+	derive_t io_wchar;
+	derive_t io_syscr;
+	derive_t io_syscw;
+	derive_t io_diskr;
+	derive_t io_diskw;
+
+	derive_t cswitch_vol;
+	derive_t cswitch_invol;
+
+	struct procstat_entry_s *next;
+} procstat_entry_t;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -261,6 +300,7 @@ typedef struct procstat_entry_s {
   procstat_counters_t counters;
   struct procstat_entry_s *next;
 
+<<<<<<< HEAD
 #if HAVE_LIBTASKSTATS
   value_to_rate_state_t delay_cpu;
   value_to_rate_state_t delay_blkio;
@@ -337,6 +377,15 @@ typedef struct procstat_entry_s
 =======
 >>>>>>> Deletes duplicate declaration of gauges and counters in procstat_entry_s
 } procstat_entry_t;
+=======
+	/* io data */
+	derive_t io_rchar;
+	derive_t io_wchar;
+	derive_t io_syscr;
+	derive_t io_syscw;
+	derive_t io_diskr;
+	derive_t io_diskw;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
 typedef struct procstat {
   char name[PROCSTAT_NAME_LEN];
@@ -974,6 +1023,8 @@ static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t
 		pse->io_wchar   = entry->io_wchar;
 		pse->io_syscr   = entry->io_syscr;
 		pse->io_syscw   = entry->io_syscw;
+		pse->io_diskr   = entry->io_diskr;
+		pse->io_diskw   = entry->io_diskw;
 		pse->cswitch_vol   = entry->cswitch_vol;
 		pse->cswitch_invol = entry->cswitch_invol;
 
@@ -989,6 +1040,8 @@ static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t
 		ps->io_wchar   += ((pse->io_wchar == -1)?0:pse->io_wchar);
 		ps->io_syscr   += ((pse->io_syscr == -1)?0:pse->io_syscr);
 		ps->io_syscw   += ((pse->io_syscw == -1)?0:pse->io_syscw);
+		ps->io_diskr   += ((pse->io_diskr == -1)?0:pse->io_diskr);
+		ps->io_diskw   += ((pse->io_diskw == -1)?0:pse->io_diskw);
 
 		ps->cswitch_vol   += ((pse->cswitch_vol == -1)?0:pse->cswitch_vol);
 		ps->cswitch_invol += ((pse->cswitch_invol == -1)?0:pse->cswitch_invol);
@@ -1056,6 +1109,9 @@ static void ps_list_reset(void) {
     } /* while (pse != NULL) */
   }   /* for (ps = list_head_g; ps != NULL; ps = ps->next) */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 =======
 static void ps_list_reset (void)
 {
@@ -1064,7 +1120,25 @@ static void ps_list_reset (void)
 
 	for (procstat_t *ps = list_head_g; ps != NULL; ps = ps->next)
 	{
+<<<<<<< HEAD
 		ps->gauges = procstat_gauges_init;
+=======
+		ps->num_proc    = 0;
+		ps->num_lwp     = 0;
+		ps->vmem_size   = 0;
+		ps->vmem_rss    = 0;
+		ps->vmem_data   = 0;
+		ps->vmem_code   = 0;
+		ps->stack_size  = 0;
+		ps->io_rchar = -1;
+		ps->io_wchar = -1;
+		ps->io_syscr = -1;
+		ps->io_syscw = -1;
+		ps->io_diskr = -1;
+		ps->io_diskw = -1;
+		ps->cswitch_vol   = -1;
+		ps->cswitch_invol = -1;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
 		pse_prev = NULL;
 		pse = ps->instances;
@@ -1098,8 +1172,11 @@ static void ps_list_reset (void)
 		} /* while (pse != NULL) */
 	} /* for (ps = list_head_g; ps != NULL; ps = ps->next) */
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 }
 
 static void ps_tune_instance(oconfig_item_t *ci, procstat_t *ps) {
@@ -1546,8 +1623,30 @@ static void ps_submit_proc_stats (
         const char *owner,
         const char *command,
         const char *command_line,
+<<<<<<< HEAD
         procstat_gauges_t *procstat_gauges,
         procstat_counters_t *procstat_counters)
+=======
+        unsigned long num_proc,
+        unsigned long num_lwp,
+        unsigned long vmem_size,
+        unsigned long vmem_rss,
+        unsigned long vmem_data,
+        unsigned long vmem_code,
+        unsigned long stack_size,
+        derive_t vmem_minflt_counter,
+        derive_t vmem_majflt_counter,
+        derive_t cpu_user_counter,
+        derive_t cpu_system_counter,
+        derive_t io_rchar,
+        derive_t io_wchar,
+        derive_t io_syscr,
+        derive_t io_syscw,
+        derive_t io_diskr,
+        derive_t io_diskw,
+	derive_t cswitch_vol,
+        derive_t cswitch_invol)
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 {
     const want_detail_configuration_t *config = &want_detail_configuration_g;
     value_t values[MAX_VALUE_LIST_SIZE];
@@ -1609,24 +1708,41 @@ static void ps_submit_proc_stats (
 
     if ( (procstat_gauges->io_rchar != -1) && (procstat_gauges->io_wchar != -1) )
     {
+<<<<<<< HEAD
         vl.values[0].derive = procstat_gauges->io_rchar;
         vl.values[1].derive = procstat_gauges->io_wchar;
+=======
+        vl.values[0].derive = io_rchar;
+        vl.values[1].derive = io_wchar;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
         dispatch_value_helper(&vl, "io_octets", NULL, 2, doing_detail,
                 config->ps_disk_octets);
     }
 
     if ( (procstat_gauges->io_syscr != -1) && (procstat_gauges->io_syscw != -1) )
     {
+<<<<<<< HEAD
         vl.values[0].derive = procstat_gauges->io_syscr;
         vl.values[1].derive = procstat_gauges->io_syscw;
+=======
+        vl.values[0].derive = io_syscr;
+        vl.values[1].derive = io_syscw;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
         dispatch_value_helper(&vl, "io_ops", NULL, 2, doing_detail,
                               config->ps_disk_ops);
     }
 
+<<<<<<< HEAD
     if ( (procstat_gauges->io_diskr != -1) && (procstat_gauges->io_diskw != -1) )
     {
         vl.values[0].derive = procstat_gauges->io_diskr;
         vl.values[1].derive = procstat_gauges->io_diskw;
+=======
+    if ( (io_diskr != -1) && (io_diskw != -1) )
+    {
+        vl.values[0].derive = io_diskr;
+        vl.values[1].derive = io_diskw;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
         dispatch_value_helper(&vl, "disk_octets", NULL, 2, doing_detail,
                               config->ps_disk_octets);
     }
@@ -1652,6 +1768,7 @@ static void ps_submit_proc_stats (
             "io_syscr = %"PRIi64"; io_syscw = %"PRIi64";"
             "io_diskr = %"PRIi64"; io_diskw = %"PRIi64";"
             "cswitch_vol = %"PRIi64"; cswitch_invol = %"PRIi64";",
+<<<<<<< HEAD
             instance_name, pid, procstat_gauges->num_proc, procstat_gauges->num_lwp,
             procstat_gauges->vmem_size, procstat_gauges->vmem_rss,
             procstat_gauges->vmem_data, procstat_gauges->vmem_code,
@@ -1661,6 +1778,16 @@ static void ps_submit_proc_stats (
             procstat_gauges->io_syscr, procstat_gauges->io_syscw,
             procstat_gauges->io_diskr, procstat_gauges->io_diskw,
             procstat_gauges->cswitch_vol, procstat_gauges->cswitch_invol);
+=======
+            instance_name, num_proc, num_lwp,
+            vmem_size, vmem_rss,
+            vmem_data, vmem_code,
+            vmem_minflt_counter, vmem_majflt_counter,
+            cpu_user_counter, cpu_system_counter,
+            io_rchar, io_wchar, io_syscr, io_syscw,
+            io_diskr, io_diskw,
+            cswitch_vol, cswitch_invol);
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 } /* void ps_submit_proc_list */
 
 #undef MAX_VALUE_LIST_SIZE
@@ -1694,8 +1821,30 @@ static void ps_submit_procstat_entry (const char *instance_name,
             owner,
             command,
             cmd_line_to_use,
+<<<<<<< HEAD
             &entry->gauges,
             &entry->counters);
+=======
+            entry->num_proc,
+            entry->num_lwp,
+            entry->vmem_size,
+            entry->vmem_rss,
+            entry->vmem_data,
+            entry->vmem_code,
+            entry->stack_size,
+            entry->cpu_user_counter,
+            entry->cpu_system_counter,
+            entry->vmem_minflt_counter,
+            entry->vmem_majflt_counter,
+            entry->io_rchar,
+            entry->io_wchar,
+            entry->io_syscr,
+            entry->io_syscw,
+            entry->io_diskr,
+            entry->io_diskw,
+	    entry->cswitch_vol,
+	    entry->cswitch_invol);
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
     sfree (command);
     sfree (owner);
@@ -1711,8 +1860,30 @@ static void ps_submit_proc_list (procstat_t *ps)
             NULL,  // owner
             NULL,  // command
             NULL,  // command_line
+<<<<<<< HEAD
             &ps->gauges,
             &ps->counters);
+=======
+            ps->num_proc,
+            ps->num_lwp,
+            ps->vmem_size,
+            ps->vmem_rss,
+            ps->vmem_data,
+            ps->vmem_code,
+            ps->stack_size,
+            ps->cpu_user_counter,
+            ps->cpu_system_counter,
+            ps->vmem_minflt_counter,
+            ps->vmem_majflt_counter,
+            ps->io_rchar,
+            ps->io_wchar,
+            ps->io_syscr,
+            ps->io_syscw,
+            ps->io_diskr,
+            ps->io_diskw,
+	    ps->cswitch_vol,
+	    ps->cswitch_invol);
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
     if (some_detail_active_g) {
         procstat_entry_t *entry;
@@ -1835,12 +2006,27 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
+<<<<<<< HEAD
   if ((ps->gauges.cswitch_vol != -1) && (ps->gauges.cswitch_invol != -1)) {
     sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
     sstrncpy(vl.type_instance, "voluntary", sizeof(vl.type_instance));
     vl.values[0].derive = ps->gauges.cswitch_vol;
     vl.values_len = 1;
     plugin_dispatch_values(&vl);
+=======
+/* Read data from /proc/pid/status */
+<<<<<<< HEAD
+static int ps_read_status(long pid, process_entry_t *ps) {
+  FILE *fh;
+  char buffer[1024];
+  char filename[64];
+  unsigned long lib = 0;
+  unsigned long exe = 0;
+  unsigned long data = 0;
+  unsigned long threads = 0;
+  char *fields[8];
+  int numfields;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
     sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
     sstrncpy(vl.type_instance, "involuntary", sizeof(vl.type_instance));
@@ -3290,11 +3476,286 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
       WARNING("processes plugin: Failed to open `%s': %s.", file, STRERRNO);
     return NULL;
   }
+=======
+static procstat_t *ps_read_status (long pid, procstat_t *ps)
+{
+	FILE *fh;
+	char buffer[1024];
+	char filename[64];
+	unsigned long lib = 0;
+	unsigned long exe = 0;
+	unsigned long data = 0;
+	unsigned long threads = 0;
+	char *fields[8];
+	int numfields;
+
+	ssnprintf (filename, sizeof (filename), "/proc/%li/status", pid);
+	if ((fh = fopen (filename, "r")) == NULL)
+		return (NULL);
+
+	while (fgets (buffer, sizeof(buffer), fh) != NULL)
+	{
+		unsigned long tmp;
+		char *endptr;
+
+		if (strncmp (buffer, "Vm", 2) != 0
+				&& strncmp (buffer, "Threads", 7) != 0)
+			continue;
+
+		numfields = strsplit (buffer, fields,
+				STATIC_ARRAY_SIZE (fields));
+
+		if (numfields < 2)
+			continue;
+
+		errno = 0;
+		endptr = NULL;
+		tmp = strtoul (fields[1], &endptr, /* base = */ 10);
+		if ((errno == 0) && (endptr != fields[1]))
+		{
+			if (strncmp (buffer, "VmData", 6) == 0)
+			{
+				data = tmp;
+			}
+			else if (strncmp (buffer, "VmLib", 5) == 0)
+			{
+				lib = tmp;
+			}
+			else if  (strncmp(buffer, "VmExe", 5) == 0)
+			{
+				exe = tmp;
+			}
+			else if  (strncmp(buffer, "Threads", 7) == 0)
+			{
+				threads = tmp;
+			}
+		}
+	} /* while (fgets) */
+
+	if (fclose (fh))
+	{
+		char errbuf[1024];
+		WARNING ("processes: fclose: %s",
+				sstrerror (errno, errbuf, sizeof (errbuf)));
+	}
+
+	ps->vmem_data = data * 1024;
+	ps->vmem_code = (exe + lib) * 1024;
+	if (threads != 0)
+		ps->num_lwp = threads;
+
+	return (ps);
+} /* procstat_t *ps_read_vmem */
+
+static procstat_t *ps_read_io (long pid, procstat_t *ps)
+{
+	FILE *fh;
+	char buffer[1024];
+	char filename[64];
+
+	char *fields[8];
+	int numfields;
+
+	ssnprintf (filename, sizeof (filename), "/proc/%li/io", pid);
+	if ((fh = fopen (filename, "r")) == NULL)
+		return (NULL);
+
+	while (fgets (buffer, sizeof (buffer), fh) != NULL)
+	{
+		derive_t *val = NULL;
+		long long tmp;
+		char *endptr;
+
+		if (strncasecmp (buffer, "rchar:", 6) == 0)
+			val = &(ps->io_rchar);
+		else if (strncasecmp (buffer, "wchar:", 6) == 0)
+			val = &(ps->io_wchar);
+		else if (strncasecmp (buffer, "syscr:", 6) == 0)
+			val = &(ps->io_syscr);
+		else if (strncasecmp (buffer, "syscw:", 6) == 0)
+			val = &(ps->io_syscw);
+		else if (strncasecmp (buffer, "read_bytes:", 11) == 0)
+			val = &(ps->io_diskr);
+		else if (strncasecmp (buffer, "write_bytes:", 12) == 0)
+			val = &(ps->io_diskw);
+		else
+			continue;
+
+		numfields = strsplit (buffer, fields,
+				STATIC_ARRAY_SIZE (fields));
+
+		if (numfields < 2)
+			continue;
+
+		errno = 0;
+		endptr = NULL;
+		tmp = strtoll (fields[1], &endptr, /* base = */ 10);
+		if ((errno != 0) || (endptr == fields[1]))
+			*val = -1;
+		else
+			*val = (derive_t) tmp;
+	} /* while (fgets) */
+
+	if (fclose (fh))
+	{
+		char errbuf[1024];
+		WARNING ("processes: fclose: %s",
+				sstrerror (errno, errbuf, sizeof (errbuf)));
+	}
+
+	return (ps);
+} /* procstat_t *ps_read_io */
+
+static int ps_read_process (long pid, procstat_t *ps, char *state)
+{
+	char  filename[64];
+	char  buffer[1024];
+
+	char *fields[64];
+	char  fields_len;
+
+	size_t buffer_len;
+
+	char  *buffer_ptr;
+	size_t name_start_pos;
+	size_t name_end_pos;
+	size_t name_len;
+
+	derive_t cpu_user_counter;
+	derive_t cpu_system_counter;
+	long long unsigned vmem_size;
+	long long unsigned vmem_rss;
+	long long unsigned stack_size;
+
+	ssize_t status;
+
+	memset (ps, 0, sizeof (procstat_t));
+
+	ssnprintf (filename, sizeof (filename), "/proc/%li/stat", pid);
+
+	status = read_file_contents (filename, buffer, sizeof(buffer) - 1);
+	if (status <= 0)
+		return (-1);
+	buffer_len = (size_t) status;
+	buffer[buffer_len] = 0;
+
+	/* The name of the process is enclosed in parens. Since the name can
+	 * contain parens itself, spaces, numbers and pretty much everything
+	 * else, use these to determine the process name. We don't use
+	 * strchr(3) and strrchr(3) to avoid pointer arithmetic which would
+	 * otherwise be required to determine name_len. */
+	name_start_pos = 0;
+	while (name_start_pos < buffer_len && buffer[name_start_pos] != '(')
+		name_start_pos++;
+
+	name_end_pos = buffer_len;
+	while (name_end_pos > 0 && buffer[name_end_pos] != ')')
+		name_end_pos--;
+
+	/* Either '(' or ')' is not found or they are in the wrong order.
+	 * Anyway, something weird that shouldn't happen ever. */
+	if (name_start_pos >= name_end_pos)
+	{
+		ERROR ("processes plugin: name_start_pos = %zu >= name_end_pos = %zu",
+				name_start_pos, name_end_pos);
+		return (-1);
+	}
+
+	name_len = (name_end_pos - name_start_pos) - 1;
+	if (name_len >= sizeof (ps->name))
+		name_len = sizeof (ps->name) - 1;
+
+	sstrncpy (ps->name, &buffer[name_start_pos + 1], name_len + 1);
+
+	if ((buffer_len - name_end_pos) < 2)
+		return (-1);
+	buffer_ptr = &buffer[name_end_pos + 2];
+
+	fields_len = strsplit (buffer_ptr, fields, STATIC_ARRAY_SIZE (fields));
+	if (fields_len < 22)
+	{
+		DEBUG ("processes plugin: ps_read_process (pid = %li):"
+				" `%s' has only %i fields..",
+				pid, filename, fields_len);
+		return (-1);
+	}
+
+	*state = fields[0][0];
+
+	if (*state == 'Z')
+	{
+		ps->num_lwp  = 0;
+		ps->num_proc = 0;
+	}
+	else
+	{
+		ps->num_lwp = strtoul (fields[17], /* endptr = */ NULL, /* base = */ 10);
+		if ((ps_read_status(pid, ps)) == NULL)
+		{
+			/* No VMem data */
+			ps->vmem_data = -1;
+			ps->vmem_code = -1;
+			DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
+		}
+		if (ps->num_lwp == 0)
+			ps->num_lwp = 1;
+		ps->num_proc = 1;
+	}
+
+	/* Leave the rest at zero if this is only a zombi */
+	if (ps->num_proc == 0)
+	{
+		DEBUG ("processes plugin: This is only a zombie: pid = %li; "
+				"name = %s;", pid, ps->name);
+		return (0);
+	}
+
+	cpu_user_counter   = atoll (fields[11]);
+	cpu_system_counter = atoll (fields[12]);
+	vmem_size          = atoll (fields[20]);
+	vmem_rss           = atoll (fields[21]);
+	ps->vmem_minflt_counter = atol (fields[7]);
+	ps->vmem_majflt_counter = atol (fields[9]);
+
+	{
+		unsigned long long stack_start = atoll (fields[25]);
+		unsigned long long stack_ptr   = atoll (fields[26]);
+
+		stack_size = (stack_start > stack_ptr)
+			? stack_start - stack_ptr
+			: stack_ptr - stack_start;
+	}
+
+	/* Convert jiffies to useconds */
+	cpu_user_counter   = cpu_user_counter   * 1000000 / CONFIG_HZ;
+	cpu_system_counter = cpu_system_counter * 1000000 / CONFIG_HZ;
+	vmem_rss = vmem_rss * pagesize_g;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
   buf_ptr = buf;
   len = buf_len;
 
+<<<<<<< HEAD
   n = 0;
+=======
+<<<<<<< HEAD
+static void ps_fill_details(const procstat_t *ps, process_entry_t *entry) {
+  if (entry->has_io == false) {
+    ps_read_io(entry);
+    entry->has_io = true;
+  }
+=======
+	if ( (ps_read_io (pid, ps)) == NULL)
+	{
+		/* no io data */
+		ps->io_rchar = -1;
+		ps->io_wchar = -1;
+		ps->io_syscr = -1;
+		ps->io_syscw = -1;
+		ps->io_diskr = -1;
+		ps->io_diskw = -1;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
   while (42) {
     ssize_t status;
@@ -4078,8 +4539,53 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
   ps->counters.cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
 >>>>>>> gauges. ...
 
+<<<<<<< HEAD
   /*
    * Convert rssize from KB to bytes to be consistent w/ the linux module
+=======
+	/*
+	 * Convert system time and user time from nanoseconds to microseconds
+	 * for compatibility with the linux module
+	 */
+	ps->cpu_system_counter = myStatus -> pr_stime.tv_nsec / 1000;
+	ps->cpu_user_counter = myStatus -> pr_utime.tv_nsec / 1000;
+
+	/*
+	 * Convert rssize from KB to bytes to be consistent w/ the linux module
+	 */
+	ps->vmem_rss = myInfo->pr_rssize * 1024;
+	ps->vmem_size = myInfo->pr_size * 1024;
+	ps->vmem_minflt_counter = myUsage->pr_minf;
+	ps->vmem_majflt_counter = myUsage->pr_majf;
+
+	/*
+	 * TODO: Data and code segment calculations for Solaris
+	 */
+
+	ps->vmem_data = -1;
+	ps->vmem_code = -1;
+	ps->stack_size = myStatus->pr_stksize;
+
+	/*
+	 * Calculating input/ouput chars
+	 * Formula used is total chars / total blocks => chars/block
+	 * then convert input/output blocks to chars
+	 */
+	ulong_t tot_chars = myUsage->pr_ioch;
+	ulong_t tot_blocks = myUsage->pr_inblk + myUsage->pr_oublk;
+	ulong_t chars_per_block = 1;
+	if (tot_blocks != 0)
+		chars_per_block = tot_chars / tot_blocks;
+	ps->io_rchar = myUsage->pr_inblk * chars_per_block;
+	ps->io_wchar = myUsage->pr_oublk * chars_per_block;
+	ps->io_syscr = myUsage->pr_sysc;
+	ps->io_syscw = myUsage->pr_sysc;
+	ps->io_diskr = -1;
+	ps->io_diskw = -1;
+
+	/*
+	 * TODO: context switch counters for Solaris
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
    */
 <<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
@@ -4594,14 +5100,62 @@ static int ps_read(void) {
     pse.id = pid;
     pse.age = 0;
 
+<<<<<<< HEAD
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 
     status = ps_read_process(pid, &ps, &state);
+=======
+<<<<<<< HEAD
+    status = ps_read_process(pid, &pse, &state);
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
     if (status != 0) {
       DEBUG("ps_read_process failed: %i", status);
       continue;
     }
+=======
+		memset (&pse, 0, sizeof (pse));
+		pse.id       = pid;
+		pse.age      = 0;
+
+		pse.num_proc   = ps.num_proc;
+		pse.num_lwp    = ps.num_lwp;
+		pse.vmem_size  = ps.vmem_size;
+		pse.vmem_rss   = ps.vmem_rss;
+		pse.vmem_data  = ps.vmem_data;
+		pse.vmem_code  = ps.vmem_code;
+		pse.stack_size = ps.stack_size;
+
+		pse.vmem_minflt = 0;
+		pse.vmem_minflt_counter = ps.vmem_minflt_counter;
+		pse.vmem_majflt = 0;
+		pse.vmem_majflt_counter = ps.vmem_majflt_counter;
+
+		pse.cpu_user = 0;
+		pse.cpu_user_counter = ps.cpu_user_counter;
+		pse.cpu_system = 0;
+		pse.cpu_system_counter = ps.cpu_system_counter;
+
+		pse.io_rchar = ps.io_rchar;
+		pse.io_wchar = ps.io_wchar;
+		pse.io_syscr = ps.io_syscr;
+		pse.io_syscw = ps.io_syscw;
+		pse.io_diskr = ps.io_diskr;
+		pse.io_diskw = ps.io_diskw;
+
+		pse.cswitch_vol = ps.cswitch_vol;
+		pse.cswitch_invol = ps.cswitch_invol;
+
+		switch (state)
+		{
+			case 'R': running++;  break;
+			case 'S': sleeping++; break;
+			case 'D': blocked++;  break;
+			case 'Z': zombies++;  break;
+			case 'T': stopped++;  break;
+			case 'W': paging++;   break;
+		}
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -4713,8 +5267,11 @@ static int ps_read(void) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
   int running = 0;
   int sleeping = 0;
   int zombies = 0;
@@ -5033,8 +5590,11 @@ static int ps_read(void) {
   for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
     ps_submit_proc_list(ps_ptr);
 =======
+<<<<<<< HEAD
 =======
 >>>>>>> Revert "Add process health metric counts for processes with and without command line arguments (#124)" (#128)
+=======
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 	int running  = 0;
 	int sleeping = 0;
 	int zombies  = 0;
@@ -5042,6 +5602,7 @@ static int ps_read(void) {
 	int blocked  = 0;
 	int idle     = 0;
 	int wait     = 0;
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
 	int running           = 0;
@@ -5055,6 +5616,8 @@ static int ps_read(void) {
 >>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
 =======
 >>>>>>> Revert "Add process health metric counts for processes with and without command line arguments (#124)" (#128)
+=======
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
 	kvm_t *kd;
 	char errbuf[_POSIX2_LINE_MAX];
@@ -5123,6 +5686,7 @@ static int ps_read(void) {
 			pse.id       = procs[i].ki_pid;
 			pse.age      = 0;
 
+<<<<<<< HEAD
 			/* no I/O data */
 			/* context switch counters not implemented */
 			pse.gauges = procstat_gauges_init;
@@ -5140,6 +5704,25 @@ static int ps_read(void) {
 
 			pse.counters.cpu_user = 0;
 			pse.counters.cpu_system = 0;
+=======
+			pse.num_proc = 1;
+			pse.num_lwp  = procs[i].ki_numthreads;
+
+			pse.vmem_size = procs[i].ki_size;
+			pse.vmem_rss = procs[i].ki_rssize * pagesize;
+			pse.vmem_data = procs[i].ki_dsize * pagesize;
+			pse.vmem_code = procs[i].ki_tsize * pagesize;
+			pse.stack_size = procs[i].ki_ssize * pagesize;
+			pse.vmem_minflt = 0;
+			pse.vmem_minflt_counter = procs[i].ki_rusage.ru_minflt;
+			pse.vmem_majflt = 0;
+			pse.vmem_majflt_counter = procs[i].ki_rusage.ru_majflt;
+
+			pse.cpu_user = 0;
+			pse.cpu_system = 0;
+			pse.cpu_user_counter = 0;
+			pse.cpu_system_counter = 0;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 			/*
 			 * The u-area might be swapped out, and we can't get
 			 * at it because we have a crashdump and no swap.
@@ -5148,12 +5731,33 @@ static int ps_read(void) {
 			 */
 			if (procs[i].ki_flag & P_INMEM)
 			{
+<<<<<<< HEAD
 				pse.counters.cpu_user = procs[i].ki_rusage.ru_utime.tv_usec
 				       	+ (1000000lu * procs[i].ki_rusage.ru_utime.tv_sec);
 				pse.counters.cpu_system = procs[i].ki_rusage.ru_stime.tv_usec
 					+ (1000000lu * procs[i].ki_rusage.ru_stime.tv_sec);
 			}
 
+=======
+				pse.cpu_user_counter = procs[i].ki_rusage.ru_utime.tv_usec
+				       	+ (1000000lu * procs[i].ki_rusage.ru_utime.tv_sec);
+				pse.cpu_system_counter = procs[i].ki_rusage.ru_stime.tv_usec
+					+ (1000000lu * procs[i].ki_rusage.ru_stime.tv_sec);
+			}
+
+			/* no I/O data */
+			pse.io_rchar = -1;
+			pse.io_wchar = -1;
+			pse.io_syscr = -1;
+			pse.io_syscw = -1;
+			pse.io_diskr = -1;
+			pse.io_diskw = -1;
+
+			/* context switch counters not implemented */
+			pse.cswitch_vol   = -1;
+			pse.cswitch_invol = -1;
+
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 			ps_list_add (procs[i].ki_comm, have_cmdline ? cmdline : NULL, &pse);
 
 			switch (procs[i].ki_stat)
@@ -5259,6 +5863,7 @@ static int ps_read(void) {
 			pse.id       = procs[i].p_pid;
 			pse.age      = 0;
 
+<<<<<<< HEAD
 			/* no I/O data */
 			/* context switch counters not implemented */
 			pse.gauges = procstat_gauges_init;
@@ -5279,6 +5884,40 @@ static int ps_read(void) {
 			pse.counters.cpu_system = procs[i].p_ustime_usec +
 						(1000000lu * procs[i].p_ustime_sec);
 
+=======
+			pse.num_proc = 1;
+			pse.num_lwp  = 1; /* XXX: accumulate p_tid values for a single p_pid ? */
+
+			pse.vmem_rss = procs[i].p_vm_rssize * pagesize;
+			pse.vmem_data = procs[i].p_vm_dsize * pagesize;
+			pse.vmem_code = procs[i].p_vm_tsize * pagesize;
+			pse.stack_size = procs[i].p_vm_ssize * pagesize;
+			pse.vmem_size = pse.stack_size + pse.vmem_code + pse.vmem_data;
+			pse.vmem_minflt = 0;
+			pse.vmem_minflt_counter = procs[i].p_uru_minflt;
+			pse.vmem_majflt = 0;
+			pse.vmem_majflt_counter = procs[i].p_uru_majflt;
+
+			pse.cpu_user = 0;
+			pse.cpu_system = 0;
+			pse.cpu_user_counter = procs[i].p_uutime_usec +
+						(1000000lu * procs[i].p_uutime_sec);
+			pse.cpu_system_counter = procs[i].p_ustime_usec +
+						(1000000lu * procs[i].p_ustime_sec);
+
+			/* no I/O data */
+			pse.io_rchar = -1;
+			pse.io_wchar = -1;
+			pse.io_syscr = -1;
+			pse.io_syscw = -1;
+			pse.io_diskr = -1;
+			pse.io_diskw = -1;
+
+			/* context switch counters not implemented */
+			pse.cswitch_vol   = -1;
+			pse.cswitch_invol = -1;
+
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 			ps_list_add (procs[i].p_comm, have_cmdline ? cmdline : NULL, &pse);
 
 			switch (procs[i].p_stat)
@@ -5473,6 +6112,7 @@ static int ps_read(void) {
   char state;
 =======
 			pse.cpu_user = 0;
+<<<<<<< HEAD
 =======
 	/* AIX */
 	int running  = 0;
@@ -5580,6 +6220,38 @@ static int ps_read(void) {
 
 			pse.gauges.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
 			pse.gauges.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
+=======
+			/* tv_usec is nanosec ??? */
+			pse.cpu_user_counter = procentry[i].pi_ru.ru_utime.tv_sec * 1000000 +
+				procentry[i].pi_ru.ru_utime.tv_usec / 1000;
+
+			pse.cpu_system = 0;
+			/* tv_usec is nanosec ??? */
+			pse.cpu_system_counter = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
+				procentry[i].pi_ru.ru_stime.tv_usec / 1000;
+
+			pse.vmem_minflt = 0;
+			pse.vmem_minflt_counter = procentry[i].pi_minflt;
+			pse.vmem_majflt = 0;
+			pse.vmem_majflt_counter = procentry[i].pi_majflt;
+
+			pse.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
+			pse.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
+			/* Not supported */
+			pse.vmem_data = 0;
+			pse.vmem_code = 0;
+			pse.stack_size =  0;
+
+			pse.io_rchar = -1;
+			pse.io_wchar = -1;
+			pse.io_syscr = -1;
+			pse.io_syscw = -1;
+			pse.io_diskr = -1;
+			pse.io_diskw = -1;
+
+			pse.cswitch_vol   = -1;
+			pse.cswitch_invol = -1;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
 			ps_list_add (cmdline, cargs, &pse);
 		} /* for (i = 0 .. nprocs) */
@@ -5589,14 +6261,18 @@ static int ps_read(void) {
 	} /* while (getprocs64() > 0) */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Revert "Add process health metric counts for processes with and without command line arguments (#124)" (#128)
+=======
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 	ps_submit_state ("running",  running);
 	ps_submit_state ("sleeping", sleeping);
 	ps_submit_state ("zombies",  zombies);
 	ps_submit_state ("stopped",  stopped);
 	ps_submit_state ("paging",   paging);
 	ps_submit_state ("blocked",  blocked);
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 =======
@@ -5611,6 +6287,9 @@ static int ps_read(void) {
 >>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
 =======
 >>>>>>> Revert "Add process health metric counts for processes with and without command line arguments (#124)" (#128)
+=======
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
   char cmdline[PRARGSZ];
 
@@ -5651,8 +6330,38 @@ static int ps_read(void) {
 		pse.id = pid;
 		pse.age = 0;
 
+<<<<<<< HEAD
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
+=======
+		pse.num_proc   = ps.num_proc;
+		pse.num_lwp    = ps.num_lwp;
+		pse.vmem_size  = ps.vmem_size;
+		pse.vmem_rss   = ps.vmem_rss;
+		pse.vmem_data  = ps.vmem_data;
+		pse.vmem_code  = ps.vmem_code;
+		pse.stack_size = ps.stack_size;
+
+		pse.vmem_minflt = 0;
+		pse.vmem_minflt_counter = ps.vmem_minflt_counter;
+		pse.vmem_majflt = 0;
+		pse.vmem_majflt_counter = ps.vmem_majflt_counter;
+
+		pse.cpu_user = 0;
+		pse.cpu_user_counter = ps.cpu_user_counter;
+		pse.cpu_system = 0;
+		pse.cpu_system_counter = ps.cpu_system_counter;
+
+		pse.io_rchar = ps.io_rchar;
+		pse.io_wchar = ps.io_wchar;
+		pse.io_syscr = ps.io_syscr;
+		pse.io_syscw = ps.io_syscw;
+		pse.io_diskr = ps.io_diskr;
+		pse.io_diskw = ps.io_diskw;
+
+		pse.cswitch_vol = -1;
+		pse.cswitch_invol = -1;
+>>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
 		switch (state)
 		{
