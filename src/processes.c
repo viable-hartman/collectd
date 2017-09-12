@@ -895,7 +895,7 @@ static void ps_submit_proc_stats (
         vl.values[0].derive = io_diskr;
         vl.values[1].derive = io_diskw;
         dispatch_value_helper(&vl, "disk_octets", NULL, 2, doing_detail,
-                              config->ps_disk_ops);
+                              config->ps_disk_octets);
     }
 
     if ( report_ctx_switch )
