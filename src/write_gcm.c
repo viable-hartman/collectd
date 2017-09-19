@@ -3146,51 +3146,36 @@ static void wg_json_Metric(json_ctx_t *jc,
   wg_json_map_close(jc);
 }
 
-static int wg_default_metric_value_type_from_ds_type(int ds_type) {
-  int metric_value_type = METRIC_VALUE_TYPE_UNKNOWN;
-
-  switch(ds_type) {
-    case DS_TYPE_GAUGE:
-      metric_value_type = METRIC_VALUE_TYPE_DOUBLE;
-      break;
-    case DS_TYPE_DERIVE:
-    case DS_TYPE_COUNTER:
-      metric_value_type = METRIC_VALUE_TYPE_INT64;
-      break;
+static int wg_default_metric_value_type_for_ds_type(int ds_type) {
+  if (ds_type == DS_TYPE_GAUGE) {
+    return METRIC_VALUE_TYPE_DOUBLE;
+  } else if (ds_type == DS_TYPE_DERIVE || ds_type == DS_TYPE_COUNTER) {
+    return METRIC_VALUE_TYPE_INT64;
   }
 
-  return metric_value_type;
+  return METRIC_VALUE_TYPE_UNKNOWN;
 }
 
 static int wg_metric_value_type_from_wg_payload_t(
     const wg_payload_t *element) {
-  int metric_value_type = METRIC_VALUE_TYPE_UNKNOWN;
-
   for (int i = 0; i < element->key.num_metadata_entries; ++i) {
     wg_metadata_entry_t *entry = &element->key.metadata_entries[i];
     if (strcmp(entry->key, custom_metric_value_type_key) == 0) {
       if (strcmp(entry->value.value_text, "INT64") == 0) {
-        metric_value_type = METRIC_VALUE_TYPE_INT64;
+        return METRIC_VALUE_TYPE_INT64;
       } else if (strcmp(entry->value.value_text, "DOUBLE") == 0) {
-        metric_value_type = METRIC_VALUE_TYPE_DOUBLE;
+        return METRIC_VALUE_TYPE_DOUBLE;
       } else if (strcmp(entry->value.value_text, "BOOL") == 0) {
-        metric_value_type = METRIC_VALUE_TYPE_BOOL;
+        return METRIC_VALUE_TYPE_BOOL;
       } else {
         WARNING("write_gcm: ignoring metric value type provided: %s, will use"
-                "default instead.", 
-                entry->value.value_text);
+                "default instead.", entry->value.value_text);
       }
       break;
     }
   }
 
-  // Failover to sane defaults for each DS type.
-  if (metric_value_type == METRIC_VALUE_TYPE_UNKNOWN) {
-    metric_value_type = wg_default_metric_value_type_from_ds_type(
-                          element->values[0].ds_type);
-  }
-
-  return metric_value_type;
+  return wg_default_metric_value_type_for_ds_type(element->values[0].ds_type);
 }
 
 static char *wg_metric_value_type_to_string(int metric_value_type) {
@@ -3306,7 +3291,7 @@ static int wg_json_CreateTimeSeries(
             head->key.type_instance);
       continue;
     }
-    if ((head->values[0].ds_type == DS_TYPE_GAUGE)
+    if (head->values[0].ds_type == DS_TYPE_GAUGE
         && !isfinite(head->values[0].val.gauge)) {
       DEBUG("write_gcm: plugin: %s, plugin_type: %s, metric_type: %s, "
             "type_instance: %s skipping non-finite gauge value %lf.",
@@ -3553,7 +3538,7 @@ static void wg_json_CollectdValues(json_ctx_t *jc,
     const wg_payload_value_t *value = &element->values[i];
 
     wg_typed_value_t typed_value;
-    int metric_value_type = wg_default_metric_value_type_from_ds_type(
+    int metric_value_type = wg_default_metric_value_type_for_ds_type(
                               value->ds_type);
     const char *data_source_type_static;
     if (wg_typed_value_create_from_value_t_inline(&typed_value, value->ds_type, 
