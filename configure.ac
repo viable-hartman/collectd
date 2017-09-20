@@ -7318,6 +7318,9 @@ AC_SUBST([AM_CXXFLAGS])
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
 AC_CONFIG_FILES([ \
   Makefile \
   src/collectd.conf \
@@ -7326,9 +7329,12 @@ AC_CONFIG_FILES([ \
 
 =======
 AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/daemon/Makefile src/collectd.conf src/libcollectdclient/Makefile src/libcollectdclient/libcollectdclient.pc src/liboconfig/Makefile bindings/Makefile bindings/java/Makefile])
+<<<<<<< HEAD
 =======
 AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
 >>>>>>> removes reqs for other makefiles from configure.ac
+=======
+>>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
 if test "x$enable_logging_metrics" != "xno"
 then
 	AC_CONFIG_FILES([src/read_agent_logging], [chmod +x src/read_agent_logging])

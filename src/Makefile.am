@@ -1561,10 +1561,16 @@ check_PROGRAMS += test_plugin_ceph
 TESTS += test_plugin_ceph
 endif
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
 
 if BUILD_PLUGIN_LOGGING_METRICS
 bin_SCRIPTS = read_agent_logging
 CLEANFILES += $(bin_SCRIPTS)
 endif
+<<<<<<< HEAD
 =======
 >>>>>>> plugin_mem
+=======
+>>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
