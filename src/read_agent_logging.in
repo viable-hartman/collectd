@@ -1,0 +1,55 @@
+#!/bin/sh
+# Read metrics from the Stackdriver Logging agent. This expects the Prometheus
+# text format. It currently only supports what's needed for the Stackdriver
+# Logging agent.
+#
+# This script handles the input line by line, and keeps running until EOF. This
+# is the recommended behavior for long-running collectd plugins, to reduce
+# start-up cost.
+#
+# Sample configuration stanza:
+# <Plugin "exec">
+#   # The script doesn't need any privileges, so run as 'nobody'.
+#   Exec "nobody" "/opt/stackdriver/collectd/bin/read_agent_logging" "http://localhost:24231/metrics"
+# </Plugin>
+
+# Read first arg, with a safe default for testing.
+URL="${1:-http://localhost:24231/metrics}"
+
+# Default to 10s if unset, as a fail-safe mechanism.
+INTERVAL=${COLLECTD_INTERVAL:-10}
+
+# The part of the input that sed looks at looks like:
+#   stackdriver_successful_requests_count{grpc="false"} 255
+#   stackdriver_failed_requests_count{grpc="false",code="400"} 14
+#   stackdriver_failed_requests_count{grpc="false",code="404"} 18
+#   stackdriver_ingested_entries_count 7050
+#   stackdriver_dropped_entries_count 25
+#
+# The expected output follows:
+#   PUTVAL /agent-request_count/derive-200 N:255
+#   PUTVAL /agent-request_count/derive-400 N:14
+#   PUTVAL /agent-request_count/derive-404 N:18
+#   PUTVAL /agent-log_entry_count/derive-200 N:7050
+#   PUTVAL /agent-log_entry_count/derive-418 N:25
+while :; do
+  # - Only pass to sed the Stackdriver metrics.
+  # - Combine successful and failed submetrics into one with response code (200
+  #   for successful), in order to fit the schema that Stackdriver expects.
+  # - Make all nouns singular.
+  # - Successful metrics don't have a response code in the input, so set it
+  #   here.
+  # - The first two lines handle ingested/dropped entries as a corner case until
+  #   the agent starts exporting the partial errors for dropped entries, then
+  #   the rest of the sed expression should handle them generically.
+  curl --silent "${URL}" \
+    | grep -E '^stackdriver_' \
+    | sed -E \
+      -e "s/^stackdriver_ingested_entries_count ([0-9]*)/PUTVAL ${COLLECTD_HOSTNAME}\/agent-log_entry_count\/derive-200 N:\1/" \
+      -e "s/^stackdriver_dropped_entries_count ([0-9]*)/PUTVAL ${COLLECTD_HOSTNAME}\/agent-log_entry_count\/derive-418 N:\1/" \
+      -e "s/^stackdriver_((ingested|failed|dropped|successful)_)?([a-zA-Z0-9_]*)(\{(.*code=\"([0-9]*)\")?.*\})? ([0-9]*)/PUTVAL ${COLLECTD_HOSTNAME}\/agent-\3\/derive-\6 N:\7/" \
+      -e "s/requests_count/request_count/" \
+      -e "s/entries_count/log_entry_count/" \
+      -e "s/derive- /derive-200 /"
+  sleep "${INTERVAL}"
+done

@@ -1026,6 +1026,11 @@ logfile_la_SOURCES = src/logfile.c
 logfile_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
+if BUILD_PLUGIN_LOGGING_METRICS
+bin_SCRIPTS = read_agent_logging
+CLEANFILES += $(bin_SCRIPTS)
+endif
+
 if BUILD_PLUGIN_LOG_LOGSTASH
 pkglib_LTLIBRARIES += log_logstash.la
 log_logstash_la_SOURCES = src/log_logstash.c

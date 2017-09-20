@@ -6626,6 +6626,7 @@ AC_PLUGIN([java],                [$with_java],              [Embed the Java Virt
 AC_PLUGIN([load],                [$plugin_load],            [System load])
 AC_PLUGIN([log_logstash],        [$plugin_log_logstash],    [Logstash json_event compatible logging])
 AC_PLUGIN([logfile],             [yes],                     [File logging plugin])
+AC_PLUGIN([logging_metrics],     [yes],                     [Collect Stackdriver Logging metrics])
 AC_PLUGIN([lpar],                [$with_perfstat],          [AIX logical partitions statistics])
 AC_PLUGIN([lua],                 [$with_liblua],            [Lua plugin])
 AC_PLUGIN([lvm],                 [$with_liblvm2app],        [LVM statistics])
@@ -6886,6 +6887,9 @@ AC_CONFIG_FILES([ \
   src/libcollectdclient/libcollectdclient.pc \
 ])
 
+if test "x$enable_logging_metrics" != "xno"; then
+  AC_CONFIG_FILES([src/read_agent_logging], [chmod +x src/read_agent_logging])
+fi
 AC_OUTPUT
 
 if test "x$with_librrd" = "xyes" && test "x$librrd_threadsafe" != "xyes"; then
@@ -7052,6 +7056,7 @@ AC_MSG_RESULT([    java  . . . . . . . . $enable_java])
 AC_MSG_RESULT([    load  . . . . . . . . $enable_load])
 AC_MSG_RESULT([    logfile . . . . . . . $enable_logfile])
 AC_MSG_RESULT([    log_logstash  . . . . $enable_log_logstash])
+AC_MSG_RESULT([    logging_metrics . . . $enable_logging_metrics])
 AC_MSG_RESULT([    lpar  . . . . . . . . $enable_lpar])
 AC_MSG_RESULT([    lua . . . . . . . . . $enable_lua])
 AC_MSG_RESULT([    lvm . . . . . . . . . $enable_lvm])
