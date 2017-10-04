@@ -3823,7 +3823,8 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     // By the way, a successful response is an empty JSON record (i.e. "{}").
     // An unsuccessful response is a detailed error message from the API.
-    char response[8192];
+    // 200 elements * 2048 bytes per element results in 409,600 bytes.
+    char response[409600];
     const char *headers[] = { auth_header, json_content_type_header };
 
     // Leave the remainder here to send in a new request next loop iteration.
