@@ -595,11 +595,13 @@ static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
   size_t requested_bytes = size * nmemb;
   wg_curl_write_ctx_t *ctx = (wg_curl_write_ctx_t *) userdata;
 
-  ctx->data = realloc(ctx->data, ctx->size + requested_bytes + 1);
-  if (ctx->data == NULL) {
+  char * tmp = realloc(ctx->data, ctx->size + requested_bytes + 1);
+  if (tmp == NULL) {
     ERROR("wg_curl_write_callback: not enough memory (realloc returned NULL)");
     return 0;
   }
+
+  ctx->data = tmp;
 
   memcpy(&(ctx->data[ctx->size]), ptr, requested_bytes);
   ctx->size += requested_bytes;
@@ -1082,7 +1084,7 @@ static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
     const char *url, const char *body, const char **headers, int num_headers,
     cdtime_t now) {
   wg_curl_write_ctx_t write_ctx = {
-     .data = malloc(1),
+     .data = NULL,
      .size = 0
   };
   if (wg_curl_get_or_post(&write_ctx, url, body, headers, num_headers, 0)
@@ -2415,7 +2417,7 @@ static char *wg_get_from_metadata_server(const char *base, const char *resource,
   }
 
   wg_curl_write_ctx_t write_ctx = {
-     .data = malloc(1),
+     .data = NULL,
      .size = 0
   };
   if (wg_curl_get_or_post(&write_ctx, url, NULL, headers, num_headers,
@@ -3798,6 +3800,10 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
   // Variables to clean up at the end.
   char *json = NULL;
+  wg_curl_write_ctx_t write_ctx = {
+    .data = NULL,
+    .size = 0
+  };
   int result = -1;  // Pessimistically assume failure.
 
   char auth_header[256];
@@ -3822,10 +3828,8 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     // By the way, a successful response is an empty JSON record (i.e. "{}").
     // An unsuccessful response is a detailed error message from the API.
-    wg_curl_write_ctx_t write_ctx = {
-       .data = malloc(1),
-       .size = 0
-    };
+    write_ctx.size = 0;
+
     const char *headers[] = { auth_header, json_content_type_header };
 
     // Leave the remainder here to send in a new request next loop iteration.
@@ -3836,7 +3840,6 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
       if (wg_format_some_of_list_ctr(ctx->resource, list, &new_list, &json,
           ctx->pretty_print_json) != 0) {
         ERROR("write_gcm: Error formatting list as JSON");
-        sfree(write_ctx.data);
         goto leave;
       }
 
@@ -3856,7 +3859,6 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
         } else {
           ++ctx->ats_stats->api_errors;
         }
-        sfree(write_ctx.data);
         goto leave;
       }
 
@@ -3869,7 +3871,6 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
         ERROR("%s: Server response (CollectdTimeseriesRequest) contains errors:\n%s",
               this_plugin_name, write_ctx.data);
         ++ctx->ats_stats->api_errors;
-        sfree(write_ctx.data);
         goto leave;
       }
       ++ctx->ats_stats->api_successes;
@@ -3881,7 +3882,6 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
       if (wg_format_some_of_list_custom(ctx->resource, list, &new_list, &json,
           ctx->pretty_print_json) != 0) {
         ERROR("write_gcm: Error formatting list as CreateTimeSeries request");
-        sfree(write_ctx.data);
         goto leave;
       }
 
@@ -3895,7 +3895,6 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
           wg_log_json_message(ctx, "Error contacting server.\n");
           ERROR("write_gcm: Error talking to the endpoint.");
           ++ctx->gsd_stats->api_connectivity_failures;
-          sfree(write_ctx.data);
           goto leave;
         }
 
@@ -3908,7 +3907,6 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
           ERROR("%s: Server response (TimeseriesRequest) contains errors:\n%s",
                 this_plugin_name, write_ctx.data);
           ++ctx->gsd_stats->api_errors;
-          sfree(write_ctx.data);
           goto leave;
         }
       } else {
@@ -3919,7 +3917,6 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     }
 
-    sfree(write_ctx.data);
     sfree(json);
     json = NULL;
 
@@ -3929,6 +3926,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
   result = 0;
 
  leave:
+  sfree(write_ctx.data);
   sfree(json);
   return result;
 }
