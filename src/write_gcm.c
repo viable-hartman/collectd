@@ -605,7 +605,7 @@ static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
 
   memcpy(&(ctx->data[ctx->size]), ptr, requested_bytes);
   ctx->size += requested_bytes;
-  ctx->data[ctx->size] = 0;
+  ctx->data[ctx->size] = '\0';
 
   return requested_bytes;
 }
