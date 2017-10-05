@@ -502,24 +502,23 @@ static EVP_PKEY *wg_credential_contex_load_pkey(char const *filename,
 //==============================================================================
 //==============================================================================
 
-// Does an HTTP GET or POST, with optional HTTP headers. The type of request is
-// determined by 'body': if 'body' is NULL, does a GET, otherwise does a POST.
-// If curl_easy_init() or curl_easy_perform() fail, returns -1.
-// If they succeed but the HTTP response code is >= 400, returns -2.
-// Otherwise returns 0.
-
-//------------------------------------------------------------------------------
-// Private implementation starts here.
-//------------------------------------------------------------------------------
 typedef struct {
   char *data;
   size_t size;
 } wg_curl_write_ctx_t;
 
+// Does an HTTP GET or POST, with optional HTTP headers. The type of request is
+// determined by 'body': if 'body' is NULL, does a GET, otherwise does a POST.
+// If curl_easy_init() or curl_easy_perform() fail, returns -1.
+// If they succeed but the HTTP response code is >= 400, returns -2.
+// Otherwise returns 0.
 static int wg_curl_get_or_post(wg_curl_write_ctx_t *ctx, const char *url,
     const char *body, const char **headers, int num_headers,
     _Bool silent_failures);
 
+//------------------------------------------------------------------------------
+// Private implementation starts here.
+//------------------------------------------------------------------------------
 static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
                                      void *userdata);
 
@@ -578,7 +577,7 @@ static int wg_curl_get_or_post(wg_curl_write_ctx_t *write_ctx, const char *url,
     goto leave;
   }
 
-  if (write_ctx->data == NULL) {
+  if (!write_ctx->data) {
     ERROR("write_gcm: wg_curl_get_or_post: Failed to allocate memory.");
     goto leave;
   }
