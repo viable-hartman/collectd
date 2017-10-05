@@ -507,9 +507,6 @@ static EVP_PKEY *wg_credential_contex_load_pkey(char const *filename,
 // If curl_easy_init() or curl_easy_perform() fail, returns -1.
 // If they succeed but the HTTP response code is >= 400, returns -2.
 // Otherwise returns 0.
-static int wg_curl_get_or_post(char *response_buffer,
-    size_t response_buffer_size, const char *url, const char *body,
-    const char **headers, int num_headers, _Bool silent_failures);
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
@@ -519,12 +516,16 @@ typedef struct {
   size_t size;
 } wg_curl_write_ctx_t;
 
-static size_t wg_curl_write_callback(char *ptr, size_t size, size_t nmemb,
+static int wg_curl_get_or_post(wg_curl_write_ctx_t *ctx, const char *url,
+    const char *body, const char **headers, int num_headers,
+    _Bool silent_failures);
+
+static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
                                      void *userdata);
 
-static int wg_curl_get_or_post(char *response_buffer,
-    size_t response_buffer_size, const char *url, const char *body,
-    const char **headers, int num_headers, _Bool silent_failures) {
+static int wg_curl_get_or_post(wg_curl_write_ctx_t *write_ctx, const char *url,
+    const char *body, const char **headers, int num_headers, 
+    _Bool silent_failures) {
   DEBUG("write_gcm: Doing %s request: url %s, body %s, num_headers %d",
         body == NULL ? "GET" : "POST",
         url, body, num_headers);
@@ -539,10 +540,6 @@ static int wg_curl_get_or_post(char *response_buffer,
   for (i = 0; i < num_headers; ++i) {
     curl_headers = curl_slist_append(curl_headers, headers[i]);
   }
-  wg_curl_write_ctx_t write_ctx = {
-     .data = response_buffer,
-     .size = response_buffer_size
-  };
 
   curl_easy_setopt(curl, CURLOPT_URL, url);
   curl_easy_setopt(curl, CURLOPT_USERAGENT, collectd_useragent);
@@ -553,7 +550,7 @@ static int wg_curl_get_or_post(char *response_buffer,
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, body);
   }
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, &wg_curl_write_callback);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &write_ctx);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, write_ctx);
   // http://stackoverflow.com/questions/9191668/error-longjmp-causes-uninitialized-stack-frame
   curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
   curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15L);  // 15 seconds.
@@ -572,20 +569,17 @@ static int wg_curl_get_or_post(char *response_buffer,
 
   long response_code;
   curl_result = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-  write_ctx.data[0] = 0;
   if (response_code >= 400) {
     if (!silent_failures) {
       WARNING("write_gcm: Unsuccessful HTTP request %ld: %s",
-              response_code, response_buffer);
+              response_code, write_ctx->data);
     }
     result = -2;
     goto leave;
   }
 
-  if (write_ctx.size < 2) {
-    ERROR("write_gcm: wg_curl_get_or_post: The receive buffer overflowed.");
-    DEBUG("write_gcm: wg_curl_get_or_post: Received data is: %s",
-        response_buffer);
+  if (write_ctx->data == NULL) {
+    ERROR("write_gcm: wg_curl_get_or_post: Failed to allocate memory.");
     goto leave;
   }
 
@@ -597,26 +591,21 @@ static int wg_curl_get_or_post(char *response_buffer,
   return result;
 }
 
-static size_t wg_curl_write_callback(char *ptr, size_t size, size_t nmemb,
+static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
                                      void *userdata) {
-  wg_curl_write_ctx_t *ctx = userdata;
-  if (ctx->size == 0) {
+  size_t requested_bytes = size * nmemb;
+  wg_curl_write_ctx_t *ctx = (wg_curl_write_ctx_t *) userdata;
+
+  ctx->data = realloc(ctx->data, ctx->size + requested_bytes + 1);
+  if (ctx->data == NULL) {
+    ERROR("wg_curl_write_callback: not enough memory (realloc returned NULL)");
     return 0;
   }
-  size_t requested_bytes = size * nmemb;
-  size_t actual_bytes = requested_bytes;
-  if (actual_bytes >= ctx->size) {
-    actual_bytes = ctx->size - 1;
-  }
-  memcpy(ctx->data, ptr, actual_bytes);
-  ctx->data += actual_bytes;
-  ctx->size -= actual_bytes;
 
-  // We lie about the number of bytes successfully transferred in order to
-  // prevent curl from returning an error to our caller. Our caller is keeping
-  // track of buffer consumption so it will independently know if the buffer
-  // filled up; the only errors it wants to hear about from curl are the more
-  // catastrophic ones.
+  memcpy(&(ctx->data[ctx->size]), ptr, requested_bytes);
+  ctx->size += requested_bytes;
+  ctx->data[ctx->size] = 0;
+
   return requested_bytes;
 }
 
@@ -1093,9 +1082,13 @@ static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
 static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
     const char *url, const char *body, const char **headers, int num_headers,
     cdtime_t now) {
-  char response[2048];
-  if (wg_curl_get_or_post(response, sizeof(response), url, body,
-      headers, num_headers, 0) != 0) {
+  wg_curl_write_ctx_t write_ctx = {
+     .data = malloc(1),
+     .size = 0
+  };
+  if (wg_curl_get_or_post(&write_ctx, url, body, headers, num_headers, 0)
+      != 0) {
+    sfree(write_ctx.data);
     return -1;
   }
 
@@ -1105,16 +1098,19 @@ static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
   bufprintf(&resultp, &result_size, "Authorization: Bearer ");
   time_t expires_in;
   if (wg_oauth2_parse_result(&resultp, &result_size, &expires_in,
-                             response) != 0) {
+                             write_ctx.data) != 0) {
     ERROR("write_gcm: wg_oauth2_parse_result failed");
+    sfree(write_ctx.data);
     return -1;
   }
 
   if (result_size < 2) {
     ERROR("write_gcm: Error or buffer overflow when building auth_header");
+    sfree(write_ctx.data);
     return -1;
   }
   ctx->token_expire_time = now + TIME_T_TO_CDTIME_T(expires_in);
+  sfree(write_ctx.data);
   return 0;
 }
 
@@ -2419,16 +2415,20 @@ static char *wg_get_from_metadata_server(const char *base, const char *resource,
     return NULL;
   }
 
-  char buffer[2048];
-  if (wg_curl_get_or_post(buffer, sizeof(buffer), url, NULL, headers,
-      num_headers, silent_failures) != 0) {
+  wg_curl_write_ctx_t write_ctx = {
+     .data = malloc(1),
+     .size = 0
+  };
+  if (wg_curl_get_or_post(&write_ctx, url, NULL, headers, num_headers,
+      silent_failures) != 0) {
+    sfree(write_ctx.data);
     if (!silent_failures) {
       ERROR("write_gcm: wg_get_from_metadata_server failed to fetch metadata"
             "from %s", url);
     }
     return NULL;
   }
-  return sstrdup(buffer);
+  return write_ctx.data;
 }
 
 //==============================================================================
@@ -3823,8 +3823,10 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     // By the way, a successful response is an empty JSON record (i.e. "{}").
     // An unsuccessful response is a detailed error message from the API.
-    // 200 elements * 2048 bytes per element results in 409,600 bytes.
-    char response[409600];
+    wg_curl_write_ctx_t write_ctx = {
+       .data = malloc(1),
+       .size = 0
+    };
     const char *headers[] = { auth_header, json_content_type_header };
 
     // Leave the remainder here to send in a new request next loop iteration.
@@ -3835,15 +3837,16 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
       if (wg_format_some_of_list_ctr(ctx->resource, list, &new_list, &json,
           ctx->pretty_print_json) != 0) {
         ERROR("write_gcm: Error formatting list as JSON");
+        sfree(write_ctx.data);
         goto leave;
       }
 
       wg_log_json_message(
           ctx, "Sending JSON (CollectdTimeseriesRequest):\n%s\n", json);
 
-      int wg_result = wg_curl_get_or_post(response, sizeof(response),
-        ctx->agent_translation_service_url, json,
-        headers, STATIC_ARRAY_SIZE(headers), 0);
+      int wg_result = wg_curl_get_or_post(&write_ctx,
+        ctx->agent_translation_service_url, json, headers,
+        STATIC_ARRAY_SIZE(headers), 0);
       if (wg_result != 0) {
         wg_log_json_message(ctx, "Error %d from wg_curl_get_or_post\n",
                             wg_result);
@@ -3854,17 +3857,20 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
         } else {
           ++ctx->ats_stats->api_errors;
         }
+        sfree(write_ctx.data);
         goto leave;
       }
 
       wg_log_json_message(
-          ctx, "Server response (CollectdTimeseriesRequest):\n%s\n", response);
+          ctx, "Server response (CollectdTimeseriesRequest):\n%s\n",
+          write_ctx.data);
       // Since the response is expected to be valid JSON, we don't
       // look at the characters beyond the closing brace.
-      if (strncmp(response, "{}", 2) != 0) {
+      if (strncmp(write_ctx.data, "{}", 2) != 0) {
         ERROR("%s: Server response (CollectdTimeseriesRequest) contains errors:\n%s",
-              this_plugin_name, response);
+              this_plugin_name, write_ctx.data);
         ++ctx->ats_stats->api_errors;
+        sfree(write_ctx.data);
         goto leave;
       }
       ++ctx->ats_stats->api_successes;
@@ -3876,6 +3882,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
       if (wg_format_some_of_list_custom(ctx->resource, list, &new_list, &json,
           ctx->pretty_print_json) != 0) {
         ERROR("write_gcm: Error formatting list as CreateTimeSeries request");
+        sfree(write_ctx.data);
         goto leave;
       }
 
@@ -3884,24 +3891,25 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
             ctx, "Sending JSON (TimeseriesRequest) to %s:\n%s\n",
             ctx->custom_metrics_url, json);
 
-        if (wg_curl_get_or_post(response, sizeof(response),
-            ctx->custom_metrics_url, json,
+        if (wg_curl_get_or_post(&write_ctx, ctx->custom_metrics_url, json,
             headers, STATIC_ARRAY_SIZE(headers), 0) != 0) {
           wg_log_json_message(ctx, "Error contacting server.\n");
           ERROR("write_gcm: Error talking to the endpoint.");
           ++ctx->gsd_stats->api_connectivity_failures;
+          sfree(write_ctx.data);
           goto leave;
         }
 
         // TODO: Validate API response properly.
         wg_log_json_message(
-            ctx, "Server response (TimeseriesRequest):\n%s\n", response);
+            ctx, "Server response (TimeseriesRequest):\n%s\n", write_ctx.data);
         // Since the response is expected to be valid JSON, we don't
         // look at the characters beyond the closing brace.
-        if (strncmp(response, "{}", 2) != 0) {
+        if (strncmp(write_ctx.data, "{}", 2) != 0) {
           ERROR("%s: Server response (TimeseriesRequest) contains errors:\n%s",
-                this_plugin_name, response);
+                this_plugin_name, write_ctx.data);
           ++ctx->gsd_stats->api_errors;
+          sfree(write_ctx.data);
           goto leave;
         }
       } else {
@@ -3912,6 +3920,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     }
 
+    sfree(write_ctx.data);
     sfree(json);
     json = NULL;
 
