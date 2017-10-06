@@ -602,11 +602,11 @@ static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
   wg_curl_write_ctx_t *ctx = (wg_curl_write_ctx_t *) userdata;
 
   // TODO: This is a potential performance bottleneck. We should consider
-  //       doubling the buffer size to minimize the number of copies.
+  // doubling the buffer size to minimize the number of copies.
   char *new_data = realloc(ctx->data, ctx->size + requested_bytes + 1);
   if (new_data == NULL) {
-    ERROR("wg_curl_write_callback: not enough memory, tried to allocate %zu "
-          "bytes (realloc returned NULL)", ctx->size + requested_bytes + 1);
+    ERROR("wg_curl_write_callback: not enough memory, tried to allocate %zu"
+          " bytes (realloc returned NULL)", ctx->size + requested_bytes + 1);
     ctx->size = -1;
     return 0;
   }
@@ -2428,8 +2428,8 @@ static char *wg_get_from_metadata_server(const char *base, const char *resource,
       silent_failures) != 0) {
     sfree(response);
     if (!silent_failures) {
-      ERROR("write_gcm: wg_get_from_metadata_server failed to fetch metadata "
-            "from %s", url);
+      ERROR("write_gcm: wg_get_from_metadata_server failed to fetch metadata"
+            " from %s", url);
     }
     return NULL;
   }
