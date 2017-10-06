@@ -595,13 +595,13 @@ static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
   size_t requested_bytes = size * nmemb;
   wg_curl_write_ctx_t *ctx = (wg_curl_write_ctx_t *) userdata;
 
-  char * tmp = realloc(ctx->data, ctx->size + requested_bytes + 1);
-  if (tmp == NULL) {
+  char *new_data = realloc(ctx->data, ctx->size + requested_bytes + 1);
+  if (new_data == NULL) {
     ERROR("wg_curl_write_callback: not enough memory (realloc returned NULL)");
     return 0;
   }
 
-  ctx->data = tmp;
+  ctx->data = new_data;
 
   memcpy(&(ctx->data[ctx->size]), ptr, requested_bytes);
   ctx->size += requested_bytes;
@@ -3828,6 +3828,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     // By the way, a successful response is an empty JSON record (i.e. "{}").
     // An unsuccessful response is a detailed error message from the API.
+    sfree(write_ctx.data);
     write_ctx.size = 0;
 
     const char *headers[] = { auth_header, json_content_type_header };
