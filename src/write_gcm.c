@@ -528,10 +528,6 @@ static int wg_curl_get_or_post(char **response, const char *url,
   DEBUG("write_gcm: Doing %s request: url %s, body %s, num_headers %d",
         body == NULL ? "GET" : "POST",
         url, body, num_headers);
-  wg_curl_write_ctx_t write_ctx = {
-     .data = NULL,
-     .size = 0
-  };
   CURL *curl = curl_easy_init();
   if (curl == NULL) {
     ERROR("write_gcm: curl_easy_init failed");
@@ -543,6 +539,10 @@ static int wg_curl_get_or_post(char **response, const char *url,
   for (i = 0; i < num_headers; ++i) {
     curl_headers = curl_slist_append(curl_headers, headers[i]);
   }
+  wg_curl_write_ctx_t write_ctx = {
+     .data = NULL,
+     .size = 0
+  };
 
   curl_easy_setopt(curl, CURLOPT_URL, url);
   curl_easy_setopt(curl, CURLOPT_USERAGENT, collectd_useragent);
@@ -581,7 +581,7 @@ static int wg_curl_get_or_post(char **response, const char *url,
     goto leave;
   }
 
-  if (!write_ctx.data) {
+  if (write_ctx.size == -1) {
     ERROR("write_gcm: wg_curl_get_or_post: Failed to allocate memory.");
     goto leave;
   }
@@ -603,7 +603,10 @@ static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
 
   char *new_data = realloc(ctx->data, ctx->size + requested_bytes + 1);
   if (new_data == NULL) {
-    ERROR("wg_curl_write_callback: not enough memory (realloc returned NULL)");
+    ERROR("wg_curl_write_callback: not enough memory, tried to allocate %i "
+          "bytes (realloc returned NULL)",
+          (int) (ctx->size + requested_bytes + 1));
+    ctx->size = -1;
     return 0;
   }
 
@@ -1089,7 +1092,7 @@ static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
 static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
     const char *url, const char *body, const char **headers, int num_headers,
     cdtime_t now) {
-  char* response = NULL;
+  char *response = NULL;
   if (wg_curl_get_or_post(&response, url, body, headers, num_headers, 0)
       != 0) {
     sfree(response);
@@ -2424,7 +2427,7 @@ static char *wg_get_from_metadata_server(const char *base, const char *resource,
       silent_failures) != 0) {
     sfree(response);
     if (!silent_failures) {
-      ERROR("write_gcm: wg_get_from_metadata_server failed to fetch metadata"
+      ERROR("write_gcm: wg_get_from_metadata_server failed to fetch metadata "
             "from %s", url);
     }
     return NULL;
@@ -3858,8 +3861,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
       }
 
       wg_log_json_message(
-          ctx, "Server response (CollectdTimeseriesRequest):\n%s\n",
-          response);
+          ctx, "Server response (CollectdTimeseriesRequest):\n%s\n", response);
       // Since the response is expected to be valid JSON, we don't
       // look at the characters beyond the closing brace.
       if (strncmp(response, "{}", 2) != 0) {
