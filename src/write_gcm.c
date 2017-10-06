@@ -601,11 +601,12 @@ static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
   size_t requested_bytes = size * nmemb;
   wg_curl_write_ctx_t *ctx = (wg_curl_write_ctx_t *) userdata;
 
+  // TODO: This is a potential performance bottleneck. We should consider
+  //       doubling the buffer size to minimize the number of copies.
   char *new_data = realloc(ctx->data, ctx->size + requested_bytes + 1);
   if (new_data == NULL) {
-    ERROR("wg_curl_write_callback: not enough memory, tried to allocate %i "
-          "bytes (realloc returned NULL)",
-          (int) (ctx->size + requested_bytes + 1));
+    ERROR("wg_curl_write_callback: not enough memory, tried to allocate %zu "
+          "bytes (realloc returned NULL)", ctx->size + requested_bytes + 1);
     ctx->size = -1;
     return 0;
   }
