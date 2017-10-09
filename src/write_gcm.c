@@ -507,24 +507,30 @@ static EVP_PKEY *wg_credential_contex_load_pkey(char const *filename,
 // If curl_easy_init() or curl_easy_perform() fail, returns -1.
 // If they succeed but the HTTP response code is >= 400, returns -2.
 // Otherwise returns 0.
-static int wg_curl_get_or_post(char *response_buffer,
-    size_t response_buffer_size, const char *url, const char *body,
-    const char **headers, int num_headers, _Bool silent_failures);
+static int wg_curl_get_or_post(char **response, const char *url,
+    const char *body, const char **headers, int num_headers,
+    _Bool silent_failures);
 
 //------------------------------------------------------------------------------
 // Private implementation starts here.
 //------------------------------------------------------------------------------
+
+// Represent the intermediary state for the curl write callback when sending
+// requests to the Google Cloud Monitoring API. .data will be a null
+// terminated string in the event of a success. If an error occurs while
+// allocating memory for the response, .size will be set to -1 and should be
+// handled accordingly.
 typedef struct {
   char *data;
   size_t size;
 } wg_curl_write_ctx_t;
 
-static size_t wg_curl_write_callback(char *ptr, size_t size, size_t nmemb,
+static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
                                      void *userdata);
 
-static int wg_curl_get_or_post(char *response_buffer,
-    size_t response_buffer_size, const char *url, const char *body,
-    const char **headers, int num_headers, _Bool silent_failures) {
+static int wg_curl_get_or_post(char **response, const char *url,
+    const char *body, const char **headers, int num_headers, 
+    _Bool silent_failures) {
   DEBUG("write_gcm: Doing %s request: url %s, body %s, num_headers %d",
         body == NULL ? "GET" : "POST",
         url, body, num_headers);
@@ -540,8 +546,8 @@ static int wg_curl_get_or_post(char *response_buffer,
     curl_headers = curl_slist_append(curl_headers, headers[i]);
   }
   wg_curl_write_ctx_t write_ctx = {
-     .data = response_buffer,
-     .size = response_buffer_size
+     .data = NULL,
+     .size = 0
   };
 
   curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -572,22 +578,21 @@ static int wg_curl_get_or_post(char *response_buffer,
 
   long response_code;
   curl_result = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
-  write_ctx.data[0] = 0;
   if (response_code >= 400) {
     if (!silent_failures) {
       WARNING("write_gcm: Unsuccessful HTTP request %ld: %s",
-              response_code, response_buffer);
+              response_code, write_ctx.data);
     }
     result = -2;
     goto leave;
   }
 
-  if (write_ctx.size < 2) {
-    ERROR("write_gcm: wg_curl_get_or_post: The receive buffer overflowed.");
-    DEBUG("write_gcm: wg_curl_get_or_post: Received data is: %s",
-        response_buffer);
+  if (write_ctx.size == -1) {
+    ERROR("write_gcm: wg_curl_get_or_post: Failed to allocate memory.");
     goto leave;
   }
+
+  *response = write_ctx.data;
 
   result = 0;  // Success!
 
@@ -597,26 +602,27 @@ static int wg_curl_get_or_post(char *response_buffer,
   return result;
 }
 
-static size_t wg_curl_write_callback(char *ptr, size_t size, size_t nmemb,
+static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
                                      void *userdata) {
-  wg_curl_write_ctx_t *ctx = userdata;
-  if (ctx->size == 0) {
+  size_t requested_bytes = size * nmemb;
+  wg_curl_write_ctx_t *ctx = (wg_curl_write_ctx_t *) userdata;
+
+  // TODO: This is a potential performance bottleneck. We should consider
+  // doubling the buffer size to minimize the number of copies.
+  char *new_data = realloc(ctx->data, ctx->size + requested_bytes + 1);
+  if (new_data == NULL) {
+    ERROR("wg_curl_write_callback: not enough memory, tried to allocate %zu"
+          " bytes (realloc returned NULL)", ctx->size + requested_bytes + 1);
+    ctx->size = -1;
     return 0;
   }
-  size_t requested_bytes = size * nmemb;
-  size_t actual_bytes = requested_bytes;
-  if (actual_bytes >= ctx->size) {
-    actual_bytes = ctx->size - 1;
-  }
-  memcpy(ctx->data, ptr, actual_bytes);
-  ctx->data += actual_bytes;
-  ctx->size -= actual_bytes;
 
-  // We lie about the number of bytes successfully transferred in order to
-  // prevent curl from returning an error to our caller. Our caller is keeping
-  // track of buffer consumption so it will independently know if the buffer
-  // filled up; the only errors it wants to hear about from curl are the more
-  // catastrophic ones.
+  ctx->data = new_data;
+
+  memcpy(&(ctx->data[ctx->size]), ptr, requested_bytes);
+  ctx->size += requested_bytes;
+  ctx->data[ctx->size] = '\0';
+
   return requested_bytes;
 }
 
@@ -1093,9 +1099,10 @@ static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
 static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
     const char *url, const char *body, const char **headers, int num_headers,
     cdtime_t now) {
-  char response[2048];
-  if (wg_curl_get_or_post(response, sizeof(response), url, body,
-      headers, num_headers, 0) != 0) {
+  char *response = NULL;
+  if (wg_curl_get_or_post(&response, url, body, headers, num_headers, 0)
+      != 0) {
+    sfree(response);
     return -1;
   }
 
@@ -1107,14 +1114,17 @@ static int wg_oauth2_talk_to_server_and_store_result(oauth2_ctx_t *ctx,
   if (wg_oauth2_parse_result(&resultp, &result_size, &expires_in,
                              response) != 0) {
     ERROR("write_gcm: wg_oauth2_parse_result failed");
+    sfree(response);
     return -1;
   }
 
   if (result_size < 2) {
     ERROR("write_gcm: Error or buffer overflow when building auth_header");
+    sfree(response);
     return -1;
   }
   ctx->token_expire_time = now + TIME_T_TO_CDTIME_T(expires_in);
+  sfree(response);
   return 0;
 }
 
@@ -2419,16 +2429,17 @@ static char *wg_get_from_metadata_server(const char *base, const char *resource,
     return NULL;
   }
 
-  char buffer[2048];
-  if (wg_curl_get_or_post(buffer, sizeof(buffer), url, NULL, headers,
-      num_headers, silent_failures) != 0) {
+  char *response = NULL;
+  if (wg_curl_get_or_post(&response, url, NULL, headers, num_headers,
+      silent_failures) != 0) {
+    sfree(response);
     if (!silent_failures) {
       ERROR("write_gcm: wg_get_from_metadata_server failed to fetch metadata"
-            "from %s", url);
+            " from %s", url);
     }
     return NULL;
   }
-  return sstrdup(buffer);
+  return response;
 }
 
 //==============================================================================
@@ -3799,6 +3810,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
   // Variables to clean up at the end.
   char *json = NULL;
+  char *response = NULL;
   int result = -1;  // Pessimistically assume failure.
 
   char auth_header[256];
@@ -3823,7 +3835,6 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     // By the way, a successful response is an empty JSON record (i.e. "{}").
     // An unsuccessful response is a detailed error message from the API.
-    char response[2048];
     const char *headers[] = { auth_header, json_content_type_header };
 
     // Leave the remainder here to send in a new request next loop iteration.
@@ -3840,9 +3851,9 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
       wg_log_json_message(
           ctx, "Sending JSON (CollectdTimeseriesRequest):\n%s\n", json);
 
-      int wg_result = wg_curl_get_or_post(response, sizeof(response),
-        ctx->agent_translation_service_url, json,
-        headers, STATIC_ARRAY_SIZE(headers), 0);
+      int wg_result = wg_curl_get_or_post(&response,
+        ctx->agent_translation_service_url, json, headers,
+        STATIC_ARRAY_SIZE(headers), 0);
       if (wg_result != 0) {
         wg_log_json_message(ctx, "Error %d from wg_curl_get_or_post\n",
                             wg_result);
@@ -3883,8 +3894,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
             ctx, "Sending JSON (TimeseriesRequest) to %s:\n%s\n",
             ctx->custom_metrics_url, json);
 
-        if (wg_curl_get_or_post(response, sizeof(response),
-            ctx->custom_metrics_url, json,
+        if (wg_curl_get_or_post(&response, ctx->custom_metrics_url, json,
             headers, STATIC_ARRAY_SIZE(headers), 0) != 0) {
           wg_log_json_message(ctx, "Error contacting server.\n");
           ERROR("write_gcm: Error talking to the endpoint.");
@@ -3911,6 +3921,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
     }
 
+    sfree(response);
     sfree(json);
     json = NULL;
 
@@ -3920,6 +3931,7 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
   result = 0;
 
  leave:
+  sfree(response);
   sfree(json);
   return result;
 }
