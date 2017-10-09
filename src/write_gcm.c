@@ -514,6 +514,12 @@ static int wg_curl_get_or_post(char **response, const char *url,
 //------------------------------------------------------------------------------
 // Private implementation starts here.
 //------------------------------------------------------------------------------
+
+// Represent the intermediary state for the curl write callback when sending
+// requests to the Google Cloud Monitoring API. .data will be a null
+// terminated string in the event of a success. If an error occurs while
+// allocating memory for the response, .size will be set to -1 and should be
+// handled accordingly.
 typedef struct {
   char *data;
   size_t size;
