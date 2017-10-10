@@ -2211,18 +2211,10 @@ static monitored_resource_t *wg_monitored_resource_create_from_metadata_agent(
           "Could not create Metadata Agent URL.");
     goto error;
   }
-  char *response_buffer = (char *)
-      calloc(METADATA_RESPONSE_BUFFER_SIZE, sizeof(char));
-  if (response_buffer == NULL) {
-    ERROR("write_gcm: wg_monitored_resource_create_from_metadata_agent:"
-          "calloc failed.");
-    goto error;
-  }
-
-  wg_curl_get_or_post(response_buffer, METADATA_RESPONSE_BUFFER_SIZE, query,
-                      body, headers, num_headers);
+  char *response_buffer = NULL;
+  wg_curl_get_or_post(&response_buffer, query, body, headers, num_headers, 0);
   monitored_resource_t *resource = parse_monitored_resource(response_buffer,
-      METADATA_RESPONSE_BUFFER_SIZE, project_id);
+      project_id);
    sfree(response_buffer);
    return resource;
 
@@ -2348,7 +2340,7 @@ static int wg_mr_handle_end_map(void *arg) {
 }
 
 static monitored_resource_t *parse_monitored_resource(char *metadata,
-    int metadata_size, const char *project_id) {
+    const char *project_id) {
   yajl_handle handle;
   monitored_resource_t *response = NULL;
 
@@ -2405,7 +2397,7 @@ static monitored_resource_t *parse_monitored_resource(char *metadata,
       labels[i].value = (char *) curr->value;
     }
 
-    response = monitored_resource_create_from_array(ctx.type, project_id, 
+    response = monitored_resource_create_from_array(ctx.type, project_id,
                                                     labels, total_labels);
   }
 
