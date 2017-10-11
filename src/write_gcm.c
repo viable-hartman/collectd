@@ -2140,7 +2140,6 @@ static char *wg_get_from_metadata_server(const char *base, const char *resource,
     const char **headers, int num_headers, _Bool silent_failures);
 
 static monitored_resource_t *parse_monitored_resource(char *metadata,
-                                                      int meta_size,
                                                       const char *project_id);
 
 static char * detect_cloud_provider() {
