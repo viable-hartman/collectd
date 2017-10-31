@@ -27,8 +27,11 @@
 
 #include "collectd.h"
 #include "common.h"
+<<<<<<< HEAD
 
 #include "utils_config_cores.h"
+=======
+>>>>>>> Replace zu with PRIu64 and llu with new macro, PRIsz, which will make it easier to make the code platform-independent.
 
 #include <pqos.h>
 
@@ -66,7 +69,7 @@ static void rdt_dump_cgroups(void) {
     return;
 
   DEBUG(RDT_PLUGIN ": Core Groups Dump");
-  DEBUG(RDT_PLUGIN ":  groups count: %zu", g_rdt->num_groups);
+  DEBUG(RDT_PLUGIN ":  groups count: %" PRIsz, g_rdt->num_groups);
 
   for (int i = 0; i < g_rdt->num_groups; i++) {
     core_group_t *cgroup = g_rdt->cores.cgroups + i;
@@ -185,7 +188,12 @@ static int rdt_config_cgroups(oconfig_item_t *item) {
     for (size_t core_idx = 0; core_idx < cgroup->num_cores; core_idx++) {
       if (!rdt_is_core_id_valid((int)cgroup->cores[core_idx])) {
         ERROR(RDT_PLUGIN ": Core group '%s' contains invalid core id '%d'",
+<<<<<<< HEAD
               cgroup->desc, (int)cgroup->cores[core_idx]);
+=======
+              g_rdt->cgroups[group_idx].desc,
+              (int)g_rdt->cgroups[group_idx].cores[core_idx]);
+>>>>>>> Replace zu with PRIu64 and llu with new macro, PRIsz, which will make it easier to make the code platform-independent.
         rdt_free_cgroups();
         return -EINVAL;
       }

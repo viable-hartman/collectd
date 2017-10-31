@@ -274,7 +274,7 @@ static void *collect(void *arg) {
 
       len = strlen(line);
       if ((line[len - 1] != '\n') && (line[len - 1] != '\r')) {
-        log_warn("collect: line too long (> %zu characters): "
+        log_warn("collect: line too long (> %" PRIsz " characters): "
                  "'%s' (truncated)",
                  sizeof(line) - 1, line);
 
@@ -370,12 +370,16 @@ static void *open_connection(void __attribute__((unused)) * arg) {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   struct sockaddr_un addr = {
       .sun_family = AF_UNIX,
   };
 =======
   struct sockaddr_un addr = {.sun_family = AF_UNIX};
 >>>>>>> Tree wide: Replace sstrerror() with STRERRNO.
+=======
+  struct sockaddr_un addr = {.sun_family = AF_UNIX};
+>>>>>>> Replace zu with PRIu64 and llu with new macro, PRIsz, which will make it easier to make the code platform-independent.
   sstrncpy(addr.sun_path, path, (size_t)(UNIX_PATH_MAX - 1));
 
   errno = 0;
@@ -383,6 +387,9 @@ static void *open_connection(void __attribute__((unused)) * arg) {
            offsetof(struct sockaddr_un, sun_path) + strlen(addr.sun_path)) ==
       -1) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Replace zu with PRIu64 and llu with new macro, PRIsz, which will make it easier to make the code platform-independent.
     char errbuf[1024];
 =======
 >>>>>>> Tree wide: Replace sstrerror() with STRERRNO.
