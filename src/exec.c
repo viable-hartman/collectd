@@ -437,7 +437,6 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
   int fd_pipe_in[2] = {-1, -1};
   int fd_pipe_out[2] = {-1, -1};
   int fd_pipe_err[2] = {-1, -1};
-  char errbuf[1024];
   int status;
   int pid;
 
@@ -466,7 +465,7 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
   status = getpwnam_r(pl->user, &sp, nambuf, sizeof(nambuf), &sp_ptr);
   if (status != 0) {
     ERROR("exec plugin: Failed to get user information for user ``%s'': %s",
-          pl->user, sstrerror(status, errbuf, sizeof(errbuf)));
+          pl->user, STRERROR(status));
     goto failed;
   }
 
@@ -482,10 +481,32 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
     goto failed;
   }
 
-  egid = getegr_id(pl, gid);
-  if (egid == -2) {
-    goto failed;
-  }
+  /* The group configured in the configfile is set as effective group, because
+   * this way the forked process can (re-)gain the user's primary group. */
+  egid = -1;
+  if (pl->group != NULL) {
+    if (*pl->group != '\0') {
+      struct group *gr_ptr = NULL;
+      struct group gr;
+
+      long int grbuf_size = sysconf(_SC_GETGR_R_SIZE_MAX);
+      if (grbuf_size <= 0)
+        grbuf_size = sysconf(_SC_PAGESIZE);
+      if (grbuf_size <= 0)
+        grbuf_size = 4096;
+      char grbuf[grbuf_size];
+
+      status = getgrnam_r(pl->group, &gr, grbuf, sizeof(grbuf), &gr_ptr);
+      if (status != 0) {
+        ERROR("exec plugin: Failed to get group information "
+              "for group ``%s'': %s",
+              pl->group, STRERROR(status));
+        goto failed;
+      }
+      if (gr_ptr == NULL) {
+        ERROR("exec plugin: No such group: `%s'", pl->group);
+        goto failed;
+      }
 
   set_environment();
 
