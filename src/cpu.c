@@ -279,8 +279,7 @@ static int init(void) {
 
   status = sysctl(mib, STATIC_ARRAY_SIZE(mib), &numcpu, &numcpu_size, NULL, 0);
   if (status == -1) {
-    char errbuf[1024];
-    WARNING("cpu plugin: sysctl: %s", sstrerror(errno, errbuf, sizeof(errbuf)));
+    WARNING("cpu plugin: sysctl: %s", STRERRNO);
     return -1;
   }
 /* #endif CAN_USE_SYSCTL */
@@ -291,9 +290,7 @@ static int init(void) {
   numcpu_size = sizeof(numcpu);
 
   if (sysctlbyname("hw.ncpu", &numcpu, &numcpu_size, NULL, 0) < 0) {
-    char errbuf[1024];
-    WARNING("cpu plugin: sysctlbyname(hw.ncpu): %s",
-            sstrerror(errno, errbuf, sizeof(errbuf)));
+    WARNING("cpu plugin: sysctlbyname(hw.ncpu): %s", STRERRNO);
     return -1;
   }
 
@@ -301,9 +298,7 @@ static int init(void) {
   numcpu_size = sizeof(maxcpu);
 
   if (sysctlbyname("kern.smp.maxcpus", &maxcpu, &numcpu_size, NULL, 0) < 0) {
-    char errbuf[1024];
-    WARNING("cpu plugin: sysctlbyname(kern.smp.maxcpus): %s",
-            sstrerror(errno, errbuf, sizeof(errbuf)));
+    WARNING("cpu plugin: sysctlbyname(kern.smp.maxcpus): %s", STRERRNO);
     return -1;
   }
 #else
@@ -447,9 +442,7 @@ static void aggregate(gauge_t *sum_by_state) /* {{{ */
   perfstat_cpu_total_t cputotal = {0};
 
   if (!perfstat_cpu_total(NULL, &cputotal, sizeof(cputotal), 1)) {
-    char errbuf[1024];
-    WARNING("cpu plugin: perfstat_cpu_total: %s",
-            sstrerror(errno, errbuf, sizeof(errbuf)));
+    WARNING("cpu plugin: perfstat_cpu_total: %s", STRERRNO);
     return;
   }
 
@@ -648,9 +641,7 @@ static int cpu_read(void) {
   int numfields;
 
   if ((fh = fopen("/proc/stat", "r")) == NULL) {
-    char errbuf[1024];
-    ERROR("cpu plugin: fopen (/proc/stat) failed: %s",
-          sstrerror(errno, errbuf, sizeof(errbuf)));
+    ERROR("cpu plugin: fopen (/proc/stat) failed: %s", STRERRNO);
     return -1;
   }
 
@@ -763,9 +754,7 @@ static int cpu_read(void) {
       status = sysctl(mib, STATIC_ARRAY_SIZE(mib), cpuinfo[i], &cpuinfo_size,
                       NULL, 0);
       if (status == -1) {
-        char errbuf[1024];
-        ERROR("cpu plugin: sysctl failed: %s.",
-              sstrerror(errno, errbuf, sizeof(errbuf)));
+        ERROR("cpu plugin: sysctl failed: %s.", STRERRNO);
         return -1;
       }
     }
@@ -780,9 +769,7 @@ static int cpu_read(void) {
     status = sysctl(mib, STATIC_ARRAY_SIZE(mib), &cpuinfo_tmp, &cpuinfo_size,
                     NULL, 0);
     if (status == -1) {
-      char errbuf[1024];
-      ERROR("cpu plugin: sysctl failed: %s.",
-            sstrerror(errno, errbuf, sizeof(errbuf)));
+      ERROR("cpu plugin: sysctl failed: %s.", STRERRNO);
       return -1;
     }
 
@@ -810,9 +797,7 @@ static int cpu_read(void) {
 
   cpuinfo_size = sizeof(cpuinfo);
   if (sysctlbyname("kern.cp_times", &cpuinfo, &cpuinfo_size, NULL, 0) < 0) {
-    char errbuf[1024];
-    ERROR("cpu plugin: sysctlbyname failed: %s.",
-          sstrerror(errno, errbuf, sizeof(errbuf)));
+    ERROR("cpu plugin: sysctlbyname failed: %s.", STRERRNO);
     return -1;
   }
 
@@ -833,9 +818,7 @@ static int cpu_read(void) {
   cpuinfo_size = sizeof(cpuinfo);
 
   if (sysctlbyname("kern.cp_time", &cpuinfo, &cpuinfo_size, NULL, 0) < 0) {
-    char errbuf[1024];
-    ERROR("cpu plugin: sysctlbyname failed: %s.",
-          sstrerror(errno, errbuf, sizeof(errbuf)));
+    ERROR("cpu plugin: sysctlbyname failed: %s.", STRERRNO);
     return -1;
   }
 
@@ -869,9 +852,7 @@ static int cpu_read(void) {
 
   numcpu = perfstat_cpu(NULL, NULL, sizeof(perfstat_cpu_t), 0);
   if (numcpu == -1) {
-    char errbuf[1024];
-    WARNING("cpu plugin: perfstat_cpu: %s",
-            sstrerror(errno, errbuf, sizeof(errbuf)));
+    WARNING("cpu plugin: perfstat_cpu: %s", STRERRNO);
     return -1;
   }
 
@@ -883,9 +864,7 @@ static int cpu_read(void) {
 
   id.name[0] = '\0';
   if ((cpus = perfstat_cpu(&id, perfcpu, sizeof(perfstat_cpu_t), numcpu)) < 0) {
-    char errbuf[1024];
-    WARNING("cpu plugin: perfstat_cpu: %s",
-            sstrerror(errno, errbuf, sizeof(errbuf)));
+    WARNING("cpu plugin: perfstat_cpu: %s", STRERRNO);
     return -1;
   }
 

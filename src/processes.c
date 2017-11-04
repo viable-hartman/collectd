@@ -1113,9 +1113,7 @@ static int ps_read_tasks_status(process_entry_t *ps) {
     } /* while (fgets) */
 
     if (fclose(fh)) {
-      char errbuf[1024];
-      WARNING("processes: fclose: %s",
-              sstrerror(errno, errbuf, sizeof(errbuf)));
+      WARNING("processes: fclose: %s", STRERRNO);
     }
   }
   closedir(dh);
@@ -1127,285 +1125,174 @@ static int ps_read_tasks_status(process_entry_t *ps) {
 } /* int *ps_read_tasks_status */
 
 /* Read data from /proc/pid/status */
-static procstat_t *ps_read_status (long pid, procstat_t *ps)
-{
-	FILE *fh;
-	char buffer[1024];
-	char filename[64];
-	unsigned long lib = 0;
-	unsigned long exe = 0;
-	unsigned long data = 0;
-	unsigned long threads = 0;
-	char *fields[8];
-	int numfields;
+static int ps_read_status(long pid, process_entry_t *ps) {
+  FILE *fh;
+  char buffer[1024];
+  char filename[64];
+  unsigned long lib = 0;
+  unsigned long exe = 0;
+  unsigned long data = 0;
+  unsigned long threads = 0;
+  char *fields[8];
+  int numfields;
 
-	ssnprintf (filename, sizeof (filename), "/proc/%li/status", pid);
-	if ((fh = fopen (filename, "r")) == NULL)
-		return (NULL);
+  snprintf(filename, sizeof(filename), "/proc/%li/status", pid);
+  if ((fh = fopen(filename, "r")) == NULL)
+    return -1;
 
-	while (fgets (buffer, sizeof(buffer), fh) != NULL)
-	{
-		unsigned long tmp;
-		char *endptr;
+  while (fgets(buffer, sizeof(buffer), fh) != NULL) {
+    unsigned long tmp;
+    char *endptr;
 
-		if (strncmp (buffer, "Vm", 2) != 0
-				&& strncmp (buffer, "Threads", 7) != 0)
-			continue;
+    if (strncmp(buffer, "Vm", 2) != 0 && strncmp(buffer, "Threads", 7) != 0)
+      continue;
 
-		numfields = strsplit (buffer, fields,
-				STATIC_ARRAY_SIZE (fields));
+    numfields = strsplit(buffer, fields, STATIC_ARRAY_SIZE(fields));
 
-		if (numfields < 2)
-			continue;
+    if (numfields < 2)
+      continue;
 
-		errno = 0;
-		endptr = NULL;
-		tmp = strtoul (fields[1], &endptr, /* base = */ 10);
-		if ((errno == 0) && (endptr != fields[1]))
-		{
-			if (strncmp (buffer, "VmData", 6) == 0)
-			{
-				data = tmp;
-			}
-			else if (strncmp (buffer, "VmLib", 5) == 0)
-			{
-				lib = tmp;
-			}
-			else if  (strncmp(buffer, "VmExe", 5) == 0)
-			{
-				exe = tmp;
-			}
-			else if  (strncmp(buffer, "Threads", 7) == 0)
-			{
-				threads = tmp;
-			}
-		}
-	} /* while (fgets) */
+    errno = 0;
+    endptr = NULL;
+    tmp = strtoul(fields[1], &endptr, /* base = */ 10);
+    if ((errno == 0) && (endptr != fields[1])) {
+      if (strncmp(buffer, "VmData", 6) == 0) {
+        data = tmp;
+      } else if (strncmp(buffer, "VmLib", 5) == 0) {
+        lib = tmp;
+      } else if (strncmp(buffer, "VmExe", 5) == 0) {
+        exe = tmp;
+      } else if (strncmp(buffer, "Threads", 7) == 0) {
+        threads = tmp;
+      }
+    }
+  } /* while (fgets) */
 
-	if (fclose (fh))
-	{
-		char errbuf[1024];
-		WARNING ("processes: fclose: %s",
-				sstrerror (errno, errbuf, sizeof (errbuf)));
-	}
+  if (fclose(fh)) {
+    WARNING("processes: fclose: %s", STRERRNO);
+  }
 
-	ps->vmem_data = data * 1024;
-	ps->vmem_code = (exe + lib) * 1024;
-	if (threads != 0)
-		ps->num_lwp = threads;
+  ps->vmem_data = data * 1024;
+  ps->vmem_code = (exe + lib) * 1024;
+  if (threads != 0)
+    ps->num_lwp = threads;
 
-	return (ps);
-} /* procstat_t *ps_read_vmem */
+  return 0;
+} /* int *ps_read_status */
 
-static procstat_t *ps_read_io (long pid, procstat_t *ps)
-{
-	FILE *fh;
-	char buffer[1024];
-	char filename[64];
+static int ps_read_io(process_entry_t *ps) {
+  FILE *fh;
+  char buffer[1024];
+  char filename[64];
 
-	char *fields[8];
-	int numfields;
+  char *fields[8];
+  int numfields;
 
-	ssnprintf (filename, sizeof (filename), "/proc/%li/io", pid);
-	if ((fh = fopen (filename, "r")) == NULL)
-		return (NULL);
+  snprintf(filename, sizeof(filename), "/proc/%li/io", ps->id);
+  if ((fh = fopen(filename, "r")) == NULL) {
+    DEBUG("ps_read_io: Failed to open file `%s'", filename);
+    return -1;
+  }
 
-	while (fgets (buffer, sizeof (buffer), fh) != NULL)
-	{
-		derive_t *val = NULL;
-		long long tmp;
-		char *endptr;
+  while (fgets(buffer, sizeof(buffer), fh) != NULL) {
+    derive_t *val = NULL;
+    long long tmp;
+    char *endptr;
 
-		if (strncasecmp (buffer, "rchar:", 6) == 0)
-			val = &(ps->io_rchar);
-		else if (strncasecmp (buffer, "wchar:", 6) == 0)
-			val = &(ps->io_wchar);
-		else if (strncasecmp (buffer, "syscr:", 6) == 0)
-			val = &(ps->io_syscr);
-		else if (strncasecmp (buffer, "syscw:", 6) == 0)
-			val = &(ps->io_syscw);
-		else if (strncasecmp (buffer, "read_bytes:", 11) == 0)
-			val = &(ps->io_diskr);
-		else if (strncasecmp (buffer, "write_bytes:", 12) == 0)
-			val = &(ps->io_diskw);
-		else
-			continue;
+    if (strncasecmp(buffer, "rchar:", 6) == 0)
+      val = &(ps->io_rchar);
+    else if (strncasecmp(buffer, "wchar:", 6) == 0)
+      val = &(ps->io_wchar);
+    else if (strncasecmp(buffer, "syscr:", 6) == 0)
+      val = &(ps->io_syscr);
+    else if (strncasecmp(buffer, "syscw:", 6) == 0)
+      val = &(ps->io_syscw);
+    else if (strncasecmp(buffer, "read_bytes:", 11) == 0)
+      val = &(ps->io_diskr);
+    else if (strncasecmp(buffer, "write_bytes:", 12) == 0)
+      val = &(ps->io_diskw);
+    else
+      continue;
 
-		numfields = strsplit (buffer, fields,
-				STATIC_ARRAY_SIZE (fields));
+    numfields = strsplit(buffer, fields, STATIC_ARRAY_SIZE(fields));
 
-		if (numfields < 2)
-			continue;
+    if (numfields < 2)
+      continue;
 
-		errno = 0;
-		endptr = NULL;
-		tmp = strtoll (fields[1], &endptr, /* base = */ 10);
-		if ((errno != 0) || (endptr == fields[1]))
-			*val = -1;
-		else
-			*val = (derive_t) tmp;
-	} /* while (fgets) */
+    errno = 0;
+    endptr = NULL;
+    tmp = strtoll(fields[1], &endptr, /* base = */ 10);
+    if ((errno != 0) || (endptr == fields[1]))
+      *val = -1;
+    else
+      *val = (derive_t)tmp;
+  } /* while (fgets) */
 
-	if (fclose (fh))
-	{
-		char errbuf[1024];
-		WARNING ("processes: fclose: %s",
-				sstrerror (errno, errbuf, sizeof (errbuf)));
-	}
+  if (fclose(fh)) {
+    WARNING("processes: fclose: %s", STRERRNO);
+  }
+  return 0;
+} /* int ps_read_io (...) */
 
-	return (ps);
-} /* procstat_t *ps_read_io */
+static int ps_count_maps(pid_t pid) {
+  FILE *fh;
+  char buffer[1024];
+  char filename[64];
+  int count = 0;
 
-static int ps_read_process (long pid, procstat_t *ps, char *state)
-{
-	char  filename[64];
-	char  buffer[1024];
+  snprintf(filename, sizeof(filename), "/proc/%d/maps", pid);
+  if ((fh = fopen(filename, "r")) == NULL) {
+    DEBUG("ps_count_maps: Failed to open file `%s'", filename);
+    return -1;
+  }
 
-	char *fields[64];
-	char  fields_len;
+  while (fgets(buffer, sizeof(buffer), fh) != NULL) {
+    if (strchr(buffer, '\n')) {
+      count++;
+    }
+  } /* while (fgets) */
 
-	size_t buffer_len;
+  if (fclose(fh)) {
+    WARNING("processes: fclose: %s", STRERRNO);
+  }
+  return count;
+} /* int ps_count_maps (...) */
 
-	char  *buffer_ptr;
-	size_t name_start_pos;
-	size_t name_end_pos;
-	size_t name_len;
+static int ps_count_fd(int pid) {
+  char dirname[64];
+  DIR *dh;
+  struct dirent *ent;
+  int count = 0;
 
-	derive_t cpu_user_counter;
-	derive_t cpu_system_counter;
-	long long unsigned vmem_size;
-	long long unsigned vmem_rss;
-	long long unsigned stack_size;
+  snprintf(dirname, sizeof(dirname), "/proc/%i/fd", pid);
 
-	ssize_t status;
+  if ((dh = opendir(dirname)) == NULL) {
+    DEBUG("Failed to open directory `%s'", dirname);
+    return -1;
+  }
+  while ((ent = readdir(dh)) != NULL) {
+    if (!isdigit((int)ent->d_name[0]))
+      continue;
+    else
+      count++;
+  }
+  closedir(dh);
 
-	memset (ps, 0, sizeof (procstat_t));
+  return (count >= 1) ? count : 1;
+} /* int ps_count_fd (pid) */
 
-	ssnprintf (filename, sizeof (filename), "/proc/%li/stat", pid);
+static void ps_fill_details(const procstat_t *ps, process_entry_t *entry) {
+  if (entry->has_io == 0) {
+    ps_read_io(entry);
+    entry->has_io = 1;
+  }
 
-	status = read_file_contents (filename, buffer, sizeof(buffer) - 1);
-	if (status <= 0)
-		return (-1);
-	buffer_len = (size_t) status;
-	buffer[buffer_len] = 0;
-
-	/* The name of the process is enclosed in parens. Since the name can
-	 * contain parens itself, spaces, numbers and pretty much everything
-	 * else, use these to determine the process name. We don't use
-	 * strchr(3) and strrchr(3) to avoid pointer arithmetic which would
-	 * otherwise be required to determine name_len. */
-	name_start_pos = 0;
-	while (name_start_pos < buffer_len && buffer[name_start_pos] != '(')
-		name_start_pos++;
-
-	name_end_pos = buffer_len;
-	while (name_end_pos > 0 && buffer[name_end_pos] != ')')
-		name_end_pos--;
-
-	/* Either '(' or ')' is not found or they are in the wrong order.
-	 * Anyway, something weird that shouldn't happen ever. */
-	if (name_start_pos >= name_end_pos)
-	{
-		ERROR ("processes plugin: name_start_pos = %zu >= name_end_pos = %zu",
-				name_start_pos, name_end_pos);
-		return (-1);
-	}
-
-	name_len = (name_end_pos - name_start_pos) - 1;
-	if (name_len >= sizeof (ps->name))
-		name_len = sizeof (ps->name) - 1;
-
-	sstrncpy (ps->name, &buffer[name_start_pos + 1], name_len + 1);
-
-	if ((buffer_len - name_end_pos) < 2)
-		return (-1);
-	buffer_ptr = &buffer[name_end_pos + 2];
-
-	fields_len = strsplit (buffer_ptr, fields, STATIC_ARRAY_SIZE (fields));
-	if (fields_len < 22)
-	{
-		DEBUG ("processes plugin: ps_read_process (pid = %li):"
-				" `%s' has only %i fields..",
-				pid, filename, fields_len);
-		return (-1);
-	}
-
-	*state = fields[0][0];
-
-	if (*state == 'Z')
-	{
-		ps->num_lwp  = 0;
-		ps->num_proc = 0;
-	}
-	else
-	{
-		ps->num_lwp = strtoul (fields[17], /* endptr = */ NULL, /* base = */ 10);
-		if ((ps_read_status(pid, ps)) == NULL)
-		{
-			/* No VMem data */
-			ps->vmem_data = -1;
-			ps->vmem_code = -1;
-			DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
-		}
-		if (ps->num_lwp == 0)
-			ps->num_lwp = 1;
-		ps->num_proc = 1;
-	}
-
-	/* Leave the rest at zero if this is only a zombi */
-	if (ps->num_proc == 0)
-	{
-		DEBUG ("processes plugin: This is only a zombie: pid = %li; "
-				"name = %s;", pid, ps->name);
-		return (0);
-	}
-
-	cpu_user_counter   = atoll (fields[11]);
-	cpu_system_counter = atoll (fields[12]);
-	vmem_size          = atoll (fields[20]);
-	vmem_rss           = atoll (fields[21]);
-	ps->vmem_minflt_counter = atol (fields[7]);
-	ps->vmem_majflt_counter = atol (fields[9]);
-
-	{
-		unsigned long long stack_start = atoll (fields[25]);
-		unsigned long long stack_ptr   = atoll (fields[26]);
-
-		stack_size = (stack_start > stack_ptr)
-			? stack_start - stack_ptr
-			: stack_ptr - stack_start;
-	}
-
-	/* Convert jiffies to useconds */
-	cpu_user_counter   = cpu_user_counter   * 1000000 / CONFIG_HZ;
-	cpu_system_counter = cpu_system_counter * 1000000 / CONFIG_HZ;
-	vmem_rss = vmem_rss * pagesize_g;
-
-	ps->cpu_user_counter = cpu_user_counter;
-	ps->cpu_system_counter = cpu_system_counter;
-	ps->vmem_size = (unsigned long) vmem_size;
-	ps->vmem_rss = (unsigned long) vmem_rss;
-	ps->stack_size = (unsigned long) stack_size;
-
-	if ( (ps_read_io (pid, ps)) == NULL)
-	{
-		/* no io data */
-		ps->io_rchar = -1;
-		ps->io_wchar = -1;
-		ps->io_syscr = -1;
-		ps->io_syscw = -1;
-		ps->io_diskr = -1;
-		ps->io_diskw = -1;
-
-		DEBUG("ps_read_process: not get io data for pid %li", pid);
-	}
-
-	if ( report_ctx_switch )
-	{
-		if ( (ps_read_tasks_status(pid, ps)) == NULL)
-		{
-			ps->cswitch_vol = -1;
-			ps->cswitch_invol = -1;
+  if (ps->report_ctx_switch) {
+    if (entry->has_cswitch == 0) {
+      ps_read_tasks_status(entry);
+      entry->has_cswitch = 1;
+    }
+  }
 
   if (ps->report_maps_num) {
     int num_maps;
@@ -1577,12 +1464,10 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
   errno = 0;
   fd = open(file, O_RDONLY);
   if (fd < 0) {
-    char errbuf[4096];
     /* ENOENT means the process exited while we were handling it.
      * Don't complain about this, it only fills the logs. */
     if (errno != ENOENT)
-      WARNING("processes plugin: Failed to open `%s': %s.", file,
-              sstrerror(errno, errbuf, sizeof(errbuf)));
+      WARNING("processes plugin: Failed to open `%s': %s.", file, STRERRNO);
     return NULL;
   }
 
@@ -1597,13 +1482,12 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
     status = read(fd, (void *)buf_ptr, len);
 
     if (status < 0) {
-      char errbuf[1024];
 
       if ((EAGAIN == errno) || (EINTR == errno))
         continue;
 
       WARNING("processes plugin: Failed to read from `%s': %s.", file,
-              sstrerror(errno, errbuf, sizeof(errbuf)));
+              STRERRNO);
       close(fd);
       return NULL;
     }
@@ -1653,29 +1537,26 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
   return buf;
 } /* char *ps_get_cmdline (...) */
 
-static char *ps_get_command(pid_t pid)
-{
-    char *result = NULL;
-    char file_name[128];
-    char buffer[128];
-    FILE *f = NULL;
+static int read_fork_rate(void) {
+  FILE *proc_stat;
+  char buffer[1024];
+  value_t value;
+  _Bool value_valid = 0;
 
-    snprintf(file_name, sizeof(file_name), "/proc/%d/comm", pid);
-    f = fopen(file_name, "r");
-    if (!f)
-        return NULL;
+  proc_stat = fopen("/proc/stat", "r");
+  if (proc_stat == NULL) {
+    ERROR("processes plugin: fopen (/proc/stat) failed: %s", STRERRNO);
+    return -1;
+  }
 
-    result = fgets(buffer, sizeof(buffer), f);
-    if (result)
-    {
-        // Trim trailing newline.
-        ssize_t num_chars = strlen(result);
-        if (num_chars > 0 && result[num_chars - 1] == '\n')
-            result[num_chars - 1] = 0;
-    }
-    fclose (f);
-    return sstrdup(result);
-}
+  while (fgets(buffer, sizeof(buffer), proc_stat) != NULL) {
+    int status;
+    char *fields[3];
+    int fields_num;
+
+    fields_num = strsplit(buffer, fields, STATIC_ARRAY_SIZE(fields));
+    if (fields_num != 2)
+      continue;
 
 static char *ps_get_owner(pid_t pid)
 {
@@ -2286,8 +2167,7 @@ static int ps_read(void) {
   ps_list_reset();
 
   if ((proc = opendir("/proc")) == NULL) {
-    char errbuf[1024];
-    ERROR("Cannot open `/proc': %s", sstrerror(errno, errbuf, sizeof(errbuf)));
+    ERROR("Cannot open `/proc': %s", STRERRNO);
     return -1;
   }
 
