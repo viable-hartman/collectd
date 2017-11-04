@@ -1504,9 +1504,7 @@ static int ps_read_tasks_status(process_entry_t *ps) {
     } /* while (fgets) */
 
     if (fclose(fh)) {
-      char errbuf[1024];
-      WARNING("processes: fclose: %s",
-              sstrerror(errno, errbuf, sizeof(errbuf)));
+      WARNING("processes: fclose: %s", STRERRNO);
     }
   }
   closedir(dh);
@@ -1563,8 +1561,7 @@ static int ps_read_status(long pid, process_entry_t *ps) {
   } /* while (fgets) */
 
   if (fclose(fh)) {
-    char errbuf[1024];
-    WARNING("processes: fclose: %s", sstrerror(errno, errbuf, sizeof(errbuf)));
+    WARNING("processes: fclose: %s", STRERRNO);
   }
 
   ps->vmem_data = data * 1024;
@@ -1624,8 +1621,7 @@ static int ps_read_io(process_entry_t *ps) {
   } /* while (fgets) */
 
   if (fclose(fh)) {
-    char errbuf[1024];
-    WARNING("processes: fclose: %s", sstrerror(errno, errbuf, sizeof(errbuf)));
+    WARNING("processes: fclose: %s", STRERRNO);
   }
   return 0;
 } /* int ps_read_io (...) */
@@ -1649,8 +1645,7 @@ static int ps_count_maps(pid_t pid) {
   } /* while (fgets) */
 
   if (fclose(fh)) {
-    char errbuf[1024];
-    WARNING("processes: fclose: %s", sstrerror(errno, errbuf, sizeof(errbuf)));
+    WARNING("processes: fclose: %s", STRERRNO);
   }
   return count;
 } /* int ps_count_maps (...) */
@@ -2142,12 +2137,10 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
   errno = 0;
   fd = open(file, O_RDONLY);
   if (fd < 0) {
-    char errbuf[4096];
     /* ENOENT means the process exited while we were handling it.
      * Don't complain about this, it only fills the logs. */
     if (errno != ENOENT)
-      WARNING("processes plugin: Failed to open `%s': %s.", file,
-              sstrerror(errno, errbuf, sizeof(errbuf)));
+      WARNING("processes plugin: Failed to open `%s': %s.", file, STRERRNO);
     return NULL;
   }
 
@@ -2162,13 +2155,12 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
     status = read(fd, (void *)buf_ptr, len);
 
     if (status < 0) {
-      char errbuf[1024];
 
       if ((EAGAIN == errno) || (EINTR == errno))
         continue;
 
       WARNING("processes plugin: Failed to read from `%s': %s.", file,
-              sstrerror(errno, errbuf, sizeof(errbuf)));
+              STRERRNO);
       close(fd);
       return NULL;
     }
@@ -2227,9 +2219,7 @@ static int read_fork_rate(void) {
 
   proc_stat = fopen("/proc/stat", "r");
   if (proc_stat == NULL) {
-    char errbuf[1024];
-    ERROR("processes plugin: fopen (/proc/stat) failed: %s",
-          sstrerror(errno, errbuf, sizeof(errbuf)));
+    ERROR("processes plugin: fopen (/proc/stat) failed: %s", STRERRNO);
     return -1;
   }
 
@@ -2898,8 +2888,7 @@ static int ps_read(void) {
   ps_list_reset();
 
   if ((proc = opendir("/proc")) == NULL) {
-    char errbuf[1024];
-    ERROR("Cannot open `/proc': %s", sstrerror(errno, errbuf, sizeof(errbuf)));
+    ERROR("Cannot open `/proc': %s", STRERRNO);
     return -1;
   }
 
