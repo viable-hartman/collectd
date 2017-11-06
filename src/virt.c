@@ -467,6 +467,7 @@ struct interface_device {
 typedef struct domain_s {
   virDomainPtr ptr;
   virDomainInfo info;
+  _Bool active;
 } domain_t;
 
 struct lv_read_state {
@@ -482,7 +483,8 @@ struct lv_read_state {
 };
 
 static void free_domains(struct lv_read_state *state);
-static int add_domain(struct lv_read_state *state, virDomainPtr dom);
+static int add_domain(struct lv_read_state *state, virDomainPtr dom,
+                      _Bool active);
 
 static void free_block_devices(struct lv_read_state *state);
 static int add_block_device(struct lv_read_state *state, virDomainPtr dom,
@@ -1416,6 +1418,15 @@ static int get_vcpu_stats(virDomainPtr domain, unsigned short nr_virt_cpu) {
 }
 
 #ifdef HAVE_DOM_REASON
+
+static void domain_state_submit(virDomainPtr dom, int state, int reason) {
+  value_t values[] = {
+      {.gauge = (gauge_t)state}, {.gauge = (gauge_t)reason},
+  };
+
+  submit(dom, "domain_state", NULL, values, STATIC_ARRAY_SIZE(values));
+}
+
 static int get_domain_state(virDomainPtr domain) {
   int domain_state = 0;
   int domain_reason = 0;
@@ -1426,6 +1437,8 @@ static int get_domain_state(virDomainPtr domain) {
           status);
     return status;
   }
+
+  domain_state_submit(domain, domain_state, domain_reason);
 
   return status;
 }
@@ -1991,10 +2004,16 @@ static int lv_read(user_data_t *ud) {
 
   /* Get domains' metrics */
   for (int i = 0; i < state->nr_domains; ++i) {
-    int status = get_domain_metrics(&state->domains[i]);
+    domain_t *dom = &state->domains[i];
+    int status;
+    if (dom->active)
+      status = get_domain_metrics(dom);
+    else
+      status = get_domain_state(dom->ptr);
+
     if (status != 0)
       ERROR(PLUGIN_NAME " failed to get metrics for domain=%s",
-            virDomainGetName(state->domains[i].ptr));
+            virDomainGetName(dom->ptr));
   }
 
   /* Get block device stats for each domain. */
@@ -2178,17 +2197,25 @@ static int refresh_lists(struct lv_read_instance *inst) {
   struct lv_read_state *state = &inst->read_state;
   int n;
 
+#ifndef HAVE_LIST_ALL_DOMAINS
   n = virConnectNumOfDomains(conn);
   if (n < 0) {
     VIRT_ERROR(conn, "reading number of domains");
     return -1;
   }
+#endif
 
   lv_clean_read_state(state);
 
-  if (n > 0) {
+#ifndef HAVE_LIST_ALL_DOMAINS
+  if (n == 0)
+    goto end;
+#endif
+
 #ifdef HAVE_LIST_ALL_DOMAINS
-    virDomainPtr *domains;
+  virDomainPtr *domains, *domains_inactive;
+  int m = virConnectListAllDomains(conn, &domains_inactive,
+                                   VIR_CONNECT_LIST_DOMAINS_INACTIVE);
     n = virConnectListAllDomains(conn, &domains,
                                  VIR_CONNECT_LIST_DOMAINS_ACTIVE);
 #else
@@ -2208,9 +2235,19 @@ static int refresh_lists(struct lv_read_instance *inst) {
       VIRT_ERROR(conn, "reading list of domains");
 #ifndef HAVE_LIST_ALL_DOMAINS
       sfree(domids);
+#else
+    sfree(domains_inactive);
 #endif
       return -1;
     }
+
+#ifdef HAVE_LIST_ALL_DOMAINS
+  for (int i = 0; i < m; ++i)
+    if (add_domain(state, domains_inactive[i], 0) < 0) {
+      ERROR(PLUGIN_NAME " plugin: malloc failed.");
+      continue;
+    }
+#endif
 
     /* Fetch each domain and add it to the list, unless ignore. */
     for (int i = 0; i < n; ++i) {
@@ -2280,7 +2317,7 @@ static int refresh_lists(struct lv_read_instance *inst) {
       if (!lv_instance_include_domain(inst, name, tag))
         goto cont;
 
-      if (add_domain(state, dom) < 0) {
+    if (add_domain(state, dom, 1) < 0) {
         ERROR(PLUGIN_NAME " plugin: malloc failed.");
         goto cont;
       }
@@ -2376,10 +2413,12 @@ static int refresh_lists(struct lv_read_instance *inst) {
 
 #ifdef HAVE_LIST_ALL_DOMAINS
     sfree(domains);
+  sfree(domains_inactive);
 #else
     sfree(domids);
+
+end:
 #endif
-  }
 
   DEBUG(PLUGIN_NAME " plugin#%s: refreshing"
                     " domains=%i block_devices=%i iface_devices=%i",
@@ -2399,7 +2438,8 @@ static void free_domains(struct lv_read_state *state) {
   state->nr_domains = 0;
 }
 
-static int add_domain(struct lv_read_state *state, virDomainPtr dom) {
+static int add_domain(struct lv_read_state *state, virDomainPtr dom,
+                      _Bool active) {
   domain_t *new_ptr;
   int new_size = sizeof(state->domains[0]) * (state->nr_domains + 1);
 
@@ -2413,6 +2453,7 @@ static int add_domain(struct lv_read_state *state, virDomainPtr dom) {
 
   state->domains = new_ptr;
   state->domains[state->nr_domains].ptr = dom;
+  state->domains[state->nr_domains].active = active;
   memset(&state->domains[state->nr_domains].info, 0,
          sizeof(state->domains[state->nr_domains].info));
 
