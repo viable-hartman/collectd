@@ -31,7 +31,10 @@
 #include "common.h"
 #include "plugin.h"
 #include "utils_cache.h"
+<<<<<<< HEAD
 
+=======
+>>>>>>> Reformat changed files.
 #include <arpa/inet.h>
 #include <errno.h>
 #include <inttypes.h>
