@@ -206,6 +206,16 @@ typedef struct procstat_entry_s {
   unsigned long id;
   unsigned long age;
 
+  unsigned long num_proc;
+  unsigned long num_lwp;
+  unsigned long num_fd;
+  unsigned long num_maps;
+  unsigned long vmem_size;
+  unsigned long vmem_rss;
+  unsigned long vmem_data;
+  unsigned long vmem_code;
+  unsigned long stack_size;
+
   derive_t vmem_minflt_counter;
   derive_t vmem_majflt_counter;
 
@@ -496,6 +506,15 @@ static void ps_list_add(const char *name, const char *cmdline,
     }
 
     pse->age = 0;
+    pse->num_proc = entry->num_proc;
+    pse->num_lwp = entry->num_lwp;
+    pse->num_fd = entry->num_fd;
+    pse->num_maps = entry->num_maps;
+    pse->vmem_size = entry->vmem_size;
+    pse->vmem_rss = entry->vmem_rss;
+    pse->vmem_data = entry->vmem_data;
+    pse->vmem_code = entry->vmem_code;
+    pse->stack_size = entry->stack_size;
 
     ps->num_proc += entry->num_proc;
     ps->num_lwp += entry->num_lwp;
@@ -606,6 +625,7 @@ static int ps_config(oconfig_item_t *ci) {
 #elif KERNEL_SOLARIS || KERNEL_FREEBSD
   const size_t max_procname_len = MAXCOMLEN - 1;
 #endif
+
   const char *stat_names[] = {
     "ps_count",
     "ps_vm",
@@ -803,11 +823,11 @@ static void ps_submit_proc_stats(
     unsigned long num_maps,
     derive_t cswitch_vol,
     derive_t cswitch_invol) {
+  const want_detail_configuration_t *config = &want_detail_configuration_g;
   value_list_t vl = VALUE_LIST_INIT;
   value_t values[2];
 
   vl.values = values;
-  sstrncpy(vl.host, hostname_g, sizeof(vl.host));
   sstrncpy(vl.plugin, "processes", sizeof(vl.plugin));
   sstrncpy(vl.plugin_instance, instance_name, sizeof(vl.plugin_instance));
 
