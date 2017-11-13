@@ -174,6 +174,7 @@
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #ifndef CMDLINE_BUFFER_SIZE
 #if defined(ARG_MAX) && (ARG_MAX < 4096)
 #define CMDLINE_BUFFER_SIZE ARG_MAX
@@ -187,6 +188,9 @@ typedef struct procstat_entry_s
 	unsigned long id;
 	unsigned long age;
 
+=======
+typedef struct procstat_gauges_s {
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 	unsigned long num_proc;
 	unsigned long num_lwp;
 	unsigned long vmem_size;
@@ -194,16 +198,6 @@ typedef struct procstat_entry_s
 	unsigned long vmem_data;
 	unsigned long vmem_code;
 	unsigned long stack_size;
-
-	unsigned long vmem_minflt;
-	unsigned long vmem_majflt;
-	derive_t      vmem_minflt_counter;
-	derive_t      vmem_majflt_counter;
-
-	unsigned long cpu_user;
-	unsigned long cpu_system;
-	derive_t      cpu_user_counter;
-	derive_t      cpu_system_counter;
 
 	/* io data */
 	derive_t io_rchar;
@@ -215,6 +209,40 @@ typedef struct procstat_entry_s
 
 	derive_t cswitch_vol;
 	derive_t cswitch_invol;
+} procstat_gauges_t;
+
+static procstat_gauges_t procstat_gauges_init = {
+	.num_proc      = 0,
+	.num_lwp       = 0,
+	.vmem_size     = 0,
+	.vmem_rss      = 0,
+	.vmem_data     = 0,
+	.vmem_code     = 0,
+	.stack_size    = 0,
+	.io_rchar      = -1,
+	.io_wchar      = -1,
+	.io_syscr      = -1,
+	.io_syscw      = -1,
+	.io_diskr      = -1,
+	.io_diskw      = -1,
+	.cswitch_vol   = -1,
+	.cswitch_invol = -1,
+};
+
+typedef struct procstat_counters_s {
+	derive_t vmem_minflt;
+	derive_t vmem_majflt;
+	derive_t cpu_user;
+	derive_t cpu_system;
+} procstat_counters_t;
+
+typedef struct procstat_entry_s
+{
+	unsigned long id;
+	unsigned long age;
+
+	procstat_gauges_t gauges;
+	procstat_counters_t counters;
 
 	struct procstat_entry_s *next;
 } procstat_entry_t;
@@ -267,6 +295,7 @@ typedef struct procstat_gauges_s {
 #endif
   bool has_delay;
 
+<<<<<<< HEAD
   bool has_fd;
 
   bool has_maps;
@@ -394,6 +423,13 @@ typedef struct procstat {
 #endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+	procstat_gauges_t gauges;
+	procstat_counters_t counters;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -613,14 +649,19 @@ int getthrds64(pid_t, void *, int, tid64_t *, int);
 int getargs(void *processBuffer, int bufferLen, char *argsBuffer, int argsLen);
 #endif /* HAVE_PROCINFO_H */
 
+<<<<<<< HEAD
 #if HAVE_LIBTASKSTATS
 static ts_t *taskstats_handle;
 #endif
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> processes plugin: Implement the "CollectDelayAccounting" option.
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
+=======
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 static derive_t ps_delta(derive_t value) {
 	return (value == -1) ? 0 : value;
 }
@@ -644,6 +685,10 @@ static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *s
 	dst->cswitch_vol   += ps_delta(src->cswitch_vol);
 	dst->cswitch_invol += ps_delta(src->cswitch_invol);
 }
+<<<<<<< HEAD
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
 /* put name of process from config to list_head_g tree
  * list_head_g is a list of 'procstat_t' structs with
@@ -778,6 +823,7 @@ static void ps_update_counter(derive_t *group_counter, derive_t *curr_counter,
   else
     curr_value = new_counter - *curr_counter;
 
+<<<<<<< HEAD
   if (*group_counter == -1)
     *group_counter = 0;
 
@@ -820,6 +866,22 @@ static void ps_update_delay_one(gauge_t *out_rate_sum,
   } else {
     *out_rate_sum += rate;
   }
+=======
+static void ps_update_counter (derive_t *group_counter, derive_t *curr_counter, 
+                               derive_t new_counter)
+{
+	// Determine whether or not the counter has overflowed and compensate
+	// accordingly.
+	unsigned long delta;
+
+	if (new_counter < *curr_counter)
+		delta = new_counter + (ULONG_MAX - *curr_counter);
+	else
+		delta = new_counter - *curr_counter;
+
+	*curr_counter = new_counter;
+	*group_counter += delta;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 }
 
 static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
@@ -967,10 +1029,13 @@ static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t
 	for (procstat_t *ps = list_head_g; ps != NULL; ps = ps->next)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 		_Bool want_init;
 
 >>>>>>> Support detailed process metrics in processes.c
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 		if ((ps_list_match (name, cmdline, ps)) == 0)
 			continue;
 
@@ -997,6 +1062,9 @@ static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t
 
 		pse->age = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
 		pse->gauges = entry->gauges;
 
@@ -1011,6 +1079,7 @@ static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t
                        entry->counters.cpu_user);
 		ps_update_counter (&ps->counters.cpu_system, &pse->counters.cpu_system,
                        entry->counters.cpu_system);
+<<<<<<< HEAD
 =======
 		pse->num_proc   = entry->num_proc;
 		pse->num_lwp    = entry->num_lwp;
@@ -1067,6 +1136,8 @@ static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t
 				&pse->cpu_system_counter, &pse->cpu_system,
 				entry->cpu_system_counter, entry->cpu_system);
 >>>>>>> Support detailed process metrics in processes.c
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 	}
 >>>>>>> Support detailed process metrics in processes.c
 }
@@ -1121,6 +1192,7 @@ static void ps_list_reset (void)
 	for (procstat_t *ps = list_head_g; ps != NULL; ps = ps->next)
 	{
 <<<<<<< HEAD
+<<<<<<< HEAD
 		ps->gauges = procstat_gauges_init;
 =======
 		ps->num_proc    = 0;
@@ -1139,6 +1211,9 @@ static void ps_list_reset (void)
 		ps->cswitch_vol   = -1;
 		ps->cswitch_invol = -1;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+		ps->gauges = procstat_gauges_init;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
 		pse_prev = NULL;
 		pse = ps->instances;
@@ -1221,12 +1296,17 @@ static int ps_config(oconfig_item_t *ci) {
         "ps_disk_octets",
         "ps_disk_ops",
 <<<<<<< HEAD
+<<<<<<< HEAD
         "cswitch_vol",
         "cswitch_invol"
 =======
 	"cswitch_vol",
 	"cswitch_invol"
 >>>>>>> Support detailed process metrics in processes.c
+=======
+        "cswitch_vol",
+        "cswitch_invol"
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
     };
 
     _Bool *detail_flags[] = {
@@ -1241,12 +1321,17 @@ static int ps_config(oconfig_item_t *ci) {
         &want_detail_configuration_g.ps_disk_octets,
         &want_detail_configuration_g.ps_disk_ops,
 <<<<<<< HEAD
+<<<<<<< HEAD
         &want_detail_configuration_g.cswitch_vol,
         &want_detail_configuration_g.cswitch_invol
 =======
 	&want_detail_configuration_g.cswitch_vol,
 	&want_detail_configuration_g.cswitch_invol
 >>>>>>> Support detailed process metrics in processes.c
+=======
+        &want_detail_configuration_g.cswitch_vol,
+        &want_detail_configuration_g.cswitch_invol
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
     };
 
   procstat_t *ps;
@@ -1624,6 +1709,7 @@ static void ps_submit_proc_stats (
         const char *command,
         const char *command_line,
 <<<<<<< HEAD
+<<<<<<< HEAD
         procstat_gauges_t *procstat_gauges,
         procstat_counters_t *procstat_counters)
 =======
@@ -1647,6 +1733,10 @@ static void ps_submit_proc_stats (
 	derive_t cswitch_vol,
         derive_t cswitch_invol)
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+        procstat_gauges_t *procstat_gauges,
+        procstat_counters_t *procstat_counters)
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 {
     const want_detail_configuration_t *config = &want_detail_configuration_g;
     value_t values[MAX_VALUE_LIST_SIZE];
@@ -1696,6 +1786,7 @@ static void ps_submit_proc_stats (
     dispatch_value_helper(&vl, "ps_stacksize", NULL, 1, doing_detail,
                           config->ps_stacksize);
 
+<<<<<<< HEAD
     vl.values[0].derive = procstat_counters->vmem_minflt_counter;
     vl.values[1].derive = procstat_counters->vmem_majflt_counter;
     dispatch_value_helper(&vl, "ps_pagefaults", NULL, 2, doing_detail,
@@ -1703,11 +1794,21 @@ static void ps_submit_proc_stats (
 
     vl.values[0].derive = procstat_counters->cpu_user_counter;
     vl.values[1].derive = procstat_counters->cpu_system_counter;
+=======
+    vl.values[0].derive = procstat_counters->vmem_minflt;
+    vl.values[1].derive = procstat_counters->vmem_majflt;
+    dispatch_value_helper(&vl, "ps_pagefaults", NULL, 2, doing_detail,
+                          config->ps_pagefaults);
+
+    vl.values[0].derive = procstat_counters->cpu_user;
+    vl.values[1].derive = procstat_counters->cpu_system;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
     dispatch_value_helper(&vl, "ps_cputime", NULL, 2, doing_detail,
                           config->ps_cputime);
 
     if ( (procstat_gauges->io_rchar != -1) && (procstat_gauges->io_wchar != -1) )
     {
+<<<<<<< HEAD
 <<<<<<< HEAD
         vl.values[0].derive = procstat_gauges->io_rchar;
         vl.values[1].derive = procstat_gauges->io_wchar;
@@ -1715,6 +1816,10 @@ static void ps_submit_proc_stats (
         vl.values[0].derive = io_rchar;
         vl.values[1].derive = io_wchar;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+        vl.values[0].derive = procstat_gauges->io_rchar;
+        vl.values[1].derive = procstat_gauges->io_wchar;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
         dispatch_value_helper(&vl, "io_octets", NULL, 2, doing_detail,
                 config->ps_disk_octets);
     }
@@ -1722,16 +1827,22 @@ static void ps_submit_proc_stats (
     if ( (procstat_gauges->io_syscr != -1) && (procstat_gauges->io_syscw != -1) )
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         vl.values[0].derive = procstat_gauges->io_syscr;
         vl.values[1].derive = procstat_gauges->io_syscw;
 =======
         vl.values[0].derive = io_syscr;
         vl.values[1].derive = io_syscw;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+        vl.values[0].derive = procstat_gauges->io_syscr;
+        vl.values[1].derive = procstat_gauges->io_syscw;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
         dispatch_value_helper(&vl, "io_ops", NULL, 2, doing_detail,
                               config->ps_disk_ops);
     }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     if ( (procstat_gauges->io_diskr != -1) && (procstat_gauges->io_diskw != -1) )
     {
@@ -1743,6 +1854,12 @@ static void ps_submit_proc_stats (
         vl.values[0].derive = io_diskr;
         vl.values[1].derive = io_diskw;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+    if ( (procstat_gauges->io_diskr != -1) && (procstat_gauges->io_diskw != -1) )
+    {
+        vl.values[0].derive = procstat_gauges->io_diskr;
+        vl.values[1].derive = procstat_gauges->io_diskw;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
         dispatch_value_helper(&vl, "disk_octets", NULL, 2, doing_detail,
                               config->ps_disk_octets);
     }
@@ -1769,15 +1886,24 @@ static void ps_submit_proc_stats (
             "io_diskr = %"PRIi64"; io_diskw = %"PRIi64";"
             "cswitch_vol = %"PRIi64"; cswitch_invol = %"PRIi64";",
 <<<<<<< HEAD
+<<<<<<< HEAD
             instance_name, pid, procstat_gauges->num_proc, procstat_gauges->num_lwp,
             procstat_gauges->vmem_size, procstat_gauges->vmem_rss,
             procstat_gauges->vmem_data, procstat_gauges->vmem_code,
             procstat_counters->vmem_minflt_counter, procstat_counters->vmem_majflt_counter,
             procstat_counters->cpu_user_counter, procstat_counters->cpu_system_counter,
+=======
+            instance_name, pid, procstat_gauges->num_proc, procstat_gauges->num_lwp,
+            procstat_gauges->vmem_size, procstat_gauges->vmem_rss,
+            procstat_gauges->vmem_data, procstat_gauges->vmem_code,
+            procstat_counters->vmem_minflt, procstat_counters->vmem_majflt,
+            procstat_counters->cpu_user, procstat_counters->cpu_system,
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
             procstat_gauges->io_rchar, procstat_gauges->io_wchar,
             procstat_gauges->io_syscr, procstat_gauges->io_syscw,
             procstat_gauges->io_diskr, procstat_gauges->io_diskw,
             procstat_gauges->cswitch_vol, procstat_gauges->cswitch_invol);
+<<<<<<< HEAD
 =======
             instance_name, num_proc, num_lwp,
             vmem_size, vmem_rss,
@@ -1788,6 +1914,8 @@ static void ps_submit_proc_stats (
             io_diskr, io_diskw,
             cswitch_vol, cswitch_invol);
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 } /* void ps_submit_proc_list */
 
 #undef MAX_VALUE_LIST_SIZE
@@ -1822,6 +1950,7 @@ static void ps_submit_procstat_entry (const char *instance_name,
             command,
             cmd_line_to_use,
 <<<<<<< HEAD
+<<<<<<< HEAD
             &entry->gauges,
             &entry->counters);
 =======
@@ -1845,6 +1974,10 @@ static void ps_submit_procstat_entry (const char *instance_name,
 	    entry->cswitch_vol,
 	    entry->cswitch_invol);
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+            &entry->gauges,
+            &entry->counters);
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
     sfree (command);
     sfree (owner);
@@ -1860,6 +1993,7 @@ static void ps_submit_proc_list (procstat_t *ps)
             NULL,  // owner
             NULL,  // command
             NULL,  // command_line
+<<<<<<< HEAD
 <<<<<<< HEAD
             &ps->gauges,
             &ps->counters);
@@ -1884,6 +2018,10 @@ static void ps_submit_proc_list (procstat_t *ps)
 	    ps->cswitch_vol,
 	    ps->cswitch_invol);
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+            &ps->gauges,
+            &ps->counters);
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
     if (some_detail_active_g) {
         procstat_entry_t *entry;
@@ -1928,6 +2066,33 @@ static void ps_submit_proc_list(procstat_t *ps) {
   vl.values[0].gauge = ps->gauges.vmem_size;
   vl.values_len = 1;
   plugin_dispatch_values(&vl);
+<<<<<<< HEAD
+=======
+}
+#endif /* KERNEL_LINUX || KERNEL_SOLARIS*/
+
+/* ------- additional functions for KERNEL_LINUX/HAVE_THREAD_INFO ------- */
+#if KERNEL_LINUX
+<<<<<<< HEAD
+static int ps_read_tasks_status(process_entry_t *ps) {
+  char dirname[64];
+  DIR *dh;
+  char filename[64];
+  FILE *fh;
+  struct dirent *ent;
+  derive_t cswitch_vol = 0;
+  derive_t cswitch_invol = 0;
+  char buffer[1024];
+  char *fields[8];
+  int numfields;
+
+  snprintf(dirname, sizeof(dirname), "/proc/%li/task", ps->id);
+
+  if ((dh = opendir(dirname)) == NULL) {
+    DEBUG("Failed to open directory `%s'", dirname);
+    return -1;
+  }
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
   sstrncpy(vl.type, "ps_rss", sizeof(vl.type));
   vl.values[0].gauge = ps->gauges.vmem_rss;
@@ -1939,10 +2104,45 @@ static void ps_submit_proc_list(procstat_t *ps) {
   vl.values_len = 1;
   plugin_dispatch_values(&vl);
 
+<<<<<<< HEAD
   sstrncpy(vl.type, "ps_code", sizeof(vl.type));
   vl.values[0].gauge = ps->gauges.vmem_code;
   vl.values_len = 1;
   plugin_dispatch_values(&vl);
+=======
+    int r = snprintf(filename, sizeof(filename), "/proc/%li/task/%s/status",
+                     ps->id, tpid);
+    if ((size_t)r >= sizeof(filename)) {
+      DEBUG("Filename too long: `%s'", filename);
+      continue;
+    }
+=======
+static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
+{
+	char           dirname[64];
+	DIR           *dh;
+	char           filename[64];
+	FILE          *fh;
+	struct dirent *ent;
+	derive_t cswitch_vol = 0;
+	derive_t cswitch_invol = 0;
+	char buffer[1024];
+	char *fields[8];
+	int numfields;
+
+	ssnprintf (dirname, sizeof (dirname), "/proc/%li/task", pid);
+
+	if ((dh = opendir (dirname)) == NULL)
+	{
+		DEBUG ("Failed to open directory `%s'", dirname);
+		return (NULL);
+	}
+
+	while ((ent = readdir (dh)) != NULL)
+	{
+		char *tpid;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
   sstrncpy(vl.type, "ps_stacksize", sizeof(vl.type));
   vl.values[0].gauge = ps->gauges.stack_size;
@@ -1991,12 +2191,18 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
+<<<<<<< HEAD
   if (ps->gauges.num_fd > 0) {
     sstrncpy(vl.type, "file_handles", sizeof(vl.type));
     vl.values[0].gauge = ps->gauges.num_fd;
     vl.values_len = 1;
     plugin_dispatch_values(&vl);
   }
+=======
+<<<<<<< HEAD
+  ps->cswitch_vol = cswitch_vol;
+  ps->cswitch_invol = cswitch_invol;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
   if (ps->gauges.num_maps > 0) {
     sstrncpy(vl.type, "file_handles", sizeof(vl.type));
@@ -3478,6 +3684,16 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
   }
 =======
 static procstat_t *ps_read_status (long pid, procstat_t *ps)
+=======
+	g->cswitch_vol = cswitch_vol;
+	g->cswitch_invol = cswitch_invol;
+
+	return (g);
+} /* int *ps_read_tasks_status */
+
+/* Read data from /proc/pid/status */
+static procstat_gauges_t *ps_read_status (long pid, procstat_gauges_t *g)
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 {
 	FILE *fh;
 	char buffer[1024];
@@ -3539,15 +3755,15 @@ static procstat_t *ps_read_status (long pid, procstat_t *ps)
 				sstrerror (errno, errbuf, sizeof (errbuf)));
 	}
 
-	ps->vmem_data = data * 1024;
-	ps->vmem_code = (exe + lib) * 1024;
+	g->vmem_data = data * 1024;
+	g->vmem_code = (exe + lib) * 1024;
 	if (threads != 0)
-		ps->num_lwp = threads;
+		g->num_lwp = threads;
 
-	return (ps);
+	return (g);
 } /* procstat_t *ps_read_vmem */
 
-static procstat_t *ps_read_io (long pid, procstat_t *ps)
+static procstat_gauges_t *ps_read_io (long pid, procstat_gauges_t *g)
 {
 	FILE *fh;
 	char buffer[1024];
@@ -3567,17 +3783,17 @@ static procstat_t *ps_read_io (long pid, procstat_t *ps)
 		char *endptr;
 
 		if (strncasecmp (buffer, "rchar:", 6) == 0)
-			val = &(ps->io_rchar);
+			val = &(g->io_rchar);
 		else if (strncasecmp (buffer, "wchar:", 6) == 0)
-			val = &(ps->io_wchar);
+			val = &(g->io_wchar);
 		else if (strncasecmp (buffer, "syscr:", 6) == 0)
-			val = &(ps->io_syscr);
+			val = &(g->io_syscr);
 		else if (strncasecmp (buffer, "syscw:", 6) == 0)
-			val = &(ps->io_syscw);
+			val = &(g->io_syscw);
 		else if (strncasecmp (buffer, "read_bytes:", 11) == 0)
-			val = &(ps->io_diskr);
+			val = &(g->io_diskr);
 		else if (strncasecmp (buffer, "write_bytes:", 12) == 0)
-			val = &(ps->io_diskw);
+			val = &(g->io_diskw);
 		else
 			continue;
 
@@ -3603,7 +3819,7 @@ static procstat_t *ps_read_io (long pid, procstat_t *ps)
 				sstrerror (errno, errbuf, sizeof (errbuf)));
 	}
 
-	return (ps);
+	return (g);
 } /* procstat_t *ps_read_io */
 
 static int ps_read_process (long pid, procstat_t *ps, char *state)
@@ -3621,8 +3837,8 @@ static int ps_read_process (long pid, procstat_t *ps, char *state)
 	size_t name_end_pos;
 	size_t name_len;
 
-	derive_t cpu_user_counter;
-	derive_t cpu_system_counter;
+	derive_t cpu_user;
+	derive_t cpu_system;
 	long long unsigned vmem_size;
 	long long unsigned vmem_rss;
 	long long unsigned stack_size;
@@ -3684,38 +3900,38 @@ static int ps_read_process (long pid, procstat_t *ps, char *state)
 
 	if (*state == 'Z')
 	{
-		ps->num_lwp  = 0;
-		ps->num_proc = 0;
+		ps->gauges.num_lwp  = 0;
+		ps->gauges.num_proc = 0;
 	}
 	else
 	{
-		ps->num_lwp = strtoul (fields[17], /* endptr = */ NULL, /* base = */ 10);
-		if ((ps_read_status(pid, ps)) == NULL)
+		ps->gauges.num_lwp = strtoul (fields[17], /* endptr = */ NULL, /* base = */ 10);
+		if ((ps_read_status(pid, &ps->gauges)) == NULL)
 		{
 			/* No VMem data */
-			ps->vmem_data = -1;
-			ps->vmem_code = -1;
+			ps->gauges.vmem_data = -1;
+			ps->gauges.vmem_code = -1;
 			DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
 		}
-		if (ps->num_lwp == 0)
-			ps->num_lwp = 1;
-		ps->num_proc = 1;
+		if (ps->gauges.num_lwp == 0)
+			ps->gauges.num_lwp = 1;
+		ps->gauges.num_proc = 1;
 	}
 
 	/* Leave the rest at zero if this is only a zombi */
-	if (ps->num_proc == 0)
+	if (ps->gauges.num_proc == 0)
 	{
 		DEBUG ("processes plugin: This is only a zombie: pid = %li; "
 				"name = %s;", pid, ps->name);
 		return (0);
 	}
 
-	cpu_user_counter   = atoll (fields[11]);
-	cpu_system_counter = atoll (fields[12]);
+	cpu_user   = atoll (fields[11]);
+	cpu_system = atoll (fields[12]);
 	vmem_size          = atoll (fields[20]);
 	vmem_rss           = atoll (fields[21]);
-	ps->vmem_minflt_counter = atol (fields[7]);
-	ps->vmem_majflt_counter = atol (fields[9]);
+	ps->counters.vmem_minflt = atol (fields[7]);
+	ps->counters.vmem_majflt = atol (fields[9]);
 
 	{
 		unsigned long long stack_start = atoll (fields[25]);
@@ -3727,13 +3943,20 @@ static int ps_read_process (long pid, procstat_t *ps, char *state)
 	}
 
 	/* Convert jiffies to useconds */
-	cpu_user_counter   = cpu_user_counter   * 1000000 / CONFIG_HZ;
-	cpu_system_counter = cpu_system_counter * 1000000 / CONFIG_HZ;
+	cpu_user   = cpu_user   * 1000000 / CONFIG_HZ;
+	cpu_system = cpu_system * 1000000 / CONFIG_HZ;
 	vmem_rss = vmem_rss * pagesize_g;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
+<<<<<<< HEAD
   buf_ptr = buf;
   len = buf_len;
+=======
+<<<<<<< HEAD
+  return 0;
+}
+#endif
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
 <<<<<<< HEAD
   n = 0;
@@ -3755,12 +3978,51 @@ static void ps_fill_details(const procstat_t *ps, process_entry_t *entry) {
 		ps->io_diskr = -1;
 		ps->io_diskw = -1;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+<<<<<<< HEAD
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+=======
+	ps->counters.cpu_user = cpu_user;
+	ps->counters.cpu_system = cpu_system;
+	ps->gauges.vmem_size = (unsigned long) vmem_size;
+	ps->gauges.vmem_rss = (unsigned long) vmem_rss;
+	ps->gauges.stack_size = (unsigned long) stack_size;
+
+	if ( (ps_read_io (pid, &ps->gauges)) == NULL)
+	{
+		/* no io data */
+		ps->gauges.io_rchar = -1;
+		ps->gauges.io_wchar = -1;
+		ps->gauges.io_syscr = -1;
+		ps->gauges.io_syscw = -1;
+		ps->gauges.io_diskr = -1;
+		ps->gauges.io_diskw = -1;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
   while (42) {
     ssize_t status;
 
+<<<<<<< HEAD
     status = read(fd, (void *)buf_ptr, len);
+=======
+<<<<<<< HEAD
+  if (ps->report_maps_num) {
+    int num_maps;
+    if (entry->has_maps == false && (num_maps = ps_count_maps(entry->id)) > 0) {
+      entry->num_maps = num_maps;
+    }
+    entry->has_maps = true;
+  }
+=======
+	if ( report_ctx_switch )
+	{
+		if ( (ps_read_tasks_status(pid, &ps->gauges)) == NULL)
+		{
+			ps->gauges.cswitch_vol = -1;
+			ps->gauges.cswitch_invol = -1;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
     if (status < 0) {
 
@@ -4382,8 +4644,11 @@ static char *ps_get_cmdline(long pid,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 static int ps_read_process(long pid, process_entry_t *ps, char *state) {
 =======
 static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
@@ -4533,11 +4798,60 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
    */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
   ps->counters.cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
   ps->counters.cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
 >>>>>>> gauges. ...
+=======
+  ps->cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
+  ps->cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
+=======
+static int ps_read_process(long pid, procstat_t *ps, char *state)
+{
+	char filename[64];
+	char f_psinfo[64], f_usage[64];
+	char *buffer;
+
+	pstatus_t *myStatus;
+	psinfo_t *myInfo;
+	prusage_t *myUsage;
+
+	snprintf(filename, sizeof (filename), "/proc/%li/status", pid);
+	snprintf(f_psinfo, sizeof (f_psinfo), "/proc/%li/psinfo", pid);
+	snprintf(f_usage, sizeof (f_usage), "/proc/%li/usage", pid);
+
+
+	buffer = calloc(1, sizeof (pstatus_t));
+	read_file_contents(filename, buffer, sizeof (pstatus_t));
+	myStatus = (pstatus_t *) buffer;
+
+	buffer = calloc(1, sizeof (psinfo_t));
+	read_file_contents(f_psinfo, buffer, sizeof (psinfo_t));
+	myInfo = (psinfo_t *) buffer;
+
+	buffer = calloc(1, sizeof (prusage_t));
+	read_file_contents(f_usage, buffer, sizeof (prusage_t));
+	myUsage = (prusage_t *) buffer;
+
+	sstrncpy(ps->name, myInfo->pr_fname, sizeof (myInfo->pr_fname));
+	ps->gauges.num_lwp = myStatus->pr_nlwp;
+	if (myInfo->pr_wstat != 0) {
+		ps->gauges.num_proc = 0;
+		ps->gauges.num_lwp = 0;
+		*state = (char) 'Z';
+
+		sfree(myStatus);
+		sfree(myInfo);
+		sfree(myUsage);
+		return (0);
+	} else {
+		ps->gauges.num_proc = 1;
+		ps->gauges.num_lwp = myInfo->pr_nlwp;
+	}
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
 <<<<<<< HEAD
   /*
@@ -4547,24 +4861,24 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
 	 * Convert system time and user time from nanoseconds to microseconds
 	 * for compatibility with the linux module
 	 */
-	ps->cpu_system_counter = myStatus -> pr_stime.tv_nsec / 1000;
-	ps->cpu_user_counter = myStatus -> pr_utime.tv_nsec / 1000;
+	ps->counters.cpu_system = myStatus -> pr_stime.tv_nsec / 1000;
+	ps->counters.cpu_user = myStatus -> pr_utime.tv_nsec / 1000;
 
 	/*
 	 * Convert rssize from KB to bytes to be consistent w/ the linux module
 	 */
-	ps->vmem_rss = myInfo->pr_rssize * 1024;
-	ps->vmem_size = myInfo->pr_size * 1024;
-	ps->vmem_minflt_counter = myUsage->pr_minf;
-	ps->vmem_majflt_counter = myUsage->pr_majf;
+	ps->gauges.vmem_rss = myInfo->pr_rssize * 1024;
+	ps->gauges.vmem_size = myInfo->pr_size * 1024;
+	ps->gauges.counters.vmem_minflt = myUsage->pr_minf;
+	ps->gauges.counters.vmem_majflt = myUsage->pr_majf;
 
 	/*
 	 * TODO: Data and code segment calculations for Solaris
 	 */
 
-	ps->vmem_data = -1;
-	ps->vmem_code = -1;
-	ps->stack_size = myStatus->pr_stksize;
+	ps->gauges.vmem_data = -1;
+	ps->gauges.vmem_code = -1;
+	ps->gauges.stack_size = myStatus->pr_stksize;
 
 	/*
 	 * Calculating input/ouput chars
@@ -4576,19 +4890,22 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
 	ulong_t chars_per_block = 1;
 	if (tot_blocks != 0)
 		chars_per_block = tot_chars / tot_blocks;
-	ps->io_rchar = myUsage->pr_inblk * chars_per_block;
-	ps->io_wchar = myUsage->pr_oublk * chars_per_block;
-	ps->io_syscr = myUsage->pr_sysc;
-	ps->io_syscw = myUsage->pr_sysc;
-	ps->io_diskr = -1;
-	ps->io_diskw = -1;
+	ps->gauges.io_rchar = myUsage->pr_inblk * chars_per_block;
+	ps->gauges.io_wchar = myUsage->pr_oublk * chars_per_block;
+	ps->gauges.io_syscr = myUsage->pr_sysc;
+	ps->gauges.io_syscw = myUsage->pr_sysc;
+	ps->gauges.io_diskr = -1;
+	ps->gauges.io_diskw = -1;
 
 	/*
 	 * TODO: context switch counters for Solaris
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
    */
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
   ps->vmem_rss = myInfo->pr_rssize * 1024;
   ps->vmem_size = myInfo->pr_size * 1024;
   ps->vmem_minflt_counter = myUsage->pr_minf;
@@ -4597,12 +4914,15 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
 	ps->gauges.cswitch_vol   = -1;
 	ps->gauges.cswitch_invol = -1;
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+<<<<<<< HEAD
 =======
   ps->gauges.vmem_rss = myInfo->pr_rssize * 1024;
   ps->gauges.vmem_size = myInfo->pr_size * 1024;
   ps->counters.vmem_minflt_counter = myUsage->pr_minf;
   ps->counters.vmem_majflt_counter = myUsage->pr_majf;
 >>>>>>> gauges. ...
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
   /*
    * TODO: Data and code segment calculations for Solaris
@@ -4770,6 +5090,7 @@ static int ps_read(void) {
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   ps_list_reset();
 
+<<<<<<< HEAD
   /*
    * The Mach-concept is a little different from the traditional UNIX
    * concept: All the work is done in threads. Threads are contained in
@@ -4792,7 +5113,103 @@ static int ps_read(void) {
       continue;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+=======
+	/*
+	 * The Mach-concept is a little different from the traditional UNIX
+	 * concept: All the work is done in threads. Threads are contained in
+	 * `tasks'. Therefore, `task status' doesn't make much sense, since
+	 * it's actually a `thread status'.
+	 * Tasks are assigned to sets of processors, so that's where you go to
+	 * get a list.
+	 */
+	for (mach_msg_type_number_t pset = 0; pset < pset_list_len; pset++)
+	{
+		if ((status = host_processor_set_priv (port_host_self,
+						pset_list[pset],
+						&port_pset_priv)) != KERN_SUCCESS)
+		{
+			ERROR ("host_processor_set_priv failed: %s\n",
+					mach_error_string (status));
+			continue;
+		}
+
+		if ((status = processor_set_tasks (port_pset_priv,
+						&task_list,
+						&task_list_len)) != KERN_SUCCESS)
+		{
+			ERROR ("processor_set_tasks failed: %s\n",
+					mach_error_string (status));
+			mach_port_deallocate (port_task_self, port_pset_priv);
+			continue;
+		}
+
+		for (mach_msg_type_number_t task = 0; task < task_list_len; task++)
+		{
+			ps = NULL;
+			if (mach_get_task_name (task_list[task],
+						&task_pid,
+						task_name, PROCSTAT_NAME_LEN) == 0)
+			{
+				/* search for at least one match */
+				for (ps = list_head_g; ps != NULL; ps = ps->next)
+					/* FIXME: cmdline should be here instead of NULL */
+					if (ps_list_match (task_name, NULL, ps) == 1)
+						break;
+			}
+
+			/* Collect more detailed statistics for this process */
+			if (ps != NULL)
+			{
+				task_basic_info_data_t        task_basic_info;
+				mach_msg_type_number_t        task_basic_info_len;
+				task_events_info_data_t       task_events_info;
+				mach_msg_type_number_t        task_events_info_len;
+				task_absolutetime_info_data_t task_absolutetime_info;
+				mach_msg_type_number_t        task_absolutetime_info_len;
+
+				memset (&pse, '\0', sizeof (pse));
+				pse.id = task_pid;
+
+				task_basic_info_len = TASK_BASIC_INFO_COUNT;
+				status = task_info (task_list[task],
+						TASK_BASIC_INFO,
+						(task_info_t) &task_basic_info,
+						&task_basic_info_len);
+				if (status != KERN_SUCCESS)
+				{
+					ERROR ("task_info failed: %s",
+							mach_error_string (status));
+					continue; /* with next thread_list */
+				}
+
+				task_events_info_len = TASK_EVENTS_INFO_COUNT;
+				status = task_info (task_list[task],
+						TASK_EVENTS_INFO,
+						(task_info_t) &task_events_info,
+						&task_events_info_len);
+				if (status != KERN_SUCCESS)
+				{
+					ERROR ("task_info failed: %s",
+							mach_error_string (status));
+					continue; /* with next thread_list */
+				}
+
+				task_absolutetime_info_len = TASK_ABSOLUTETIME_INFO_COUNT;
+				status = task_info (task_list[task],
+						TASK_ABSOLUTETIME_INFO,
+						(task_info_t) &task_absolutetime_info,
+						&task_absolutetime_info_len);
+				if (status != KERN_SUCCESS)
+				{
+					ERROR ("task_info failed: %s",
+							mach_error_string (status));
+					continue; /* with next thread_list */
+				}
+
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 				pse.gauges.num_proc++;
 				pse.gauges.vmem_size = task_basic_info.virtual_size;
 				pse.gauges.vmem_rss = task_basic_info.resident_size;
@@ -4848,8 +5265,11 @@ static int ps_read(void) {
 				if (ps != NULL)
 					pse.gauges.num_lwp++;
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
     for (mach_msg_type_number_t task = 0; task < task_list_len; task++) {
       ps = NULL;
@@ -5118,33 +5538,8 @@ static int ps_read(void) {
 		pse.id       = pid;
 		pse.age      = 0;
 
-		pse.num_proc   = ps.num_proc;
-		pse.num_lwp    = ps.num_lwp;
-		pse.vmem_size  = ps.vmem_size;
-		pse.vmem_rss   = ps.vmem_rss;
-		pse.vmem_data  = ps.vmem_data;
-		pse.vmem_code  = ps.vmem_code;
-		pse.stack_size = ps.stack_size;
-
-		pse.vmem_minflt = 0;
-		pse.vmem_minflt_counter = ps.vmem_minflt_counter;
-		pse.vmem_majflt = 0;
-		pse.vmem_majflt_counter = ps.vmem_majflt_counter;
-
-		pse.cpu_user = 0;
-		pse.cpu_user_counter = ps.cpu_user_counter;
-		pse.cpu_system = 0;
-		pse.cpu_system_counter = ps.cpu_system_counter;
-
-		pse.io_rchar = ps.io_rchar;
-		pse.io_wchar = ps.io_wchar;
-		pse.io_syscr = ps.io_syscr;
-		pse.io_syscw = ps.io_syscw;
-		pse.io_diskr = ps.io_diskr;
-		pse.io_diskw = ps.io_diskw;
-
-		pse.cswitch_vol = ps.cswitch_vol;
-		pse.cswitch_invol = ps.cswitch_invol;
+		pse.gauges = ps.gauges;
+		pse.counters = ps.counters;
 
 		switch (state)
 		{
@@ -5687,6 +6082,7 @@ static int ps_read(void) {
 			pse.age      = 0;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 			/* no I/O data */
 			/* context switch counters not implemented */
 			pse.gauges = procstat_gauges_init;
@@ -5707,22 +6103,33 @@ static int ps_read(void) {
 =======
 			pse.num_proc = 1;
 			pse.num_lwp  = procs[i].ki_numthreads;
+=======
+			/* no I/O data */
+			/* context switch counters not implemented */
+			pse.gauges = procstat_gauges_init;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
-			pse.vmem_size = procs[i].ki_size;
-			pse.vmem_rss = procs[i].ki_rssize * pagesize;
-			pse.vmem_data = procs[i].ki_dsize * pagesize;
-			pse.vmem_code = procs[i].ki_tsize * pagesize;
-			pse.stack_size = procs[i].ki_ssize * pagesize;
-			pse.vmem_minflt = 0;
-			pse.vmem_minflt_counter = procs[i].ki_rusage.ru_minflt;
-			pse.vmem_majflt = 0;
-			pse.vmem_majflt_counter = procs[i].ki_rusage.ru_majflt;
+			pse.gauges.num_proc = 1;
+			pse.gauges.num_lwp  = procs[i].ki_numthreads;
 
+<<<<<<< HEAD
 			pse.cpu_user = 0;
 			pse.cpu_system = 0;
 			pse.cpu_user_counter = 0;
 			pse.cpu_system_counter = 0;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+			pse.gauges.vmem_size = procs[i].ki_size;
+			pse.gauges.vmem_rss = procs[i].ki_rssize * pagesize;
+			pse.gauges.vmem_data = procs[i].ki_dsize * pagesize;
+			pse.gauges.vmem_code = procs[i].ki_tsize * pagesize;
+			pse.gauges.stack_size = procs[i].ki_ssize * pagesize;
+			pse.counters.vmem_minflt = procs[i].ki_rusage.ru_minflt;
+			pse.counters.vmem_majflt = procs[i].ki_rusage.ru_majflt;
+
+			pse.counters.cpu_user = 0;
+			pse.counters.cpu_system = 0;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 			/*
 			 * The u-area might be swapped out, and we can't get
 			 * at it because we have a crashdump and no swap.
@@ -5732,6 +6139,7 @@ static int ps_read(void) {
 			if (procs[i].ki_flag & P_INMEM)
 			{
 <<<<<<< HEAD
+<<<<<<< HEAD
 				pse.counters.cpu_user = procs[i].ki_rusage.ru_utime.tv_usec
 				       	+ (1000000lu * procs[i].ki_rusage.ru_utime.tv_sec);
 				pse.counters.cpu_system = procs[i].ki_rusage.ru_stime.tv_usec
@@ -5740,11 +6148,15 @@ static int ps_read(void) {
 
 =======
 				pse.cpu_user_counter = procs[i].ki_rusage.ru_utime.tv_usec
+=======
+				pse.counters.cpu_user = procs[i].ki_rusage.ru_utime.tv_usec
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 				       	+ (1000000lu * procs[i].ki_rusage.ru_utime.tv_sec);
-				pse.cpu_system_counter = procs[i].ki_rusage.ru_stime.tv_usec
+				pse.counters.cpu_system = procs[i].ki_rusage.ru_stime.tv_usec
 					+ (1000000lu * procs[i].ki_rusage.ru_stime.tv_sec);
 			}
 
+<<<<<<< HEAD
 			/* no I/O data */
 			pse.io_rchar = -1;
 			pse.io_wchar = -1;
@@ -5758,6 +6170,8 @@ static int ps_read(void) {
 			pse.cswitch_invol = -1;
 
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 			ps_list_add (procs[i].ki_comm, have_cmdline ? cmdline : NULL, &pse);
 
 			switch (procs[i].ki_stat)
@@ -5864,12 +6278,16 @@ static int ps_read(void) {
 			pse.age      = 0;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 			/* no I/O data */
 			/* context switch counters not implemented */
 			pse.gauges = procstat_gauges_init;
 
 			pse.gauges.num_proc = 1;
 			pse.gauges.num_lwp  = 1; /* XXX: accumulate p_tid values for a single p_pid ? */
+<<<<<<< HEAD
 
 			pse.gauges.vmem_rss = procs[i].p_vm_rssize * pagesize;
 			pse.gauges.vmem_data = procs[i].p_vm_dsize * pagesize;
@@ -5887,24 +6305,23 @@ static int ps_read(void) {
 =======
 			pse.num_proc = 1;
 			pse.num_lwp  = 1; /* XXX: accumulate p_tid values for a single p_pid ? */
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
-			pse.vmem_rss = procs[i].p_vm_rssize * pagesize;
-			pse.vmem_data = procs[i].p_vm_dsize * pagesize;
-			pse.vmem_code = procs[i].p_vm_tsize * pagesize;
-			pse.stack_size = procs[i].p_vm_ssize * pagesize;
-			pse.vmem_size = pse.stack_size + pse.vmem_code + pse.vmem_data;
-			pse.vmem_minflt = 0;
-			pse.vmem_minflt_counter = procs[i].p_uru_minflt;
-			pse.vmem_majflt = 0;
-			pse.vmem_majflt_counter = procs[i].p_uru_majflt;
+			pse.gauges.vmem_rss = procs[i].p_vm_rssize * pagesize;
+			pse.gauges.vmem_data = procs[i].p_vm_dsize * pagesize;
+			pse.gauges.vmem_code = procs[i].p_vm_tsize * pagesize;
+			pse.gauges.stack_size = procs[i].p_vm_ssize * pagesize;
+			pse.gauges.vmem_size = pse.gauges.stack_size + pse.gauges.vmem_code + pse.gauges.vmem_data;
+			pse.counters.vmem_minflt = procs[i].p_uru_minflt;
+			pse.counters.vmem_majflt = procs[i].p_uru_majflt;
 
-			pse.cpu_user = 0;
-			pse.cpu_system = 0;
-			pse.cpu_user_counter = procs[i].p_uutime_usec +
+			pse.counters.cpu_user = procs[i].p_uutime_usec +
 						(1000000lu * procs[i].p_uutime_sec);
-			pse.cpu_system_counter = procs[i].p_ustime_usec +
+			pse.counters.cpu_system = procs[i].p_ustime_usec +
 						(1000000lu * procs[i].p_ustime_sec);
 
+<<<<<<< HEAD
 			/* no I/O data */
 			pse.io_rchar = -1;
 			pse.io_wchar = -1;
@@ -5918,6 +6335,8 @@ static int ps_read(void) {
 			pse.cswitch_invol = -1;
 
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 			ps_list_add (procs[i].p_comm, have_cmdline ? cmdline : NULL, &pse);
 
 			switch (procs[i].p_stat)
@@ -6113,6 +6532,9 @@ static int ps_read(void) {
 =======
 			pse.cpu_user = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 =======
 	/* AIX */
 	int running  = 0;
@@ -6207,6 +6629,7 @@ static int ps_read(void) {
 			}
 
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+<<<<<<< HEAD
 			/* tv_usec is nanosec ??? */
 			pse.counters.cpu_user = procentry[i].pi_ru.ru_utime.tv_sec * 1000000 +
 				procentry[i].pi_ru.ru_utime.tv_usec / 1000;
@@ -6221,37 +6644,27 @@ static int ps_read(void) {
 			pse.gauges.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
 			pse.gauges.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
 =======
+=======
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 			/* tv_usec is nanosec ??? */
-			pse.cpu_user_counter = procentry[i].pi_ru.ru_utime.tv_sec * 1000000 +
+			pse.counters.cpu_user = procentry[i].pi_ru.ru_utime.tv_sec * 1000000 +
 				procentry[i].pi_ru.ru_utime.tv_usec / 1000;
 
-			pse.cpu_system = 0;
 			/* tv_usec is nanosec ??? */
-			pse.cpu_system_counter = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
+			pse.counters.cpu_system = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
 				procentry[i].pi_ru.ru_stime.tv_usec / 1000;
 
-			pse.vmem_minflt = 0;
-			pse.vmem_minflt_counter = procentry[i].pi_minflt;
-			pse.vmem_majflt = 0;
-			pse.vmem_majflt_counter = procentry[i].pi_majflt;
+			pse.counters.vmem_minflt = procentry[i].pi_minflt;
+			pse.counters.vmem_majflt = procentry[i].pi_majflt;
 
-			pse.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
-			pse.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
-			/* Not supported */
-			pse.vmem_data = 0;
-			pse.vmem_code = 0;
-			pse.stack_size =  0;
-
-			pse.io_rchar = -1;
-			pse.io_wchar = -1;
-			pse.io_syscr = -1;
-			pse.io_syscw = -1;
-			pse.io_diskr = -1;
-			pse.io_diskw = -1;
-
+<<<<<<< HEAD
 			pse.cswitch_vol   = -1;
 			pse.cswitch_invol = -1;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+			pse.gauges.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
+			pse.gauges.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
 			ps_list_add (cmdline, cargs, &pse);
 		} /* for (i = 0 .. nprocs) */
@@ -6331,6 +6744,7 @@ static int ps_read(void) {
 		pse.age = 0;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 =======
@@ -6362,6 +6776,10 @@ static int ps_read(void) {
 		pse.cswitch_vol = -1;
 		pse.cswitch_invol = -1;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+		pse.gauges = ps.gauges;
+		pse.counters = ps.counters;
+>>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
 		switch (state)
 		{
