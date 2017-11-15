@@ -1141,10 +1141,14 @@ int wg_extract_toplevel_json_long_long(const char *json, const char *key,
 //
 // Make a GET request to the metadata server at the following URL:
 <<<<<<< HEAD
+<<<<<<< HEAD
 // http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token
 =======
 // http://169.254.169.254/computeMetadata/v1beta1/instance/service-accounts/default/token
 >>>>>>> write_gcm plugin
+=======
+// http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token
+>>>>>>> Updating metadata api version to use v1 instead of v1beta1. (#111)
 //
 // If our call is successful, the server will respond with a json object looking
 // like this:
@@ -1289,10 +1293,14 @@ static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
   // The URL to get the auth token from the metadata server.
   static const char gcp_metadata_fetch_auth_token[] =
 <<<<<<< HEAD
+<<<<<<< HEAD
     "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token";
 =======
     "http://169.254.169.254/computeMetadata/v1beta1/instance/service-accounts/default/token";
 >>>>>>> write_gcm plugin
+=======
+    "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token";
+>>>>>>> Updating metadata api version to use v1 instead of v1beta1. (#111)
 
   cdtime_t now = cdtime();
   // Try to reuse an existing token. We build in a minute of slack in order to
@@ -3020,7 +3028,7 @@ static char *wg_get_from_gcp_metadata_server(const char *resource,
 >>>>>>> GCP metadata logging cleanup (#106)
   const char *headers[] = { gcp_metadata_header };
   return wg_get_from_metadata_server(
-      "http://169.254.169.254/computeMetadata/v1beta1/", resource,
+      "http://169.254.169.254/computeMetadata/v1/", resource,
       headers, STATIC_ARRAY_SIZE(headers), silent_failures);
 }
 
