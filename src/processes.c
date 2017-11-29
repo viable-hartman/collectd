@@ -2029,6 +2029,8 @@ static int ps_read (void)
 	int stopped  = 0;
 	int paging   = 0;
 	int blocked  = 0;
+        int num_cmdline = 0;
+        int count = 0;
 
 	struct dirent *ent;
 	DIR           *proc;
@@ -2074,6 +2076,7 @@ static int ps_read (void)
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 
+                count++;
 		switch (state)
 		{
 			case 'R': running++;  break;
@@ -2084,9 +2087,12 @@ static int ps_read (void)
 			case 'W': paging++;   break;
 		}
 
-		ps_list_add (ps.name,
-				ps_get_cmdline (pid, ps.name, cmdline, sizeof (cmdline)),
-				&pse);
+                if (ps_get_cmdline (
+                      pid, ps.name, cmdline, sizeof(cmdline)) != NULL) {
+                  num_cmdline++;
+                }
+
+		ps_list_add (ps.name, cmdline, &pse);
 	}
 
 	closedir (proc);
@@ -2097,6 +2103,8 @@ static int ps_read (void)
 	ps_submit_state ("stopped",  stopped);
 	ps_submit_state ("paging",   paging);
 	ps_submit_state ("blocked",  blocked);
+	ps_submit_state ("no_cmdline",  (count - num_cmdline));
+	ps_submit_state ("cmdline",  num_cmdline);
 
 	for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
 		ps_submit_proc_list (ps_ptr);
@@ -2112,6 +2120,7 @@ static int ps_read (void)
 	int blocked  = 0;
 	int idle     = 0;
 	int wait     = 0;
+	int num_cmdline = 0;
 
 	kvm_t *kd;
 	char errbuf[_POSIX2_LINE_MAX];
@@ -2172,8 +2181,10 @@ static int ps_read (void)
 					status = strjoin (cmdline, sizeof (cmdline), argv, argc, " ");
 					if (status < 0)
 						WARNING ("processes plugin: Command line did not fit into buffer.");
-					else
+					else {
 						have_cmdline = 1;
+                                                num_cmdline++;
+                                        }
 				}
 			} /* if (process has argument list) */
 
@@ -2235,6 +2246,8 @@ static int ps_read (void)
 	ps_submit_state ("blocked",  blocked);
 	ps_submit_state ("idle",     idle);
 	ps_submit_state ("wait",     wait);
+	ps_submit_state ("no_cmdline",  (count - num_cmdline));
+	ps_submit_state ("cmdline",  num_cmdline);
 
 	for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
 		ps_submit_proc_list (ps_ptr);
@@ -2248,6 +2261,7 @@ static int ps_read (void)
 	int onproc   = 0;
 	int idle     = 0;
 	int dead     = 0;
+	int num_cmdline = 0;
 
 	kvm_t *kd;
 	char errbuf[1024];
@@ -2307,8 +2321,10 @@ static int ps_read (void)
 					status = strjoin (cmdline, sizeof (cmdline), argv, argc, " ");
 					if (status < 0)
 						WARNING ("processes plugin: Command line did not fit into buffer.");
-					else
+					else {
 						have_cmdline = 1;
+                                                num_cmdline++;
+                                        }
 				}
 			} /* if (process has argument list) */
 
@@ -2360,6 +2376,8 @@ static int ps_read (void)
 	ps_submit_state ("onproc",   onproc);
 	ps_submit_state ("idle",     idle);
 	ps_submit_state ("dead",     dead);
+	ps_submit_state ("no_cmdline",  (count - num_cmdline));
+	ps_submit_state ("cmdline",  num_cmdline);
 
 	for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
 		ps_submit_proc_list (ps_ptr);
@@ -2373,6 +2391,7 @@ static int ps_read (void)
 	int stopped  = 0;
 	int paging   = 0;
 	int blocked  = 0;
+	int num_cmdline  = 0;
 
 	pid_t pindex = 0;
 	int nprocs;
@@ -2422,6 +2441,10 @@ static int ps_read (void)
 					cargs = arglist;
 				}
 			}
+
+                        if (cmdline != NULL) {
+                          num_cmdline++;
+                        }
 
 			pse.id       = procentry[i].pi_pid;
 			pse.age      = 0;
@@ -2484,6 +2507,8 @@ static int ps_read (void)
 	ps_submit_state ("stopped",  stopped);
 	ps_submit_state ("paging",   paging);
 	ps_submit_state ("blocked",  blocked);
+	ps_submit_state ("no_cmdline",  (count - num_cmdline));
+	ps_submit_state ("cmdline",  num_cmdline);
 
 	for (procstat_t *ps = list_head_g; ps != NULL; ps = ps->next)
 		ps_submit_proc_list (ps);
