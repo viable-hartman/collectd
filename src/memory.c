@@ -413,11 +413,13 @@ static int memory_read_internal(value_list_t *vl) {
 		MEMORY_SUBMIT ("used",        mem_used,
 		               "buffered",    mem_buffered,
 		               "cached",      mem_cached,
+		               "slab",        mem_slab_total,
 		               "free",        mem_free);
 	else
 		MEMORY_SUBMIT ("used",     mem_used,
 		               "buffered", mem_buffered,
 		               "cached",   mem_cached,
+		               "slab",     mem_slab_total,
 		               "free",     mem_free);
 >>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
 /* #endif KERNEL_LINUX */
