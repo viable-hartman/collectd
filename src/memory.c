@@ -424,15 +424,22 @@ static int memory_read_internal(value_list_t *vl) {
 		               "buffered",    mem_buffered,
 		               "cached",      mem_cached,
 <<<<<<< HEAD
+<<<<<<< HEAD
 		               "slab",        mem_slab_total,
 =======
 >>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
+=======
+		               "slab",        mem_slab_total,
+>>>>>>> Add slab metric to bytes_used memory metric (#123)
 		               "free",        mem_free);
 	else
 		MEMORY_SUBMIT ("used",     mem_used,
 		               "buffered", mem_buffered,
 		               "cached",   mem_cached,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Add slab metric to bytes_used memory metric (#123)
 		               "slab",     mem_slab_total,
 		               "free",     mem_free);
 >>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
