@@ -331,10 +331,11 @@ static int memory_read_internal(value_list_t *vl) {
    * if not. */
   if (detailed_slab_info)
     MEMORY_SUBMIT("used", mem_used, "buffered", mem_buffered, "cached",
-                  mem_cached, "free", mem_free);
+		  mem_cached, "slab", mem_slab_total, "free", mem_free);
   else
     MEMORY_SUBMIT("used", mem_used, "buffered", mem_buffered, "cached",
-                  mem_cached, "free", mem_free);
+                  mem_cached, "slab", mem_slab_total, "free", mem_free);
+
 /* #endif KERNEL_LINUX */
 
 #elif HAVE_LIBKSTAT
