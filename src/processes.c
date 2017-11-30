@@ -2030,7 +2030,7 @@ static int ps_read (void)
 	int paging   = 0;
 	int blocked  = 0;
 	int num_cmdline  = 0;
-	int count  = 0;
+	int count = 0;                /* returns number of processes */
 
 	struct dirent *ent;
 	DIR           *proc;
@@ -2076,7 +2076,7 @@ static int ps_read (void)
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 
-                count++;
+		count++;
 		switch (state)
 		{
 			case 'R': running++;  break;
@@ -2182,7 +2182,7 @@ static int ps_read (void)
 						WARNING ("processes plugin: Command line did not fit into buffer.");
 					else {
 						have_cmdline = 1;
-                                                num_cmdline++;
+						num_cmdline++;
                                         }
 				}
 			} /* if (process has argument list) */
@@ -2322,7 +2322,7 @@ static int ps_read (void)
 						WARNING ("processes plugin: Command line did not fit into buffer.");
 					else {
 						have_cmdline = 1;
-                                                num_cmdline++;
+						num_cmdline++;
                                         }
 				}
 			} /* if (process has argument list) */
@@ -2441,9 +2441,9 @@ static int ps_read (void)
 				}
 			}
 
-                        if (cmdline != NULL) {
-                          num_cmdline++;
-                        }
+			if (cmdline != NULL) {
+				num_cmdline++;
+			}
 
 			pse.id       = procentry[i].pi_pid;
 			pse.age      = 0;
