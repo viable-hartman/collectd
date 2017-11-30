@@ -19,23 +19,105 @@ URL="${1:-http://localhost:24231/metrics}"
 # Default to 10s if unset, as a fail-safe mechanism.
 INTERVAL=${COLLECTD_INTERVAL:-10}
 
+# 1. If the Logging Agent uses REST.
 # The part of the input that sed looks at looks like:
-#   stackdriver_successful_requests_count{grpc="false"} 255
-#   stackdriver_failed_requests_count{grpc="false",code="400"} 14
-#   stackdriver_failed_requests_count{grpc="false",code="404"} 18
-#   stackdriver_ingested_entries_count 7050
-#   stackdriver_dropped_entries_count 25
-#   stackdriver_retried_entries_count{code="500"} 2
-#   stackdriver_retried_entries_count{code="501"} 3
+#
+#   stackdriver_successful_requests_count{grpc="false",code="200"} 255
+#
+#   stackdriver_failed_requests_count{grpc="false",code="400"} 18
+#   stackdriver_failed_requests_count{grpc="false",code="401"} 25
+#   stackdriver_failed_requests_count{grpc="false",code="403"} 13
+#   stackdriver_failed_requests_count{grpc="false",code="404"} 34
+#   stackdriver_failed_requests_count{grpc="false",code="429"} 11
+#
+#   // OK.
+#   stackdriver_ingested_entries_count{grpc="false",code="200"} 7050
+#
+#   // Bad Request.
+#   stackdriver_dropped_entries_count{grpc="false",code="400"} 250
+#   // Unauthorized.
+#   stackdriver_dropped_entries_count{grpc="false",code="401"} 380
+#   // Forbidden.
+#   stackdriver_dropped_entries_count{grpc="false",code="403"} 210
+#   // Not Found.
+#   stackdriver_dropped_entries_count{grpc="false",code="404"} 480
+#   // Too Many Requests.
+#   stackdriver_dropped_entries_count{grpc="false",code="429"} 187
+#
+#   // Internal Server Error.
+#   stackdriver_retried_entries_count{grpc="false",code="500"} 600
+#   // Not Implemented.
+#   stackdriver_retried_entries_count{grpc="false",code="501"} 290
 #
 # The expected output follows:
 #   PUTVAL /agent-200/derive-request_count N:255
-#   PUTVAL /agent-400/derive-request_count N:14
-#   PUTVAL /agent-404/derive-request_count N:18
+#
+#   PUTVAL /agent-400/derive-request_count N:18
+#   PUTVAL /agent-401/derive-request_count N:25
+#   PUTVAL /agent-403/derive-request_count N:13
+#   PUTVAL /agent-404/derive-request_count N:34
+#   PUTVAL /agent-429/derive-request_count N:11
+#
 #   PUTVAL /agent-200/derive-log_entry_count N:7050
-#   PUTVAL /agent-418/derive-log_entry_count N:25
-#   PUTVAL /agent-500/derive-log_entry_retry_count N:2
-#   PUTVAL /agent-501/derive-log_entry_retry_count N:3
+#
+#   PUTVAL /agent-400/derive-log_entry_count N:250
+#   PUTVAL /agent-401/derive-log_entry_count N:380
+#   PUTVAL /agent-403/derive-log_entry_count N:210
+#   PUTVAL /agent-404/derive-log_entry_count N:480
+#   PUTVAL /agent-429/derive-log_entry_count N:187
+#
+#   PUTVAL /agent-500/derive-log_entry_retry_count N:600
+#   PUTVAL /agent-501/derive-log_entry_retry_count N:290
+
+# 2. If the Logging Agent uses gRPC.
+# The part of the input that sed looks at looks like:
+#
+#   stackdriver_successful_requests_count{grpc="true",code="0"} 255
+#
+#   stackdriver_failed_requests_count{grpc="true",code="3"} 18
+#   stackdriver_failed_requests_count{grpc="true",code="16"} 25
+#   stackdriver_failed_requests_count{grpc="true",code="7"} 13
+#   stackdriver_failed_requests_count{grpc="true",code="5"} 34
+#   stackdriver_failed_requests_count{grpc="true",code="8"} 11
+#
+#   // OK.
+#   stackdriver_ingested_entries_count{grpc="true",code="0"} 7050
+#
+#   // InvalidArgument.
+#   stackdriver_dropped_entries_count{grpc="true",code="3"} 250
+#   // Unauthenticated.
+#   stackdriver_dropped_entries_count{grpc="true",code="16"} 38
+#   // PermissionDenied.
+#   stackdriver_dropped_entries_count{grpc="true",code="7"} 210
+#   // NotFound.
+#   stackdriver_dropped_entries_count{grpc="true",code="5"} 480
+#   // ResourceExhausted.
+#   stackdriver_retried_entries_count{grpc="true",code="8"} 187
+#
+#   // Internal.
+#   stackdriver_retried_entries_count{grpc="true",code="13"} 600
+#   // Unavailable.
+#   stackdriver_retried_entries_count{grpc="true",code="14"} 290
+#
+# The expected output follows:
+#   PUTVAL /agent-0/derive-request_count N:255
+#
+#   PUTVAL /agent-3/derive-request_count N:18
+#   PUTVAL /agent-16/derive-request_count N:25
+#   PUTVAL /agent-7/derive-request_count N:13
+#   PUTVAL /agent-5/derive-request_count N:34
+#   PUTVAL /agent-8/derive-request_count N:11
+#
+#   PUTVAL /agent-0/derive-log_entry_count N:7050
+#
+#   PUTVAL /agent-3/derive-log_entry_count N:250
+#   PUTVAL /agent-16/derive-log_entry_count N:38
+#   PUTVAL /agent-7/derive-log_entry_count N:210
+#   PUTVAL /agent-5/derive-log_entry_count N:480
+#   PUTVAL /agent-8/derive-log_entry_count N:187
+#
+#   PUTVAL /agent-13/derive-log_entry_retry_count N:600
+#   PUTVAL /agent-14/derive-log_entry_retry_count N:290
 while :; do
   # - Only pass to sed the Stackdriver metrics.
   # - Combine successful and failed submetrics into one with response code (200
@@ -49,12 +131,9 @@ while :; do
   curl --silent "${URL}" \
     | grep -E '^stackdriver_' \
     | sed -E \
-      -e "s/^stackdriver_ingested_entries_count ([0-9]*)/PUTVAL ${COLLECTD_HOSTNAME}\/agent-200\/derive-log_entry_count N:\1/" \
-      -e "s/^stackdriver_dropped_entries_count ([0-9]*)/PUTVAL ${COLLECTD_HOSTNAME}\/agent-418\/derive-log_entry_count N:\1/" \
       -e "s/^stackdriver_([a-zA-Z0-9_]*)(\{(.*code=\"([0-9]*)\")?.*\})? ([0-9]*)/PUTVAL ${COLLECTD_HOSTNAME}\/agent-\4\/derive-\1 N:\5/" \
       -e "s/(successful|failed)_requests_count/request_count/" \
       -e "s/(ingested|dropped)_entries_count/log_entry_count/" \
       -e "s/retried_entries_count/log_entry_retry_count/" \
-      -e "s/agent-\//agent-200\//"
   sleep "${INTERVAL}"
 done
