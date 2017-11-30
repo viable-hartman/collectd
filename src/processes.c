@@ -2029,8 +2029,8 @@ static int ps_read (void)
 	int stopped  = 0;
 	int paging   = 0;
 	int blocked  = 0;
-        int num_cmdline = 0;
-        int count = 0;
+	int num_cmdline  = 0;
+	int count  = 0;
 
 	struct dirent *ent;
 	DIR           *proc;
@@ -2086,11 +2086,10 @@ static int ps_read (void)
 			case 'T': stopped++;  break;
 			case 'W': paging++;   break;
 		}
-
-                if (ps_get_cmdline (
-                      pid, ps.name, cmdline, sizeof(cmdline)) != NULL) {
-                  num_cmdline++;
-                }
+		if (ps_get_cmdline (
+		     pid, ps.name, cmdline, sizeof(cmdline)) != NULL) {
+			num_cmdline++;
+		}
 
 		ps_list_add (ps.name, cmdline, &pse);
 	}
