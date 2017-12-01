@@ -2029,6 +2029,7 @@ static int ps_read (void)
 	int stopped  = 0;
 	int paging   = 0;
 	int blocked  = 0;
+	/* returns the number of processes with a command line argument */
 	int num_cmdline  = 0;
 	int count = 0;                /* returns number of processes */
 
@@ -2119,7 +2120,8 @@ static int ps_read (void)
 	int blocked  = 0;
 	int idle     = 0;
 	int wait     = 0;
-	int num_cmdline = 0;
+	/* returns the number of processes with a command line argument */
+	int num_cmdline  = 0;
 
 	kvm_t *kd;
 	char errbuf[_POSIX2_LINE_MAX];
@@ -2260,7 +2262,8 @@ static int ps_read (void)
 	int onproc   = 0;
 	int idle     = 0;
 	int dead     = 0;
-	int num_cmdline = 0;
+	/* returns the number of processes with a command line argument */
+	int num_cmdline  = 0;
 
 	kvm_t *kd;
 	char errbuf[1024];
@@ -2390,6 +2393,7 @@ static int ps_read (void)
 	int stopped  = 0;
 	int paging   = 0;
 	int blocked  = 0;
+	/* returns the number of processes with a command line argument */
 	int num_cmdline  = 0;
 
 	pid_t pindex = 0;
