@@ -978,6 +978,7 @@ static int __attribute__((warn_unused_result)) probe_cpu(void) {
     case 0x45: /* HSW */
     case 0x46: /* HSW */
     case 0x3D: /* BDW */
+    case 0x5E: /* SKL */
       do_rapl = RAPL_PKG | RAPL_CORES | RAPL_GFX;
       break;
     case 0x3F: /* HSX */
