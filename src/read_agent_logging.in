@@ -4,6 +4,7 @@
 # Logging agent.
 #
 <<<<<<< HEAD
+<<<<<<< HEAD
 # This script polls the metrics endpoint once and leaves. It used to run until
 # aborted, but in some cases something was preventing it from terminating when
 # collectd was restarted.
@@ -12,6 +13,11 @@
 # is the recommended behavior for long-running collectd plugins, to reduce
 # start-up cost.
 >>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
+=======
+# This script polls the metrics endpoint once and leaves. It used to run until
+# aborted, but in some cases something was preventing it from terminating when
+# collectd was restarted.
+>>>>>>> Converted read_agent_logging to a one-shot script (#127)
 #
 # Sample configuration stanza:
 # <Plugin "exec">
@@ -22,6 +28,7 @@
 # Read first arg, with a safe default for testing.
 URL="${1:-http://localhost:24231/metrics}"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 # 1. If the Logging Agent uses REST.
 # The part of the input that sed looks at looks like:
@@ -143,6 +150,8 @@ exec curl --silent "${URL}" \
 # Default to 10s if unset, as a fail-safe mechanism.
 INTERVAL=${COLLECTD_INTERVAL:-10}
 
+=======
+>>>>>>> Converted read_agent_logging to a one-shot script (#127)
 # 1. If the Logging Agent uses REST.
 # The part of the input that sed looks at looks like:
 #
@@ -242,6 +251,7 @@ INTERVAL=${COLLECTD_INTERVAL:-10}
 #
 #   PUTVAL /agent-13/derive-log_entry_retry_count N:600
 #   PUTVAL /agent-14/derive-log_entry_retry_count N:290
+<<<<<<< HEAD
 while :; do
   # - Only pass to sed the Stackdriver metrics.
   # - Combine successful and failed submetrics into one with response code (200
@@ -262,3 +272,22 @@ while :; do
   sleep "${INTERVAL}"
 done
 >>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
+=======
+
+# - Only pass to sed the Stackdriver metrics.
+# - Combine successful and failed submetrics into one with response code (200
+#   for successful), in order to fit the schema that Stackdriver expects.
+# - Make all nouns singular.
+# - Successful metrics don't have a response code in the input, so set it
+#   here.
+# - The first two lines handle ingested/dropped entries as a corner case until
+#   the agent starts exporting the partial errors for dropped entries, then
+#   the rest of the sed expression should handle them generically.
+exec curl --silent "${URL}" \
+  | grep -E '^stackdriver_' \
+  | sed -E \
+    -e "s/^stackdriver_([a-zA-Z0-9_]*)(\{(.*code=\"([0-9]*)\")?.*\})? ([0-9]*)/PUTVAL ${COLLECTD_HOSTNAME}\/agent-\4\/derive-\1 N:\5/" \
+    -e "s/(successful|failed)_requests_count/request_count/" \
+    -e "s/(ingested|dropped)_entries_count/log_entry_count/" \
+    -e "s/retried_entries_count/log_entry_retry_count/"
+>>>>>>> Converted read_agent_logging to a one-shot script (#127)
