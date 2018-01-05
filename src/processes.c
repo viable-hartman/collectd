@@ -2023,15 +2023,14 @@ static int ps_read (void)
 /* #endif HAVE_THREAD_INFO */
 
 #elif KERNEL_LINUX
-	int running               = 0;
-	int sleeping              = 0;
-	int zombies               = 0;
-	int stopped               = 0;
-	int paging                = 0;
-	int blocked               = 0;
-	/* returns the number of processes with a command line */
-	int cmdline_processes     = 0;
-	int total_processes       = 0;   /* number of processes */
+	int running           = 0;
+	int sleeping          = 0;
+	int zombies           = 0;
+	int stopped           = 0;
+	int paging            = 0;
+	int blocked           = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
+	int total_processes   = 0; /* number of processes */
 
 	struct dirent *ent;
 	DIR           *proc;
@@ -2092,19 +2091,19 @@ static int ps_read (void)
 			cmdline_processes++;
 		}
 
-		ps_list_add (ps.name, cmdline, &pse);
+		ps_list_add (ps.name, cmdline == NULL ? ps.name : cmdline, &pse);
 	}
 
 	closedir (proc);
 
-	ps_submit_state ("running",     running);
-	ps_submit_state ("sleeping",    sleeping);
-	ps_submit_state ("zombies",     zombies);
-	ps_submit_state ("stopped",     stopped);
-	ps_submit_state ("paging",      paging);
-	ps_submit_state ("blocked",     blocked);
-	ps_submit_state ("no_cmdline",  (total_processes - cmdline_processes));
-	ps_submit_state ("cmdline",     cmdline_processes);
+	ps_submit_state ("running",    running);
+	ps_submit_state ("sleeping",   sleeping);
+	ps_submit_state ("zombies",    zombies);
+	ps_submit_state ("stopped",    stopped);
+	ps_submit_state ("paging",     paging);
+	ps_submit_state ("blocked",    blocked);
+	ps_submit_state ("no_cmdline", (total_processes - cmdline_processes));
+	ps_submit_state ("cmdline",    cmdline_processes);
 
 	for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
 		ps_submit_proc_list (ps_ptr);
@@ -2113,15 +2112,14 @@ static int ps_read (void)
 /* #endif KERNEL_LINUX */
 
 #elif HAVE_LIBKVM_GETPROCS && HAVE_STRUCT_KINFO_PROC_FREEBSD
-	int running            = 0;
-	int sleeping           = 0;
-	int zombies            = 0;
-	int stopped            = 0;
-	int blocked            = 0;
-	int idle               = 0;
-	int wait               = 0;
-	/* returns the number of processes with a command line */
-	int cmdline_processes  = 0;
+	int running           = 0;
+	int sleeping          = 0;
+	int zombies           = 0;
+	int stopped           = 0;
+	int blocked           = 0;
+	int idle              = 0;
+	int wait              = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
 
 	kvm_t *kd;
 	char errbuf[_POSIX2_LINE_MAX];
@@ -2255,15 +2253,14 @@ static int ps_read (void)
 /* #endif HAVE_LIBKVM_GETPROCS && HAVE_STRUCT_KINFO_PROC_FREEBSD */
 
 #elif HAVE_LIBKVM_GETPROCS && HAVE_STRUCT_KINFO_PROC_OPENBSD
-	int running            = 0;
-	int sleeping           = 0;
-	int zombies            = 0;
-	int stopped            = 0;
-	int onproc             = 0;
-	int idle               = 0;
-	int dead               = 0;
-	/* returns the number of processes with a command line */
-	int cmdline_processes  = 0;
+	int running           = 0;
+	int sleeping          = 0;
+	int zombies           = 0;
+	int stopped           = 0;
+	int onproc            = 0;
+	int idle              = 0;
+	int dead              = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
 
 	kvm_t *kd;
 	char errbuf[1024];
@@ -2286,7 +2283,7 @@ static int ps_read (void)
 
 	/* Get the list of processes. */
 	procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, sizeof(struct kinfo_proc),
-                             &total_processes);
+			     &total_processes);
 	if (procs == NULL)
 	{
 		ERROR ("processes plugin: Cannot get kvm processes list: %s",
@@ -2388,14 +2385,13 @@ static int ps_read (void)
 
 #elif HAVE_PROCINFO_H
 	/* AIX */
-	int running            = 0;
-	int sleeping           = 0;
-	int zombies            = 0;
-	int stopped            = 0;
-	int paging             = 0;
-	int blocked            = 0;
-	/* returns the number of processes with a command line */
-	int cmdline_processes  = 0;
+	int running           = 0;
+	int sleeping          = 0;
+	int zombies           = 0;
+	int stopped           = 0;
+	int paging            = 0;
+	int blocked           = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
 
 	pid_t pindex = 0;
 	int nprocs;
@@ -2490,7 +2486,7 @@ static int ps_read (void)
 				procentry[i].pi_ru.ru_utime.tv_usec / 1000;
 
 			/* tv_usec is nanosec ??? */
-			pse.total_processesers.cpu_system = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
+			pse.counters.cpu_system = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
 				procentry[i].pi_ru.ru_stime.tv_usec / 1000;
 
 			pse.counters.vmem_minflt = procentry[i].pi_minflt;
