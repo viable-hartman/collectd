@@ -2091,7 +2091,10 @@ static int ps_read (void)
 			cmdline_processes++;
 		}
 
-		ps_list_add (ps.name, cmdline == NULL ? ps.name : cmdline, &pse);
+		ps_list_add (ps.name,
+				ps_get_cmdline (
+				   pid, ps.name, cmdline, sizeof(cmdline)),
+				&pse);
 	}
 
 	closedir (proc);
