@@ -2086,14 +2086,12 @@ static int ps_read (void)
 			case 'T': stopped++;  break;
 			case 'W': paging++;   break;
 		}
-		if (ps_get_cmdline (
-		     pid, NULL, cmdline, sizeof(cmdline)) != NULL) {
+		if (ps_get_cmdline (pid, NULL, cmdline, sizeof(cmdline)) != NULL) {
 			cmdline_processes++;
 		}
 
 		ps_list_add (ps.name,
-				ps_get_cmdline (
-				   pid, ps.name, cmdline, sizeof(cmdline)),
+				ps_get_cmdline (pid, ps.name, cmdline, sizeof(cmdline)),
 				&pse);
 	}
 
