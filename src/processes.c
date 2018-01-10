@@ -2316,6 +2316,8 @@ static int ps_read(void) {
   int stopped = 0;
   int paging = 0;
   int blocked = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
+	int total_processes   = 0; /* number of processes */
 
   struct dirent *ent;
   DIR *proc;
@@ -2358,6 +2360,7 @@ static int ps_read(void) {
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 
+		total_processes++;
 		switch (state)
 		{
 			case 'R': running++;  break;
@@ -2366,6 +2369,9 @@ static int ps_read(void) {
 			case 'Z': zombies++;  break;
 			case 'T': stopped++;  break;
 			case 'W': paging++;   break;
+		}
+		if (ps_get_cmdline (pid, NULL, cmdline, sizeof (cmdline)) != NULL) {
+			cmdline_processes++;
 		}
 
     ps_list_add(pse.name,
@@ -2380,6 +2386,8 @@ static int ps_read(void) {
   ps_submit_state("stopped", stopped);
   ps_submit_state("paging", paging);
   ps_submit_state("blocked", blocked);
+	ps_submit_state ("no_cmdline", (total_processes - cmdline_processes));
+	ps_submit_state ("cmdline",    cmdline_processes);
 
   for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
     ps_submit_proc_list(ps_ptr);
@@ -2395,12 +2403,13 @@ static int ps_read(void) {
 	int blocked  = 0;
 	int idle     = 0;
 	int wait     = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
 
 	kvm_t *kd;
 	char errbuf[_POSIX2_LINE_MAX];
 	struct kinfo_proc *procs;          /* array of processes */
 	struct kinfo_proc *proc_ptr = NULL;
-	int count;                         /* returns number of processes */
+	int total_processes;              /* number of processes */
 
 	procstat_entry_t pse;
 
@@ -2416,7 +2425,7 @@ static int ps_read(void) {
 	}
 
 	/* Get the list of processes. */
-	procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, &count);
+	procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, &total_processes);
 	if (procs == NULL)
 	{
 		ERROR ("processes plugin: Cannot get kvm processes list: %s",
@@ -2426,7 +2435,7 @@ static int ps_read(void) {
 	}
 
 	/* Iterate through the processes in kinfo_proc */
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < total_processes; i++)
 	{
 		/* Create only one process list entry per _process_, i.e.
 		 * filter out threads (duplicate PID entries). */
@@ -2455,8 +2464,10 @@ static int ps_read(void) {
 					status = strjoin (cmdline, sizeof (cmdline), argv, argc, " ");
 					if (status < 0)
 						WARNING ("processes plugin: Command line did not fit into buffer.");
-					else
+					else {
 						have_cmdline = 1;
+						cmdline_processes++;
+					}
 				}
 			} /* if (process has argument list) */
 
@@ -2518,6 +2529,8 @@ static int ps_read(void) {
 	ps_submit_state ("blocked",  blocked);
 	ps_submit_state ("idle",     idle);
 	ps_submit_state ("wait",     wait);
+	ps_submit_state ("no_cmdline",  (total_processes - cmdline_processes));
+	ps_submit_state ("cmdline",     cmdline_processes);
 
 	for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
 		ps_submit_proc_list (ps_ptr);
@@ -2531,12 +2544,13 @@ static int ps_read(void) {
 	int onproc   = 0;
 	int idle     = 0;
 	int dead     = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
 
 	kvm_t *kd;
 	char errbuf[1024];
 	struct kinfo_proc *procs;          /* array of processes */
 	struct kinfo_proc *proc_ptr = NULL;
-	int count;                         /* returns number of processes */
+	int total_processes;               /* number of processes */
 
 	procstat_entry_t pse;
 
@@ -2552,7 +2566,8 @@ static int ps_read(void) {
 	}
 
 	/* Get the list of processes. */
-	procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, sizeof(struct kinfo_proc), &count);
+	procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, sizeof(struct kinfo_proc),
+			     &total_processes);
 	if (procs == NULL)
 	{
 		ERROR ("processes plugin: Cannot get kvm processes list: %s",
@@ -2562,7 +2577,7 @@ static int ps_read(void) {
 	}
 
 	/* Iterate through the processes in kinfo_proc */
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < total_processes; i++)
 	{
 		/* Create only one process list entry per _process_, i.e.
 		 * filter out threads (duplicate PID entries). */
@@ -2590,8 +2605,10 @@ static int ps_read(void) {
 					status = strjoin (cmdline, sizeof (cmdline), argv, argc, " ");
 					if (status < 0)
 						WARNING ("processes plugin: Command line did not fit into buffer.");
-					else
+					else {
 						have_cmdline = 1;
+						cmdline_processes++;
+					}
 				}
 			} /* if (process has argument list) */
 
@@ -2643,6 +2660,8 @@ static int ps_read(void) {
 	ps_submit_state ("onproc",   onproc);
 	ps_submit_state ("idle",     idle);
 	ps_submit_state ("dead",     dead);
+	ps_submit_state ("no_cmdline",  (total_processes - cmdline_processes));
+	ps_submit_state ("cmdline",     cmdline_processes);
 
 	for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
 		ps_submit_proc_list (ps_ptr);
@@ -2656,6 +2675,7 @@ static int ps_read(void) {
 	int stopped  = 0;
 	int paging   = 0;
 	int blocked  = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
 
 	pid_t pindex = 0;
 	int nprocs;
@@ -2704,6 +2724,10 @@ static int ps_read(void) {
 					}
 					cargs = arglist;
 				}
+			}
+
+			if (cmdline != NULL) {
+				cmdline_processes++;
 			}
 
 			pse.id       = procentry[i].pi_pid;
@@ -2769,6 +2793,8 @@ static int ps_read(void) {
 	ps_submit_state ("stopped",  stopped);
 	ps_submit_state ("paging",   paging);
 	ps_submit_state ("blocked",  blocked);
+	ps_submit_state ("no_cmdline", (nprocs - cmdline_processes));
+	ps_submit_state ("cmdline",    cmdline_processes);
 
   char cmdline[PRARGSZ];
 
