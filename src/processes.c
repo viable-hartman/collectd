@@ -3260,6 +3260,7 @@ static int ps_read(void) {
 /* #endif HAVE_THREAD_INFO */
 
 #elif KERNEL_LINUX
+<<<<<<< HEAD
   int running = 0;
   int sleeping = 0;
   int zombies = 0;
@@ -3302,6 +3303,54 @@ static int ps_read(void) {
       continue;
     }
 =======
+=======
+	int running           = 0;
+	int sleeping          = 0;
+	int zombies           = 0;
+	int stopped           = 0;
+	int paging            = 0;
+	int blocked           = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
+	int total_processes   = 0; /* number of processes */
+
+	struct dirent *ent;
+	DIR           *proc;
+	long           pid;
+
+	char cmdline[CMDLINE_BUFFER_SIZE];
+
+	int        status;
+	procstat_t ps;
+	procstat_entry_t pse;
+	char       state;
+
+	running = sleeping = zombies = stopped = paging = blocked = 0;
+	ps_list_reset ();
+
+	if ((proc = opendir ("/proc")) == NULL)
+	{
+		char errbuf[1024];
+		ERROR ("Cannot open `/proc': %s",
+				sstrerror (errno, errbuf, sizeof (errbuf)));
+		return (-1);
+	}
+
+	while ((ent = readdir (proc)) != NULL)
+	{
+		if (!isdigit (ent->d_name[0]))
+			continue;
+
+		if ((pid = atol (ent->d_name)) < 1)
+			continue;
+
+		status = ps_read_process (pid, &ps, &state);
+		if (status != 0)
+		{
+			DEBUG ("ps_read_process failed: %i", status);
+			continue;
+		}
+
+>>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
 		memset (&pse, 0, sizeof (pse));
 		pse.id       = pid;
 		pse.age      = 0;
@@ -3309,6 +3358,7 @@ static int ps_read(void) {
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 
+		total_processes++;
 		switch (state)
 		{
 			case 'R': running++;  break;
@@ -3318,6 +3368,7 @@ static int ps_read(void) {
 			case 'T': stopped++;  break;
 			case 'W': paging++;   break;
 		}
+<<<<<<< HEAD
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 
     switch (state) {
@@ -3340,6 +3391,11 @@ static int ps_read(void) {
       paging++;
       break;
     }
+=======
+		if (ps_get_cmdline (pid, NULL, cmdline, sizeof (cmdline)) != NULL) {
+			cmdline_processes++;
+		}
+>>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
 
     ps_list_add(pse.name,
                 ps_get_cmdline(pid, pse.name, cmdline, sizeof(cmdline)), &pse);
@@ -3347,12 +3403,23 @@ static int ps_read(void) {
 
   closedir(proc);
 
+<<<<<<< HEAD
   ps_submit_state("running", running);
   ps_submit_state("sleeping", sleeping);
   ps_submit_state("zombies", zombies);
   ps_submit_state("stopped", stopped);
   ps_submit_state("paging", paging);
   ps_submit_state("blocked", blocked);
+=======
+	ps_submit_state ("running",    running);
+	ps_submit_state ("sleeping",   sleeping);
+	ps_submit_state ("zombies",    zombies);
+	ps_submit_state ("stopped",    stopped);
+	ps_submit_state ("paging",     paging);
+	ps_submit_state ("blocked",    blocked);
+	ps_submit_state ("no_cmdline", (total_processes - cmdline_processes));
+	ps_submit_state ("cmdline",    cmdline_processes);
+>>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
 
   for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
     ps_submit_proc_list(ps_ptr);
@@ -3361,6 +3428,7 @@ static int ps_read(void) {
 /* #endif KERNEL_LINUX */
 
 #elif HAVE_LIBKVM_GETPROCS && HAVE_STRUCT_KINFO_PROC_FREEBSD
+<<<<<<< HEAD
 <<<<<<< HEAD
   int running = 0;
   int sleeping = 0;
@@ -3666,12 +3734,22 @@ static int ps_read(void) {
 	int blocked  = 0;
 	int idle     = 0;
 	int wait     = 0;
+=======
+	int running           = 0;
+	int sleeping          = 0;
+	int zombies           = 0;
+	int stopped           = 0;
+	int blocked           = 0;
+	int idle              = 0;
+	int wait              = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
+>>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
 
 	kvm_t *kd;
 	char errbuf[_POSIX2_LINE_MAX];
 	struct kinfo_proc *procs;          /* array of processes */
 	struct kinfo_proc *proc_ptr = NULL;
-	int count;                         /* returns number of processes */
+	int total_processes;              /* number of processes */
 
 	procstat_entry_t pse;
 
@@ -3687,7 +3765,7 @@ static int ps_read(void) {
 	}
 
 	/* Get the list of processes. */
-	procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, &count);
+	procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, &total_processes);
 	if (procs == NULL)
 	{
 		ERROR ("processes plugin: Cannot get kvm processes list: %s",
@@ -3697,7 +3775,7 @@ static int ps_read(void) {
 	}
 
 	/* Iterate through the processes in kinfo_proc */
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < total_processes; i++)
 	{
 		/* Create only one process list entry per _process_, i.e.
 		 * filter out threads (duplicate PID entries). */
@@ -3726,8 +3804,10 @@ static int ps_read(void) {
 					status = strjoin (cmdline, sizeof (cmdline), argv, argc, " ");
 					if (status < 0)
 						WARNING ("processes plugin: Command line did not fit into buffer.");
-					else
+					else {
 						have_cmdline = 1;
+						cmdline_processes++;
+					}
 				}
 			} /* if (process has argument list) */
 
@@ -3782,32 +3862,35 @@ static int ps_read(void) {
 
 	kvm_close(kd);
 
-	ps_submit_state ("running",  running);
-	ps_submit_state ("sleeping", sleeping);
-	ps_submit_state ("zombies",  zombies);
-	ps_submit_state ("stopped",  stopped);
-	ps_submit_state ("blocked",  blocked);
-	ps_submit_state ("idle",     idle);
-	ps_submit_state ("wait",     wait);
+	ps_submit_state ("running",     running);
+	ps_submit_state ("sleeping",    sleeping);
+	ps_submit_state ("zombies",     zombies);
+	ps_submit_state ("stopped",     stopped);
+	ps_submit_state ("blocked",     blocked);
+	ps_submit_state ("idle",        idle);
+	ps_submit_state ("wait",        wait);
+	ps_submit_state ("no_cmdline",  (total_processes - cmdline_processes));
+	ps_submit_state ("cmdline",     cmdline_processes);
 
 	for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
 		ps_submit_proc_list (ps_ptr);
 /* #endif HAVE_LIBKVM_GETPROCS && HAVE_STRUCT_KINFO_PROC_FREEBSD */
 
 #elif HAVE_LIBKVM_GETPROCS && HAVE_STRUCT_KINFO_PROC_OPENBSD
-	int running  = 0;
-	int sleeping = 0;
-	int zombies  = 0;
-	int stopped  = 0;
-	int onproc   = 0;
-	int idle     = 0;
-	int dead     = 0;
+	int running           = 0;
+	int sleeping          = 0;
+	int zombies           = 0;
+	int stopped           = 0;
+	int onproc            = 0;
+	int idle              = 0;
+	int dead              = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
 
 	kvm_t *kd;
 	char errbuf[1024];
 	struct kinfo_proc *procs;          /* array of processes */
 	struct kinfo_proc *proc_ptr = NULL;
-	int count;                         /* returns number of processes */
+	int total_processes;               /* number of processes */
 
 	procstat_entry_t pse;
 
@@ -3823,7 +3906,8 @@ static int ps_read(void) {
 	}
 
 	/* Get the list of processes. */
-	procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, sizeof(struct kinfo_proc), &count);
+	procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, sizeof(struct kinfo_proc),
+			     &total_processes);
 	if (procs == NULL)
 	{
 		ERROR ("processes plugin: Cannot get kvm processes list: %s",
@@ -3833,7 +3917,7 @@ static int ps_read(void) {
 	}
 
 	/* Iterate through the processes in kinfo_proc */
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < total_processes; i++)
 	{
 		/* Create only one process list entry per _process_, i.e.
 		 * filter out threads (duplicate PID entries). */
@@ -3861,8 +3945,10 @@ static int ps_read(void) {
 					status = strjoin (cmdline, sizeof (cmdline), argv, argc, " ");
 					if (status < 0)
 						WARNING ("processes plugin: Command line did not fit into buffer.");
-					else
+					else {
 						have_cmdline = 1;
+						cmdline_processes++;
+					}
 				}
 			} /* if (process has argument list) */
 
@@ -3907,13 +3993,15 @@ static int ps_read(void) {
 
 	kvm_close(kd);
 
-	ps_submit_state ("running",  running);
-	ps_submit_state ("sleeping", sleeping);
-	ps_submit_state ("zombies",  zombies);
-	ps_submit_state ("stopped",  stopped);
-	ps_submit_state ("onproc",   onproc);
-	ps_submit_state ("idle",     idle);
-	ps_submit_state ("dead",     dead);
+	ps_submit_state ("running",     running);
+	ps_submit_state ("sleeping",    sleeping);
+	ps_submit_state ("zombies",     zombies);
+	ps_submit_state ("stopped",     stopped);
+	ps_submit_state ("onproc",      onproc);
+	ps_submit_state ("idle",        idle);
+	ps_submit_state ("dead",        dead);
+	ps_submit_state ("no_cmdline",  (total_processes - cmdline_processes));
+	ps_submit_state ("cmdline",     cmdline_processes);
 
 	for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
 		ps_submit_proc_list (ps_ptr);
@@ -4086,12 +4174,13 @@ static int ps_read(void) {
 			pse.cpu_user = 0;
 =======
 	/* AIX */
-	int running  = 0;
-	int sleeping = 0;
-	int zombies  = 0;
-	int stopped  = 0;
-	int paging   = 0;
-	int blocked  = 0;
+	int running           = 0;
+	int sleeping          = 0;
+	int zombies           = 0;
+	int stopped           = 0;
+	int paging            = 0;
+	int blocked           = 0;
+	int cmdline_processes = 0; /* number of processes with a command line */
 
 	pid_t pindex = 0;
 	int nprocs;
@@ -4140,6 +4229,10 @@ static int ps_read(void) {
 					}
 					cargs = arglist;
 				}
+			}
+
+			if (cmdline != NULL) {
+				cmdline_processes++;
 			}
 
 			pse.id       = procentry[i].pi_pid;
@@ -4198,6 +4291,7 @@ static int ps_read(void) {
 		if (nprocs < MAXPROCENTRY)
 			break;
 	} /* while (getprocs64() > 0) */
+<<<<<<< HEAD
 	ps_submit_state ("running",  running);
 	ps_submit_state ("sleeping", sleeping);
 	ps_submit_state ("zombies",  zombies);
@@ -4205,6 +4299,16 @@ static int ps_read(void) {
 	ps_submit_state ("paging",   paging);
 	ps_submit_state ("blocked",  blocked);
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+	ps_submit_state ("running",    running);
+	ps_submit_state ("sleeping",   sleeping);
+	ps_submit_state ("zombies",    zombies);
+	ps_submit_state ("stopped",    stopped);
+	ps_submit_state ("paging",     paging);
+	ps_submit_state ("blocked",    blocked);
+	ps_submit_state ("no_cmdline", (nprocs - cmdline_processes));
+	ps_submit_state ("cmdline",    cmdline_processes);
+>>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
 
   char cmdline[PRARGSZ];
 
