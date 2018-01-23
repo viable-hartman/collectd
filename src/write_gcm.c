@@ -857,7 +857,7 @@ int wg_extract_toplevel_json_long_long(const char *json, const char *key,
 // THE EASY ROUTE
 //
 // Make a GET request to the metadata server at the following URL:
-// http://169.254.169.254/computeMetadata/v1beta1/instance/service-accounts/default/token
+// http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token
 //
 // If our call is successful, the server will respond with a json object looking
 // like this:
@@ -993,7 +993,7 @@ static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
     const credential_ctx_t *cred_ctx) {
   // The URL to get the auth token from the metadata server.
   static const char gcp_metadata_fetch_auth_token[] =
-    "http://169.254.169.254/computeMetadata/v1beta1/instance/service-accounts/default/token";
+    "http://169.254.169.254/computeMetadata/v1/instance/service-accounts/default/token";
 
   cdtime_t now = cdtime();
   // Try to reuse an existing token. We build in a minute of slack in order to
@@ -2600,7 +2600,7 @@ static char *wg_get_from_gcp_metadata_server(const char *resource,
     _Bool silent_failures) {
   const char *headers[] = { gcp_metadata_header };
   return wg_get_from_metadata_server(
-      "http://169.254.169.254/computeMetadata/v1beta1/", resource,
+      "http://169.254.169.254/computeMetadata/v1/", resource,
       headers, STATIC_ARRAY_SIZE(headers), silent_failures);
 }
 
@@ -4174,13 +4174,13 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 
       wg_log_json_message(
           ctx, "Server response (CollectdTimeseriesRequest):\n%s\n", response);
-      // Since the response is expected to be valid JSON, we don't
-      // look at the characters beyond the closing brace.
+      // Since the response is expected to be valid JSON, we don't look at the
+      // characters beyond the closing brace. When the response isn't empty, it
+      // represents a partial success case. Because some points were accepted
+      // in that case, we treat it as a successful API call.
       if (strncmp(response, "{}", 2) != 0) {
         ERROR("%s: Server response (CollectdTimeseriesRequest) contains errors:\n%s",
               this_plugin_name, response);
-        ++ctx->ats_stats->api_errors;
-        goto leave;
       }
       ++ctx->ats_stats->api_successes;
 
@@ -4210,13 +4210,13 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
         // TODO: Validate API response properly.
         wg_log_json_message(
             ctx, "Server response (TimeseriesRequest):\n%s\n", response);
-        // Since the response is expected to be valid JSON, we don't
-        // look at the characters beyond the closing brace.
+        // Since the response is expected to be valid JSON, we don't look at the
+        // characters beyond the closing brace. When the response isn't empty, it
+        // represents a partial success case. Because some points were accepted
+        // in that case, we treat it as a successful API call.
         if (strncmp(response, "{}", 2) != 0) {
           ERROR("%s: Server response (TimeseriesRequest) contains errors:\n%s",
                 this_plugin_name, response);
-          ++ctx->gsd_stats->api_errors;
-          goto leave;
         }
       } else {
         wg_log_json_message(
