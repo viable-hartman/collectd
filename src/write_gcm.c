@@ -4066,21 +4066,6 @@ static void wg_log_json_message(const wg_context_t *ctx, const char *fmt, ...) {
   fflush(ctx->json_log_file);
 }
 
-static char *wg_get_instance_id_from_monitored_resource(
-    monitored_resource_t *resource) {
-  if (resource == NULL) {
-    ERROR(
-        "write_gcm: wg_get_instance_id_from_monitored_resource resource empty");
-    return NULL;
-  }
-  for (int i = 0; i < resource->num_labels; i++) {
-    if (strcmp(resource->keys[i], "instance_id") == 0) {
-      return resource->values[i];
-    }
-  }
-  return NULL;
-}
-
 // Determines which Monitored Resource to use for the payload being dispatched.
 static monitored_resource_t *wg_determine_monitored_resource_for_payload(
     const char *host, const wg_context_t *ctx) {
@@ -4093,9 +4078,7 @@ static monitored_resource_t *wg_determine_monitored_resource_for_payload(
       return resource;
     }
   }
-  char *instance_id =
-      wg_get_instance_id_from_monitored_resource(ctx->resource);
-  if (instance_id != NULL && strcmp(instance_id, host) == 0) {
+  if (strlen(host) == 0) {
       return ctx->resource;
   }
   return NULL;
