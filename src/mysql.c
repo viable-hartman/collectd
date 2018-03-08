@@ -338,6 +338,9 @@ static MYSQL *getconnection (mysql_database_t *db)
 	db->is_connected = 0;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Patch for mysql plugin memory leak taken from collectd#2704 (#130)
 	/* Close the old connection before initializing a new one. */
 	if (db->con != NULL) {
 		mysql_close(db->con);
@@ -345,6 +348,7 @@ static MYSQL *getconnection (mysql_database_t *db)
 	}
 
 	db->con = mysql_init (NULL);
+<<<<<<< HEAD
 	if (db->con == NULL)
 	{
 		ERROR ("mysql plugin: mysql_init failed: %s",
@@ -361,6 +365,13 @@ static MYSQL *getconnection (mysql_database_t *db)
 			return (NULL);
 		}
 >>>>>>> Ensure that mysql_thread_init() is called from every thread,
+=======
+	if (db->con == NULL)
+	{
+		ERROR ("mysql plugin: mysql_init failed: %s",
+                                mysql_error (db->con));
+		return (NULL);
+>>>>>>> Patch for mysql plugin memory leak taken from collectd#2704 (#130)
 	}
 
 	/* Configure TCP connect timeout (default: 0) */
