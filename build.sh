@@ -18,11 +18,8 @@ EOF
 	done
 }
 
-build_linux ()
+setup_libtool ()
 {
-	echo "Building for Linux..."
-	check_for_application lex bison autoheader aclocal automake autoconf pkg-config
-
 	libtoolize=""
 	libtoolize --version >/dev/null 2>/dev/null
 	if test $? -eq 0
@@ -47,9 +44,11 @@ EOF
 	then
 		exit 1
 	fi
+}
 
+build ()
+{
 	set -x
-
 	autoheader \
 	&& aclocal \
 	&& $libtoolize --copy --force \
@@ -57,23 +56,34 @@ EOF
 	&& autoconf
 }
 
+build_linux ()
+{
+	echo "Building for Linux..."
+	check_for_application lex bison autoheader aclocal automake autoconf pkg-config
+	setup_libtool
+	build
+}
+
 build_windows ()
 {
+	echo "Building for Windows..."
+	check_for_application aclocal autoconf autoheader automake bison flex git make pkg-config x86_64-w64-mingw32-gcc
+	setup_libtool
+
 	set -e
 
-	echo "Building for Windows..."
-	check_for_application git automake make flex bison pkg-config wget
-	#check_for_application mingw64-x86_64-gcc-core git automake make flex bison pkg-config mingw64-x86_64-zlib wget mingw64-x86_64-dlfcn
-
-	export CC=/usr/bin/x86_64-w64-mingw32-gcc.exe
 	: ${INSTALL_DIR:="C:/PROGRA~1/collectd"}
 	echo "Installing collectd to ${INSTALL_DIR}."
+	TOP_SRCDIR=$(pwd)
+	MINGW_ROOT="/usr/x86_64-w64-mingw32/sys-root/mingw"
+	GNULIB_DIR="${TOP_SRCDIR}/_build_aux/_gnulib/gllib"
+	LIBTOOL_DIR="${TOP_SRCDIR}/_build_aux/_libtool"
+	LIBCURL_DIR="${TOP_SRCDIR}/_build_aux/_libcurl"
 
-	TOP_SRCDIR=`pwd`
+	export CC="x86_64-w64-mingw32-gcc"
 
 	mkdir -p _build_aux
 
-	# build gnulib
 	pushd _build_aux
 	if [ -d "_gnulib" ]; then
 	  echo "Assuming that gnulib is already built, because _gnulib exists."
@@ -117,7 +127,6 @@ build_windows ()
 	fi
 	popd
 
-
 	# build libtool
 	pushd _build_aux
 	if [ -d "_libtool" ]; then
@@ -131,7 +140,6 @@ build_windows ()
 	  make install
 	fi
 	popd
-
 
 	# build libcurl
 	pushd _build_aux
@@ -147,15 +155,6 @@ build_windows ()
 	fi
 	popd
 
-	#INSTALL_DIR="C:/Program Files/collectd"
-	#INSTALL_DIR="C:/opt"
-	#INSTALL_DIR="${TOP_SRCDIR}/opt"
-	#INSTALL_DIR="C:/PROGRA~1/Google/monitoringatcorp"
-	MINGW_ROOT="/usr/x86_64-w64-mingw32/sys-root/mingw"
-	LIBTOOL_DIR="${TOP_SRCDIR}/_build_aux/_libtool"
-	LIBCURL_DIR="${TOP_SRCDIR}/_build_aux/_libcurl"
-	GNULIB_DIR="${TOP_SRCDIR}/_build_aux/_gnulib/gllib"
-
 	autoheader
 	aclocal -I ${LIBTOOL_DIR}/share/aclocal
 	${LIBTOOL_DIR}/bin/libtoolize --ltdl --copy --force
@@ -166,8 +165,6 @@ build_windows ()
 	export LIBS="-lgnu"
 	export CFLAGS="-Drestrict=__restrict -I${GNULIB_DIR}"
 
-	#./configure --datarootdir="${INSTALL_DIR}" --disable-all-plugins \
-	
 	./configure \
 	  --prefix="${INSTALL_DIR}" \
 	  --libdir="${INSTALL_DIR}" \
@@ -199,7 +196,7 @@ build_windows ()
 	make
 	make install
 
-	mkdir "${INSTALL_DIR}/plugins"
+	mkdir -p "${INSTALL_DIR}/plugins"
 	mv "${INSTALL_DIR}/libuuid.dll" "${INSTALL_DIR}/plugins"
 	mv "${INSTALL_DIR}/collectd"/*.dll "${INSTALL_DIR}/plugins"
 	rm -rf "${INSTALL_DIR}/collectd"
@@ -208,8 +205,7 @@ build_windows ()
 	cp "${LIBTOOL_DIR}/bin/libltdl-7.dll" "${INSTALL_DIR}"
 	cp "${LIBCURL_DIR}/bin/libcurl-4.dll" "${INSTALL_DIR}"
 	cp "${MINGW_ROOT}"/bin/{zlib1.dll,libwinpthread-1.dll,libdl.dll} "${INSTALL_DIR}"
-	#cp "collectd.conf" "${INSTALL_DIR}"
-	
+
 	echo "Done"
 }
 
