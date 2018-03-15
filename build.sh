@@ -157,7 +157,7 @@ build_windows ()
 
 	autoheader
 	aclocal -I ${LIBTOOL_DIR}/share/aclocal
-	${LIBTOOL_DIR}/bin/libtoolize --ltdl --copy --force
+	libtoolize --copy --force
 	automake --add-missing --copy
 	autoconf
 
