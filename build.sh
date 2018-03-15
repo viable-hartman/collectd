@@ -161,7 +161,7 @@ build_windows ()
 	automake --add-missing --copy
 	autoconf
 
-	export LDFLAGS="-L${GNULIB_DIR} -L${LIBTOOL_DIR}/bin -L${LIBTOOL_DIR}/lib"
+	export LDFLAGS="-L${GNULIB_DIR}" # -L${LIBTOOL_DIR}/bin -L${LIBTOOL_DIR}/lib"
 	export LIBS="-lgnu"
 	export CFLAGS="-Drestrict=__restrict -I${GNULIB_DIR}"
 
