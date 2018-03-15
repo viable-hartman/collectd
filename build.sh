@@ -161,7 +161,7 @@ build_windows ()
 	automake --add-missing --copy
 	autoconf
 
-	export LDFLAGS="-L${GNULIB_DIR}" # -L${LIBTOOL_DIR}/bin -L${LIBTOOL_DIR}/lib"
+	export LDFLAGS="-L${GNULIB_DIR}"
 	export LIBS="-lgnu"
 	export CFLAGS="-Drestrict=__restrict -I${GNULIB_DIR}"
 
@@ -202,7 +202,6 @@ build_windows ()
 	rm -rf "${INSTALL_DIR}/collectd"
 	cp ".libs/libcollectd-0.dll" "${INSTALL_DIR}"
 	cp "${GNULIB_DIR}/libgnu.dll" "${INSTALL_DIR}"
-	cp "${LIBTOOL_DIR}/bin/libltdl-7.dll" "${INSTALL_DIR}"
 	cp "${LIBCURL_DIR}/bin/libcurl-4.dll" "${INSTALL_DIR}"
 	cp "${MINGW_ROOT}"/bin/{zlib1.dll,libwinpthread-1.dll,libdl.dll} "${INSTALL_DIR}"
 
