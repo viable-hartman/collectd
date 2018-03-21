@@ -45,7 +45,11 @@
 #elif HAVE_SYS_ENDIAN_H
 #include <sys/endian.h>
 #else /* fallback */
+<<<<<<< HEAD
 #include "collectd/stdendian.h"
+=======
+#include "stdendian.h"
+>>>>>>> Keep clang-format happy
 #endif
 
 #if HAVE_GCRYPT_H
