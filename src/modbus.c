@@ -396,16 +396,16 @@ static int mb_init_connection(mb_host_t *host) /* {{{ */
 } /* }}} int mb_init_connection */
 #endif /* !LEGACY_LIBMODBUS */
 
-#define CAST_TO_VALUE_T(ds, vt, raw)                                           \
+#define CAST_TO_VALUE_T(ds, vt, raw, scale, shift)                             \
   do {                                                                         \
     if ((ds)->ds[0].type == DS_TYPE_COUNTER)                                   \
-      (vt).counter = (((counter_t)(raw) * ds[0].scale) + ds[0].shift);         \
+      (vt).counter = (((counter_t)(raw) * scale) + shift);                     \
     else if ((ds)->ds[0].type == DS_TYPE_GAUGE)                                \
-      (vt).gauge = (((gauge_t)(raw) * ds[0].scale) + ds[0].shift);             \
+      (vt).gauge = (((gauge_t)(raw) * scale) + shift);                         \
     else if ((ds)->ds[0].type == DS_TYPE_DERIVE)                               \
-      (vt).derive = (((derive_t)(raw) * ds[0].scale) + ds[0].shift);           \
+      (vt).derive = (((derive_t)(raw) * scale) + shift);                       \
     else /* if (ds->ds[0].type == DS_TYPE_ABSOLUTE) */                         \
-      (vt).absolute = (((absolute_t)(raw) * ds[0].scale) + ds[0].shift);       \
+      (vt).absolute = (((absolute_t)(raw) * scale) + shift);                   \
   } while (0)
 
 static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
@@ -539,7 +539,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned float value is %g",
           (double)float_value);
 
-    CAST_TO_VALUE_T(ds, vt, float_value);
+    CAST_TO_VALUE_T(ds, vt, float_value, data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   } else if (data->register_type == REG_TYPE_FLOAT_CDAB) {
     float float_value;
@@ -550,7 +550,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned float value is %g",
           (double)float_value);
 
-    CAST_TO_VALUE_T(ds, vt, float_value);
+    CAST_TO_VALUE_T(ds, vt, float_value, data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   } else if (data->register_type == REG_TYPE_INT32) {
     union {
@@ -564,7 +564,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned int32 value is %" PRIi32,
           v.i32);
 
-    CAST_TO_VALUE_T(ds, vt, v.i32);
+    CAST_TO_VALUE_T(ds, vt, v.i32, data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   } else if (data->register_type == REG_TYPE_INT32_CDAB) {
     union {
@@ -578,7 +578,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned int32 value is %" PRIi32,
           v.i32);
 
-    CAST_TO_VALUE_T(ds, vt, v.i32);
+    CAST_TO_VALUE_T(ds, vt, v.i32, data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   } else if (data->register_type == REG_TYPE_INT16) {
     union {
@@ -593,7 +593,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned int16 value is %" PRIi16,
           v.i16);
 
-    CAST_TO_VALUE_T(ds, vt, v.i16);
+    CAST_TO_VALUE_T(ds, vt, v.i16, data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   } else if (data->register_type == REG_TYPE_UINT32) {
     uint32_t v32;
@@ -604,7 +604,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned uint32 value is %" PRIu32,
           v32);
 
-    CAST_TO_VALUE_T(ds, vt, v32);
+    CAST_TO_VALUE_T(ds, vt, v32, data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   } else if (data->register_type == REG_TYPE_UINT32_CDAB) {
     uint32_t v32;
@@ -615,7 +615,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned uint32 value is %" PRIu32,
           v32);
 
-    CAST_TO_VALUE_T(ds, vt, v32);
+    CAST_TO_VALUE_T(ds, vt, v32, data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   } else if (data->register_type == REG_TYPE_UINT64) {
     uint64_t v64;
@@ -652,7 +652,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned uint16 value is %" PRIu16,
           values[0]);
 
-    CAST_TO_VALUE_T(ds, vt, values[0]);
+    CAST_TO_VALUE_T(ds, vt, values[0], data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   }
 
@@ -775,11 +775,9 @@ static int mb_config_add_data(oconfig_item_t *ci) /* {{{ */
       status = cf_util_get_string_buffer(child, data.instance,
                                          sizeof(data.instance));
     else if (strcasecmp("Scale", child->key) == 0)
-      status = cf_util_get_string_buffer(child, data.scale, 
-                                         sizeof(data.scale));
+      status = cf_util_get_double(child, &data.scale);
     else if (strcasecmp("Shift", child->key) == 0)
-      status = cf_util_get_string_buffer(child, data.shift, 
-                                         sizeof(data.shift));
+      status = cf_util_get_double(child, &data.shift);
     else if (strcasecmp("RegisterBase", child->key) == 0)
       status = cf_util_get_int(child, &data.register_base);
     else if (strcasecmp("RegisterType", child->key) == 0) {
