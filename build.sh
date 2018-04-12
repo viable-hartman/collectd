@@ -142,6 +142,7 @@ build_cygwin()
       --datarootdir="${DATADIR}" \
       --disable-all-plugins \
       --host="mingw32" \
+      --enable-eventlog \
       --enable-logfile \
       --enable-match_regex \
       --enable-target_replace \
