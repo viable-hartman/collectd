@@ -7078,10 +7078,13 @@ B<Synopsis:>
 <<<<<<< HEAD
      CollectContextSwitch true
    </ProcessMatch>
+<<<<<<< HEAD
 =======
      CollectContextSwitch  true
    </Process>
 >>>>>>> processes plugin: Implement the "CollectDelayAccounting" option.
+=======
+>>>>>>> Fix typo in collectd.conf.pod
  </Plugin>
 
 =over 4
