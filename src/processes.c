@@ -401,6 +401,7 @@ typedef struct procstat {
 static procstat_t *list_head_g = NULL;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static _Bool want_init = 1;
 static _Bool report_ctx_switch = 0;
 <<<<<<< HEAD
@@ -439,6 +440,9 @@ static bool report_maps_num = 0;
 static bool report_delay = 0;
 >>>>>>> Treewide: use bool instead of _Bool
 =======
+=======
+static bool want_init = true;
+>>>>>>> Set static bools to true instead of 1
 static bool report_ctx_switch;
 static bool report_fd_num;
 static bool report_maps_num;
