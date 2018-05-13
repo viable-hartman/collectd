@@ -244,8 +244,7 @@ static int http_handler(void *cls, struct MHD_Connection *connection,
 
   char const *accept = MHD_lookup_connection_value(connection, MHD_HEADER_KIND,
                                                    MHD_HTTP_HEADER_ACCEPT);
-  bool want_proto =
-      (accept != NULL) &&
+  bool want_proto = (accept != NULL) &&
       (strstr(accept, "application/vnd.google.protobuf") != NULL);
 
   uint8_t scratch[4096] = {0};
