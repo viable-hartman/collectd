@@ -432,11 +432,18 @@ static _Bool report_delay = 0;
 >>>>>>> processes plugin: Implement the "CollectDelayAccounting" option.
 =======
 static bool want_init = 1;
+<<<<<<< HEAD
 static bool report_ctx_switch = 0;
 static bool report_fd_num = 0;
 static bool report_maps_num = 0;
 static bool report_delay = 0;
 >>>>>>> Treewide: use bool instead of _Bool
+=======
+static bool report_ctx_switch;
+static bool report_fd_num;
+static bool report_maps_num;
+static bool report_delay;
+>>>>>>> No need to initialize static bools to false
 
 #if HAVE_THREAD_INFO
 static mach_port_t port_host_self;
