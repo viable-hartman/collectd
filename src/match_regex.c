@@ -67,6 +67,7 @@ struct mr_match_s {
   mr_regex_t *type;
   mr_regex_t *type_instance;
   llist_t *meta; /* Maps each meta key into mr_regex_t* */
+<<<<<<< HEAD
   _Bool invert;
 =======
 struct mr_match_s
@@ -79,6 +80,9 @@ struct mr_match_s
 	llist_t *meta;  /* Maps each meta key into mr_regex_t* */
 	_Bool invert;
 >>>>>>> Allow Match:Regex to match metadata.
+=======
+  bool invert;
+>>>>>>> Treewide: use bool instead of _Bool
 };
 
 /*

@@ -242,7 +242,7 @@ static int format_zone (char *buffer, size_t buffer_size, struct tm const *tm) /
 <<<<<<< HEAD
 <<<<<<< HEAD
 int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
-                   long nsec, _Bool print_nano, char const *zone) /* {{{ */
+                   long nsec, bool print_nano, char const *zone) /* {{{ */
 {
   int len;
   char *pos = buffer;
@@ -265,10 +265,14 @@ int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
 } /* }}} int format_rfc3339 */
 
 int format_rfc3339_utc(char *buffer, size_t buffer_size, cdtime_t t,
+<<<<<<< HEAD
                        _Bool print_nano) /* {{{ */
 =======
 static int format_rfc3339 (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano, _Bool zulu) /* {{{ */
 >>>>>>> Add RFC3339 Zulu time functions
+=======
+                       bool print_nano) /* {{{ */
+>>>>>>> Treewide: use bool instead of _Bool
 {
   struct tm t_tm;
   long nsec = 0;
@@ -302,7 +306,7 @@ static int format_rfc3339 (char *buffer, size_t buffer_size, cdtime_t t, _Bool p
 >>>>>>> Add RFC3339 Zulu time functions
 
 int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
-                         _Bool print_nano) /* {{{ */
+                         bool print_nano) /* {{{ */
 {
   struct tm t_tm;
   long nsec = 0;

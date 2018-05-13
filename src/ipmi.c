@@ -49,12 +49,12 @@ typedef struct c_ipmi_sensor_list_s c_ipmi_sensor_list_t;
 struct c_ipmi_instance_s {
   char *name;
   ignorelist_t *ignorelist;
-  _Bool notify_add;
-  _Bool notify_remove;
-  _Bool notify_notpresent;
-  _Bool notify_conn;
-  _Bool sel_enabled;
-  _Bool sel_clear_event;
+  bool notify_add;
+  bool notify_remove;
+  bool notify_notpresent;
+  bool notify_conn;
+  bool sel_enabled;
+  bool sel_clear_event;
 
   char *host;
   char *connaddr;
@@ -62,12 +62,12 @@ struct c_ipmi_instance_s {
   char *password;
   unsigned int authtype;
 
-  _Bool connected;
+  bool connected;
   ipmi_con_t *connection;
   pthread_mutex_t sensor_list_lock;
   c_ipmi_sensor_list_t *sensor_list;
 
-  _Bool active;
+  bool active;
   pthread_t thread_id;
   int init_in_progress;
 
@@ -1062,6 +1062,7 @@ static int c_ipmi_config_add_instance(oconfig_item_t *ci) {
   for (int i = 0; i < ci->children_num; i++) {
     oconfig_item_t *child = ci->children + i;
 
+<<<<<<< HEAD
     if (strcasecmp("Sensor", child->key) == 0) {
       char *value = NULL;
       status = cf_util_get_string(child, &value);
@@ -1071,6 +1072,12 @@ static int c_ipmi_config_add_instance(oconfig_item_t *ci) {
       sfree(value);
     } else if (strcasecmp("IgnoreSelected", child->key) == 0) {
       _Bool t;
+=======
+    if (strcasecmp("Sensor", child->key) == 0)
+      ignorelist_add(st->ignorelist, child->values[0].value.string);
+    else if (strcasecmp("IgnoreSelected", child->key) == 0) {
+      bool t;
+>>>>>>> Treewide: use bool instead of _Bool
       status = cf_util_get_boolean(child, &t);
       if (status != 0)
         break;
@@ -1129,7 +1136,7 @@ static int c_ipmi_config_add_instance(oconfig_item_t *ci) {
 } /* int c_ipmi_config_add_instance */
 
 static int c_ipmi_config(oconfig_item_t *ci) {
-  _Bool have_instance_block = 0;
+  bool have_instance_block = 0;
 
   for (int i = 0; i < ci->children_num; i++) {
     oconfig_item_t *child = ci->children + i;

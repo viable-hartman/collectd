@@ -46,7 +46,7 @@ union meta_value_u {
   int64_t mv_signed_int;
   uint64_t mv_unsigned_int;
   double mv_double;
-  _Bool mv_boolean;
+  bool mv_boolean;
 };
 typedef union meta_value_u meta_value_t;
 
@@ -530,7 +530,7 @@ int meta_data_add_double(meta_data_t *md, /* {{{ */
 } /* }}} int meta_data_add_double */
 
 int meta_data_add_boolean(meta_data_t *md, /* {{{ */
-                          const char *key, _Bool value) {
+                          const char *key, bool value) {
   meta_entry_t *e;
 
   if ((md == NULL) || (key == NULL))
@@ -667,7 +667,7 @@ int meta_data_get_double(meta_data_t *md, /* {{{ */
 } /* }}} int meta_data_get_double */
 
 int meta_data_get_boolean(meta_data_t *md, /* {{{ */
-                          const char *key, _Bool *value) {
+                          const char *key, bool *value) {
   meta_entry_t *e;
 
   if ((md == NULL) || (key == NULL) || (value == NULL))
