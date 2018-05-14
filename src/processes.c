@@ -398,7 +398,7 @@ typedef struct procstat {
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
 } procstat_t;
 
-static procstat_t *list_head_g = NULL;
+static procstat_t *list_head_g;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -507,7 +507,7 @@ static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *s
 }
 =======
 #if HAVE_LIBTASKSTATS
-static ts_t *taskstats_handle = NULL;
+static ts_t *taskstats_handle;
 #endif
 >>>>>>> processes plugin: Implement the "CollectDelayAccounting" option.
 
