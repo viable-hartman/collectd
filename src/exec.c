@@ -85,7 +85,7 @@ const long int MAX_GRBUF_SIZE = 65536;
 /*
  * Private variables
  */
-static program_list_t *pl_head = NULL;
+static program_list_t *pl_head;
 static pthread_mutex_t pl_lock = PTHREAD_MUTEX_INITIALIZER;
 
 /*
