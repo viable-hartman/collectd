@@ -47,10 +47,14 @@
 #include <sys/endian.h>
 #else /* fallback */
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "collectd/stdendian.h"
 =======
 #include "stdendian.h"
 >>>>>>> Keep clang-format happy
+=======
+#include "collectd/stdendian.h"
+>>>>>>> Fix make distcheck on Mac OS
 #endif
 
 #if HAVE_GCRYPT_H
