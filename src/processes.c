@@ -1038,35 +1038,39 @@ static void ps_submit_fork_rate(derive_t value) {
 
 /* ------- additional functions for KERNEL_LINUX/HAVE_THREAD_INFO ------- */
 #if KERNEL_LINUX
-static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
-{
-	char           dirname[64];
-	DIR           *dh;
-	char           filename[64];
-	FILE          *fh;
-	struct dirent *ent;
-	derive_t cswitch_vol = 0;
-	derive_t cswitch_invol = 0;
-	char buffer[1024];
-	char *fields[8];
-	int numfields;
+static int ps_read_tasks_status(process_entry_t *ps) {
+  char dirname[64];
+  DIR *dh;
+  char filename[64];
+  FILE *fh;
+  struct dirent *ent;
+  derive_t cswitch_vol = 0;
+  derive_t cswitch_invol = 0;
+  char buffer[1024];
+  char *fields[8];
+  int numfields;
 
-	ssnprintf (dirname, sizeof (dirname), "/proc/%li/task", pid);
+  snprintf(dirname, sizeof(dirname), "/proc/%li/task", ps->id);
 
-	if ((dh = opendir (dirname)) == NULL)
-	{
-		DEBUG ("Failed to open directory `%s'", dirname);
-		return (NULL);
-	}
+  if ((dh = opendir(dirname)) == NULL) {
+    DEBUG("Failed to open directory `%s'", dirname);
+    return -1;
+  }
 
-	while ((ent = readdir (dh)) != NULL)
-	{
-		char *tpid;
+  while ((ent = readdir(dh)) != NULL) {
+    char *tpid;
 
-		if (!isdigit ((int) ent->d_name[0]))
-			continue;
+    if (!isdigit((int)ent->d_name[0]))
+      continue;
 
-		tpid = ent->d_name;
+    tpid = ent->d_name;
+
+    int r = snprintf(filename, sizeof(filename), "/proc/%li/task/%s/status",
+                     ps->id, tpid);
+    if ((size_t)r >= sizeof(filename)) {
+      DEBUG("Filename too long: `%s'", filename);
+      continue;
+    }
 
     if ((fh = fopen(filename, "r")) == NULL) {
       DEBUG("Failed to open file `%s'", filename);
