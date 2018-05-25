@@ -1024,7 +1024,8 @@ static void domain_state_submit_notif(virDomainPtr dom, int state, int reason) {
   char msg[DATA_MAX_NAME_LEN];
   const char *state_str = domain_states[state];
 #ifdef HAVE_DOM_REASON
-  if ((reason < 0) || ((size_t)reason >= STATIC_ARRAY_SIZE(domain_reasons[0]))) {
+  if ((reason < 0) ||
+      ((size_t)reason >= STATIC_ARRAY_SIZE(domain_reasons[0]))) {
     ERROR(PLUGIN_NAME ": Array index out of bounds: reason=%d", reason);
     return;
   }
@@ -1824,7 +1825,7 @@ static int get_if_dev_stats(struct interface_device *if_dev) {
   return 0;
 }
 
-static int domain_lifecycle_event_cb(__attribute__((unused)) virConnectPtr conn,
+static int domain_lifecycle_event_cb(__attribute__((unused)) virConnectPtr con_,
                                      virDomainPtr dom, int event, int detail,
                                      __attribute__((unused)) void *opaque) {
   int domain_state = map_domain_event_to_state(event);
