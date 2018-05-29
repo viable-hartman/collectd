@@ -71,7 +71,7 @@ static void rdt_dump_cgroups(void) {
   DEBUG(RDT_PLUGIN ": Core Groups Dump");
   DEBUG(RDT_PLUGIN ":  groups count: %" PRIsz, g_rdt->num_groups);
 
-  for (int i = 0; i < g_rdt->num_groups; i++) {
+  for (size_t i = 0; i < g_rdt->num_groups; i++) {
     core_group_t *cgroup = g_rdt->cores.cgroups + i;
 
     memset(cores, 0, sizeof(cores));
@@ -162,9 +162,9 @@ static int rdt_default_cgroups(void) {
   return num_cores;
 }
 
-static int rdt_is_core_id_valid(int core_id) {
+static int rdt_is_core_id_valid(unsigned int core_id) {
 
-  for (int i = 0; i < g_rdt->pqos_cpu->num_cores; i++)
+  for (unsigned int i = 0; i < g_rdt->pqos_cpu->num_cores; i++)
     if (core_id == g_rdt->pqos_cpu->cores[i].lcore)
       return 1;
 
@@ -186,6 +186,7 @@ static int rdt_config_cgroups(oconfig_item_t *item) {
   for (size_t group_idx = 0; group_idx < n; group_idx++) {
     core_group_t *cgroup = g_rdt->cores.cgroups + group_idx;
     for (size_t core_idx = 0; core_idx < cgroup->num_cores; core_idx++) {
+<<<<<<< HEAD
       if (!rdt_is_core_id_valid((int)cgroup->cores[core_idx])) {
         ERROR(RDT_PLUGIN ": Core group '%s' contains invalid core id '%d'",
 <<<<<<< HEAD
@@ -194,6 +195,11 @@ static int rdt_config_cgroups(oconfig_item_t *item) {
               g_rdt->cgroups[group_idx].desc,
               (int)g_rdt->cgroups[group_idx].cores[core_idx]);
 >>>>>>> Replace zu with PRIu64 and llu with new macro, PRIsz, which will make it easier to make the code platform-independent.
+=======
+      if (!rdt_is_core_id_valid(cgroup->cores[core_idx])) {
+        ERROR(RDT_PLUGIN ": Core group '%s' contains invalid core id '%u'",
+              cgroup->desc, cgroup->cores[core_idx]);
+>>>>>>> intel_rdt: fix a bunch of warnings
         rdt_free_cgroups();
         return -EINVAL;
       }
@@ -214,7 +220,7 @@ static int rdt_config_cgroups(oconfig_item_t *item) {
   }
 
   /* Get all available events on this platform */
-  for (int i = 0; i < g_rdt->cap_mon->u.mon->num_events; i++)
+  for (unsigned int i = 0; i < g_rdt->cap_mon->u.mon->num_events; i++)
     events |= g_rdt->cap_mon->u.mon->events[i].type;
 
   events &= ~(PQOS_PERF_EVENT_LLC_MISS);
@@ -395,7 +401,7 @@ static int rdt_read(__attribute__((unused)) user_data_t *ud) {
   rdt_dump_data();
 #endif /* COLLECT_DEBUG */
 
-  for (int i = 0; i < g_rdt->num_groups; i++) {
+  for (size_t i = 0; i < g_rdt->num_groups; i++) {
     core_group_t *cgroup = g_rdt->cores.cgroups + i;
 
     enum pqos_mon_event mbm_events =
@@ -434,7 +440,7 @@ static int rdt_init(void) {
     return ret;
 
   /* Start monitoring */
-  for (int i = 0; i < g_rdt->num_groups; i++) {
+  for (size_t i = 0; i < g_rdt->num_groups; i++) {
     core_group_t *cg = g_rdt->cores.cgroups + i;
 
     ret = pqos_mon_start(cg->num_cores, cg->cores, g_rdt->events[i],
@@ -457,7 +463,7 @@ static int rdt_shutdown(void) {
     return 0;
 
   /* Stop monitoring */
-  for (int i = 0; i < g_rdt->num_groups; i++) {
+  for (size_t i = 0; i < g_rdt->num_groups; i++) {
     pqos_mon_stop(g_rdt->pgroups[i]);
   }
 
