@@ -337,8 +337,8 @@ static int rdt_config(oconfig_item_t *ci) {
   return 0;
 }
 
-static void rdt_submit_derive(char *cgroup, char *type, char *type_instance,
-                              derive_t value) {
+static void rdt_submit_derive(const char *cgroup, const char *type,
+                              const char *type_instance, derive_t value) {
   value_list_t vl = VALUE_LIST_INIT;
 
   vl.values = &(value_t){.derive = value};
@@ -353,8 +353,8 @@ static void rdt_submit_derive(char *cgroup, char *type, char *type_instance,
   plugin_dispatch_values(&vl);
 }
 
-static void rdt_submit_gauge(char *cgroup, char *type, char *type_instance,
-                             gauge_t value) {
+static void rdt_submit_gauge(const char *cgroup, const char *type,
+                             const char *type_instance, gauge_t value) {
   value_list_t vl = VALUE_LIST_INIT;
 
   vl.values = &(value_t){.gauge = value};
