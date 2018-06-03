@@ -1294,7 +1294,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
   gauge_t const delay_factor = 1000000000.0;
 
   struct {
-    char *type_instance;
+    const char *type_instance;
     gauge_t rate_ns;
   } delay_metrics[] = {
       {"delay-cpu", ps->delay_cpu},
