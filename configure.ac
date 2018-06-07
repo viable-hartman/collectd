@@ -3869,7 +3869,7 @@ if test "x$with_libnetsnmp" = "xyes"; then
   AC_CACHE_CHECK([whether netsnmp library has old API],
     [c_cv_have_netsnmp_old_api],
     [
-      AC_COMPILE_IFELSE(
+      AC_LINK_IFELSE(
         [
           AC_LANG_PROGRAM(
             [[
@@ -3877,9 +3877,9 @@ if test "x$with_libnetsnmp" = "xyes"; then
               #include <net-snmp/net-snmp-includes.h>
             ]],
             [[
-              netsnmp_variable_list *key;
+              netsnmp_variable_list *key = SNMP_MALLOC_TYPEDEF(netsnmp_variable_list);;
               int val;
-              u_char type;
+              u_char type = ASN_INTEGER;
               snmp_set_var_value(key, &val, sizeof(val));
               snmp_set_var_typed_value(key, type, &val, sizeof(val));
               return 0;
