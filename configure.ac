@@ -773,6 +773,8 @@ AC_FUNC_STRERROR_R
 
 SAVE_CFLAGS="$CFLAGS"
 CFLAGS="-Wall -Werror"
+SAVE_LDFAGS="$LDFLAGS"
+LDFLAGS=""
 
 AC_CACHE_CHECK([for strtok_r],
   [c_cv_have_strtok_r_default],
@@ -845,6 +847,7 @@ if test "x$c_cv_have_strtok_r_default" = "xno"; then
 fi
 
 CFLAGS="$SAVE_CFLAGS"
+LDFLAGS="$SAVE_LDFLAGS"
 if test "x$c_cv_have_strtok_r_reentrant" = "xyes"; then
   CFLAGS="$CFLAGS -D_REENTRANT=1"
 fi
