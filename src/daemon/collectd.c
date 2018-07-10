@@ -296,11 +296,15 @@ static void read_cmdline(int argc, char **argv, struct cmdline_config *config) {
   /* read options */
   while (1) {
 <<<<<<< HEAD
+<<<<<<< HEAD
     int c;
     c = getopt(argc, argv, "BhtTC:"
 =======
     int c = getopt(argc, argv, "htTC:"
 >>>>>>> collectd.c: modernize code a bit
+=======
+    int c = getopt(argc, argv, "BhtTC:"
+>>>>>>> Fix parsing option for avoiding making BaseDir
 #if COLLECT_DAEMON
                                "fP:"
 #endif
