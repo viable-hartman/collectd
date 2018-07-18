@@ -1,12 +1,14 @@
 ACLOCAL_AMFLAGS = -I libltdl/m4
 
-SUBDIRS = src/libmongoc
+if BUILD_WITH_OWN_LIBMONGOC
+LIBMONGOC_SUBDIR=src/libmongoc
+endif
+
+SUBDIRS = $(LIBMONGOC_SUBDIR) proto src bindings .
 
 if BUILD_INCLUDED_LTDL
 SUBDIRS += libltdl
 endif
-
-SUBDIRS += proto src bindings .
 
 AM_CPPFLAGS = $(LTDLINCL)
 
