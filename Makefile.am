@@ -3,6 +3,14 @@ AM_YFLAGS = -d
 
 SUBDIRS = src/libmongoc
 
+if BUILD_WIN32
+pkgdatadir=$(datadir)
+pkglibdir=$(libdir)/plugins
+pkglocalstatedir=${localstatedir}
+else
+pkglocalstatedir=${localstatedir}/lib/${PACKAGE_NAME}
+endif
+
 BUILT_SOURCES = \
 	src/libcollectdclient/collectd/lcc_features.h \
 	src/liboconfig/parser.h \
@@ -100,7 +108,13 @@ pkginclude_HEADERS = \
 
 lib_LTLIBRARIES = libcollectdclient.la
 
+if BUILD_WIN32
+# TODO: Build all executables on Windows as well.
+sbin_PROGRAMS = \
+        collectd
 
+bin_PROGRAMS =
+else
 sbin_PROGRAMS = \
 	collectd \
 	collectdmon
@@ -110,9 +124,10 @@ bin_PROGRAMS = \
 	collectd-nagios \
 	collectd-tg \
 	collectdctl
+endif # BUILD_WIN32
 
 
-noinst_LTLIBRARIES = \
+EXTRA_LTLIBRARIES = \
 	libavltree.la \
 	libcmds.la \
 	libcommon.la \
@@ -161,6 +176,9 @@ PLUGIN_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-export-symbols-regex '\<module_register\>'
+if BUILD_WIN32
+PLUGIN_LDFLAGS += -shared -no-undefined -lcollectd -L.
+endif
 
 
 AM_CPPFLAGS = \
@@ -168,13 +186,26 @@ AM_CPPFLAGS = \
 	-DPREFIX='"${prefix}"' \
 	-DCONFIGFILE='"${sysconfdir}/${PACKAGE_NAME}.conf"' \
 	-DLOCALSTATEDIR='"${localstatedir}"' \
-	-DPKGLOCALSTATEDIR='"${localstatedir}/lib/${PACKAGE_NAME}"' \
+	-DPKGLOCALSTATEDIR='"${pkglocalstatedir}"' \
 	-DPLUGINDIR='"${pkglibdir}"' \
 	-DPKGDATADIR='"${pkgdatadir}"'
+if BUILD_WIN32
+AM_CPPFLAGS += -DNOGDI
+endif
 
+COMMON_DEPS =
+if BUILD_WIN32
+COMMON_DEPS += collectd.exe
+endif
 
 # Link to these libraries..
 COMMON_LIBS = $(PTHREAD_LIBS)
+if BUILD_WIN32
+COMMON_LIBS += -lws2_32
+endif
+if BUILD_WITH_GNULIB
+COMMON_LIBS += -lgnu
+endif
 if BUILD_WITH_CAPABILITY
 COMMON_LIBS += -lcap
 endif
@@ -196,7 +227,6 @@ endif
 
 
 collectd_SOURCES = \
-	src/daemon/cmd.c \
 	src/daemon/cmd.h \
 	src/daemon/collectd.c \
 	src/daemon/collectd.h \
@@ -240,6 +270,13 @@ collectd_LDADD = \
 	$(COMMON_LIBS) \
 	$(DLOPEN_LIBS)
 
+if BUILD_WIN32
+collectd_SOURCES += src/daemon/cmd_windows.c
+collectd_LDFLAGS += -ldl -Wl,--out-implib,libcollectd.a
+else
+collectd_SOURCES += src/daemon/cmd.c
+endif
+	
 if BUILD_FEATURE_DAEMON
 collectd_CPPFLAGS += -DPIDFILE='"${localstatedir}/run/${PACKAGE_NAME}.pid"'
 endif
@@ -251,6 +288,9 @@ collectd_CFLAGS += $(BUILD_WITH_LIBSTATGRAB_CFLAGS)
 collectd_LDADD += $(BUILD_WITH_LIBSTATGRAB_LDFLAGS)
 endif
 
+if BUILD_WIN32
+collectd_LDFLAGS += -Wl,--out-implib,libcollectd.a
+endif
 
 collectdmon_SOURCES = src/collectdmon.c
 
@@ -502,6 +542,10 @@ libcollectdclient_la_CPPFLAGS = \
 	-I$(srcdir)/src/daemon
 libcollectdclient_la_LDFLAGS = -version-info 2:0:1
 libcollectdclient_la_LIBADD = -lm
+if BUILD_WIN32
+libcollectdclient_la_LDFLAGS += -shared -no-undefined
+libcollectdclient_la_LIBADD += -lgnu -lws2_32 -liphlpapi
+endif
 if BUILD_WITH_LIBGCRYPT
 libcollectdclient_la_CPPFLAGS += $(GCRYPT_CPPFLAGS)
 libcollectdclient_la_LDFLAGS += $(GCRYPT_LDFLAGS)
@@ -1043,6 +1087,7 @@ if BUILD_PLUGIN_LOGFILE
 pkglib_LTLIBRARIES += logfile.la
 logfile_la_SOURCES = src/logfile.c
 logfile_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+logfile_la_DEPENDENCIES = $(COMMON_DEPS)
 endif
 
 if BUILD_PLUGIN_LOG_LOGSTASH
@@ -1472,7 +1517,7 @@ python_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(LIBPYTHON_LDFLAGS)
 endif
 
 if HAVE_LIBMNL
-noinst_LTLIBRARIES += libtaskstats.la
+EXTRA_LTLIBRARIES += libtaskstats.la
 libtaskstats_la_SOURCES = \
 	src/utils_taskstats.c \
 	src/utils_taskstats.h
@@ -2139,3 +2184,4 @@ generic-jmx.jar: $(JAVA_TIMESTAMP_FILE)
 
 jar_DATA = collectd-api.jar generic-jmx.jar
 endif
+
