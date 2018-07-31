@@ -1290,8 +1290,15 @@ network_la_SOURCES = \
 network_la_CPPFLAGS = $(AM_CPPFLAGS)
 network_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 network_la_LIBADD =
+network_la_DEPENDENCIES = $(COMMON_DEPS)
 if BUILD_WITH_LIBSOCKET
 network_la_LIBADD += -lsocket
+endif
+if BUILD_WITH_GNULIB
+network_la_LIBADD += -lgnu
+endif
+if BUILD_WIN32
+network_la_LIBADD += liphlpapi -lws2_32
 endif
 if BUILD_WITH_LIBGCRYPT
 network_la_CPPFLAGS += $(GCRYPT_CPPFLAGS)
