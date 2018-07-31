@@ -93,6 +93,7 @@ build_cygwin()
           --dir=${TOP_SRCDIR}/gnulib/build \
           canonicalize-lgpl \
           fcntl-h \
+          fnmatch \
           getsockopt \
           gettimeofday \
           nanosleep \
