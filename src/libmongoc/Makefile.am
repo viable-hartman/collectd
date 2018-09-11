@@ -15,6 +15,7 @@ endif
 AM_CTAGSFLAGS = --fields=+l --languages=c
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # include doc/Makefile.am
 # if ENABLE_MAN_PAGES
 # include doc/man/Makefile.am
@@ -33,6 +34,9 @@ include src/Makefile.am
 # endif
 =======
 include doc/Makefile.am
+=======
+# include doc/Makefile.am
+>>>>>>> Travis build - distcheck missing man pages target, missing header in dist tarball, and clang errors (#135)
 # if ENABLE_MAN_PAGES
 # include doc/man/Makefile.am
 # endif

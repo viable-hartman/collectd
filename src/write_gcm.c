@@ -3684,6 +3684,7 @@ typedef struct {
 // owned by caller), and 0 is returned.
 static int wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
 <<<<<<< HEAD
+<<<<<<< HEAD
     const monitored_resource_t *monitored_resource,
     const wg_payload_t *head, const wg_payload_t **new_head,
     char **json);
@@ -3697,6 +3698,9 @@ static char *wg_json_CreateCollectdTimeseriesRequest(_Bool pretty,
 >>>>>>> write_gcm plugin
 =======
     const const monitored_resource_t *monitored_resource,
+=======
+    const monitored_resource_t *monitored_resource,
+>>>>>>> Travis build - distcheck missing man pages target, missing header in dist tarball, and clang errors (#135)
     const wg_payload_t *head, const wg_payload_t **new_head,
     char **json);
 >>>>>>> Send metrics with the 'stackdriver_metric_type' metadata key to timeSeries.create. (#81)

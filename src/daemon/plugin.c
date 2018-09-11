@@ -700,9 +700,12 @@ static void stop_read_threads(void) {
 	pthread_mutex_unlock (&read_lock);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	sleep(0.25);
 >>>>>>> Avoid hang when restarting
+=======
+>>>>>>> Travis build - distcheck missing man pages target, missing header in dist tarball, and clang errors (#135)
 	for (int i = 0; i < read_threads_num; i++)
 	{
 		read_threads[i] = (pthread_t) 0;
@@ -956,9 +959,12 @@ static void stop_write_threads(void) /* {{{ */
 	pthread_mutex_unlock (&write_lock);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	sleep(0.25);
 >>>>>>> Avoid hang when restarting
+=======
+>>>>>>> Travis build - distcheck missing man pages target, missing header in dist tarball, and clang errors (#135)
 	for (i = 0; i < write_threads_num; i++)
 	{
 		write_threads[i] = (pthread_t) 0;
