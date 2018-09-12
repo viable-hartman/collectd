@@ -246,6 +246,31 @@ void EVP_MD_CTX_free(EVP_MD_CTX *ctx) {
 // CreateTimeSeries request.
 #define MAX_TIME_SERIES_PER_REQUEST 200
 
+
+//==============================================================================
+// OpenSSL1.0 Compatibility Layer 
+//==============================================================================
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#include <openssl/engine.h>
+
+static void *OPENSSL_zalloc(size_t num) {
+  void *ret = OPENSSL_malloc(num);
+
+  if (ret != NULL)
+    memset(ret, 0, num);
+  return ret;
+}
+
+EVP_MD_CTX *EVP_MD_CTX_new(void) {
+  return OPENSSL_zalloc(sizeof(EVP_MD_CTX));
+}
+
+void EVP_MD_CTX_free(EVP_MD_CTX *ctx) {
+  EVP_MD_CTX_cleanup(ctx);
+  OPENSSL_free(ctx);
+}
+#endif 
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -1484,11 +1509,16 @@ static int wg_oauth2_sign(unsigned char *signature, size_t sig_capacity,
     return -1;
   }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> Update Write GCM plugin for compatibility with OpenSSL 1.1 API (#131)
   EVP_MD_CTX* ctx;
   ctx = EVP_MD_CTX_new();
 
   EVP_SignInit(ctx, EVP_sha256());
+<<<<<<< HEAD
 
   char err_buf[1024];
   if (EVP_SignUpdate(ctx, buffer, size) == 0) {
@@ -1509,27 +1539,29 @@ static int wg_oauth2_sign(unsigned char *signature, size_t sig_capacity,
 =======
   EVP_MD_CTX ctx;
   EVP_SignInit(&ctx, EVP_sha256());
+=======
+>>>>>>> Update Write GCM plugin for compatibility with OpenSSL 1.1 API (#131)
 
   char err_buf[1024];
-  if (EVP_SignUpdate(&ctx, buffer, size) == 0) {
+  if (EVP_SignUpdate(ctx, buffer, size) == 0) {
     ERR_error_string_n(ERR_get_error(), err_buf, sizeof(err_buf));
     ERROR("write_gcm: EVP_SignUpdate failed: %s", err_buf);
-    EVP_MD_CTX_cleanup(&ctx);
+    EVP_MD_CTX_free(ctx);
     return -1;
   }
 
-  if (EVP_SignFinal(&ctx, signature, actual_sig_size, pkey) == 0) {
+  if (EVP_SignFinal(ctx, signature, actual_sig_size, pkey) == 0) {
     ERR_error_string_n(ERR_get_error(), err_buf, sizeof(err_buf));
     ERROR ("write_gcm: EVP_SignFinal failed: %s", err_buf);
-    EVP_MD_CTX_cleanup(&ctx);
+    EVP_MD_CTX_free(ctx);
     return -1;
   }
-  if (EVP_MD_CTX_cleanup(&ctx) == 0) {
-    ERR_error_string_n(ERR_get_error(), err_buf, sizeof(err_buf));
-    ERROR ("write_gcm: EVP_MD_CTX_cleanup failed: %s", err_buf);
-    return -1;
-  }
+<<<<<<< HEAD
 >>>>>>> write_gcm plugin
+=======
+
+  EVP_MD_CTX_free(ctx);
+>>>>>>> Update Write GCM plugin for compatibility with OpenSSL 1.1 API (#131)
   return 0;
 }
 
