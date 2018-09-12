@@ -4,10 +4,6 @@ AC_INIT([collectd],[m4_esyscmd(./version-gen.sh)])
 AC_CONFIG_SRCDIR(src/target_set.c)
 AC_CONFIG_HEADERS(src/config.h)
 AC_CONFIG_AUX_DIR([libltdl/config])
-if test "x$with_libmongoc" = "xown"
-then
-	AC_CONFIG_SUBDIRS([src/libmongoc])
-fi
 
 dnl older automake's default of ARFLAGS=cru is noisy on newer binutils;
 dnl we don't really need the 'u' even in older toolchains.  Then there is
@@ -3101,6 +3097,7 @@ then
 	then
 		AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
 	fi
+	AC_CONFIG_SUBDIRS([src/libmongoc])
 	AC_CHECK_LIB(mongoc, mongo_run_command,
 	[with_libmongoc="yes"],
 	[with_libmongoc="no (symbol 'mongo_run_command' not found)"])
