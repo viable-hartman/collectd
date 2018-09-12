@@ -88,7 +88,6 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 @BUILD_INCLUDED_LTDL_TRUE@am__append_1 = libltdl
-@BUILD_WITH_OWN_LIBMONGOC_TRUE@am__append_2 = src/libmongoc
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -157,7 +156,7 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 CSCOPE = cscope
-DIST_SUBDIRS = proto src bindings . libltdl src/libmongoc
+DIST_SUBDIRS = src/libmongoc proto src bindings . libltdl
 am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/libltdl/config/compile \
 	$(top_srcdir)/libltdl/config/config.guess \
@@ -530,7 +529,8 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I libltdl/m4
-SUBDIRS = proto src bindings . $(am__append_1) $(am__append_2)
+@BUILD_WITH_OWN_LIBMONGOC_TRUE@LIBMONGOC_SUBDIR = src/libmongoc
+SUBDIRS = $(LIBMONGOC_SUBDIR) proto src bindings . $(am__append_1)
 AM_CPPFLAGS = $(LTDLINCL)
 EXTRA_DIST = contrib version-gen.sh testwrapper.sh
 all: all-recursive
