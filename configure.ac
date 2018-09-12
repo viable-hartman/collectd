@@ -3058,7 +3058,7 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 	     with_libmongoc="yes"
 	     with_own_libmongoc="yes"
 	     AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
-             AC_CONFIG_SUBDIRS([src/libmongoc])
+	     AC_CONFIG_SUBDIRS([src/libmongoc])
 	 else
 	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
 	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
