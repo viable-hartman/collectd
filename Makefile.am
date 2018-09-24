@@ -11,6 +11,7 @@ SUBDIRS += libltdl
 endif
 
 SUBDIRS += proto src bindings .
+DIST_SUBDIRS = $(SUBDIRS)
 
 AM_CPPFLAGS = $(LTDLINCL)
 
