@@ -432,7 +432,8 @@ static int getegr_id(program_list_t *pl, int gid) /* {{{ */
  * the child and fd_out is connected to STDOUT and fd_err is connected to STDERR
  * of the child. Then is calls `exec_child'.
  */
-static int getegid(program_list_t *pl) {
+static int getegr_id(program_list_t *pl, int gid) /* {{{ */
+{
   int egid = -1;
   if (pl->group != NULL) {
     if (*pl->group != '\0') {
@@ -501,7 +502,7 @@ static int getegid(program_list_t *pl) {
       DEBUG("exec plugin: release grbuf memory ");
       grbuf = NULL;
       if (getgr_failed > 0) {
-        goto failed;
+        egid = -2; // arbitrary value to indicate fail
       }
     } else {
       egid = gid;
@@ -568,7 +569,11 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
 
   /* The group configured in the configfile is set as effective group, because
    * this way the forked process can (re-)gain the user's primary group. */
-  egid = getegid(pl);
+  egid = getegr_id(pl, gid);
+  if (egid <= -2) {
+    ERROR("exec plugin: getegr_id failed: %s", STRERRNO);
+    goto failed;
+  }
 
   pid = fork();
   if (pid < 0) {
