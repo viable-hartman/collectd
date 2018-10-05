@@ -494,7 +494,8 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
   egid = -1;
 =======
  */
-static int getegid(program_list_t *pl) {
+static int getegr_id(program_list_t *pl, int gid) /* {{{ */
+{
   int egid = -1;
 >>>>>>> Refactored getting effective group id from group name part of fork_child
   if (pl->group != NULL) {
@@ -569,7 +570,7 @@ static int getegid(program_list_t *pl) {
       DEBUG("exec plugin: release grbuf memory ");
       grbuf = NULL;
       if (getgr_failed > 0) {
-        goto failed;
+        egid = -2; // arbitrary value to indicate fail
       }
     } else {
       egid = gid;
@@ -639,8 +640,16 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
 
   /* The group configured in the configfile is set as effective group, because
    * this way the forked process can (re-)gain the user's primary group. */
+<<<<<<< HEAD
   egid = getegid(pl);
 >>>>>>> Refactored getting effective group id from group name part of fork_child
+=======
+  egid = getegr_id(pl, gid);
+  if (egid <= -2) {
+    ERROR("exec plugin: getegr_id failed: %s", STRERRNO);
+    goto failed;
+  }
+>>>>>>> fixed build issues
 
   pid = fork();
   if (pid < 0) {
