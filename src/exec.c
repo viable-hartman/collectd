@@ -39,7 +39,6 @@
 #include <signal.h>
 #include <sys/types.h>
 
-#include <stdlib.h>
 #ifdef HAVE_SYS_CAPABILITY_H
 #include <sys/capability.h>
 #endif
@@ -368,6 +367,9 @@ static void close_pipe(int fd_pipe[2]) /* {{{ */
 /*
  * Get effective group ID from group name.
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Made some Code Optimization changes per review.
  * Input arguments:
  *       pl  :program list struct with group name
  *       gid :group id to fallback in case egid cannot be determined.
@@ -375,6 +377,7 @@ static void close_pipe(int fd_pipe[2]) /* {{{ */
  *       egid effective group id if successfull,
  *            -1 if group is not defined/not found.
  *            -2 for any buffer allocation error.
+<<<<<<< HEAD
  */
 static int getegr_id(program_list_t *pl, int gid) /* {{{ */
 {
@@ -571,15 +574,64 @@ static int getegr_id(program_list_t *pl, int gid) /* {{{ */
       grbuf = NULL;
       if (getgr_failed > 0) {
         egid = -2; // arbitrary value to indicate fail
-      }
-    } else {
-      egid = gid;
+=======
+ */
+static int getegr_id(program_list_t *pl, int gid) /* {{{ */
+{
+  if (pl->group == NULL) {
+    return -1;
+  }
+  if (strcmp(pl->group,"") == 0) {
+     return gid;
+  }
+  struct group *gr_ptr = NULL;
+  struct group gr;
+
+  long int grbuf_size = sysconf(_SC_GETGR_R_SIZE_MAX);
+  if (grbuf_size <= 0)
+    grbuf_size = sysconf(_SC_PAGESIZE);
+  if (grbuf_size <= 0)
+    grbuf_size = 4096;
+
+  char *temp = NULL;
+  char *grbuf = NULL;
+
+  do {
+    temp = realloc(grbuf, grbuf_size);
+    if ( temp == NULL ) {
+      ERROR("exec plugin: getegr_id for %s: realloc buffer[%ld] failed ",
+                pl->group, grbuf_size);
+      sfree(grbuf);
+      return -2;
     }
+    grbuf = temp;
+    if(getgrnam_r(pl->group, &gr, grbuf, grbuf_size, &gr_ptr) == 0) {
+      sfree(grbuf);
+      if (gr_ptr == NULL) {
+        ERROR("exec plugin: No such group: `%s'", pl->group);        
+        return -1;
+>>>>>>> Made some Code Optimization changes per review.
+      }
+      return gr.gr_gid;
+    } else if ( errno == ERANGE) {
+        grbuf_size += grbuf_size; // increment buffer size and try again
+    } else {
+      ERROR("exec plugin: getegr_id failed %s", STRERRNO);
+      sfree(grbuf);
+      return -2;
+    }
+<<<<<<< HEAD
   } /* if (pl->group == NULL) */
 <<<<<<< HEAD
 >>>>>>> fix issue 2696 to dynamically allocate grname buffer in increments of _SC_GETGR_R_SIZE_MAX/_SC_PAGESIZE
 =======
   return egid;
+=======
+  } while (grbuf_size <= MAX_GRBUF_SIZE);
+  ERROR("exec plugin: getegr_id Max grbuf size reached  for %s", pl->group);
+  sfree(grbuf);
+  return -2;
+>>>>>>> Made some Code Optimization changes per review.
 }
 
 /*
@@ -645,8 +697,7 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
 >>>>>>> Refactored getting effective group id from group name part of fork_child
 =======
   egid = getegr_id(pl, gid);
-  if (egid <= -2) {
-    ERROR("exec plugin: getegr_id failed: %s", STRERRNO);
+  if (egid == -2) {
     goto failed;
   }
 >>>>>>> fixed build issues
