@@ -59,6 +59,9 @@ Andreas Henriksson <andreas at fatal.se>
 Andy Parkins <andyp at fussylogic.co.uk>
  - battery plugin: sysfs code.
 
+Andy Smith <ansmith at redhat.com>
+ - AMQP 1.0 plugin.
+
 Anthony Dewhurst <dewhurst at gmail.com>
  - zfs_arc plugin.
 
@@ -72,7 +75,7 @@ Aurélien Reynaud <collectd at wattapower.net>
  - LPAR plugin.
  - Various fixes for AIX, HP-UX and Solaris.
 
-Benjamin Gilbert <bgilbert at cs.cmu.edu>
+Benjamin Gilbert <bgilbert at backtick.net>
  - Improvements to the LVM plugin.
 
 Bert Vermeulen <bert at biot.com>
@@ -115,6 +118,9 @@ Dan Ryder <daryder at cisco.com>
 
 David Bacher <drbacher at gmail.com>
  - serial plugin.
+
+Denis Pompilio <denis.pompilio at gmail.com>
+ - Improvements to the write_http plugin.
 
 Doug MacEachern <dougm at hyperic.com>
  - The `-T' option (config testing mode).
@@ -286,7 +292,12 @@ Scott Sanders <scott at jssjr.com>
  - Write-Graphite plugin.
 
 Sebastien Pahl <sebastien.pahl at dotcloud.com>
- - AMQP plugin.
+ - AMQP 0.9 plugin.
+
+Serhiy Pshyk <serhiyx.pshyk at intel.com>
+ - intel_pmu plugin
+ - intel_rdt plugin
+ - snmp_agent plugin
 
 Simon Kuhnle <simon at blarzwurst.de>
  - OpenBSD code for the cpu and memory plugins.
@@ -296,6 +307,9 @@ Sjoerd van der Berg <harekiet at gmail.com>
 
 Stefan Hacker <stefan.hacker at web.de>
  - teamspeak2 plugin.
+
+Steven Bell <stv.bell07 at gmail.com>
+ - nut plugin.
 
 Sven Trenkel <collectd at semidefinite.de>
  - netapp plugin.

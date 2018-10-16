@@ -30,9 +30,6 @@
 #include "collectd.h"
 #include "plugin.h"
 
-#ifndef DONT_POISON_SPRINTF_YET
-#error "Files including utils_lua.h need to define DONT_POISON_SPRINTF_YET."
-#endif
 #include <lua.h>
 
 /*
@@ -53,4 +50,3 @@ int luaC_pushvaluelist(lua_State *L, const data_set_t *ds,
                        const value_list_t *vl);
 
 #endif /* UTILS_LUA_H */
-/* vim: set sw=2 sts=2 et fdm=marker : */

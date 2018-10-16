@@ -32,19 +32,15 @@
 
 #include "collectd.h"
 
+#include <time.h>
 #include "common.h"
 #include "plugin.h"
-#include <time.h>
 
 static void cpusleep_submit(derive_t cpu_sleep) {
-  value_t values[1];
   value_list_t vl = VALUE_LIST_INIT;
 
-  values[0].derive = cpu_sleep;
-
-  vl.values = values;
+  vl.values = &(value_t){.derive = cpu_sleep};
   vl.values_len = 1;
-  sstrncpy(vl.host, hostname_g, sizeof(vl.host));
   sstrncpy(vl.plugin, "cpusleep", sizeof(vl.plugin));
   sstrncpy(vl.type, "total_time_in_ms", sizeof(vl.type));
 
@@ -55,12 +51,12 @@ static int cpusleep_read(void) {
   struct timespec b, m;
   if (clock_gettime(CLOCK_BOOTTIME, &b) < 0) {
     ERROR("cpusleep plugin: clock_boottime failed");
-    return (-1);
+    return -1;
   }
 
   if (clock_gettime(CLOCK_MONOTONIC, &m) < 0) {
     ERROR("cpusleep plugin: clock_monotonic failed");
-    return (-1);
+    return -1;
   }
 
   // to avoid false positives in counter overflow due to reboot,
@@ -71,7 +67,7 @@ static int cpusleep_read(void) {
 
   cpusleep_submit(sleep);
 
-  return (0);
+  return 0;
 }
 
 void module_register(void) {

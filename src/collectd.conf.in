@@ -90,6 +90,7 @@
 
 #@BUILD_PLUGIN_AGGREGATION_TRUE@LoadPlugin aggregation
 #@BUILD_PLUGIN_AMQP_TRUE@LoadPlugin amqp
+#@BUILD_PLUGIN_AMQP1_TRUE@LoadPlugin amqp1
 #@BUILD_PLUGIN_APACHE_TRUE@LoadPlugin apache
 #@BUILD_PLUGIN_APCUPS_TRUE@LoadPlugin apcups
 #@BUILD_PLUGIN_APPLE_SENSORS_TRUE@LoadPlugin apple_sensors
@@ -114,6 +115,8 @@
 #@BUILD_PLUGIN_DF_TRUE@LoadPlugin df
 #@BUILD_PLUGIN_DISK_TRUE@LoadPlugin disk
 #@BUILD_PLUGIN_DNS_TRUE@LoadPlugin dns
+#@BUILD_PLUGIN_DPDKEVENTS_TRUE@LoadPlugin dpdkevents
+#@BUILD_PLUGIN_DPDKSTAT_TRUE@LoadPlugin dpdkstat
 #@BUILD_PLUGIN_DRBD_TRUE@LoadPlugin drbd
 #@BUILD_PLUGIN_EMAIL_TRUE@LoadPlugin email
 #@BUILD_PLUGIN_ENTROPY_TRUE@LoadPlugin entropy
@@ -126,6 +129,9 @@
 #@BUILD_PLUGIN_GPS_TRUE@LoadPlugin gps
 #@BUILD_PLUGIN_GRPC_TRUE@LoadPlugin grpc
 #@BUILD_PLUGIN_HDDTEMP_TRUE@LoadPlugin hddtemp
+#@BUILD_PLUGIN_HUGEPAGES_TRUE@LoadPlugin hugepages
+#@BUILD_PLUGIN_INTEL_PMU_TRUE@LoadPlugin intel_pmu
+#@BUILD_PLUGIN_INTEL_RDT_TRUE@LoadPlugin intel_rdt
 @BUILD_PLUGIN_INTERFACE_TRUE@@BUILD_PLUGIN_INTERFACE_TRUE@LoadPlugin interface
 #@BUILD_PLUGIN_IPC_TRUE@LoadPlugin ipc
 #@BUILD_PLUGIN_IPMI_TRUE@LoadPlugin ipmi
@@ -139,6 +145,7 @@
 #@BUILD_PLUGIN_LVM_TRUE@LoadPlugin lvm
 #@BUILD_PLUGIN_MADWIFI_TRUE@LoadPlugin madwifi
 #@BUILD_PLUGIN_MBMON_TRUE@LoadPlugin mbmon
+#@BUILD_PLUGIN_MCELOG_TRUE@LoadPlugin mcelog
 #@BUILD_PLUGIN_MD_TRUE@LoadPlugin md
 #@BUILD_PLUGIN_MEMCACHEC_TRUE@LoadPlugin memcachec
 #@BUILD_PLUGIN_MEMCACHED_TRUE@LoadPlugin memcached
@@ -164,6 +171,9 @@
 #@BUILD_PLUGIN_OPENLDAP_TRUE@LoadPlugin openldap
 #@BUILD_PLUGIN_OPENVPN_TRUE@LoadPlugin openvpn
 #@BUILD_PLUGIN_ORACLE_TRUE@LoadPlugin oracle
+#@BUILD_PLUGIN_OVS_EVENTS_TRUE@LoadPlugin ovs_events
+#@BUILD_PLUGIN_OVS_STATS_TRUE@LoadPlugin ovs_stats
+#@BUILD_PLUGIN_PCIE_ERRORS_TRUE@LoadPlugin pcie_errors
 #@BUILD_PLUGIN_PERL_TRUE@LoadPlugin perl
 #@BUILD_PLUGIN_PINBA_TRUE@LoadPlugin pinba
 #@BUILD_PLUGIN_PING_TRUE@LoadPlugin ping
@@ -181,6 +191,7 @@
 #@BUILD_PLUGIN_SIGROK_TRUE@LoadPlugin sigrok
 #@BUILD_PLUGIN_SMART_TRUE@LoadPlugin smart
 #@BUILD_PLUGIN_SNMP_TRUE@LoadPlugin snmp
+#@BUILD_PLUGIN_SNMP_AGENT_TRUE@LoadPlugin snmp_agent
 #@BUILD_PLUGIN_STATSD_TRUE@LoadPlugin statsd
 #@BUILD_PLUGIN_SWAP_TRUE@LoadPlugin swap
 #@BUILD_PLUGIN_TABLE_TRUE@LoadPlugin table
@@ -207,6 +218,7 @@
 #@BUILD_PLUGIN_WRITE_KAFKA_TRUE@LoadPlugin write_kafka
 #@BUILD_PLUGIN_WRITE_LOG_TRUE@LoadPlugin write_log
 #@BUILD_PLUGIN_WRITE_MONGODB_TRUE@LoadPlugin write_mongodb
+#@BUILD_PLUGIN_WRITE_PROMETHEUS_TRUE@LoadPlugin write_prometheus
 #@BUILD_PLUGIN_WRITE_REDIS_TRUE@LoadPlugin write_redis
 #@BUILD_PLUGIN_WRITE_RIEMANN_TRUE@LoadPlugin write_riemann
 #@BUILD_PLUGIN_WRITE_SENSU_TRUE@LoadPlugin write_sensu
@@ -259,6 +271,29 @@
 #  </Publish>
 #</Plugin>
 
+#<Plugin amqp1>
+#  <Transport "name">
+#    Host "localhost"
+#    Port "5672"
+#    User "guest"
+#    Password "guest"
+#    Address "collectd"
+#    RetryDelay 1
+#    <Instance "log">
+#        Format JSON
+#        PreSettle false
+#    </Instance>
+#    <Instance "notify">
+#        Format JSON
+#        PreSettle true
+#    </Instance>
+#    <Instance "telemetry">
+#        Format JSON
+#        PreSettle false
+#    </Instance>
+#  </Transport>
+#</Plugin>
+
 #<Plugin apache>
 #  <Instance "local">
 #    URL "http://localhost/status?auto"
@@ -299,6 +334,7 @@
 #<Plugin "battery">
 #  ValuesPercentage false
 #  ReportDegraded false
+#  QueryStateFS false
 #</Plugin>
 
 #<Plugin "bind">
@@ -353,6 +389,9 @@
 #  ReportByCpu true
 #  ReportByState true
 #  ValuesPercentage false
+#  ReportNumCpu false
+#  ReportGuestState false
+#  SubtractGuestState true
 #</Plugin>
 #
 #<Plugin csv>
@@ -452,6 +491,7 @@
 #<Plugin curl_xml>
 #  <URL "http://localhost/stats.xml">
 #    Host "my_host"
+#    #Plugin "stats"
 #    Instance "some_instance"
 #    User "collectd"
 #    Password "thaiNg0I"
@@ -466,6 +506,7 @@
 #      Type "magic_level"
 #      #InstancePrefix "prefix-"
 #      InstanceFrom "td[1]"
+#      #PluginInstanceFrom "td[1]"
 #      ValuesFrom "td[2]/span[@class=\"level\"]"
 #    </XPath>
 #  </URL>
@@ -481,6 +522,7 @@
 #		</Result>
 #	</Query>
 #	<Database "customers_db">
+#		#Plugin "mycompany"
 #		Driver "mysql"
 #		DriverOption "host" "localhost"
 #		DriverOption "username" "collectd"
@@ -518,6 +560,41 @@
 #	SelectNumericQueryTypes true
 #</Plugin>
 
+#<Plugin "dpdkevents">
+#  <EAL>
+#    Coremask "0x1"
+#    MemoryChannels "4"
+#    FilePrefix "rte"
+#  </EAL>
+#  <Event "link_status">
+#    SendEventsOnUpdate true
+#    EnabledPortMask 0xffff
+#    PortName "interface1"
+#    PortName "interface2"
+#    SendNotification false
+#  </Event>
+#  <Event "keep_alive">
+#    SendEventsOnUpdate true
+#    LCoreMask "0xf"
+#    KeepAliveShmName "/dpdk_keepalive_shm_name"
+#    SendNotification false
+#  </Event>
+#</Plugin>
+
+#<Plugin dpdkstat>
+#  <EAL>
+#    Coremask "0x2"
+#    MemoryChannels "4"
+#    FilePrefix "rte"
+#    LogLevel "7"
+#    RteDriverLibPath "/usr/lib/dpdk-pmd"
+#  </EAL>
+#  SharedMemObj "dpdk_collectd_stats_0"
+#  EnabledPortMask 0xffff
+#  PortName "interface1"
+#  PortName "interface2"
+#</Plugin>
+
 #<Plugin email>
 #	SocketFile "@localstatedir@/run/@PACKAGE_NAME@-email"
 #	SocketGroup "collectd"
@@ -544,12 +621,17 @@
 
 #<Plugin filecount>
 #	<Directory "/path/to/dir">
+#		#Plugin "foo"
 #		Instance "foodir"
 #		Name "*.conf"
 #		MTime "-5m"
 #		Size "+10k"
 #		Recursive true
 #		IncludeHidden false
+#		RegularOnly true
+#		#FilesSizeType "bytes"
+#		#FilesCountType "files"
+#		#TypeInstance "instance"
 #	</Directory>
 #</Plugin>
 
@@ -586,12 +668,34 @@
 #		SSLCACertificateFile "/path/to/root.pem"
 #		SSLCertificateFile "/path/to/client.pem"
 #		SSLCertificateKeyFile "/path/to/client.key"
+#		VerifyPeer true
 #	</Listen>
 #</Plugin>
 
 #<Plugin hddtemp>
 #  Host "127.0.0.1"
 #  Port "7634"
+#</Plugin>
+
+#<Plugin hugepages>
+#    ReportPerNodeHP  true
+#    ReportRootHP     true
+#    ValuesPages      true
+#    ValuesBytes      false
+#    ValuesPercentage false
+#</Plugin>
+
+#<Plugin intel_pmu>
+#    ReportHardwareCacheEvents true
+#    ReportKernelPMUEvents true
+#    ReportSoftwareEvents true
+#    EventList "/var/cache/pmu/GenuineIntel-6-2D-core.json"
+#    HardwareEvents "L2_RQSTS.CODE_RD_HIT,L2_RQSTS.CODE_RD_MISS" "L2_RQSTS.ALL_CODE_RD"
+#    Cores "[0-3]"
+#</Plugin>
+
+#<Plugin "intel_rdt">
+#  Cores "0-2"
 #</Plugin>
 
 #<Plugin interface>
@@ -602,12 +706,39 @@
 #</Plugin>
 
 #<Plugin ipmi>
-#	Sensor "some_sensor"
-#	Sensor "another_one"
-#	IgnoreSelected false
-#	NotifySensorAdd false
-#	NotifySensorRemove true
-#	NotifySensorNotPresent false
+#	<Instance "local">
+#		Sensor "some_sensor"
+#		Sensor "another_one"
+#		IgnoreSelected false
+#		NotifySensorAdd false
+#		NotifySensorRemove true
+#		NotifySensorNotPresent false
+#		NotifyIPMIConnectionState false
+#		SELEnabled false
+#		SELSensor "some_sensor"
+#		SELSensor "another_one"
+#		SELIgnoreSelected false
+#		SELClearEvent false
+#	</Instance>
+#	<Instance "remote">
+#		Host "server.example.com"
+#		Address  "1.2.3.4"
+#		Username "user"
+#		Password "secret"
+#		#AuthType "md5"
+#		Sensor "some_sensor"
+#		Sensor "another_one"
+#		IgnoreSelected false
+#		NotifySensorAdd false
+#		NotifySensorRemove true
+#		NotifySensorNotPresent false
+#		NotifyIPMIConnectionState false
+#		SELEnabled false
+#		SELSensor "some_sensor"
+#		SELSensor "another_one"
+#		SELIgnoreSelected false
+#		SELClearEvent false
+#	</Instance>
 #</Plugin>
 
 #<Plugin iptables>
@@ -663,6 +794,14 @@
 #	Port "411"
 #</Plugin>
 
+#<Plugin mcelog>
+#  <Memory>
+#    McelogClientSocket "/var/run/mcelog-client"
+#    PersistentNotification false
+#  </Memory>
+#  McelogLogfile "/var/log/mcelog"
+#</Plugin>
+
 #<Plugin md>
 #	Device "/dev/md0"
 #	IgnoreSelected false
@@ -684,7 +823,8 @@
 
 #<Plugin memcached>
 #	<Instance "local">
-#		Host "127.0.0.1"
+#		#Host "memcache.example.com"
+#		Address "127.0.0.1"
 #		Port "11211"
 #	</Instance>
 #</Plugin>
@@ -701,6 +841,8 @@
 #		RegisterType float
 #		Type gauge
 #		Instance "..."
+#		#Scale 1.0
+#		#Shift 0.0
 #	</Data>
 #
 #	<Host "name">
@@ -741,6 +883,11 @@
 #		QoS 2
 #		Topic "collectd/#"
 #		CleanSession true
+#		CACert "/etc/ssl/ca.crt"
+#		CertificateFile "/etc/ssl/client.crt"
+#		CertificateKeyFile "/etc/ssl/client.pem"
+#		TLSProtocol "tlsv1.2"
+#		CipherSuite "ciphers"
 #	</Subscribe>
 #</Plugin>
 
@@ -867,6 +1014,12 @@
 #	CacheFlush 1800
 @LOAD_PLUGIN_NETWORK@</Plugin>
 
+#<Plugin nfs>
+#	ReportV2 false
+#	#ReportV3 false
+#	#ReportV4 false
+#</Plugin>
+
 #<Plugin nginx>
 #	URL "http://localhost/status?auto"
 #	User "www-user"
@@ -905,6 +1058,10 @@
 
 #<Plugin nut>
 #	UPS "upsname@hostname:port"
+#	ForceSSL true
+#	VerifyPeer true
+#	CAPath "/path/to/folder"
+#	#ConnectTimeout 5000
 #</Plugin>
 
 #<Plugin olsrd>
@@ -950,11 +1107,34 @@
 #    </Result>
 #  </Query>
 #  <Database "product_information">
+#    #Plugin "warehouse"
 #    ConnectID "db01"
 #    Username "oracle"
 #    Password "secret"
 #    Query "out_of_stock"
 #  </Database>
+#</Plugin>
+
+#<Plugin ovs_events>
+#  Port "6640"
+#  Address "127.0.0.1"
+#  Socket "/var/run/openvswitch/db.sock"
+#  Interfaces "br0" "veth0"
+#  SendNotification true
+#  DispatchValues false
+#</Plugin>
+
+#<Plugin ovs_stats>
+#  Port "6640"
+#  Address "127.0.0.1"
+#  Socket "/var/run/openvswitch/db.sock"
+#  Bridges "br0" "br_ext"
+#</Plugin>
+
+#<Plugin pcie_errors>
+#  Source "sysfs"
+#  ReportMasked false
+#  PersistentNotifications false
 #</Plugin>
 
 #<Plugin perl>
@@ -986,6 +1166,7 @@
 #	Timeout 0.9
 #	TTL 255
 #	SourceAddress "1.2.3.4"
+#	AddressFamily "any"
 #	Device "eth0"
 #	MaxMissed -1
 #</Plugin>
@@ -1020,6 +1201,7 @@
 #		StoreRates true
 #	</Writer>
 #	<Database foo>
+#		#Plugin "kingdom"
 #		Host "hostname"
 #		Port "5432"
 #		User "username"
@@ -1031,7 +1213,7 @@
 #	<Database bar>
 #		Interval 60
 #		Service "service_name"
-#		Query backend # predefined
+#		Query backends # predefined
 #		Query rt36_tickets
 #	</Database>
 #	<Database qux>
@@ -1057,7 +1239,21 @@
 #</Plugin>
 
 #<Plugin processes>
+#	CollectFileDescriptor true
+#	CollectContextSwitch true
+#	CollectMemoryMaps true
+#	CollectDelayAccounting false
 #	Process "name"
+#	ProcessMatch "name" "regex"
+#	<Process "collectd">
+#		CollectFileDescriptor false
+#		CollectContextSwitch false
+#		CollectDelayAccounting true
+#	</Process>
+#	<ProcessMatch "name" "regex">
+#		CollectFileDescriptor false
+#		CollectContextSwitch true
+#	</Process>
 #</Plugin>
 
 #<Plugin protocols>
@@ -1080,7 +1276,13 @@
 #   <Node example>
 #      Host "redis.example.com"
 #      Port "6379"
+#      #Socket "/var/run/redis/redis.sock"
 #      Timeout 2000
+#      <Query "LLEN myqueue">
+#        #Database 0
+#        Type "queue_length"
+#        Instance "myqueue"
+#      <Query>
 #   </Node>
 #</Plugin>
 
@@ -1096,6 +1298,7 @@
 #		CollectMemory true
 #		CollectDF true
 #		CollectDisk true
+#		CollectHealth true
 #	</Router>
 #</Plugin>
 
@@ -1143,21 +1346,31 @@
 
 #<Plugin snmp>
 #   <Data "powerplus_voltge_input">
-#       Type "voltage"
 #       Table false
-#       Instance "input_line1"
+#       Type "voltage"
+#       TypeInstance "input_line1"
 #       Values "SNMPv2-SMI::enterprises.6050.5.4.1.1.2.1"
 #   </Data>
 #   <Data "hr_users">
-#       Type "users"
 #       Table false
-#       Instance ""
+#       Type "users"
+#       TypeInstance ""
 #       Values "HOST-RESOURCES-MIB::hrSystemNumUsers.0"
 #   </Data>
 #   <Data "std_traffic">
-#       Type "if_octets"
 #       Table true
-#       Instance "IF-MIB::ifDescr"
+#       Type "if_octets"
+#       TypeInstanceOID "IF-MIB::ifDescr"
+#       #TypeInstancePrefix "port"
+#       Values "IF-MIB::ifInOctets" "IF-MIB::ifOutOctets"
+#       #FilterOID "IF-MIB::ifOperStatus"
+#       #FilterValues "1", "2"
+#   </Data>
+#   <Data "interface_traffic">
+#       Table true
+#       Type "if_octets"
+#       Plugin "interface"
+#       PluginInstanceOID "IF-MIB::ifDescr"
 #       Values "IF-MIB::ifInOctets" "IF-MIB::ifOutOctets"
 #   </Data>
 #
@@ -1167,6 +1380,8 @@
 #       Community "community_string"
 #       Collect "std_traffic"
 #       Interval 120
+# 	Timeout 10
+#	Retries 1
 #   </Host>
 #   <Host "some.server.mydomain.org">
 #       Address "192.168.0.42"
@@ -1180,7 +1395,35 @@
 #       Community "more_communities"
 #       Collect "powerplus_voltge_input"
 #       Interval 300
+# 	Timeout 5
+#	Retries 5
 #   </Host>
+#</Plugin>
+
+#<Plugin snmp_agent>
+#  <Data "memAvailReal">
+#    Plugin "memory"
+#    Type "memory"
+#    TypeInstance "free"
+#    OIDs "1.3.6.1.4.1.2021.4.6.0"
+#  </Data>
+#  <Table "ifTable">
+#    IndexOID "IF-MIB::ifIndex"
+#    SizeOID "IF-MIB::ifNumber"
+#    <Data "ifDescr">
+#      <IndexKey>
+#        Source "PluginInstance"
+#      </IndexKey>
+#      Plugin "interface"
+#      OIDs "IF-MIB::ifDescr"
+#    </Data>
+#    <Data "ifOctets">
+#      Plugin "interface"
+#      Type "if_octets"
+#      TypeInstance ""
+#      OIDs "IF-MIB::ifInOctets" "IF-MIB::ifOutOctets"
+#    </Data>
+#  </Table>
 #</Plugin>
 
 #<Plugin statsd>
@@ -1205,10 +1448,12 @@
 #	ReportBytes true
 #	ValuesAbsolute true
 #	ValuesPercentage false
+#	ReportIO true
 #</Plugin>
 
 #<Plugin table>
 #	<Table "/proc/slabinfo">
+#		#Plugin "table"
 #		Instance "slabinfo"
 #		Separator " "
 #		<Result>
@@ -1242,6 +1487,28 @@
 #      DSType "CounterInc"
 #      Type "counter"
 #      Instance "local_user"
+#    </Match>
+#  </File>
+#  <File "/var/log/nginx/apache-time.log">
+#    #Use the following log format in nginx:
+#    #log_format response_time '[$host] "$upstream_response_time" ...'
+#    Instance "apache"
+#    <Match>
+#      Regex "^\\S+ \"([0-9.]+)\""
+#      <DSType Distribution>
+#        Percentile 80    # -> latency-foo-80
+#        Percentile 95    # -> latency-foo-95
+#        Percentile 99    # -> latency-foo-99
+#        Bucket 0   0.1   # -> bucket-latency-foo-0_0.1
+#        Bucket 0.1 0.2   # -> bucket-latency-foo-0.1_0.2
+#        Bucket 0.2 0.5   # -> bucket-latency-foo-0.2_0.5
+#        Bucket 0.5 1.0   # -> bucket-latency-foo-0.5_1
+#        Bucket 1.0 2.0   # -> bucket-latency-foo-1_2
+#        Bucket 2.0 0     # -> bucket-latency-foo-2_inf
+#        #BucketType "bucket"
+#      </DSType>
+#      Type "latency"
+#      Instance "foo"
 #    </Match>
 #  </File>
 #</Plugin>
@@ -1318,7 +1585,7 @@
 #	SystemManagementInterrupt true
 #	DigitalTemperatureSensor true
 #	PackageThermalManagement true
-#	RunningAveragePowerLimit "7"	
+#	RunningAveragePowerLimit "7"
 #</Plugin>
 
 #<Plugin unixsock>
@@ -1368,7 +1635,7 @@
 #      CollectPurge false         # Varnish 2 only
 #      CollectSession false
 #      CollectSHM true
-#      CollectSMA false           # Varnish 2 only
+#      CollectSMA false           # Varnish 2 & 4 only
 #      CollectSMS false
 #      CollectSM false            # Varnish 2 only
 #      CollectStruct false
@@ -1377,6 +1644,12 @@
 #      CollectVCL false
 #      CollectVSM false           # Varnish 4 only
 #      CollectWorkers false
+#      CollectLock false          # Varnish 4 only
+#      CollectMempool false       # Varnish 4 only
+#      CollectManagement false    # Varnish 4 only
+#      CollectSMF false           # Varnish 4 only
+#      CollectVBE false           # Varnish 4 only
+#      CollectMSE false           # Varnish-Plus 4 only
 #   </Instance>
 #</Plugin>
 
@@ -1385,11 +1658,16 @@
 #	RefreshInterval 60
 #	Domain "name"
 #	BlockDevice "name:device"
+#	BlockDeviceFormat target
+#	BlockDeviceFormatBasename false
 #	InterfaceDevice "name:device"
 #	IgnoreSelected false
 #	HostnameFormat name
 #	InterfaceFormat name
 #	PluginInstanceFormat name
+#	Instances 1
+#	ExtraStats "cpu_util disk disk_err domain_state fs_info job_stats_background pcpu perf vcpupin"
+#	PersistentNotification false
 #</Plugin>
 
 #<Plugin vmem>
@@ -1419,6 +1697,9 @@
 #    StoreRates true
 #    AlwaysAppendDS false
 #    EscapeCharacter "_"
+#    SeparateInstances false
+#    PreserveSeparator false
+#    DropDuplicateFields false
 #  </Node>
 #</Plugin>
 
@@ -1437,6 +1718,9 @@
 #		Header "X-Custom-Header: custom_value"
 #		SSLVersion "TLSv1"
 #		Format "Command"
+#		Prefix "collectd"  # metric prefix, only available for KAIROSDB format
+#		Attribute "key" "value"     # only available for KAIROSDB format
+#		TTL 0   # data ttl, only available for KAIROSDB format
 #		Metrics true
 #		Notifications false
 #		StoreRates false
@@ -1463,6 +1747,10 @@
 #		User "auth_user"
 #		Password "auth_passwd"
 #	</Node>
+#</Plugin>
+
+#<Plugin write_prometheus>
+#	Port "9103"
 #</Plugin>
 
 #<Plugin write_redis>

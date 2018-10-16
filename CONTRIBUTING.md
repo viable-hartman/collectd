@@ -2,7 +2,7 @@
 
 Thanks for taking the time to contribute to the [collectd
 project](https://collectd.org/)! This document tries to give some guidance to
-make the process of contributing to *collectd* as pleasant and possible.
+make the process of contributing to *collectd* as pleasant as possible.
 
 ## Bug reports
 
@@ -19,7 +19,7 @@ following questions:
     [stack trace](https://collectd.org/wiki/index.php/Core_file).
 
 Please monitor your issue for a couple of days and reply to questions. To keep
-the project manageable have to do some housekeeping, meaning we will close
+the project manageable, we have to do some housekeeping; meaning we will close
 issues that have become stale.
 
 ## Code contributions
@@ -30,12 +30,14 @@ the mailing list have a tendency to fall through the cracks.
 
 *   *Focus:* Fix *one thing* in your PR. The smaller your change, the faster it
     will be reviewed and merged.
-*   *Coding style:* Please run `clang-format -style=file -i $FILE` on new files.
-    For existing files, please blend into surrounding code, i.e. mimic the
-    coding style of the code around your changes.
+*   *Coding style:* Please run `clang-format -style=file -i $FILE` after editing
+    `.c`, `.h` and `.proto` files. If you don't want to install *clang-format*
+    locally or your version produces a different result than the formatting
+    check on Github, use `contrib/format.sh` to format files using the same web
+    service used by our check.
 *   *Documentation:* New config options need to be documented in two places: the
     manpage (`src/collectd.conf.pod`) and the example config
-    (`src/collectd.conf.in`).
+    (`src/collectd.conf.in`). New plugins need to be added to the `README` file.
 *   *Continuous integration:* Once your PR is created, our continuous
     integration environment will try to build it on a number of platforms. If
     this reports a failure, please investigate and fix the problem. We will at
