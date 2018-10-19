@@ -278,7 +278,7 @@ collectd_LDFLAGS += -ldl -Wl,--out-implib,libcollectd.a
 else
 collectd_SOURCES += src/daemon/cmd.c
 endif
-	
+
 if BUILD_FEATURE_DAEMON
 collectd_CPPFLAGS += -DPIDFILE='"${localstatedir}/run/${PACKAGE_NAME}.pid"'
 endif
@@ -2186,4 +2186,3 @@ generic-jmx.jar: $(JAVA_TIMESTAMP_FILE)
 
 jar_DATA = collectd-api.jar generic-jmx.jar
 endif
-
