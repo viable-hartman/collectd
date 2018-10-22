@@ -5,8 +5,11 @@ AM_YFLAGS = -d
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Travis test (ignore)
+=======
+>>>>>>> Undo test commit
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -21,6 +24,7 @@ SUBDIRS = src/libmongoc
 =======
  
 >>>>>>> Travis test (ignore)
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
  
@@ -38,6 +42,11 @@ SUBDIRS = src/libmongoc
 >>>>>>> Removes merge tags.
 =======
 >>>>>>> Travis test (ignore)
+=======
+=======
+ 
+>>>>>>> Undo test commit
+>>>>>>> Undo test commit
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
