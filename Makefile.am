@@ -1,10 +1,14 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> Removes merge tags.
+=======
+ 
+>>>>>>> Travis test (ignore)
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
