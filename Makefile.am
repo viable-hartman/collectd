@@ -1,6 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -14,6 +15,9 @@ SUBDIRS = src/libmongoc
 =======
  
 >>>>>>> Travis test (ignore)
+=======
+ 
+>>>>>>> Undo test commit
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
