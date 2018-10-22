@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
-
+ 
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
