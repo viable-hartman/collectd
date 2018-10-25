@@ -233,11 +233,7 @@ typedef int uid_t;
 #endif
 
 #ifndef COLLECTD_DEFAULT_INTERVAL
-<<<<<<< HEAD
-# define COLLECTD_DEFAULT_INTERVAL 60.0
-=======
 #define COLLECTD_DEFAULT_INTERVAL 10.0
->>>>>>> master
 #endif
 
 #ifndef COLLECTD_USERAGENT
