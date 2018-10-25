@@ -234,10 +234,14 @@ typedef int uid_t;
 
 #ifndef COLLECTD_DEFAULT_INTERVAL
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define COLLECTD_DEFAULT_INTERVAL 10.0
 =======
 # define COLLECTD_DEFAULT_INTERVAL 60.0
 >>>>>>> Disallow intervals that are less than sixty seconds
+=======
+#define COLLECTD_DEFAULT_INTERVAL 10.0
+>>>>>>> Removes HEAD tag (atom bug) from collectd.h
 #endif
 
 #ifndef COLLECTD_USERAGENT
