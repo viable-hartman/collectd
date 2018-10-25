@@ -921,22 +921,9 @@ cdtime_t global_option_get_time(const char *name, cdtime_t def) /* {{{ */
   return DOUBLE_TO_CDTIME_T(v);
 } /* }}} cdtime_t global_option_get_time */
 
-<<<<<<< HEAD
-cdtime_t cf_get_default_interval (void)
-{
-	cdtime_t result = (global_option_get_time ("Interval",
-		DOUBLE_TO_CDTIME_T (COLLECTD_DEFAULT_INTERVAL)));
-	cdtime_t stackdriver_min = DOUBLE_TO_CDTIME_T(60);
-	if (result < stackdriver_min) {
-		result = stackdriver_min;
-		ERROR ("The Stackdriver agent only supports intervals of 60 seconds or more. Using 60 seconds.");
-	}
-	return result;
-=======
 cdtime_t cf_get_default_interval(void) {
   return global_option_get_time("Interval",
                                 DOUBLE_TO_CDTIME_T(COLLECTD_DEFAULT_INTERVAL));
->>>>>>> master
 }
 
 void cf_unregister(const char *type) {

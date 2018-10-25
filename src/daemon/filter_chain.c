@@ -667,7 +667,6 @@ static int fc_bit_write_invoke(const data_set_t *ds, /* {{{ */
                 "Built-in target `write': Some write plugin is back to normal "
                 "operation. `write' succeeded.");
     }
-<<<<<<< HEAD
   }
   else
   {
@@ -689,14 +688,6 @@ static int fc_bit_write_invoke(const data_set_t *ds, /* {{{ */
       else if (status != 0)
       {
         c_complain (LOG_INFO, &plugin_list[i].complaint,
-=======
-  } else {
-    for (size_t i = 0; plugin_list[i].plugin != NULL; i++) {
-      status = plugin_write(plugin_list[i].plugin, ds, vl);
-      if (status != 0) {
-        c_complain(
-            LOG_INFO, &plugin_list[i].complaint,
->>>>>>> master
             "Filter subsystem: Built-in target `write': Dispatching value to "
             "the `%s' plugin failed with status %i.",
             plugin_list[i].plugin, status);
