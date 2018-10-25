@@ -431,6 +431,25 @@ static int ps_list_match(const char *name, const char *cmdline,
   return 0;
 } /* int ps_list_match */
 
+static void ps_update_counter(derive_t *group_counter, derive_t *curr_counter,
+                              derive_t new_counter) {
+  unsigned long curr_value;
+
+  if (want_init) {
+    *curr_counter = new_counter;
+    return;
+  }
+
+  if (new_counter < *curr_counter)
+    curr_value = new_counter + (ULONG_MAX - *curr_counter);
+  else
+    curr_value = new_counter - *curr_counter;
+
+  if (*group_counter == -1)
+    *group_counter = 0;
+
+  *curr_counter = new_counter;
+  *group_counter += curr_value;
 static void ps_update_counter (derive_t *group_counter, derive_t *curr_counter, 
                                derive_t new_counter)
 {
@@ -525,15 +544,15 @@ static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t
 		ps_update_counter (&ps->counters.vmem_majflt, &pse->counters.vmem_majflt,
                        entry->counters.vmem_majflt);
 
-    ps_update_counter(&ps->vmem_minflt_counter, &pse->vmem_minflt_counter,
-                      entry->vmem_minflt_counter);
-    ps_update_counter(&ps->vmem_majflt_counter, &pse->vmem_majflt_counter,
-                      entry->vmem_majflt_counter);
+	    ps_update_counter(&ps->vmem_minflt_counter, &pse->vmem_minflt_counter,
+	                      entry->vmem_minflt_counter);
+	    ps_update_counter(&ps->vmem_majflt_counter, &pse->vmem_majflt_counter,
+	                      entry->vmem_majflt_counter);
 
-    ps_update_counter(&ps->cpu_user_counter, &pse->cpu_user_counter,
-                      entry->cpu_user_counter);
-    ps_update_counter(&ps->cpu_system_counter, &pse->cpu_system_counter,
-                      entry->cpu_system_counter);
+	    ps_update_counter(&ps->cpu_user_counter, &pse->cpu_user_counter,
+	                      entry->cpu_user_counter);
+	    ps_update_counter(&ps->cpu_system_counter, &pse->cpu_system_counter,
+	                      entry->cpu_system_counter);
 
 #if HAVE_LIBTASKSTATS
     ps_update_delay(ps, pse, entry);

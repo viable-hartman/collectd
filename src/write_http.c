@@ -81,18 +81,18 @@ struct wh_callback_s {
   size_t send_buffer_fill;
   cdtime_t send_buffer_init_time;
 
-        char  *send_buffer;
-        size_t send_buffer_size;
-        size_t send_buffer_free;
-        size_t send_buffer_fill;
-        cdtime_t send_buffer_init_time;
-        cdtime_t buffer_flush_last;
+  char  *send_buffer;
+  size_t send_buffer_size;
+  size_t send_buffer_free;
+  size_t send_buffer_fill;
+  cdtime_t send_buffer_init_time;
+  cdtime_t buffer_flush_last;
 
-        pthread_mutex_t send_lock;
-        pthread_mutex_t flush_lock;
+  pthread_mutex_t send_lock;
+  pthread_mutex_t flush_lock;
 
-        int data_ttl;
-  		char *metrics_prefix;
+  int data_ttl;
+  char *metrics_prefix;
 };
 typedef struct wh_callback_s wh_callback_t;
 
