@@ -2285,6 +2285,7 @@ if test "x$with_libcurl" = "xyes"; then
   LDFLAGS="$SAVE_LDFLAGS"
 fi
 
+AM_CONDITIONAL(BUILD_WITH_LIBCURL, test "x$with_libcurl" = "xyes")
 if test "x$c_cv_have_curlinfo_appconnect_time" = "xyes"; then
   AC_DEFINE([HAVE_CURLINFO_APPCONNECT_TIME], [1],
     [Define if curl.h defines CURLINFO_APPCONNECT_TIME.]
