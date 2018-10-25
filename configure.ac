@@ -5348,6 +5348,43 @@ fi
 AM_CONDITIONAL(BUILD_WITH_LIBSSL, test "x$with_libssl" = "xyes")
 # }}}
 
+# For ipvs module
+have_linux_ip_vs_h="no"
+have_net_ip_vs_h="no"
+have_ip_vs_h="no"
+ip_vs_h_needs_kernel_cflags="no"
+if test "x$ac_system" = "xLinux"
+then
+	AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
+	AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
+	AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
+
+	if test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono" && test -d "$KERNEL_DIR"
+	then
+		SAVE_CFLAGS="$CFLAGS"
+		CFLAGS="$CFLAGS $KERNEL_CFLAGS"
+
+		AC_MSG_NOTICE([Did not find ip_vs.h. Trying again using headers from $KERNEL_DIR.])
+
+		AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
+		AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
+		AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
+
+		if test "x$have_linux_ip_vs_h" = "xyes" || test "x$have_net_ip_vs_h" = "xyes" || test "x$have_ip_vs_h" = "xyes"
+		then
+			ip_vs_h_needs_kernel_cflags="yes"
+		fi
+
+		CFLAGS="$SAVE_CFLAGS"
+	fi
+fi
+AM_CONDITIONAL(IP_VS_H_NEEDS_KERNEL_CFLAGS, test "x$ip_vs_h_needs_kernel_cflags" = "xyes")
+
+if test "x$ip_vs_h_needs_kernel_cflags" = "xyes"
+then
+	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
+fi
+
 # --with-libstatgrab {{{
 AC_ARG_WITH([libstatgrab],
   [AS_HELP_STRING([--with-libstatgrab@<:@=PREFIX@:>@], [Path to libstatgrab.])],
@@ -7070,6 +7107,18 @@ AC_MSG_RESULT([$default_write_plugin])
 AC_SUBST([LOAD_PLUGIN_RRDTOOL])
 AC_SUBST([LOAD_PLUGIN_NETWORK])
 AC_SUBST([LOAD_PLUGIN_CSV])
+
+dnl ip_vs.h
+if test "x$ac_system" = "xLinux" \
+	&& test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono"
+then
+	enable_ipvs="$enable_ipvs (ip_vs.h not found)"
+fi
+
+if test "x$ip_vs_h_needs_kernel_cflags" = "xyes"
+then
+	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
+fi
 
 dnl Perl bindings
 PERL_BINDINGS_OPTIONS="PREFIX=${prefix}"
