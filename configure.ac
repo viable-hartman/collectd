@@ -3979,31 +3979,6 @@ AC_SUBST([BUILD_WITH_LIBNETSNMPAGENT_LDFLAGS])
 AC_SUBST([BUILD_WITH_LIBNETSNMPAGENT_LIBS])
 # }}}
 
-<<<<<<< HEAD
-# --with-libmongoc {{{
-AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
-AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
-[
- if test "x$withval" = "xyes"
- then
-	 with_libmongoc="yes"
- else if test "x$withval" = "xno"
- then
-	 with_libmongoc="no"
- else
-     if test "x$withval" = "xown"
-     then
-	     with_libmongoc="yes"
-	     with_own_libmongoc="yes"
-	     AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
-	 else
-	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
-	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
-	 fi
- fi; fi
-],
-[with_libmongoc="yes"])
-=======
 # --with-liboping {{{
 AC_ARG_WITH([liboping],
   [AS_HELP_STRING([--with-liboping@<:@=PREFIX@:>@], [Path to liboping.])],
@@ -4020,46 +3995,12 @@ AC_ARG_WITH([liboping],
   ],
   [with_liboping="yes"]
 )
->>>>>>> master
 
 SAVE_CPPFLAGS="$CPPFLAGS"
 SAVE_LDFLAGS="$LDFLAGS"
 CPPFLAGS="$CPPFLAGS $LIBOPING_CPPFLAGS"
 LDFLAGS="$LDFLAGS $LIBOPING_LDFLAGS"
 
-<<<<<<< HEAD
-CPPFLAGS="$CPPFLAGS $LIBMONGOC_CPPFLAGS"
-LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
-
-if test "x$with_libmongoc" = "xyes"
-then
-	if test "x$LIBMONGOC_CPPFLAGS" != "x"
-	then
-		AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CPPFLAGS])
-	fi
-	if test "x$with_own_libmongoc" != "xyes"
-	then
-	    AC_CHECK_HEADERS(mongo.h,
-	    [with_libmongoc="yes"],
-	    [with_libmongoc="no ('mongo.h' not found)"],
-[#if HAVE_STDINT_H
-# define MONGO_HAVE_STDINT 1
-#else
-# define MONGO_USE_LONG_LONG_INT 1
-#endif
-])
-    fi
-fi
-if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"
-then
-	if test "x$LIBMONGOC_LDFLAGS" != "x"
-	then
-		AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
-	fi
-	AC_CHECK_LIB(mongoc, mongo_run_command,
-	[with_libmongoc="yes"],
-	[with_libmongoc="no (symbol 'mongo_run_command' not found)"])
-=======
 if test "x$with_liboping" = "xyes"; then
   AC_CHECK_HEADERS([oping.h],
     [with_liboping="yes"],
@@ -4072,7 +4013,6 @@ if test "x$with_liboping" = "xyes"; then
     [with_liboping="yes"],
     [with_liboping="no (symbol 'ping_construct' not found)"]
   )
->>>>>>> master
 fi
 
 CPPFLAGS="$SAVE_CPPFLAGS"
@@ -5346,6 +5286,43 @@ then
 fi
 AM_CONDITIONAL(BUILD_WITH_LIBSSL, test "x$with_libssl" = "xyes")
 # }}}
+
+# For ipvs module
+have_linux_ip_vs_h="no"
+have_net_ip_vs_h="no"
+have_ip_vs_h="no"
+ip_vs_h_needs_kernel_cflags="no"
+if test "x$ac_system" = "xLinux"
+then
+	AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
+	AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
+	AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
+
+	if test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono" && test -d "$KERNEL_DIR"
+	then
+		SAVE_CFLAGS="$CFLAGS"
+		CFLAGS="$CFLAGS $KERNEL_CFLAGS"
+
+		AC_MSG_NOTICE([Did not find ip_vs.h. Trying again using headers from $KERNEL_DIR.])
+
+		AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
+		AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
+		AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
+
+		if test "x$have_linux_ip_vs_h" = "xyes" || test "x$have_net_ip_vs_h" = "xyes" || test "x$have_ip_vs_h" = "xyes"
+		then
+			ip_vs_h_needs_kernel_cflags="yes"
+		fi
+
+		CFLAGS="$SAVE_CFLAGS"
+	fi
+fi
+AM_CONDITIONAL(IP_VS_H_NEEDS_KERNEL_CFLAGS, test "x$ip_vs_h_needs_kernel_cflags" = "xyes")
+
+if test "x$ip_vs_h_needs_kernel_cflags" = "xyes"
+then
+	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
+fi
 
 # --with-libstatgrab {{{
 AC_ARG_WITH([libstatgrab],
@@ -7061,6 +7038,18 @@ AC_MSG_RESULT([$default_write_plugin])
 AC_SUBST([LOAD_PLUGIN_RRDTOOL])
 AC_SUBST([LOAD_PLUGIN_NETWORK])
 AC_SUBST([LOAD_PLUGIN_CSV])
+
+dnl ip_vs.h
+if test "x$ac_system" = "xLinux" \
+	&& test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono"
+then
+	enable_ipvs="$enable_ipvs (ip_vs.h not found)"
+fi
+
+if test "x$ip_vs_h_needs_kernel_cflags" = "xyes"
+then
+	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
+fi
 
 dnl Perl bindings
 PERL_BINDINGS_OPTIONS="PREFIX=${prefix}"
