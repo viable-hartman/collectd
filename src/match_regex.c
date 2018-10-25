@@ -60,6 +60,9 @@ struct mr_regex_s {
 struct mr_match_s;
 typedef struct mr_match_s mr_match_t;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 struct mr_match_s {
   mr_regex_t *host;
   mr_regex_t *plugin;
@@ -67,6 +70,7 @@ struct mr_match_s {
   mr_regex_t *type;
   mr_regex_t *type_instance;
   llist_t *meta; /* Maps each meta key into mr_regex_t* */
+<<<<<<< HEAD
 <<<<<<< HEAD
   _Bool invert;
 =======
@@ -83,6 +87,9 @@ struct mr_match_s
 =======
   bool invert;
 >>>>>>> Treewide: use bool instead of _Bool
+=======
+  bool invert;
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 };
 
 /*
@@ -94,6 +101,7 @@ static void mr_free_regex(mr_regex_t *r) /* {{{ */
     return;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   regfree(&r->re);
   memset(&r->re, 0, sizeof(r->re));
   sfree(r->re_str);
@@ -102,6 +110,11 @@ static void mr_free_regex(mr_regex_t *r) /* {{{ */
 	memset (&r->re, 0, sizeof (r->re));
 	sfree (r->re_str);
 >>>>>>> Address review comments:
+=======
+  regfree(&r->re);
+  memset(&r->re, 0, sizeof(r->re));
+  sfree(r->re_str);
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   if (r->next != NULL)
     mr_free_regex(r->next);
@@ -110,6 +123,9 @@ static void mr_free_regex(mr_regex_t *r) /* {{{ */
 static void mr_free_match(mr_match_t *m) /* {{{ */
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (m == NULL)
     return;
 
@@ -125,6 +141,7 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
   llist_destroy(m->meta);
 
   sfree(m);
+<<<<<<< HEAD
 =======
 	if (m == NULL)
 		return;
@@ -147,6 +164,8 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
 =======
 	sfree (m);
 >>>>>>> Address review comments:
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} void mr_free_match */
 
 static int mr_match_regexen(mr_regex_t *re_head, /* {{{ */
@@ -174,6 +193,9 @@ static int mr_match_regexen(mr_regex_t *re_head, /* {{{ */
 } /* }}} int mr_match_regexen */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static int mr_add_regex(mr_regex_t **re_head, const char *re_str, /* {{{ */
                         const char *option) {
   mr_regex_t *re;
@@ -216,6 +238,7 @@ static int mr_add_regex(mr_regex_t **re_head, const char *re_str, /* {{{ */
 
     ptr->next = re;
   }
+<<<<<<< HEAD
 
   return 0;
 } /* }}} int mr_add_regex */
@@ -540,6 +563,8 @@ static int mr_create (const oconfig_item_t *ci, void **user_data) /* {{{ */
 	return (0);
 >>>>>>> Allow Match:Regex to match metadata.
 } /* }}} int mr_create */
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
 static int mr_destroy(void **user_data) /* {{{ */
 {
@@ -596,6 +621,7 @@ static int mr_match(const data_set_t __attribute__((unused)) * ds, /* {{{ */
     }
   }
 
+<<<<<<< HEAD
   return match_value;
 =======
 static int mr_match (const data_set_t __attribute__((unused)) *ds, /* {{{ */
@@ -652,6 +678,72 @@ static int mr_match (const data_set_t __attribute__((unused)) *ds, /* {{{ */
 
 	return (match_value);
 >>>>>>> Allow Match:Regex to match metadata.
+=======
+  if (status != 0) {
+    mr_free_match(m);
+    return status;
+  }
+
+  *user_data = m;
+  return 0;
+} /* }}} int mr_create */
+
+static int mr_destroy(void **user_data) /* {{{ */
+{
+  if ((user_data != NULL) && (*user_data != NULL))
+    mr_free_match(*user_data);
+  return 0;
+} /* }}} int mr_destroy */
+
+static int mr_match(const data_set_t __attribute__((unused)) * ds, /* {{{ */
+                    const value_list_t *vl,
+                    notification_meta_t __attribute__((unused)) * *meta,
+                    void **user_data) {
+  mr_match_t *m;
+  int match_value = FC_MATCH_MATCHES;
+  int nomatch_value = FC_MATCH_NO_MATCH;
+
+  if ((user_data == NULL) || (*user_data == NULL))
+    return -1;
+
+  m = *user_data;
+
+  if (m->invert) {
+    match_value = FC_MATCH_NO_MATCH;
+    nomatch_value = FC_MATCH_MATCHES;
+  }
+
+  if (mr_match_regexen(m->host, vl->host) == FC_MATCH_NO_MATCH)
+    return nomatch_value;
+  if (mr_match_regexen(m->plugin, vl->plugin) == FC_MATCH_NO_MATCH)
+    return nomatch_value;
+  if (mr_match_regexen(m->plugin_instance, vl->plugin_instance) ==
+      FC_MATCH_NO_MATCH)
+    return nomatch_value;
+  if (mr_match_regexen(m->type, vl->type) == FC_MATCH_NO_MATCH)
+    return nomatch_value;
+  if (mr_match_regexen(m->type_instance, vl->type_instance) ==
+      FC_MATCH_NO_MATCH)
+    return nomatch_value;
+  if (vl->meta != NULL) {
+    for (llentry_t *e = llist_head(m->meta); e != NULL; e = e->next) {
+      mr_regex_t *meta_re = (mr_regex_t *)e->value;
+      char *value;
+      int status = meta_data_get_string(vl->meta, e->key, &value);
+      if (status == (-ENOENT)) /* key is not present */
+        return nomatch_value;
+      if (status != 0) /* some other problem */
+        continue;      /* error will have already been printed. */
+      if (mr_match_regexen(meta_re, value) == FC_MATCH_NO_MATCH) {
+        sfree(value);
+        return nomatch_value;
+      }
+      sfree(value);
+    }
+  }
+
+  return match_value;
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} int mr_match */
 
 void module_register(void) {

@@ -41,14 +41,14 @@
 #include "common.h"
 #include "plugin.h"
 
-<<<<<<< HEAD
-#include <stdio.h>
-=======
 #if HAVE_LIBTASKSTATS
 #include "utils_complain.h"
 #include "utils_taskstats.h"
 #endif
+<<<<<<< HEAD
 >>>>>>> processes plugin: Implement the "CollectDelayAccounting" option.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
 /* Include header files for the mach system, if they exist.. */
 #if HAVE_THREAD_INFO
@@ -402,6 +402,7 @@ static procstat_t *list_head_g;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static _Bool want_init = 1;
 static _Bool report_ctx_switch = 0;
 <<<<<<< HEAD
@@ -441,13 +442,18 @@ static bool report_delay = 0;
 >>>>>>> Treewide: use bool instead of _Bool
 =======
 =======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static bool want_init = true;
 >>>>>>> Set static bools to true instead of 1
 static bool report_ctx_switch;
 static bool report_fd_num;
 static bool report_maps_num;
 static bool report_delay;
+<<<<<<< HEAD
 >>>>>>> No need to initialize static bools to false
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
 #if HAVE_THREAD_INFO
 static mach_port_t port_host_self;
@@ -481,35 +487,13 @@ int getthrds64(pid_t, void *, int, tid64_t *, int);
 int getargs(void *processBuffer, int bufferLen, char *argsBuffer, int argsLen);
 #endif /* HAVE_PROCINFO_H */
 
-<<<<<<< HEAD
-static derive_t ps_delta(derive_t value) {
-	return (value == -1) ? 0 : value;
-}
-
-static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *src) {
-	dst->num_proc   += src->num_proc;
-	dst->num_lwp    += src->num_lwp;
-	dst->vmem_size  += src->vmem_size;
-	dst->vmem_rss   += src->vmem_rss;
-	dst->vmem_data  += src->vmem_data;
-	dst->vmem_code  += src->vmem_code;
-	dst->stack_size += src->stack_size;
-
-	dst->io_rchar   += ps_delta(src->io_rchar);
-	dst->io_wchar   += ps_delta(src->io_wchar);
-	dst->io_syscr   += ps_delta(src->io_syscr);
-	dst->io_syscw   += ps_delta(src->io_syscw);
-	dst->io_diskr   += ps_delta(src->io_diskr);
-	dst->io_diskw   += ps_delta(src->io_diskw);
-
-	dst->cswitch_vol   += ps_delta(src->cswitch_vol);
-	dst->cswitch_invol += ps_delta(src->cswitch_invol);
-}
-=======
 #if HAVE_LIBTASKSTATS
 static ts_t *taskstats_handle;
 #endif
+<<<<<<< HEAD
 >>>>>>> processes plugin: Implement the "CollectDelayAccounting" option.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
 /* put name of process from config to list_head_g tree
  * list_head_g is a list of 'procstat_t' structs with
@@ -627,6 +611,9 @@ static int ps_list_match(const char *name, const char *cmdline,
 } /* int ps_list_match */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static void ps_update_counter(derive_t *group_counter, derive_t *curr_counter,
                               derive_t new_counter) {
   unsigned long curr_value;
@@ -646,6 +633,7 @@ static void ps_update_counter(derive_t *group_counter, derive_t *curr_counter,
 
   *curr_counter = new_counter;
   *group_counter += curr_value;
+<<<<<<< HEAD
 =======
 static void ps_update_counter (derive_t *group_counter, derive_t *curr_counter, 
                                derive_t new_counter)
@@ -662,6 +650,8 @@ static void ps_update_counter (derive_t *group_counter, derive_t *curr_counter,
 	*curr_counter = new_counter;
 	*group_counter += delta;
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 }
 
 #if HAVE_LIBTASKSTATS
@@ -699,6 +689,9 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
 
 /* add process entry to 'instances' of process 'name' (or refresh it) */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static void ps_list_add(const char *name, const char *cmdline,
                         process_entry_t *entry) {
   procstat_entry_t *pse;
@@ -881,6 +874,7 @@ static void ps_list_reset(void) {
       }
     } /* while (pse != NULL) */
   }   /* for (ps = list_head_g; ps != NULL; ps = ps->next) */
+<<<<<<< HEAD
 =======
 static void ps_list_reset (void)
 {
@@ -923,6 +917,8 @@ static void ps_list_reset (void)
 		} /* while (pse != NULL) */
 	} /* for (ps = list_head_g; ps != NULL; ps = ps->next) */
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 }
 
 static void ps_tune_instance(oconfig_item_t *ci, procstat_t *ps) {
@@ -1008,6 +1004,7 @@ static int ps_config(oconfig_item_t *ci) {
       }
 #endif
 
+<<<<<<< HEAD
 <<<<<<< HEAD
       ps = ps_list_register(c->values[0].value.string, NULL);
 
@@ -1118,11 +1115,50 @@ static int ps_config(oconfig_item_t *ci) {
 	return (0);
 >>>>>>> Support detailed process metrics in processes.c
 }
+=======
+      ps = ps_list_register(c->values[0].value.string, NULL);
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
 static int ps_init(void) {
 #if HAVE_THREAD_INFO
   kern_return_t status;
 
+<<<<<<< HEAD
+=======
+      ps = ps_list_register(c->values[0].value.string,
+                            c->values[1].value.string);
+
+      if (c->children_num != 0 && ps != NULL)
+        ps_tune_instance(c, ps);
+    } else if (strcasecmp(c->key, "CollectContextSwitch") == 0) {
+      cf_util_get_boolean(c, &report_ctx_switch);
+    } else if (strcasecmp(c->key, "CollectFileDescriptor") == 0) {
+      cf_util_get_boolean(c, &report_fd_num);
+    } else if (strcasecmp(c->key, "CollectMemoryMaps") == 0) {
+      cf_util_get_boolean(c, &report_maps_num);
+    } else if (strcasecmp(c->key, "CollectDelayAccounting") == 0) {
+#if HAVE_LIBTASKSTATS
+      cf_util_get_boolean(c, &report_delay);
+#else
+      WARNING("processes plugin: The plugin has been compiled without support "
+              "for the \"CollectDelayAccounting\" option.");
+#endif
+    } else {
+      ERROR("processes plugin: The `%s' configuration option is not "
+            "understood and will be ignored.",
+            c->key);
+      continue;
+    }
+  }
+
+  return 0;
+}
+
+static int ps_init(void) {
+#if HAVE_THREAD_INFO
+  kern_return_t status;
+
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   port_host_self = mach_host_self();
   port_task_self = mach_task_self();
 
@@ -1183,6 +1219,7 @@ static void ps_submit_state(const char *state, double value) {
   plugin_dispatch_values(&vl);
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 /* submit info about specific process (e.g.: memory taken, cpu usage, etc..) */
 static void ps_submit_proc_list(procstat_t *ps) {
@@ -1547,6 +1584,10 @@ static void ps_submit_proc_list (procstat_t *ps)
 
 #if KERNEL_LINUX || KERNEL_SOLARIS
 static void ps_submit_fork_rate(derive_t value) {
+=======
+/* submit info about specific process (e.g.: memory taken, cpu usage, etc..) */
+static void ps_submit_proc_list(procstat_t *ps) {
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   value_list_t vl = VALUE_LIST_INIT;
 
   vl.values = &(value_t){.derive = value};
@@ -1596,6 +1637,7 @@ static int ps_read_tasks_status(process_entry_t *ps) {
       DEBUG("Filename too long: `%s'", filename);
       continue;
     }
+<<<<<<< HEAD
 =======
 static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
 {
@@ -2194,6 +2236,66 @@ static int ps_read_process (long pid, procstat_t *ps, char *state)
     }
     entry->has_maps = true;
   }
+=======
+    sstrncpy(vl.type, "delay_rate", sizeof(vl.type));
+    sstrncpy(vl.type_instance, delay_metrics[i].type_instance,
+             sizeof(vl.type_instance));
+    vl.values[0].gauge = delay_metrics[i].rate_ns / delay_factor;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+  }
+
+  DEBUG(
+      "name = %s; num_proc = %lu; num_lwp = %lu; num_fd = %lu; num_maps = %lu; "
+      "vmem_size = %lu; vmem_rss = %lu; vmem_data = %lu; "
+      "vmem_code = %lu; "
+      "vmem_minflt_counter = %" PRIi64 "; vmem_majflt_counter = %" PRIi64 "; "
+      "cpu_user_counter = %" PRIi64 "; cpu_system_counter = %" PRIi64 "; "
+      "io_rchar = %" PRIi64 "; io_wchar = %" PRIi64 "; "
+      "io_syscr = %" PRIi64 "; io_syscw = %" PRIi64 "; "
+      "io_diskr = %" PRIi64 "; io_diskw = %" PRIi64 "; "
+      "cswitch_vol = %" PRIi64 "; cswitch_invol = %" PRIi64 "; "
+      "delay_cpu = %g; delay_blkio = %g; "
+      "delay_swapin = %g; delay_freepages = %g;",
+      ps->name, ps->num_proc, ps->num_lwp, ps->num_fd, ps->num_maps,
+      ps->vmem_size, ps->vmem_rss, ps->vmem_data, ps->vmem_code,
+      ps->vmem_minflt_counter, ps->vmem_majflt_counter, ps->cpu_user_counter,
+      ps->cpu_system_counter, ps->io_rchar, ps->io_wchar, ps->io_syscr,
+      ps->io_syscw, ps->io_diskr, ps->io_diskw, ps->cswitch_vol,
+      ps->cswitch_invol, ps->delay_cpu, ps->delay_blkio, ps->delay_swapin,
+      ps->delay_freepages);
+
+} /* void ps_submit_proc_list */
+
+#if KERNEL_LINUX || KERNEL_SOLARIS
+static void ps_submit_fork_rate(derive_t value) {
+  value_list_t vl = VALUE_LIST_INIT;
+
+  vl.values = &(value_t){.derive = value};
+  vl.values_len = 1;
+  sstrncpy(vl.plugin, "processes", sizeof(vl.plugin));
+  sstrncpy(vl.plugin_instance, "", sizeof(vl.plugin_instance));
+  sstrncpy(vl.type, "fork_rate", sizeof(vl.type));
+  sstrncpy(vl.type_instance, "", sizeof(vl.type_instance));
+
+  plugin_dispatch_values(&vl);
+}
+#endif /* KERNEL_LINUX || KERNEL_SOLARIS*/
+
+/* ------- additional functions for KERNEL_LINUX/HAVE_THREAD_INFO ------- */
+#if KERNEL_LINUX
+static int ps_read_tasks_status(process_entry_t *ps) {
+  char dirname[64];
+  DIR *dh;
+  char filename[64];
+  FILE *fh;
+  struct dirent *ent;
+  derive_t cswitch_vol = 0;
+  derive_t cswitch_invol = 0;
+  char buffer[1024];
+  char *fields[8];
+  int numfields;
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   if (ps->report_fd_num) {
     int num_fd;
@@ -2580,16 +2682,148 @@ static int read_fork_rate (void)
 		if (status == 0)
 			value_valid = 1;
 
+<<<<<<< HEAD
 		break;
 	}
 	fclose(proc_stat);
+=======
+  /* success */
+  return 0;
+} /* int ps_read_process (...) */
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
 	if (!value_valid)
 		return (-1);
 
+<<<<<<< HEAD
 	ps_submit_fork_rate (value.derive);
 	return (0);
 >>>>>>> Support detailed process metrics in processes.c
+=======
+  char file[PATH_MAX];
+  int fd;
+
+  size_t n;
+
+  if ((pid < 1) || (NULL == buf) || (buf_len < 2))
+    return NULL;
+
+  snprintf(file, sizeof(file), "/proc/%li/cmdline", pid);
+
+  errno = 0;
+  fd = open(file, O_RDONLY);
+  if (fd < 0) {
+    /* ENOENT means the process exited while we were handling it.
+     * Don't complain about this, it only fills the logs. */
+    if (errno != ENOENT)
+      WARNING("processes plugin: Failed to open `%s': %s.", file, STRERRNO);
+    return NULL;
+  }
+
+  buf_ptr = buf;
+  len = buf_len;
+
+  n = 0;
+
+  while (42) {
+    ssize_t status;
+
+    status = read(fd, (void *)buf_ptr, len);
+
+    if (status < 0) {
+
+      if ((EAGAIN == errno) || (EINTR == errno))
+        continue;
+
+      WARNING("processes plugin: Failed to read from `%s': %s.", file,
+              STRERRNO);
+      close(fd);
+      return NULL;
+    }
+
+    n += status;
+
+    if (status == 0)
+      break;
+
+    buf_ptr += status;
+    len -= status;
+
+    if (len == 0)
+      break;
+  }
+
+  close(fd);
+
+  if (0 == n) {
+    /* cmdline not available; e.g. kernel thread, zombie */
+    if (NULL == name)
+      return NULL;
+
+    snprintf(buf, buf_len, "[%s]", name);
+    return buf;
+  }
+
+  assert(n <= buf_len);
+
+  if (n == buf_len)
+    --n;
+  buf[n] = '\0';
+
+  --n;
+  /* remove trailing whitespace */
+  while ((n > 0) && (isspace(buf[n]) || ('\0' == buf[n]))) {
+    buf[n] = '\0';
+    --n;
+  }
+
+  /* arguments are separated by '\0' in /proc/<pid>/cmdline */
+  while (n > 0) {
+    if ('\0' == buf[n])
+      buf[n] = ' ';
+    --n;
+  }
+  return buf;
+} /* char *ps_get_cmdline (...) */
+
+static int read_fork_rate(void) {
+  FILE *proc_stat;
+  char buffer[1024];
+  value_t value;
+  bool value_valid = 0;
+
+  proc_stat = fopen("/proc/stat", "r");
+  if (proc_stat == NULL) {
+    ERROR("processes plugin: fopen (/proc/stat) failed: %s", STRERRNO);
+    return -1;
+  }
+
+  while (fgets(buffer, sizeof(buffer), proc_stat) != NULL) {
+    int status;
+    char *fields[3];
+    int fields_num;
+
+    fields_num = strsplit(buffer, fields, STATIC_ARRAY_SIZE(fields));
+    if (fields_num != 2)
+      continue;
+
+    if (strcmp("processes", fields[0]) != 0)
+      continue;
+
+    status = parse_value(fields[1], &value, DS_TYPE_DERIVE);
+    if (status == 0)
+      value_valid = 1;
+
+    break;
+  }
+  fclose(proc_stat);
+
+  if (!value_valid)
+    return -1;
+
+  ps_submit_fork_rate(value.derive);
+  return 0;
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 }
 #endif /*KERNEL_LINUX */
 
@@ -2626,6 +2860,9 @@ static char *ps_get_cmdline(long pid,
  * Added a few "solaris" specific process states as well
  */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static int ps_read_process(long pid, process_entry_t *ps, char *state) {
   char filename[64];
   char f_psinfo[64], f_usage[64];
@@ -2673,6 +2910,7 @@ static int ps_read_process(long pid, process_entry_t *ps, char *state) {
    */
   ps->cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
   ps->cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
+<<<<<<< HEAD
 =======
 static int ps_read_process(long pid, procstat_t *ps, char *state)
 {
@@ -2767,6 +3005,12 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
    */
 <<<<<<< HEAD
+=======
+
+  /*
+   * Convert rssize from KB to bytes to be consistent w/ the linux module
+   */
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   ps->vmem_rss = myInfo->pr_rssize * 1024;
   ps->vmem_size = myInfo->pr_size * 1024;
   ps->vmem_minflt_counter = myUsage->pr_minf;
@@ -2937,6 +3181,9 @@ static int ps_read(void) {
   process_entry_t pse;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   ps_list_reset();
 
   /*
@@ -2960,6 +3207,7 @@ static int ps_read(void) {
       mach_port_deallocate(port_task_self, port_pset_priv);
       continue;
     }
+<<<<<<< HEAD
 =======
 				pse.gauges.num_proc++;
 				pse.gauges.vmem_size = task_basic_info.virtual_size;
@@ -3016,6 +3264,8 @@ static int ps_read(void) {
 				if (ps != NULL)
 					pse.gauges.num_lwp++;
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
     for (mach_msg_type_number_t task = 0; task < task_list_len; task++) {
       ps = NULL;
@@ -3205,12 +3455,16 @@ static int ps_read(void) {
 #elif KERNEL_LINUX
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   int running = 0;
   int sleeping = 0;
   int zombies = 0;
   int stopped = 0;
   int paging = 0;
   int blocked = 0;
+<<<<<<< HEAD
 =======
 	int running           = 0;
 	int sleeping          = 0;
@@ -3229,6 +3483,8 @@ static int ps_read(void) {
 	int paging   = 0;
 	int blocked  = 0;
 >>>>>>> Revert "Add process health metric counts for processes with and without command line arguments (#124)" (#128)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   struct dirent *ent;
   DIR *proc;
@@ -3265,6 +3521,9 @@ static int ps_read(void) {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
     switch (state) {
     case 'R':
       running++;
@@ -3285,6 +3544,7 @@ static int ps_read(void) {
       paging++;
       break;
     }
+<<<<<<< HEAD
 =======
 		memset (&pse, 0, sizeof (pse));
 		pse.id       = pid;
@@ -3310,6 +3570,8 @@ static int ps_read(void) {
 			cmdline_processes++;
 		}
 >>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
     ps_list_add(pse.name,
                 ps_get_cmdline(pid, pse.name, cmdline, sizeof(cmdline)), &pse);
@@ -3318,12 +3580,16 @@ static int ps_read(void) {
   closedir(proc);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   ps_submit_state("running", running);
   ps_submit_state("sleeping", sleeping);
   ps_submit_state("zombies", zombies);
   ps_submit_state("stopped", stopped);
   ps_submit_state("paging", paging);
   ps_submit_state("blocked", blocked);
+<<<<<<< HEAD
 =======
 	ps_submit_state ("running",    running);
 	ps_submit_state ("sleeping",   sleeping);
@@ -3350,6 +3616,8 @@ static int ps_read(void) {
 	ps_submit_state ("paging",   paging);
 	ps_submit_state ("blocked",  blocked);
 >>>>>>> Revert "Add process health metric counts for processes with and without command line arguments (#124)" (#128)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
     ps_submit_proc_list(ps_ptr);
@@ -3361,6 +3629,9 @@ static int ps_read(void) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   int running = 0;
   int sleeping = 0;
   int zombies = 0;
