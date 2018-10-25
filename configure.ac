@@ -4461,6 +4461,8 @@ if test "x$with_libperl" = "xyes"; then
   CFLAGS="$SAVE_CFLAGS"
   LIBS="$SAVE_LIBS"
 fi
+AM_CONDITIONAL(HAVE_BROKEN_PERL_LOAD_MODULE,
+		test "x$c_cv_have_broken_perl_load_module" = "xyes")
 AC_SUBST([PERL_CFLAGS])
 AC_SUBST([PERL_LIBS])
 
