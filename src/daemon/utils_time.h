@@ -51,10 +51,15 @@ extern cdtime_t cdtime_mock;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from utils_time.h
 =======
 >>>>>>> Add RFC3339 Zulu time functions
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from utils_time.h
+>>>>>>> Removes HEAD tag (atom bug) from utils_time.h
 #define TIME_T_TO_CDTIME_T_STATIC(t) (((cdtime_t)(t)) << 30)
 #define TIME_T_TO_CDTIME_T(t)                                                  \
   (cdtime_t) { TIME_T_TO_CDTIME_T_STATIC(t) }
@@ -137,8 +142,11 @@ int rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t);
 int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Add RFC3339 Zulu time functions
+=======
+>>>>>>> Removes HEAD tag (atom bug) from utils_time.h
 =======
 #define TIME_T_TO_CDTIME_T(t) (((cdtime_t) (t)) << 30)
 
@@ -189,10 +197,13 @@ int rfc3339nano (char *buffer, size_t buffer_size, cdtime_t t);
 >>>>>>> Add RFC3339 Zulu time functions
 =======
 >>>>>>> Removes HEAD tag (atom bug) from utils_time.h
+<<<<<<< HEAD
 
 /* rfc3339 formats a cdtime_t time as local in RFC 3339 format with second
  * precision, e.g., "2006-01-02T15:04:05+00:00". */
 int rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t);
+=======
+>>>>>>> Removes HEAD tag (atom bug) from utils_time.h
 
 /* rfc3339nano formats a cdtime_t time as local in RFC 3339 format with
  * nanosecond precision, e.g., "2006-01-02T15:04:05.999999999+00:00". */
