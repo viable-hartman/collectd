@@ -392,11 +392,16 @@ typedef struct procstat {
 } procstat_t;
 
 static procstat_t *list_head_g;
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+static want_detail_configuration_t want_detail_configuration_g;
+static _Bool some_detail_active_g = 0;	static _Bool some_detail_active_g = 0;
+>>>>>>> Adds back in declaration of want_detail_configuration_g.
 static bool want_init = true;
 static bool report_ctx_switch;
 static bool report_fd_num;
