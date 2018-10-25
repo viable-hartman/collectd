@@ -295,7 +295,7 @@ typedef struct procstat {
 
 static procstat_t *list_head_g;
 static want_detail_configuration_t want_detail_configuration_g;
-static _Bool some_detail_active_g = 0;	static _Bool some_detail_active_g = 0;
+static _Bool some_detail_active_g = 0;
 static bool want_init = true;
 static bool report_ctx_switch;
 static bool report_fd_num;
