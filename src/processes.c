@@ -612,9 +612,16 @@ static _Bool some_detail_active_g = 0;
 =======
 =======
 static want_detail_configuration_t want_detail_configuration_g;
+<<<<<<< HEAD
 static _Bool some_detail_active_g = 0;	static _Bool some_detail_active_g = 0;
 >>>>>>> Adds back in declaration of want_detail_configuration_g.
+<<<<<<< HEAD
 >>>>>>> Adds back in declaration of want_detail_configuration_g.
+=======
+=======
+static _Bool some_detail_active_g = 0;
+>>>>>>> Delete duplicate declaration of some_detail_active_g.
+>>>>>>> Delete duplicate declaration of some_detail_active_g.
 static bool want_init = true;
 >>>>>>> Set static bools to true instead of 1
 static bool report_ctx_switch;
