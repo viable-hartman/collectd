@@ -3416,6 +3416,10 @@ AC_SUBST([BUILD_WITH_LIBMODBUS_LIBS])
 
 # --with-libmongoc {{{
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
+>>>>>>> Adds back BUILD_WITH_OWN_LIBMONGOC AM_CONDITIONAL
 AC_ARG_WITH([libmongoc],
   [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
   [
