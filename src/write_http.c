@@ -36,10 +36,15 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #define WRITE_HTTP_DEFAULT_BUFFER_SIZE 4096
 #endif
 
@@ -47,6 +52,7 @@
 #define WRITE_HTTP_DEFAULT_PREFIX "collectd"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 # define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
@@ -57,6 +63,13 @@
 # define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+=======
+# define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
+>>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #endif
 
 /*
@@ -103,18 +116,26 @@ struct wh_callback_s {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   pthread_mutex_t send_lock;
 
   int data_ttl;
   char *metrics_prefix;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
         char  *send_buffer;
         size_t send_buffer_size;
@@ -127,10 +148,15 @@ struct wh_callback_s {
         pthread_mutex_t flush_lock;
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 };
 typedef struct wh_callback_s wh_callback_t;
 
@@ -562,10 +588,13 @@ static int wh_write_kairosdb(const data_set_t *ds,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> adds upstream write_http
 =======
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static int wh_write(const data_set_t *ds, const value_list_t *vl, /* {{{ */
                     user_data_t *user_data) {
   wh_callback_t *cb;
@@ -594,9 +623,12 @@ static int wh_write(const data_set_t *ds, const value_list_t *vl, /* {{{ */
 =======
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
                 user_data_t *user_data)
 {
@@ -635,6 +667,7 @@ static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
         return (status);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
@@ -642,7 +675,11 @@ static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
 >>>>>>> adds upstream write_http
 =======
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} int wh_write */
 
 static int wh_notify(notification_t const *n, user_data_t *ud) /* {{{ */

@@ -42,6 +42,9 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 
 /* Plugin:WriteLog has to also operate without a config, so use a global. */
@@ -66,10 +69,15 @@ static int wl_write_graphite (const data_set_t *ds, const value_list_t *vl)
     }
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
 /* Plugin:WriteLog has to also operate without a config, so use a global. */
 int wl_format = WL_FORMAT_GRAPHITE;
@@ -81,10 +89,15 @@ static int wl_write_graphite(const data_set_t *ds, const value_list_t *vl) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (0 != strcmp(ds->type, vl->type)) {
     ERROR("write_log plugin: DS type does not match value list type");
     return -1;
@@ -124,8 +137,11 @@ static int wl_write(const data_set_t *ds, const value_list_t *vl,
   int status = 0;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
     return (0);
 } /* int wl_write_graphite */
@@ -187,10 +203,15 @@ static int wl_write (const data_set_t *ds, const value_list_t *vl,
     }
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   if (wl_format == WL_FORMAT_GRAPHITE) {
     status = wl_write_graphite(ds, vl);
@@ -204,10 +225,15 @@ static int wl_write (const data_set_t *ds, const value_list_t *vl,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static int wl_config(oconfig_item_t *ci) /* {{{ */
 {
   bool format_seen = false;
@@ -222,12 +248,15 @@ static int wl_config(oconfig_item_t *ci) /* {{{ */
         continue;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static int wl_config (oconfig_item_t *ci) /* {{{ */
 {
     _Bool format_seen = 0;
 
 =======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 static int wl_config (oconfig_item_t *ci) /* {{{ */
 {
@@ -349,6 +378,7 @@ void module_register (void)
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+<<<<<<< HEAD
 =======
 
     user_data_t ud = {
@@ -364,6 +394,8 @@ void module_register (void)
 }
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
       if (format_seen) {
         WARNING("write_log plugin: Redefining option `%s'.", child->key);

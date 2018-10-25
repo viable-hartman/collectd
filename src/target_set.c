@@ -34,19 +34,28 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 struct ts_key_list_s {
 =======
 struct ts_key_list_s
 {
 >>>>>>> Allow deleting metadata keys.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 struct ts_key_list_s {
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+=======
+struct ts_key_list_s {
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   char *key;
   struct ts_key_list_s *next;
 };
@@ -80,6 +89,7 @@ static void ts_key_list_free (ts_key_list_t *l) /* {{{ */
 } /* }}} void ts_name_list_free */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+<<<<<<< HEAD
 =======
   free (l);
 =======
@@ -87,6 +97,8 @@ static void ts_key_list_free (ts_key_list_t *l) /* {{{ */
 >>>>>>> Address more review comments:
 } /* }}} void ts_name_list_free */
 >>>>>>> Allow deleting metadata keys.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
 struct ts_data_s
 >>>>>>> Allow deleting metadata keys.
@@ -120,10 +132,15 @@ static int ts_util_get_key_and_string_wo_strdup(const oconfig_item_t *ci,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if ((ci->values_num != 2) || (ci->values[0].type != OCONFIG_TYPE_STRING) ||
       (ci->values[1].type != OCONFIG_TYPE_STRING)) {
     ERROR("ts_util_get_key_and_string_wo_strdup: The %s option requires "
@@ -132,8 +149,11 @@ static int ts_util_get_key_and_string_wo_strdup(const oconfig_item_t *ci,
     return -1;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
   if ((ci->values_num != 2)
       || (ci->values[0].type != OCONFIG_TYPE_STRING)
@@ -144,10 +164,15 @@ static int ts_util_get_key_and_string_wo_strdup(const oconfig_item_t *ci,
     return (-1);
 >>>>>>> Allow deleting metadata keys.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   }
 
   *ret_key = ci->values[0].value.string;
@@ -189,10 +214,15 @@ static int ts_config_add_meta(meta_data_t **dest, /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (strlen(key) == 0) {
     ERROR("Target `set': The `%s' option does not accept empty string as "
           "first argument.",
@@ -479,6 +509,7 @@ static int ts_destroy (void **user_data) /* {{{ */
 
 static int ts_destroy(void **user_data) /* {{{ */
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+<<<<<<< HEAD
 =======
   if ((ci->values_num != 1)
       || (ci->values[0].type != OCONFIG_TYPE_STRING))
@@ -556,6 +587,8 @@ static void ts_subst (char *dest, size_t size, const char *string, /* {{{ */
 static int ts_destroy (void **user_data) /* {{{ */
 >>>>>>> Allow deleting metadata keys.
 >>>>>>> Allow deleting metadata keys.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 {
   ts_data_t *data;
 
@@ -575,6 +608,7 @@ static int ts_destroy (void **user_data) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ts_key_list_free(data->meta_delete);
   free(data);
 =======
@@ -586,13 +620,22 @@ static int ts_destroy (void **user_data) /* {{{ */
   free(data);
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   ts_key_list_free(data->meta_delete);
   free(data);
 =======
   ts_key_list_free (data->meta_delete);
   free (data);
 >>>>>>> Allow deleting metadata keys.
+<<<<<<< HEAD
 >>>>>>> Allow deleting metadata keys.
+=======
+=======
+  ts_key_list_free(data->meta_delete);
+  free(data);
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   return 0;
 } /* }}} int ts_destroy */
@@ -638,10 +681,15 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
     else if (strcasecmp("TypeInstance", child->key) == 0)
       status = ts_config_add_string(&data->type_instance, child,
                                     /* may be empty = */ 1);
@@ -656,8 +704,11 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
             child->key);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
     else if (strcasecmp ("TypeInstance", child->key) == 0)
       status = ts_config_add_string (&data->type_instance, child,
@@ -673,10 +724,15 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
           "and will be ignored.", child->key);
 >>>>>>> Allow deleting metadata keys.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
       status = 0;
     }
 
@@ -692,10 +748,15 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
         && (data->type_instance == NULL) && (data->meta == NULL) &&
         (data->meta_delete == NULL)) {
       ERROR("Target `set': You need to set at least one of `Host', "
@@ -713,8 +774,11 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
                 "`DeleteMetaData' for any given key.");
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
         && (data->type_instance == NULL)
         && (data->meta == NULL)
@@ -738,10 +802,15 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
               "`DeleteMetaData' for any given key.");
 >>>>>>> Allow deleting metadata keys.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
           status = -1;
         }
       }
@@ -780,10 +849,15 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Implement interpolation.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (data->meta != NULL) {
     char temp[DATA_MAX_NAME_LEN * 2];
     char **meta_toc;
@@ -804,8 +878,11 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
     for (size_t i = 0; i < meta_entries; i++) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Implement interpolation.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
   if (data->meta != NULL)
   {
@@ -824,10 +901,15 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
     {
 >>>>>>> Implement interpolation.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Implement interpolation.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
       const char *key = meta_toc[i];
       char *string;
       int status;
@@ -835,10 +917,15 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Implement interpolation.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
       status = meta_data_get_string(data->meta, key, &string);
       if (status) {
         ERROR("Target `set': Unable to get replacement metadata value `%s'.",
@@ -883,8 +970,11 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
   if (new_meta != NULL) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Implement interpolation.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
       status = meta_data_get_string (data->meta, key, &string);
       if (status)
@@ -959,10 +1049,15 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
   {
 >>>>>>> Implement interpolation.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Implement interpolation.
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
     meta_data_clone_merge(&(vl->meta), new_meta);
     meta_data_destroy(new_meta);
   }
@@ -971,8 +1066,11 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Allow deleting metadata keys.
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   for (ts_key_list_t *l = data->meta_delete; l != NULL; l = l->next) {
     DEBUG("target_set: ts_invoke: deleting metadata value for key `%s'.",
           l->key);

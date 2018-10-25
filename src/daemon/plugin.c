@@ -630,10 +630,15 @@ static void start_read_threads(size_t num) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Avoid hang when restarting
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (read_threads != NULL)
     return;
 
@@ -685,8 +690,11 @@ static void stop_read_threads(void) {
   read_threads_num = 0;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Avoid hang when restarting
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 	if (read_threads == NULL)
 		return;
@@ -714,10 +722,15 @@ static void stop_read_threads(void) {
 	read_threads_num = 0;
 >>>>>>> Avoid hang when restarting
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Avoid hang when restarting
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* void stop_read_threads */
 
 static void plugin_value_list_free(value_list_t *vl) /* {{{ */
@@ -893,10 +906,15 @@ static void stop_write_threads(void) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Avoid hang when restarting
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   write_queue_t *q;
   size_t i;
 
@@ -941,8 +959,11 @@ static void stop_write_threads(void) /* {{{ */
   }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Avoid hang when restarting
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 	write_queue_t *q;
 	size_t i;
@@ -995,10 +1016,15 @@ static void stop_write_threads(void) /* {{{ */
 	}
 >>>>>>> Avoid hang when restarting
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Avoid hang when restarting
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} void stop_write_threads */
 
 /*

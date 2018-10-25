@@ -258,10 +258,15 @@ static int mysql_config(oconfig_item_t *ci) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Ensure that mysql_thread_init() is called from every thread,
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static MYSQL *getconnection(mysql_database_t *db) {
   const char *cipher;
 
@@ -316,8 +321,11 @@ static MYSQL *getconnection(mysql_database_t *db) {
   return db->con;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Ensure that mysql_thread_init() is called from every thread,
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 static MYSQL *getconnection (mysql_database_t *db)
 {
@@ -405,10 +413,15 @@ static MYSQL *getconnection (mysql_database_t *db)
 	return (db->con);
 >>>>>>> Ensure that mysql_thread_init() is called from every thread,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Ensure that mysql_thread_init() is called from every thread,
+=======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* static MYSQL *getconnection (mysql_database_t *db) */
 
 static void set_host(mysql_database_t *db, char *buf, size_t buflen) {
@@ -1050,6 +1063,9 @@ static int mysql_read(user_data_t *ud) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 void module_register(void) {
   plugin_register_complex_config("mysql", mysql_config);
 =======
@@ -1062,6 +1078,7 @@ void module_register (void)
 void module_register(void) {
   plugin_register_complex_config("mysql", mysql_config);
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+<<<<<<< HEAD
 =======
 void module_register(void) {
   plugin_register_complex_config("mysql", mysql_config);
@@ -1072,4 +1089,6 @@ void module_register (void)
 	plugin_register_complex_config ("mysql", mysql_config);
 >>>>>>> Ensure that mysql_thread_init() is called from every thread,
 >>>>>>> Ensure that mysql_thread_init() is called from every thread,
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* void module_register */
