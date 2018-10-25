@@ -668,6 +668,7 @@ static int fc_bit_write_invoke(const data_set_t *ds, /* {{{ */
                 "operation. `write' succeeded.");
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
   } else {
     for (size_t i = 0; plugin_list[i].plugin != NULL; i++) {
       status = plugin_write(plugin_list[i].plugin, ds, vl);
@@ -675,6 +676,8 @@ static int fc_bit_write_invoke(const data_set_t *ds, /* {{{ */
         c_complain(
             LOG_INFO, &plugin_list[i].complaint,
 =======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   }
   else
   {
@@ -696,7 +699,10 @@ static int fc_bit_write_invoke(const data_set_t *ds, /* {{{ */
       else if (status != 0)
       {
         c_complain (LOG_INFO, &plugin_list[i].complaint,
+<<<<<<< HEAD
 >>>>>>> Add error message to help users detect if they are using an old config
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
             "Filter subsystem: Built-in target `write': Dispatching value to "
             "the `%s' plugin failed with status %i.",
             plugin_list[i].plugin, status);

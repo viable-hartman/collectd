@@ -31,10 +31,13 @@
 
 #if HAVE_VARNISH_V4 || HAVE_VARNISH_V5
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #include <vapi/vsc.h>
 #include <vapi/vsm.h>
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #include <vapi/vsc.h>
 #include <vapi/vsm.h>
 typedef struct VSC_C_main c_varnish_stats_t;
@@ -75,6 +78,9 @@ struct user_config_s {
   bool collect_sms;
 #if HAVE_VARNISH_V2
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   bool collect_sm;
 #endif
 #if HAVE_VARNISH_V2 || HAVE_VARNISH_V4 || HAVE_VARNISH_V5
@@ -95,6 +101,7 @@ struct user_config_s {
   bool collect_smf;
   bool collect_vbe;
   bool collect_mse;
+<<<<<<< HEAD
 =======
 	_Bool collect_sm;
 #endif
@@ -117,6 +124,8 @@ struct user_config_s {
   _Bool collect_vbe;
   _Bool collect_mse;
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #endif
 };
 typedef struct user_config_s user_config_t; /* }}} */
@@ -174,17 +183,24 @@ static int varnish_monitor(void *priv,
   const user_config_t *conf;
   const char *name;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   if (pt == NULL)
     return 0;
 =======
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+
+  if (pt == NULL)
+    return 0;
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   conf = priv;
 
 #if HAVE_VARNISH_V5
   char namebuff[DATA_MAX_NAME_LEN];
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   char const *c = strrchr(pt->name, '.');
   if (c == NULL) {
@@ -201,6 +217,8 @@ static int varnish_monitor(void *priv,
 #if HAVE_VARNISH_V5
   char namebuff[DATA_MAX_NAME_LEN];
 
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   char const *c = strrchr(pt->name, '.');
   if (c == NULL) {
     return EINVAL;
@@ -212,7 +230,10 @@ static int varnish_monitor(void *priv,
   if (strcmp(pt->section->fantom->type, "MAIN") != 0)
     return 0;
 
+<<<<<<< HEAD
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   name = pt->desc->name;
 #elif HAVE_VARNISH_V3
   if (strcmp(pt->class, "") != 0)
@@ -428,6 +449,7 @@ static int varnish_monitor(void *priv,
                                   "exp_received", val);
 #endif
   }
+<<<<<<< HEAD
 
 #if HAVE_VARNISH_V3
   if (conf->collect_ban) {
@@ -1047,48 +1069,92 @@ static int varnish_monitor(void *priv,
     else if (strcmp(name, "g_journal_space") == 0)
       return varnish_submit_gauge(conf->instance, "mse_reg", "bytes",
                                   "journal_bytes_free", val);
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
-    /* mse segagg */
-    else if (strcmp(name, "g_bigspace") == 0)
-      return varnish_submit_gauge(conf->instance, "mse_segagg", "bytes",
-                                  "big_extents_bytes_available", val);
-    else if (strcmp(name, "g_extfree") == 0)
-      return varnish_submit_gauge(conf->instance, "mse_segagg", "objects",
-                                  "free_extents", val);
-    else if (strcmp(name, "g_sparenode") == 0)
-      return varnish_submit_gauge(conf->instance, "mse_segagg", "objects",
-                                  "spare_nodes_available", val);
-    else if (strcmp(name, "g_objnode") == 0)
-      return varnish_submit_gauge(conf->instance, "mse_segagg", "objects",
-                                  "object_nodes_in_use", val);
-    else if (strcmp(name, "g_extnode") == 0)
-      return varnish_submit_gauge(conf->instance, "mse_segagg", "objects",
-                                  "extent_nodes_in_use", val);
-    else if (strcmp(name, "g_bigextfree") == 0)
-      return varnish_submit_gauge(conf->instance, "mse_segagg", "objects",
-                                  "free_big_extents", val);
-    else if (strcmp(name, "c_pruneloop") == 0)
-      return varnish_submit_derive(conf->instance, "mse_segagg",
-                                   "total_operations", "prune_loops", val);
-    else if (strcmp(name, "c_pruned") == 0)
-      return varnish_submit_derive(conf->instance, "mse_segagg",
-                                   "total_objects", "pruned_objects", val);
-    else if (strcmp(name, "c_spared") == 0)
-      return varnish_submit_derive(conf->instance, "mse_segagg",
-                                   "total_operations", "spared_objects", val);
-    else if (strcmp(name, "c_skipped") == 0)
-      return varnish_submit_derive(conf->instance, "mse_segagg",
-                                   "total_operations", "missed_objects", val);
-    else if (strcmp(name, "c_nuked") == 0)
-      return varnish_submit_derive(conf->instance, "mse_segagg",
-                                   "total_operations", "nuked_objects", val);
-    else if (strcmp(name, "c_sniped") == 0)
-      return varnish_submit_derive(conf->instance, "mse_segagg",
-                                   "total_operations", "sniped_objects", val);
+#if HAVE_VARNISH_V3
+  if (conf->collect_ban) {
+    if (strcmp(name, "n_ban") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "total", val);
+    else if (strcmp(name, "n_ban_add") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "added", val);
+    else if (strcmp(name, "n_ban_retire") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "deleted", val);
+    else if (strcmp(name, "n_ban_obj_test") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "objects_tested", val);
+    else if (strcmp(name, "n_ban_re_test") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "regexps_tested", val);
+    else if (strcmp(name, "n_ban_dups") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "duplicate", val);
   }
+#endif
+#if HAVE_VARNISH_V4 || HAVE_VARNISH_V5
+  if (conf->collect_ban) {
+    if (strcmp(name, "bans") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "total", val);
+    else if (strcmp(name, "bans_added") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "added", val);
+    else if (strcmp(name, "bans_obj") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "obj", val);
+    else if (strcmp(name, "bans_req") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "req", val);
+    else if (strcmp(name, "bans_completed") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "completed", val);
+    else if (strcmp(name, "bans_deleted") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "deleted", val);
+    else if (strcmp(name, "bans_tested") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "tested", val);
+    else if (strcmp(name, "bans_dups") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "duplicate", val);
+    else if (strcmp(name, "bans_tested") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "tested", val);
+    else if (strcmp(name, "bans_lurker_contention") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "lurker_contention", val);
+    else if (strcmp(name, "bans_lurker_obj_killed") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "lurker_obj_killed", val);
+    else if (strcmp(name, "bans_lurker_tested") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "lurker_tested", val);
+    else if (strcmp(name, "bans_lurker_tests_tested") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "lurker_tests_tested", val);
+    else if (strcmp(name, "bans_obj_killed") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "obj_killed", val);
+    else if (strcmp(name, "bans_persisted_bytes") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_bytes",
+                                   "persisted_bytes", val);
+    else if (strcmp(name, "bans_persisted_fragmentation") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_bytes",
+                                   "persisted_fragmentation", val);
+    else if (strcmp(name, "bans_tests_tested") == 0)
+      return varnish_submit_derive(conf->instance, "ban", "total_operations",
+                                   "tests_tested", val);
+  }
+#endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (conf->collect_session) {
     if (strcmp(name, "sess_closed") == 0)
       return varnish_submit_derive(conf->instance, "session",
@@ -1612,7 +1678,10 @@ static int varnish_monitor(void *priv,
                                    "total_operations", "sniped_objects", val);
   }
 
+<<<<<<< HEAD
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #endif
 
   return 0;
@@ -1963,10 +2032,14 @@ static int varnish_read(user_data_t *ud) /* {{{ */
 #if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
   struct VSM_data *vd;
 <<<<<<< HEAD
+<<<<<<< HEAD
   bool ok;
 =======
   _Bool ok;
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+  bool ok;
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   const c_varnish_stats_t *stats;
 #elif HAVE_VARNISH_V5
   struct vsm *vd;
@@ -1988,6 +2061,7 @@ static int varnish_read(user_data_t *ud) /* {{{ */
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   vd = VSM_New();
 
@@ -1996,85 +2070,53 @@ static int varnish_read(user_data_t *ud) /* {{{ */
 #endif
 
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #if HAVE_VARNISH_V3
   VSC_Setup(vd);
 #endif
 
   if (conf->instance != NULL) {
     int status;
+
+#if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
+    status = VSM_n_Arg(vd, conf->instance);
+#elif HAVE_VARNISH_V5
+    status = VSM_Arg(vd, 'n', conf->instance);
+#endif
+
+    if (status < 0) {
+#if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
+      VSM_Delete(vd);
+#elif HAVE_VARNISH_V5
+      VSC_Destroy(&vsc, vd);
+      VSM_Destroy(&vd);
+#endif
+      ERROR("varnish plugin: VSM_Arg (\"%s\") failed "
+            "with status %i.",
+            conf->instance, status);
+      return -1;
+    }
+  }
+
+#if HAVE_VARNISH_V3
+  ok = (VSC_Open(vd, /* diag = */ 1) == 0);
+#elif HAVE_VARNISH_V4
+  ok = (VSM_Open(vd) == 0);
+#endif
+#if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
+  if (!ok) {
+    VSM_Delete(vd);
+    ERROR("varnish plugin: Unable to open connection.");
+    return -1;
+  }
+#endif
+
+#if HAVE_VARNISH_V3
 <<<<<<< HEAD
-
-#if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
-    status = VSM_n_Arg(vd, conf->instance);
-#elif HAVE_VARNISH_V5
-    status = VSM_Arg(vd, 'n', conf->instance);
-#endif
-
-    if (status < 0) {
-#if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
-      VSM_Delete(vd);
-#elif HAVE_VARNISH_V5
-      VSC_Destroy(&vsc, vd);
-      VSM_Destroy(&vd);
-#endif
-      ERROR("varnish plugin: VSM_Arg (\"%s\") failed "
-            "with status %i.",
-            conf->instance, status);
-      return -1;
-    }
-  }
-
-#if HAVE_VARNISH_V3
-  ok = (VSC_Open(vd, /* diag = */ 1) == 0);
-#elif HAVE_VARNISH_V4
-  ok = (VSM_Open(vd) == 0);
-#endif
-#if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
-  if (!ok) {
-    VSM_Delete(vd);
-    ERROR("varnish plugin: Unable to open connection.");
-    return -1;
-  }
-#endif
-
-#if HAVE_VARNISH_V3
-=======
-
-#if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
-    status = VSM_n_Arg(vd, conf->instance);
-#elif HAVE_VARNISH_V5
-    status = VSM_Arg(vd, 'n', conf->instance);
-#endif
-
-    if (status < 0) {
-#if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
-      VSM_Delete(vd);
-#elif HAVE_VARNISH_V5
-      VSC_Destroy(&vsc, vd);
-      VSM_Destroy(&vd);
-#endif
-      ERROR("varnish plugin: VSM_Arg (\"%s\") failed "
-            "with status %i.",
-            conf->instance, status);
-      return -1;
-    }
-  }
-
-#if HAVE_VARNISH_V3
-  ok = (VSC_Open(vd, /* diag = */ 1) == 0);
-#elif HAVE_VARNISH_V4
-  ok = (VSM_Open(vd) == 0);
-#endif
-#if HAVE_VARNISH_V3 || HAVE_VARNISH_V4
-  if (!ok) {
-    VSM_Delete(vd);
-    ERROR("varnish plugin: Unable to open connection.");
-    return -1;
-  }
-#endif
-
-#if HAVE_VARNISH_V3
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   stats = VSC_Main(vd);
 #elif HAVE_VARNISH_V4
   stats = VSC_Main(vd, NULL);
@@ -2181,6 +2223,9 @@ static int varnish_config_apply_default(user_config_t *conf) /* {{{ */
   conf->collect_shm = true;
 #if HAVE_VARNISH_V2
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   conf->collect_sm = false;
 #endif
 #if HAVE_VARNISH_V2 || HAVE_VARNISH_V4 || HAVE_VARNISH_V5
@@ -2202,6 +2247,7 @@ static int varnish_config_apply_default(user_config_t *conf) /* {{{ */
   conf->collect_smf = false;
   conf->collect_vbe = false;
   conf->collect_mse = false;
+<<<<<<< HEAD
 =======
   conf->collect_sm = 0;
 #endif
@@ -2225,6 +2271,8 @@ static int varnish_config_apply_default(user_config_t *conf) /* {{{ */
   conf->collect_vbe = 0;
   conf->collect_mse = 0;
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #endif
 
   return 0;
@@ -2357,6 +2405,9 @@ static int varnish_config_instance(const oconfig_item_t *ci) /* {{{ */
 #if HAVE_VARNISH_V3 || HAVE_VARNISH_V4 || HAVE_VARNISH_V5
       cf_util_get_boolean(child, &conf->collect_uptime);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #else
       WARNING("Varnish plugin: \"%s\" is available for Varnish %s only.",
               child->key, "v3 and v4");
@@ -2410,6 +2461,7 @@ static int varnish_config_instance(const oconfig_item_t *ci) /* {{{ */
     else if (strcasecmp("CollectVBE", child->key) == 0)
 #if HAVE_VARNISH_V4 || HAVE_VARNISH_V5
       cf_util_get_boolean(child, &conf->collect_vbe);
+<<<<<<< HEAD
 =======
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
 #else
@@ -2473,6 +2525,8 @@ static int varnish_config_instance(const oconfig_item_t *ci) /* {{{ */
     else if (strcasecmp("CollectVBE", child->key) == 0)
 #if HAVE_VARNISH_V4 || HAVE_VARNISH_V5
       cf_util_get_boolean(child, &conf->collect_vbe);
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #else
       WARNING("Varnish plugin: \"%s\" is available for Varnish %s only.",
               child->key, "v4");
@@ -2484,7 +2538,10 @@ static int varnish_config_instance(const oconfig_item_t *ci) /* {{{ */
       WARNING("Varnish plugin: \"%s\" is available for Varnish %s only.",
               child->key, "Plus v4");
 #endif
+<<<<<<< HEAD
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
     else {
       WARNING("Varnish plugin: Ignoring unknown "
               "configuration option: \"%s\". Did "
@@ -2512,10 +2569,14 @@ static int varnish_config_instance(const oconfig_item_t *ci) /* {{{ */
 #if HAVE_VARNISH_V2 || HAVE_VARNISH_V4 || HAVE_VARNISH_V5
       && !conf->collect_sma
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #endif
       && !conf->collect_struct && !conf->collect_totals
 #if HAVE_VARNISH_V3 || HAVE_VARNISH_V4 || HAVE_VARNISH_V5
       && !conf->collect_uptime
+<<<<<<< HEAD
 =======
 #endif
       && !conf->collect_struct && !conf->collect_totals
@@ -2528,6 +2589,8 @@ static int varnish_config_instance(const oconfig_item_t *ci) /* {{{ */
       !conf->collect_mgt && !conf->collect_lck && !conf->collect_mempool &&
       !conf->collect_mse
 >>>>>>> Varnish 5.2 compatibility changes taken from collectd#2527 (#134)
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 #endif
       && !conf->collect_vcl && !conf->collect_workers
 #if HAVE_VARNISH_V4 || HAVE_VARNISH_V5

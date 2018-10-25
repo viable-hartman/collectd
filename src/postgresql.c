@@ -795,10 +795,14 @@ static int c_psql_write(const data_set_t *ds, const value_list_t *vl,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (rfc3339nano_local(time_str, sizeof(time_str), vl->time) != 0) {
     log_err("c_psql_write: Failed to convert time to RFC 3339 format");
     return -1;
   }
+<<<<<<< HEAD
 =======
 	/* TODO: Should this be rfc3339nano_local()? */
 	if (rfc3339nano (time_str, sizeof (time_str), vl->time) != 0) {
@@ -809,6 +813,8 @@ static int c_psql_write(const data_set_t *ds, const value_list_t *vl,
 		return -1;
 	}
 >>>>>>> Address review comments:
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   if (values_name_to_sqlarray(ds, values_name_str, sizeof(values_name_str)) ==
       NULL)

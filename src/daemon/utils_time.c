@@ -44,6 +44,9 @@ cdtime_t cdtime(void) /* {{{ */
 {
   int status;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   struct timespec ts = {0, 0};
 
   status = clock_gettime(CLOCK_REALTIME, &ts);
@@ -53,6 +56,7 @@ cdtime_t cdtime(void) /* {{{ */
   }
 
   return TIMESPEC_TO_CDTIME_T(&ts);
+<<<<<<< HEAD
 =======
   struct timespec ts = { 0, 0 };
 
@@ -67,6 +71,8 @@ cdtime_t cdtime(void) /* {{{ */
 
   return TIMESPEC_TO_CDTIME_T (&ts);
 >>>>>>> Address review comments:
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} cdtime_t cdtime */
 #else /* !HAVE_CLOCK_GETTIME */
 /* Work around for Mac OS X which doesn't have clock_gettime(2). *sigh* */
@@ -74,6 +80,9 @@ cdtime_t cdtime(void) /* {{{ */
 {
   int status;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   struct timeval tv = {0, 0};
 
   status = gettimeofday(&tv, /* struct timezone = */ NULL);
@@ -83,6 +92,7 @@ cdtime_t cdtime(void) /* {{{ */
   }
 
   return TIMEVAL_TO_CDTIME_T(&tv);
+<<<<<<< HEAD
 =======
   struct timeval tv = { 0, 0 };
 
@@ -97,6 +107,8 @@ cdtime_t cdtime(void) /* {{{ */
 
   return TIMEVAL_TO_CDTIME_T (&tv);
 >>>>>>> Address review comments:
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} cdtime_t cdtime */
 #endif
 #endif
@@ -241,6 +253,7 @@ static int format_zone (char *buffer, size_t buffer_size, struct tm const *tm) /
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
                    long nsec, bool print_nano, char const *zone) /* {{{ */
 =======
@@ -325,6 +338,10 @@ int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
       return status;
 =======
 int format_rfc3339 (char *buffer, size_t buffer_size, struct tm const *t_tm, long nsec, _Bool print_nano, char const *zone) /* {{{ */
+=======
+int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
+                   long nsec, bool print_nano, char const *zone) /* {{{ */
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 {
   int len;
   char *pos = buffer;
@@ -368,6 +385,7 @@ int format_rfc3339_utc (char *buffer, size_t buffer_size, cdtime_t t, _Bool prin
   long nsec = 0;
   int status;
 
+<<<<<<< HEAD
   if ((status = get_utc_time (t, &t_tm, &nsec)) != 0)
     return status;  /* The error should have already be reported. */
 
@@ -375,10 +393,22 @@ int format_rfc3339_utc (char *buffer, size_t buffer_size, cdtime_t t, _Bool prin
 } /* }}} int format_rfc3339_utc */
 
 int format_rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano) /* {{{ */
+=======
+  if ((status = get_utc_time(t, &t_tm, &nsec)) != 0)
+    return status; /* The error should have already be reported. */
+
+  return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano,
+                        zulu_zone);
+} /* }}} int format_rfc3339_utc */
+
+int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
+                         bool print_nano) /* {{{ */
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 {
   struct tm t_tm;
   long nsec = 0;
   int status;
+<<<<<<< HEAD
   char zone[7];  /* +00:00 */
 
   if ((status = get_local_time (t, &t_tm, &nsec)) != 0)
@@ -388,6 +418,17 @@ int format_rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t, _Bool pr
     return status;
 
   return format_rfc3339 (buffer, buffer_size, &t_tm, nsec, print_nano, zone);
+=======
+  char zone[7]; /* +00:00 */
+
+  if ((status = get_local_time(t, &t_tm, &nsec)) != 0)
+    return status; /* The error should have already be reported. */
+
+  if ((status = format_zone(zone, sizeof(zone), &t_tm)) != 0)
+    return status;
+
+  return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano, zone);
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} int format_rfc3339_local */
 
 /**********************************************************************
@@ -403,6 +444,9 @@ int rfc3339 (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   return format_rfc3339_utc(buffer, buffer_size, t, 0);
 } /* }}} int rfc3339 */
 =======
@@ -425,6 +469,9 @@ int rfc3339nano(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   return format_rfc3339_utc(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
 
@@ -434,6 +481,7 @@ int rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
     return ENOMEM;
 
   return format_rfc3339_local(buffer, buffer_size, t, 0);
+<<<<<<< HEAD
 } /* }}} int rfc3339 */
 
 int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
@@ -481,16 +529,21 @@ int rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
     return ENOMEM;
 
   return format_rfc3339_local (buffer, buffer_size, t, 0);
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} int rfc3339 */
 
 int rfc3339nano_local (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339NANO_SIZE)
     return ENOMEM;
+<<<<<<< HEAD
 
   return format_rfc3339_local (buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
 >>>>>>> Address review comments:
+=======
+>>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   return format_rfc3339_local(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
