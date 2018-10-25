@@ -5470,6 +5470,9 @@ AM_CONDITIONAL(BUILD_WITH_LIBSSL, test "x$with_libssl" = "xyes")
 # }}}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Adds back section # For ipvs module
 # For ipvs module
 have_linux_ip_vs_h="no"
 have_net_ip_vs_h="no"
@@ -5507,8 +5510,11 @@ then
 	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
 fi
 
+<<<<<<< HEAD
 =======
 >>>>>>> configure.ac for libssl and libpthread
+=======
+>>>>>>> Adds back section # For ipvs module
 # --with-libstatgrab {{{
 AC_ARG_WITH([libstatgrab],
   [AS_HELP_STRING([--with-libstatgrab@<:@=PREFIX@:>@], [Path to libstatgrab.])],
