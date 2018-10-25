@@ -536,6 +536,7 @@ static procstat_t *list_head_g;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -596,6 +597,8 @@ static _Bool some_detail_active_g = 0;	static _Bool some_detail_active_g = 0;
 static _Bool some_detail_active_g = 0;
 >>>>>>> Delete duplicate declaration of some_detail_active_g.
 =======
+=======
+>>>>>>> Adds back in declaration of want_detail_configuration_g.
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -604,7 +607,14 @@ static _Bool some_detail_active_g = 0;
 <<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+<<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+=======
+static want_detail_configuration_t want_detail_configuration_g;
+static _Bool some_detail_active_g = 0;	static _Bool some_detail_active_g = 0;
+>>>>>>> Adds back in declaration of want_detail_configuration_g.
+>>>>>>> Adds back in declaration of want_detail_configuration_g.
 static bool want_init = true;
 >>>>>>> Set static bools to true instead of 1
 static bool report_ctx_switch;
