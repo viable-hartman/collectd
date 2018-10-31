@@ -711,7 +711,33 @@ static int ps_config(oconfig_item_t *ci) {
         ps_tune_instance(c, ps);
     } else if (strcasecmp(c->key, "CollectContextSwitch") == 0) {
       cf_util_get_boolean(c, &report_ctx_switch);
-    } else if (strcasecmp(c->key, "CollectFileDescriptor") == 0) {
+    } else if (strcasecmp (c->key, "Detail") == 0){
+		    int sn;
+		    if ((c->values_num != 1)
+		            || (OCONFIG_TYPE_STRING != c->values[0].type))
+		    {
+		        ERROR ("processes plugin: `Detail' needs exactly "
+		                "one string argument (got %i).",
+		                c->values_num);
+		        continue;
+		    }
+		    assert (STATIC_ARRAY_SIZE (stat_names) ==
+		            STATIC_ARRAY_SIZE (detail_flags));
+		    for (sn = 0; sn < STATIC_ARRAY_SIZE(stat_names); ++sn) {
+		        if (strcasecmp(c->values[0].value.string, stat_names[sn]) == 0)
+		        {
+		            *detail_flags[sn] = 1;
+		            some_detail_active_g = 1;
+		            break;
+		        }
+		    }
+		    if (sn == STATIC_ARRAY_SIZE(stat_names))
+		    {
+		        ERROR ("processes plugin: Unrecognized `Detail' argument %s.",
+		               c->values[0].value.string);
+		        continue;
+		    }
+		} else if (strcasecmp(c->key, "CollectFileDescriptor") == 0) {
       cf_util_get_boolean(c, &report_fd_num);
     } else if (strcasecmp(c->key, "CollectMemoryMaps") == 0) {
       cf_util_get_boolean(c, &report_maps_num);
