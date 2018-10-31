@@ -1256,6 +1256,162 @@ static void ps_submit_state(const char *state, double value) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+static char *ps_get_cmdline (long pid, char *name,
+    char *buf, size_t buf_len);
+static char *ps_get_command(pid_t pid);
+static char *ps_get_owner(pid_t pid);
+
+// Increase this value if any of the callers use a larger 'values_len'.
+// (If the assertion fails, you know you have this problem).
+#define MAX_VALUE_LIST_SIZE 2
+
+static void dispatch_value_helper (value_list_t *vl,
+        const char *type, const char *type_instance, int values_len,
+        _Bool doing_detail, _Bool want_detail)
+{
+    assert (values_len <= MAX_VALUE_LIST_SIZE);
+    if (doing_detail != want_detail)
+    {
+        return;
+    }
+    sstrncpy(vl->type, type, sizeof (vl->type));
+    if (type_instance != NULL)
+    {
+        sstrncpy(vl->type_instance, type_instance, sizeof (vl->type_instance));
+    }
+    vl->values_len = values_len;
+    plugin_dispatch_values(vl);
+}
+
+static void ps_submit_proc_stats (
+        _Bool doing_detail,
+        const char *instance_name,
+        const char *pid,
+        const char *owner,
+        const char *command,
+        const char *command_line,
+        procstat_gauges_t *procstat_gauges,
+        procstat_counters_t *procstat_counters)
+{
+    const want_detail_configuration_t *config = &want_detail_configuration_g;
+    value_t values[MAX_VALUE_LIST_SIZE];
+    value_list_t vl = VALUE_LIST_INIT;
+    vl.values = values;
+
+    sstrncpy (vl.host, hostname_g, sizeof (vl.host));
+    sstrncpy (vl.plugin, "processes", sizeof (vl.plugin));
+    sstrncpy (vl.plugin_instance, instance_name, sizeof (vl.plugin_instance));
+
+    if (doing_detail)
+    {
+        // sstrncpy(vl.type_instance, "detail", sizeof (vl.type_instance));
+        vl.meta = meta_data_create();
+        if (pid != NULL) {
+            meta_data_add_string(vl.meta, "processes:pid", pid);
+        }
+        if (owner != NULL) {
+            meta_data_add_string(vl.meta, "processes:owner", owner);
+        }
+        if (command != NULL) {
+            meta_data_add_string(vl.meta, "processes:command", command);
+        }
+        if (command_line != NULL) {
+            meta_data_add_string(vl.meta, "processes:command_line",
+                    command_line);
+        }
+    }
+
+    vl.values[0].gauge = procstat_gauges->num_proc;
+    vl.values[1].gauge = procstat_gauges->num_lwp;
+    dispatch_value_helper(&vl, "ps_count", NULL, 2, doing_detail, config->ps_count);
+
+    vl.values[0].gauge = procstat_gauges->vmem_size;
+    dispatch_value_helper(&vl, "ps_vm", NULL, 1, doing_detail, config->ps_vm);
+
+    vl.values[0].gauge = procstat_gauges->vmem_rss;
+    dispatch_value_helper(&vl, "ps_rss", NULL, 1, doing_detail, config->ps_rss);
+
+    vl.values[0].gauge = procstat_gauges->vmem_data;
+    dispatch_value_helper(&vl, "ps_data", NULL, 1, doing_detail, config->ps_data);
+
+    vl.values[0].gauge = procstat_gauges->vmem_code;
+    dispatch_value_helper(&vl, "ps_code", NULL, 1, doing_detail, config->ps_code);
+
+    vl.values[0].gauge = procstat_gauges->stack_size;
+    dispatch_value_helper(&vl, "ps_stacksize", NULL, 1, doing_detail,
+                          config->ps_stacksize);
+
+    vl.values[0].derive = procstat_counters->vmem_minflt;
+    vl.values[1].derive = procstat_counters->vmem_majflt;
+    dispatch_value_helper(&vl, "ps_pagefaults", NULL, 2, doing_detail,
+                          config->ps_pagefaults);
+
+    vl.values[0].derive = procstat_counters->cpu_user;
+    vl.values[1].derive = procstat_counters->cpu_system;
+    dispatch_value_helper(&vl, "ps_cputime", NULL, 2, doing_detail,
+                          config->ps_cputime);
+
+    if ( (procstat_gauges->io_rchar != -1) && (procstat_gauges->io_wchar != -1) )
+    {
+        vl.values[0].derive = procstat_gauges->io_rchar;
+        vl.values[1].derive = procstat_gauges->io_wchar;
+        dispatch_value_helper(&vl, "io_octets", NULL, 2, doing_detail,
+                config->ps_disk_octets);
+    }
+
+    if ( (procstat_gauges->io_syscr != -1) && (procstat_gauges->io_syscw != -1) )
+    {
+        vl.values[0].derive = procstat_gauges->io_syscr;
+        vl.values[1].derive = procstat_gauges->io_syscw;
+        dispatch_value_helper(&vl, "io_ops", NULL, 2, doing_detail,
+                              config->ps_disk_ops);
+    }
+
+    if ( (procstat_gauges->io_diskr != -1) && (procstat_gauges->io_diskw != -1) )
+    {
+        vl.values[0].derive = procstat_gauges->io_diskr;
+        vl.values[1].derive = procstat_gauges->io_diskw;
+        dispatch_value_helper(&vl, "disk_octets", NULL, 2, doing_detail,
+                              config->ps_disk_octets);
+    }
+
+    if ( report_ctx_switch )
+    {
+	    vl.values[0].derive = procstat_gauges->cswitch_vol;
+	    dispatch_value_helper(&vl, "contextswitch", "voluntary", 2, doing_detail,
+		    config->cswitch_vol);
+	    vl.values[0].derive = procstat_gauges->cswitch_invol;
+	    dispatch_value_helper(&vl, "contextswitch", "involuntary", 2, doing_detail,
+		    config->cswitch_invol);
+    }
+    meta_data_destroy(vl.meta);
+    vl.meta = NULL;
+
+    DEBUG ("name = %s; pid = %s; num_proc = %lu; num_lwp = %lu; "
+            "vmem_size = %lu; vmem_rss = %lu; vmem_data = %lu; "
+            "vmem_code = %lu; "
+            "vmem_minflt_counter = %"PRIi64"; vmem_majflt_counter = %"PRIi64"; "
+            "cpu_user_counter = %"PRIi64"; cpu_system_counter = %"PRIi64"; "
+            "io_rchar = %"PRIi64"; io_wchar = %"PRIi64"; "
+            "io_syscr = %"PRIi64"; io_syscw = %"PRIi64";"
+            "io_diskr = %"PRIi64"; io_diskw = %"PRIi64";"
+            "cswitch_vol = %"PRIi64"; cswitch_invol = %"PRIi64";",
+            instance_name, pid, procstat_gauges->num_proc, procstat_gauges->num_lwp,
+            procstat_gauges->vmem_size, procstat_gauges->vmem_rss,
+            procstat_gauges->vmem_data, procstat_gauges->vmem_code,
+            procstat_counters->vmem_minflt, procstat_counters->vmem_majflt,
+            procstat_counters->cpu_user, procstat_counters->cpu_system,
+            procstat_gauges->io_rchar, procstat_gauges->io_wchar,
+            procstat_gauges->io_syscr, procstat_gauges->io_syscw,
+            procstat_gauges->io_diskr, procstat_gauges->io_diskw,
+            procstat_gauges->cswitch_vol, procstat_gauges->cswitch_invol);
+} /* void ps_submit_proc_list */
+
+#undef MAX_VALUE_LIST_SIZE
+
+>>>>>>> Fixing ps_config errors
 /* submit info about specific process (e.g.: memory taken, cpu usage, etc..) */
 static void ps_submit_proc_list(procstat_t *ps) {
   if (some_detail_active_g) {
