@@ -69,3 +69,6 @@ test_*
 
 # src/daemon/...
 src/daemon/collectd
+
+# autoconf
+autom4te.cache/
