@@ -854,6 +854,9 @@
 /* Define to 1 if the logfile plugin is enabled. */
 #undef HAVE_PLUGIN_LOGFILE
 
+/* Define to 1 if the logging_metrics plugin is enabled. */
+#undef HAVE_PLUGIN_LOGGING_METRICS
+
 /* Define to 1 if the log_logstash plugin is enabled. */
 #undef HAVE_PLUGIN_LOG_LOGSTASH
 
@@ -1573,6 +1576,9 @@
 
 /* Varnish 4 API support */
 #undef HAVE_VARNISH_V4
+
+/* Varnish 5 API support */
+#undef HAVE_VARNISH_V5
 
 /* Define to 1 if you have the <vm/anon.h> header file. */
 #undef HAVE_VM_ANON_H
