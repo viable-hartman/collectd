@@ -273,6 +273,22 @@ typedef struct procstat {
 } procstat_t;
 
 static procstat_t *list_head_g;
+static _Bool report_ctx_switch = 0;
+typedef struct
+{
+    _Bool ps_count;
+    _Bool ps_vm;
+    _Bool ps_rss;
+    _Bool ps_data;
+    _Bool ps_code;
+    _Bool ps_stacksize;
+    _Bool ps_cputime;
+    _Bool ps_pagefaults;
+    _Bool ps_disk_octets;
+    _Bool ps_disk_ops;
+    _Bool cswitch_vol;
+    _Bool cswitch_invol;
+} want_detail_configuration_t;
 static want_detail_configuration_t want_detail_configuration_g;
 static _Bool some_detail_active_g = 0;
 static bool want_init = true;
