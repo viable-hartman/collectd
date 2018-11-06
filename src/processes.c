@@ -400,6 +400,7 @@ typedef struct procstat {
 
 static procstat_t *list_head_g;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -411,6 +412,9 @@ static _Bool report_fd_num = 0;
 static _Bool report_maps_num = 0;
 <<<<<<< HEAD
 =======
+=======
+static _Bool report_ctx_switch = 0;
+>>>>>>> Working to declare want_detail_configuration_t et al
 typedef struct
 {
     _Bool ps_count;
@@ -426,6 +430,7 @@ typedef struct
     _Bool cswitch_vol;
     _Bool cswitch_invol;
 } want_detail_configuration_t;
+<<<<<<< HEAD
 
 static want_detail_configuration_t want_detail_configuration_g;
 static _Bool some_detail_active_g = 0;
@@ -446,6 +451,8 @@ static bool report_delay = 0;
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
+=======
+>>>>>>> Working to declare want_detail_configuration_t et al
 static want_detail_configuration_t want_detail_configuration_g;
 <<<<<<< HEAD
 static _Bool some_detail_active_g = 0;	static _Bool some_detail_active_g = 0;
