@@ -537,6 +537,7 @@ static procstat_t *list_head_g;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -599,6 +600,8 @@ static _Bool some_detail_active_g = 0;
 =======
 =======
 >>>>>>> Adds back in declaration of want_detail_configuration_g.
+=======
+>>>>>>> Working to declare want_detail_configuration_t et al
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -611,6 +614,24 @@ static _Bool some_detail_active_g = 0;
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 =======
+=======
+static _Bool report_ctx_switch = 0;
+typedef struct
+{
+    _Bool ps_count;
+    _Bool ps_vm;
+    _Bool ps_rss;
+    _Bool ps_data;
+    _Bool ps_code;
+    _Bool ps_stacksize;
+    _Bool ps_cputime;
+    _Bool ps_pagefaults;
+    _Bool ps_disk_octets;
+    _Bool ps_disk_ops;
+    _Bool cswitch_vol;
+    _Bool cswitch_invol;
+} want_detail_configuration_t;
+>>>>>>> Working to declare want_detail_configuration_t et al
 static want_detail_configuration_t want_detail_configuration_g;
 <<<<<<< HEAD
 static _Bool some_detail_active_g = 0;	static _Bool some_detail_active_g = 0;
