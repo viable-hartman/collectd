@@ -6190,9 +6190,14 @@ static int ps_read(void) {
 
     memset(&pse, 0, sizeof(pse));
     pse.id = pid;
+<<<<<<< HEAD
     pse.age = 0;
 
 <<<<<<< HEAD
+=======
+    pse.age      = 0;
+
+>>>>>>> Adds pse.gauges and pse.counters
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 
