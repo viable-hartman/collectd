@@ -214,6 +214,8 @@ typedef struct process_entry_s {
   bool has_maps;
 } process_entry_t;
 
+
+
 typedef struct procstat_gauges_s {
 	unsigned long num_proc;
 	unsigned long num_lwp;
@@ -402,6 +404,27 @@ int getargs(void *processBuffer, int bufferLen, char *argsBuffer, int argsLen);
 #if HAVE_LIBTASKSTATS
 static ts_t *taskstats_handle;
 #endif
+
+
+static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *src) {
+	dst->num_proc   += src->num_proc;
+	dst->num_lwp    += src->num_lwp;
+	dst->vmem_size  += src->vmem_size;
+	dst->vmem_rss   += src->vmem_rss;
+	dst->vmem_data  += src->vmem_data;
+	dst->vmem_code  += src->vmem_code;
+	dst->stack_size += src->stack_size;
+
+	dst->io_rchar   += ps_delta(src->io_rchar);
+	dst->io_wchar   += ps_delta(src->io_wchar);
+	dst->io_syscr   += ps_delta(src->io_syscr);
+	dst->io_syscw   += ps_delta(src->io_syscw);
+	dst->io_diskr   += ps_delta(src->io_diskr);
+	dst->io_diskw   += ps_delta(src->io_diskw);
+
+	dst->cswitch_vol   += ps_delta(src->cswitch_vol);
+	dst->cswitch_invol += ps_delta(src->cswitch_invol);
+}
 
 /* put name of process from config to list_head_g tree
  * list_head_g is a list of 'procstat_t' structs with
@@ -1288,62 +1311,6 @@ static void ps_submit_proc_list(procstat_t *ps) {
 } /* void ps_submit_proc_list */
 
 #undef MAX_VALUE_LIST_SIZE
-
-/*
-static void ps_submit_procstat_entry (const char *instance_name,
-        procstat_entry_t *entry)
-{
-    char commandline[CMDLINE_BUFFER_SIZE];
-    const char *cmd_line_to_use;
-    char pid[32];
-    char *command;
-    char *owner;
-
-    cmd_line_to_use = ps_get_cmdline(entry->id, NULL, commandline,
-        sizeof(commandline));
-    if (cmd_line_to_use == NULL) {
-        // No command line. Probably a kernel process?
-        return;
-    }
-    snprintf(pid, sizeof(pid), "%lu", entry->id);
-    owner = ps_get_owner(entry->id);
-    command = ps_get_command(entry->id);
-
-    ps_submit_proc_stats (
-            1,
-            instance_name,
-            pid,
-            owner,
-            command,
-            cmd_line_to_use,
-            &entry->gauges,
-            &entry->counters);
-
-    sfree (command);
-    sfree (owner);
-}
-
-static void ps_submit_proc_list (procstat_t *ps)
-{
-    ps_submit_proc_stats (
-            0,
-            ps->name,
-            NULL,  // pid
-            NULL,  // owner
-            NULL,  // command
-            NULL,  // command_line
-            &ps->gauges,
-            &ps->counters);
-
-    if (some_detail_active_g) {
-        procstat_entry_t *entry;
-        for (entry = ps->instances; entry != NULL; entry = entry->next)
-        {
-            ps_submit_procstat_entry (ps->name, entry);
-        }
-    }
-}
-*/
 
 #if KERNEL_LINUX || KERNEL_SOLARIS
 static void ps_submit_fork_rate(derive_t value) {
