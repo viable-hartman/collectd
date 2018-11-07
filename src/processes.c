@@ -600,6 +600,19 @@ static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t
 		}
 
 		pse->age = 0;
+    pse->gauges = entry->gauges;
+
+		ps_procstat_gauges_add(&ps->gauges, &pse->gauges);
+
+		ps_update_counter (&ps->counters.vmem_minflt, &pse->counters.vmem_minflt,
+                       entry->counters.vmem_minflt);
+		ps_update_counter (&ps->counters.vmem_majflt, &pse->counters.vmem_majflt,
+                       entry->counters.vmem_majflt);
+
+		ps_update_counter (&ps->counters.cpu_user, &pse->counters.cpu_user,
+                       entry->counters.cpu_user);
+		ps_update_counter (&ps->counters.cpu_system, &pse->counters.cpu_system,
+                       entry->counters.cpu_system);
 
 		pse->gauges = entry->gauges;
 
