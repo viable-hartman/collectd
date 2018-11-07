@@ -405,6 +405,9 @@ int getargs(void *processBuffer, int bufferLen, char *argsBuffer, int argsLen);
 static ts_t *taskstats_handle;
 #endif
 
+static derive_t ps_delta(derive_t value) {
+	return (value == -1) ? 0 : value;
+}
 
 static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *src) {
 	dst->num_proc   += src->num_proc;
