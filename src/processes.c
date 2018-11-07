@@ -1503,6 +1503,7 @@ static void ps_submit_procstat_entry (const char *instance_name,
     sfree (owner);
 }
 
+<<<<<<< HEAD
 static void ps_submit_proc_list (procstat_t *ps)
 {
     ps_submit_proc_stats (
@@ -1525,8 +1526,19 @@ static void ps_submit_proc_list (procstat_t *ps)
 }
 
 >>>>>>> Moves ps_submit_procstat_entry
+=======
+>>>>>>> Deletes duplicate declaration of ps_submit_proc_list
 /* submit info about specific process (e.g.: memory taken, cpu usage, etc..) */
 static void ps_submit_proc_list(procstat_t *ps) {
+  ps_submit_proc_stats (
+          0,
+          ps->name,
+          NULL,  // pid
+          NULL,  // owner
+          NULL,  // command
+          NULL,  // command_line
+          &ps->gauges,
+          &ps->counters);
   if (some_detail_active_g) {
         procstat_entry_t *entry;
         for (entry = ps->instances; entry != NULL; entry = entry->next)
