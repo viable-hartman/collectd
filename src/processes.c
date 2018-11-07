@@ -3191,6 +3191,73 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
   return buf;
 } /* char *ps_get_cmdline (...) */
 
+static char *ps_get_command(pid_t pid)
+{
+    char *result = NULL;
+    char file_name[128];
+    char buffer[128];
+    FILE *f = NULL;
+
+    snprintf(file_name, sizeof(file_name), "/proc/%d/comm", pid);
+    f = fopen(file_name, "r");
+    if (!f)
+        return NULL;
+
+    result = fgets(buffer, sizeof(buffer), f);
+    if (result)
+    {
+        // Trim trailing newline.
+        ssize_t num_chars = strlen(result);
+        if (num_chars > 0 && result[num_chars - 1] == '\n')
+            result[num_chars - 1] = 0;
+    }
+    fclose (f);
+    return sstrdup(result);
+}
+
+static char *ps_get_owner(pid_t pid)
+{
+    char *result = NULL;
+    char file_name[128];
+    FILE *f = NULL;
+
+    snprintf (file_name, sizeof(file_name), "/proc/%d/status", pid);
+    f = fopen (file_name, "r");
+    if (!f)
+        return NULL;
+    while (1)
+    {
+        struct passwd passwd;
+        struct passwd *passwd_result;
+        char line_buffer[1024];
+        char passwd_buffer[16384];
+        uid_t uid;
+        char* uid_end;
+        char *line = fgets(line_buffer, sizeof(line_buffer), f);
+
+        if (line == NULL)
+            break;
+
+        if (strncmp (line, "Uid:", 4) != 0)
+            continue;
+
+        uid = strtoul (line + 5, &uid_end, /* base */ 10);
+        getpwuid_r (uid, &passwd, passwd_buffer, sizeof(passwd_buffer),
+                &passwd_result);
+        if (passwd_result) {
+            result = sstrdup (passwd_result->pw_name);
+        } else {
+            // Send the numeric uid if name is not available.
+            *uid_end = '\0';
+            result = sstrdup (line + 5);
+        }
+        break;
+    }
+
+    fclose (f);
+    return result;
+}
+
 static int read_fork_rate(void) {
   FILE *proc_stat;
   char buffer[1024];
