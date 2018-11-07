@@ -338,6 +338,8 @@ static procstat_gauges_t procstat_gauges_init = {
 };
 
 
+
+
 typedef struct procstat_gauges_s {
 	unsigned long num_proc;
 	unsigned long num_lwp;
@@ -830,6 +832,27 @@ static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *s
 static ts_t *taskstats_handle;
 #endif
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+
+
+static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *src) {
+	dst->num_proc   += src->num_proc;
+	dst->num_lwp    += src->num_lwp;
+	dst->vmem_size  += src->vmem_size;
+	dst->vmem_rss   += src->vmem_rss;
+	dst->vmem_data  += src->vmem_data;
+	dst->vmem_code  += src->vmem_code;
+	dst->stack_size += src->stack_size;
+
+	dst->io_rchar   += ps_delta(src->io_rchar);
+	dst->io_wchar   += ps_delta(src->io_wchar);
+	dst->io_syscr   += ps_delta(src->io_syscr);
+	dst->io_syscw   += ps_delta(src->io_syscw);
+	dst->io_diskr   += ps_delta(src->io_diskr);
+	dst->io_diskw   += ps_delta(src->io_diskw);
+
+	dst->cswitch_vol   += ps_delta(src->cswitch_vol);
+	dst->cswitch_invol += ps_delta(src->cswitch_invol);
+}
 
 /* put name of process from config to list_head_g tree
  * list_head_g is a list of 'procstat_t' structs with
@@ -2369,9 +2392,12 @@ static void ps_submit_proc_stats (
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Fixing ps_config errors
 =======
 =======
+=======
+>>>>>>> Adds ps_procstat_gauges_add
 /*
 >>>>>>> Moves ps_submit_procstat_entry
 static void ps_submit_procstat_entry (const char *instance_name,
@@ -2498,6 +2524,7 @@ static void ps_submit_proc_list (procstat_t *ps)
 >>>>>>> Moves ps_submit_procstat_entry
 >>>>>>> Moves ps_submit_procstat_entry
 
+<<<<<<< HEAD
 >>>>>>> Moves ps_submit_procstat_entry
 =======
 >>>>>>> Deletes duplicate declaration of ps_submit_proc_list
@@ -2521,6 +2548,12 @@ static void ps_submit_proc_list(procstat_t *ps) {
             ps_submit_procstat_entry (ps->name, entry);
         }
     }
+=======
+=======
+>>>>>>> Adds ps_procstat_gauges_add
+#if KERNEL_LINUX || KERNEL_SOLARIS
+static void ps_submit_fork_rate(derive_t value) {
+>>>>>>> Adds ps_procstat_gauges_add
   value_list_t vl = VALUE_LIST_INIT;
   value_t values[2];
 
