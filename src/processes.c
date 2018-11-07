@@ -339,6 +339,8 @@ typedef struct procstat {
   bool report_ctx_switch;
   bool report_delay;
 
+  procstat_gauges_t gauges;
+  procstat_counters_t counters;
   struct procstat *next;
   struct procstat_entry_s *instances;
 } procstat_t;
