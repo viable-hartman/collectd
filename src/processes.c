@@ -3825,6 +3825,10 @@ static int ps_read(void) {
 
     memset(&pse, 0, sizeof(pse));
     pse.id = pid;
+    pse.age      = 0;
+
+		pse.gauges = ps.gauges;
+		pse.counters = ps.counters;
 
     status = ps_read_process(pid, &pse, &state);
     if (status != 0) {
