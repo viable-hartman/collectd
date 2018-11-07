@@ -352,6 +352,7 @@ typedef struct procstat_entry_s {
 
   procstat_gauges_t gauges;
   procstat_counters_t counters;
+  struct procstat_entry_s *next;
 
   derive_t vmem_minflt_counter;
   derive_t vmem_majflt_counter;
@@ -377,8 +378,6 @@ typedef struct procstat_entry_s {
   value_to_rate_state_t delay_swapin;
   value_to_rate_state_t delay_freepages;
 #endif
-
-  struct procstat_entry_s *next;
 } procstat_entry_t;
 =======
 	/* io data */
