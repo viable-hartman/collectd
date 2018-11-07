@@ -274,6 +274,7 @@ typedef struct procstat_entry_s {
 
   procstat_gauges_t gauges;
   procstat_counters_t counters;
+  struct procstat_entry_s *next;
 
   derive_t vmem_minflt_counter;
   derive_t vmem_majflt_counter;
@@ -298,6 +299,7 @@ typedef struct procstat_entry_s {
   value_to_rate_state_t delay_swapin;
   value_to_rate_state_t delay_freepages;
 #endif
+<<<<<<< HEAD
 
   struct procstat_entry_s *next;
 =======
@@ -364,6 +366,8 @@ typedef struct procstat_entry_s
 
 	struct procstat_entry_s *next;
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+>>>>>>> Deletes duplicate declaration of gauges and counters in procstat_entry_s
 } procstat_entry_t;
 
 typedef struct procstat {
