@@ -1134,7 +1134,7 @@ static void ps_submit_proc_list (procstat_t *ps)
 
 #undef MAX_VALUE_LIST_SIZE
 
-
+/*
 static void ps_submit_procstat_entry (const char *instance_name,
         procstat_entry_t *entry)
 {
@@ -1188,7 +1188,7 @@ static void ps_submit_proc_list (procstat_t *ps)
         }
     }
 }
-
+*/
 
 #if KERNEL_LINUX || KERNEL_SOLARIS
 static void ps_submit_fork_rate(derive_t value) {
