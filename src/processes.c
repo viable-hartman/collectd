@@ -344,7 +344,27 @@ typedef struct procstat_entry_s {
 
   procstat_gauges_t gauges;
   procstat_counters_t counters;
+<<<<<<< HEAD
   struct procstat_entry_s *next;
+=======
+
+  derive_t vmem_minflt_counter;
+  derive_t vmem_majflt_counter;
+
+  derive_t cpu_user_counter;
+  derive_t cpu_system_counter;
+
+  /* io data */
+  derive_t io_rchar;
+  derive_t io_wchar;
+  derive_t io_syscr;
+  derive_t io_syscw;
+  derive_t io_diskr;
+  derive_t io_diskw;
+
+  derive_t cswitch_vol;
+  derive_t cswitch_invol;
+>>>>>>> Adds procstat_counters_t counters and procstat_gauges_t gauges
 
 <<<<<<< HEAD
 #if HAVE_LIBTASKSTATS
