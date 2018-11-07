@@ -1073,6 +1073,60 @@ static void ps_submit_proc_stats (
 
 #undef MAX_VALUE_LIST_SIZE
 
+static void ps_submit_procstat_entry (const char *instance_name,
+        procstat_entry_t *entry)
+{
+    char commandline[CMDLINE_BUFFER_SIZE];
+    const char *cmd_line_to_use;
+    char pid[32];
+    char *command;
+    char *owner;
+
+    cmd_line_to_use = ps_get_cmdline(entry->id, NULL, commandline,
+        sizeof(commandline));
+    if (cmd_line_to_use == NULL) {
+        // No command line. Probably a kernel process?
+        return;
+    }
+    snprintf(pid, sizeof(pid), "%lu", entry->id);
+    owner = ps_get_owner(entry->id);
+    command = ps_get_command(entry->id);
+
+    ps_submit_proc_stats (
+            1,
+            instance_name,
+            pid,
+            owner,
+            command,
+            cmd_line_to_use,
+            &entry->gauges,
+            &entry->counters);
+
+    sfree (command);
+    sfree (owner);
+}
+
+static void ps_submit_proc_list (procstat_t *ps)
+{
+    ps_submit_proc_stats (
+            0,
+            ps->name,
+            NULL,  // pid
+            NULL,  // owner
+            NULL,  // command
+            NULL,  // command_line
+            &ps->gauges,
+            &ps->counters);
+
+    if (some_detail_active_g) {
+        procstat_entry_t *entry;
+        for (entry = ps->instances; entry != NULL; entry = entry->next)
+        {
+            ps_submit_procstat_entry (ps->name, entry);
+        }
+    }
+}
+
 /* submit info about specific process (e.g.: memory taken, cpu usage, etc..) */
 static void ps_submit_proc_list(procstat_t *ps) {
   if (some_detail_active_g) {
@@ -1234,7 +1288,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
 
 #undef MAX_VALUE_LIST_SIZE
 
-
+/*
 static void ps_submit_procstat_entry (const char *instance_name,
         procstat_entry_t *entry)
 {
@@ -1288,7 +1342,7 @@ static void ps_submit_proc_list (procstat_t *ps)
         }
     }
 }
-
+*/
 
 #if KERNEL_LINUX || KERNEL_SOLARIS
 static void ps_submit_fork_rate(derive_t value) {
