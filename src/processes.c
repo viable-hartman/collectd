@@ -702,11 +702,11 @@ static void ps_list_add(const char *name, const char *cmdline,
     ps->num_lwp += entry->num_lwp;
     ps->num_fd += entry->num_fd;
     ps->num_maps += entry->num_maps;
-    ps->vmem_size += entry->vmem_size;
-    ps->vmem_rss += entry->vmem_rss;
-    pse->gauges.vmem_data += entry->gauges.vmem_data;
-    ps->vmem_code += entry->vmem_code;
-    ps->stack_size += entry->stack_size;
+    ps->gauges.vmem_size += entry->gauges.vmem_size;
+    ps->gauges.vmem_rss += entry->gauges.vmem_rss;
+    ps->gauges.vmem_data += entry->gauges.vmem_data;
+    ps->gauges.vmem_code += entry->gauges.vmem_code;
+    ps->gauges.stack_size += entry->gauges.stack_size;
 
     if ((entry->io_rchar != -1) && (entry->io_wchar != -1)) {
       ps_update_counter(&ps->io_rchar, &pse->io_rchar, entry->io_rchar);
