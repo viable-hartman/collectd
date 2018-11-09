@@ -2710,7 +2710,7 @@ static int ps_read(void) {
 		if ((proc_ptr == NULL) || (proc_ptr->ki_pid != procs[i].ki_pid))
 		{
 			char cmdline[CMDLINE_BUFFER_SIZE] = "";
-      bool have_cmdline = 0;
+      		bool have_cmdline = 0;
 
 			proc_ptr = &(procs[i]);
 			/* Don't probe system processes and processes without arguments */
