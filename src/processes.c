@@ -6956,7 +6956,11 @@ static int ps_read(void) {
       pse.gauges.vmem_data = procs[i].p_vm_dsize * pagesize;
       pse.gauges.vmem_code = procs[i].p_vm_tsize * pagesize;
       pse.gauges.stack_size = procs[i].p_vm_ssize * pagesize;
+<<<<<<< HEAD
       pse.gauges.vmem_size = pse.gauges.stack_size + pse.gauges.vmem_code + pse.gauges.vmem_data;
+=======
+      pse.gauges.vmem_size = pse.stack_size + pse.vmem_code + pse.vmem_data;
+>>>>>>> Adds in procstat_gauges_init
       pse.counters.vmem_minflt_counter = procs[i].p_uru_minflt;
       pse.counters.vmem_majflt_counter = procs[i].p_uru_majflt;
 
