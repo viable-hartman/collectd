@@ -2447,11 +2447,11 @@ static int ps_read(void) {
         }
 
         pse.num_proc++;
-        pse.vmem_size = task_basic_info.virtual_size;
-        pse.vmem_rss = task_basic_info.resident_size;
+        pse.gauges.vmem_size = task_basic_info.virtual_size;
+        pse.gauges.vmem_rss = task_basic_info.resident_size;
         /* Does not seem to be easily exposed */
-        pse.vmem_data = 0;
-        pse.vmem_code = 0;
+        pse.gauges.vmem_data = 0;
+        pse.gauges.vmem_code = 0;
 
         pse.io_rchar = -1;
         pse.io_wchar = -1;
@@ -2466,11 +2466,11 @@ static int ps_read(void) {
         /* Number of memory mappings */
         pse.num_maps = 0;
 
-        pse.vmem_minflt_counter = task_events_info.cow_faults;
-        pse.vmem_majflt_counter = task_events_info.faults;
+        pse.counters.vmem_minflt = task_events_info.cow_faults;
+        pse.counters.vmem_majflt = task_events_info.faults;
 
-        pse.cpu_user_counter = task_absolutetime_info.total_user;
-        pse.cpu_system_counter = task_absolutetime_info.total_system;
+        pse.counters.cpu_user = task_absolutetime_info.total_user;
+        pse.counters.cpu_system = task_absolutetime_info.total_system;
 
         /* context switch counters not implemented */
         pse.cswitch_vol = -1;
@@ -2757,7 +2757,167 @@ static int ps_read(void) {
 
 			pse.counters.cpu_user = 0;
 			pse.counters.cpu_system = 0;
-			/*
+      /*
+       * The u-area might be swapped out, and we can't get
+       * at it because we have a crashdump and no swap.
+       * If it's here fill in these fields, otherwise, just
+       * leave them 0.
+       */
+      if (procs[i].ki_flag & P_INMEM) {
+        pse.counters.cpu_user = procs[i].ki_rusage.ru_utime.tv_usec +
+                               (1000000lu * procs[i].ki_rusage.ru_utime.tv_sec);
+        pse.counters.cpu_system =
+            procs[i].ki_rusage.ru_stime.tv_usec +
+            (1000000lu * procs[i].ki_rusage.ru_stime.tv_sec);
+      }
+
+      /* no I/O data */
+      pse.io_rchar = -1;
+      pse.io_wchar = -1;
+      pse.io_syscr = -1;
+      pse.io_syscw = -1;
+      pse.io_diskr = -1;
+      pse.io_diskw = -1;
+
+      /* file descriptor count not implemented */
+      pse.num_fd = 0;
+
+      /* Number of memory mappings */
+      pse.num_maps = 0;
+
+      /* context switch counters not implemented */
+      pse.cswitch_vol = -1;
+      pse.cswitch_invol = -1;
+
+      ps_list_add(procs[i].ki_comm, have_cmdline ? cmdline : NULL, &pse);
+
+      switch (procs[i].ki_stat) {
+      case SSTOP:
+        stopped++;
+        break;
+      case SSLEEP:
+        sleeping++;
+        break;
+      case SRUN:
+        running++;
+        break;
+      case SIDL:
+        idle++;
+        break;
+      case SWAIT:
+        wait++;
+        break;
+      case SLOCK:
+        blocked++;
+        break;
+      case SZOMB:
+        zombies++;
+        break;
+      }
+    } /* if ((proc_ptr == NULL) || (proc_ptr->ki_pid != procs[i].ki_pid)) */
+  }
+
+  kvm_close(kd);
+
+  ps_submit_state("running", running);
+  ps_submit_state("sleeping", sleeping);
+  ps_submit_state("zombies", zombies);
+  ps_submit_state("stopped", stopped);
+  ps_submit_state("blocked", blocked);
+  ps_submit_state("idle", idle);
+  ps_submit_state("wait", wait);
+
+  for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
+    ps_submit_proc_list(ps_ptr);
+/* #endif HAVE_LIBKVM_GETPROCS && HAVE_STRUCT_KINFO_PROC_FREEBSD */
+
+#elif HAVE_LIBKVM_GETPROCS && HAVE_STRUCT_KINFO_PROC_OPENBSD
+  int running = 0;
+  int sleeping = 0;
+  int zombies = 0;
+  int stopped = 0;
+  int onproc = 0;
+  int idle = 0;
+  int dead = 0;
+
+  kvm_t *kd;
+  char errbuf[1024];
+  struct kinfo_proc *procs; /* array of processes */
+  struct kinfo_proc *proc_ptr = NULL;
+  int count; /* returns number of processes */
+
+  process_entry_t pse;
+
+  ps_list_reset();
+
+  /* Open the kvm interface, get a descriptor */
+  kd = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, errbuf);
+  if (kd == NULL) {
+    ERROR("processes plugin: Cannot open kvm interface: %s", errbuf);
+    return 0;
+  }
+
+  /* Get the list of processes. */
+  procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, sizeof(struct kinfo_proc), &count);
+  if (procs == NULL) {
+    ERROR("processes plugin: Cannot get kvm processes list: %s",
+          kvm_geterr(kd));
+    kvm_close(kd);
+    return 0;
+  }
+
+  /* Iterate through the processes in kinfo_proc */
+  for (int i = 0; i < count; i++) {
+    /* Create only one process list entry per _process_, i.e.
+     * filter out threads (duplicate PID entries). */
+    if ((proc_ptr == NULL) || (proc_ptr->p_pid != procs[i].p_pid)) {
+      char cmdline[CMDLINE_BUFFER_SIZE] = "";
+      bool have_cmdline = 0;
+
+      proc_ptr = &(procs[i]);
+      /* Don't probe zombie processes  */
+      if (!P_ZOMBIE(proc_ptr)) {
+        char **argv;
+        int argc;
+        int status;
+
+        /* retrieve the arguments */
+        argv = kvm_getargv(kd, proc_ptr, /* nchr = */ 0);
+        argc = 0;
+        if ((argv != NULL) && (argv[0] != NULL)) {
+          while (argv[argc] != NULL)
+            argc++;
+
+          status = strjoin(cmdline, sizeof(cmdline), argv, argc, " ");
+          if (status < 0)
+            WARNING("processes plugin: Command line did not fit into buffer.");
+          else
+            have_cmdline = 1;
+        }
+      } /* if (process has argument list) */
+
+      memset(&pse, 0, sizeof(pse));
+      pse.id = procs[i].p_pid;
+      pse.age = 0;
+
+      /* no I/O data */
+			/* context switch counters not implemented */
+			pse.gauges = procstat_gauges_init;
+
+      pse.gauges.num_proc = 1;
+      pse.gauges.num_lwp = 1; /* XXX: accumulate p_tid values for a single p_pid ? */
+
+      pse.gauges.vmem_rss = procs[i].p_vm_rssize * pagesize;
+      pse.gauges.vmem_data = procs[i].p_vm_dsize * pagesize;
+      pse.gauges.vmem_code = procs[i].p_vm_tsize * pagesize;
+      pse.gauges.stack_size = procs[i].p_vm_ssize * pagesize;
+      pse.gauges.vmem_size = pse.gauges.stack_size + pse.gauges.vmem_code + pse.gauges.vmem_data;
+      pse.counters.vmem_minflt_counter = procs[i].p_uru_minflt;
+      pse.counters.vmem_majflt_counter = procs[i].p_uru_majflt;
+
+      pse.counters.cpu_user = 0;
+      pse.counters.cpu_system = 0;
+      /*
 			 * The u-area might be swapped out, and we can't get
 			 * at it because we have a crashdump and no swap.
 			 * If it's here fill in these fields, otherwise, just
@@ -2896,30 +3056,17 @@ static int ps_read(void) {
 			pse.counters.cpu_system = procs[i].p_ustime_usec +
 						(1000000lu * procs[i].p_ustime_sec);
 
-			ps_list_add (procs[i].p_comm, have_cmdline ? cmdline : NULL, &pse);
+      /* tv_usec is nanosec ??? */
+      pse.counters.cpu_user = procentry[i].pi_ru.ru_utime.tv_sec * 1000000 +
+                             procentry[i].pi_ru.ru_utime.tv_usec / 1000;
 
-			switch (procs[i].p_stat)
-			{
-				case SSTOP:	stopped++;	break;
-				case SSLEEP:	sleeping++;	break;
-				case SRUN:	running++;	break;
-				case SIDL:	idle++;		break;
-				case SONPROC:	onproc++;	break;
-				case SDEAD:	dead++;		break;
-				case SZOMB:	zombies++;	break;
-			}
-		} /* if ((proc_ptr == NULL) || (proc_ptr->p_pid != procs[i].p_pid)) */
-	}
+      /* tv_usec is nanosec ??? */
+      pse.counters.cpu_system = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
+                               procentry[i].pi_ru.ru_stime.tv_usec / 1000;
 
-	kvm_close(kd);
+      pse.counters.vmem_minflt = procentry[i].pi_minflt;
+      pse.counters.vmem_majflt = procentry[i].pi_majflt;
 
-	ps_submit_state ("running",  running);
-	ps_submit_state ("sleeping", sleeping);
-	ps_submit_state ("zombies",  zombies);
-	ps_submit_state ("stopped",  stopped);
-	ps_submit_state ("onproc",   onproc);
-	ps_submit_state ("idle",     idle);
-	ps_submit_state ("dead",     dead);
 
 	for (procstat_t *ps_ptr = list_head_g; ps_ptr != NULL; ps_ptr = ps_ptr->next)
 		ps_submit_proc_list (ps_ptr);
