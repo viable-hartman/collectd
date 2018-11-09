@@ -6508,8 +6508,15 @@ static int ps_read(void) {
     status = ps_read_process(pid, &ps, &state);
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
     status = ps_read_process(pid, &pse, &state);
+<<<<<<< HEAD
 >>>>>>> processes: Show real disk IO in addition to process IO (Linux only) (#108)
+=======
+=======
+    status = ps_read_process(pid, &ps, &state);
+>>>>>>> Changes ps to pse as argument to ps_read_process calls
+>>>>>>> Changes ps to pse as argument to ps_read_process calls
     if (status != 0) {
       DEBUG("ps_read_process failed: %i", status);
       continue;
@@ -7863,9 +7870,12 @@ static int ps_read(void) {
 		pse.counters = ps.counters;
 >>>>>>> Adds in ps declaration
 
+<<<<<<< HEAD
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 
+=======
+>>>>>>> Changes ps to pse as argument to ps_read_process calls
     status = ps_read_process(pid, &ps, &state);
     if (status != 0) {
       DEBUG("ps_read_process failed: %i", status);
