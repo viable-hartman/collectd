@@ -191,6 +191,9 @@ typedef struct process_entry_s {
   unsigned long vmem_code;
   unsigned long stack_size;
 
+  procstat_gauges_t gauges;
+  procstat_counters_t counters;
+
   derive_t vmem_minflt_counter;
   derive_t vmem_majflt_counter;
 
