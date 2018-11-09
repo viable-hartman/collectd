@@ -2511,7 +2511,8 @@ static int ps_read(void) {
   char cmdline[CMDLINE_BUFFER_SIZE];
 
   int status;
-  process_entry_t pse;
+  procstat_t ps;
+	procstat_entry_t pse;
   char state;
 
   running = sleeping = zombies = stopped = paging = blocked = 0;
