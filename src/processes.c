@@ -2846,7 +2846,7 @@ static int ps_read(void) {
 		if ((proc_ptr == NULL) || (proc_ptr->p_pid != procs[i].p_pid))
 		{
 			char cmdline[CMDLINE_BUFFER_SIZE] = "";
-      bool have_cmdline = 0;
+      		bool have_cmdline = 0;
 
 			proc_ptr = &(procs[i]);
 			/* Don't probe zombie processes  */
