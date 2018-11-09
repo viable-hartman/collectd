@@ -1009,6 +1009,7 @@ static void ps_list_reset(void) {
     ps->delay_swapin = NAN;
     ps->delay_freepages = NAN;
 
+    ps->gauges = procstat_gauges_init;
     pse_prev = NULL;
     pse = ps->instances;
     while (pse != NULL) {
