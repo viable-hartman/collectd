@@ -6274,7 +6274,11 @@ static int ps_read(void) {
           continue; /* with next thread_list */
         }
 
+<<<<<<< HEAD
         pse.gauges.num_proc++;
+=======
+        pse.num_proc++;
+>>>>>>> Switches various vars to be using gauges and counters
         pse.gauges.vmem_size = task_basic_info.virtual_size;
         pse.gauges.vmem_rss = task_basic_info.resident_size;
         /* Does not seem to be easily exposed */
@@ -6294,11 +6298,19 @@ static int ps_read(void) {
         /* Number of memory mappings */
         pse.gauges.num_maps = 0;
 
+<<<<<<< HEAD
         pse.counters.vmem_minflt_counter = task_events_info.cow_faults;
         pse.counters.vmem_majflt_counter = task_events_info.faults;
 
         pse.counters.cpu_user_counter = task_absolutetime_info.total_user;
         pse.counters.cpu_system_counter = task_absolutetime_info.total_system;
+=======
+        pse.counters.vmem_minflt = task_events_info.cow_faults;
+        pse.counters.vmem_majflt = task_events_info.faults;
+
+        pse.counters.cpu_user = task_absolutetime_info.total_user;
+        pse.counters.cpu_system = task_absolutetime_info.total_system;
+>>>>>>> Switches various vars to be using gauges and counters
 
         /* context switch counters not implemented */
         pse.cswitch_vol = -1;
@@ -6957,10 +6969,14 @@ static int ps_read(void) {
       pse.gauges.vmem_code = procs[i].p_vm_tsize * pagesize;
       pse.gauges.stack_size = procs[i].p_vm_ssize * pagesize;
 <<<<<<< HEAD
+<<<<<<< HEAD
       pse.gauges.vmem_size = pse.gauges.stack_size + pse.gauges.vmem_code + pse.gauges.vmem_data;
 =======
       pse.gauges.vmem_size = pse.stack_size + pse.vmem_code + pse.vmem_data;
 >>>>>>> Adds in procstat_gauges_init
+=======
+      pse.gauges.vmem_size = pse.gauges.stack_size + pse.gauges.vmem_code + pse.gauges.vmem_data;
+>>>>>>> Switches various vars to be using gauges and counters
       pse.counters.vmem_minflt_counter = procs[i].p_uru_minflt;
       pse.counters.vmem_majflt_counter = procs[i].p_uru_majflt;
 
@@ -7542,8 +7558,13 @@ static int ps_read(void) {
       pse.counters.cpu_system = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
                                procentry[i].pi_ru.ru_stime.tv_usec / 1000;
 
+<<<<<<< HEAD
       pse.counters.vmem_minflt_counter = procentry[i].pi_minflt;
       pse.counters.vmem_majflt_counter = procentry[i].pi_majflt;
+=======
+      pse.counters.vmem_minflt = procentry[i].pi_minflt;
+      pse.counters.vmem_majflt = procentry[i].pi_majflt;
+>>>>>>> Switches various vars to be using gauges and counters
 
       pse.gauges.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
       pse.gauges.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
