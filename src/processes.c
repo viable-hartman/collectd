@@ -838,7 +838,7 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static void ps_list_add(const char *name, const char *cmdline,
-                        process_entry_t *entry) {
+                        procstat_entry_t *entry) {
   procstat_entry_t *pse;
 
   if (entry->id == 0)
@@ -2797,7 +2797,7 @@ static int ps_read_tasks_status(process_entry_t *ps) {
 } /* void ps_fill_details (...) */
 
 /* ps_read_process reads process counters on Linux. */
-static int ps_read_process(long pid, process_entry_t *ps, char *state) {
+static int ps_read_process(long pid, procstat_t *ps, char *state) {
   char filename[64];
   char buffer[1024];
 
