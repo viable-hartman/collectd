@@ -199,7 +199,6 @@
   derive_t cpu_user_counter;
   derive_t cpu_system_counter;
 
-  /* io data */
   derive_t io_rchar;
   derive_t io_wchar;
   derive_t io_syscr;
@@ -270,50 +269,7 @@ typedef struct procstat_counters_s {
 	derive_t cpu_system;
 } procstat_counters_t;
 
-typedef struct process_entry_s {
-  unsigned long id;
-  char name[PROCSTAT_NAME_LEN];
 
-  unsigned long num_proc;
-  unsigned long num_lwp;
-  unsigned long num_fd;
-  unsigned long num_maps;
-  unsigned long vmem_size;
-  unsigned long vmem_rss;
-  unsigned long vmem_data;
-  unsigned long vmem_code;
-  unsigned long stack_size;
-
-  derive_t vmem_minflt_counter;
-  derive_t vmem_majflt_counter;
-  procstat_gauges_t gauges;
-  procstat_counters_t counters;
-
-  derive_t cpu_user_counter;
-  derive_t cpu_system_counter;
-
-  /* io data */
-  derive_t io_rchar;
-  derive_t io_wchar;
-  derive_t io_syscr;
-  derive_t io_syscw;
-  derive_t io_diskr;
-  derive_t io_diskw;
-  bool has_io;
-
-  derive_t cswitch_vol;
-  derive_t cswitch_invol;
-  bool has_cswitch;
-
-#if HAVE_LIBTASKSTATS
-  ts_delay_t delay;
-#endif
-  bool has_delay;
-
-  bool has_fd;
-
-  bool has_maps;
-} process_entry_t;
 
 typedef struct procstat_entry_s {
   unsigned long id;
