@@ -6491,11 +6491,15 @@ static int ps_read(void) {
     memset(&pse, 0, sizeof(pse));
     pse.id = pid;
 <<<<<<< HEAD
+<<<<<<< HEAD
     pse.age = 0;
 
 <<<<<<< HEAD
 =======
     pse.age      = 0;
+=======
+    pse.age = 0;
+>>>>>>> Adds in ps declaration
 
 >>>>>>> Adds pse.gauges and pse.counters
 		pse.gauges = ps.gauges;
@@ -7834,7 +7838,11 @@ static int ps_read(void) {
   while ((ent = readdir(proc)) != NULL) {
     long pid;
     struct procstat ps;
+<<<<<<< HEAD
     procstat_entry_t pse;
+=======
+    process_entry_t pse;
+>>>>>>> Adds in ps declaration
     char *endptr;
 
     if (!isdigit((int)ent->d_name[0]))
@@ -7848,6 +7856,12 @@ static int ps_read(void) {
     memset(&pse, 0, sizeof(pse));
     pse.id = pid;
     pse.age = 0;
+<<<<<<< HEAD
+=======
+
+		pse.gauges = ps.gauges;
+		pse.counters = ps.counters;
+>>>>>>> Adds in ps declaration
 
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
