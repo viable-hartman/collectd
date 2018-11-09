@@ -1221,6 +1221,7 @@ static void ps_list_add(const char *name, const char *cmdline,
                        entry->counters.cpu_user);
 		ps_update_counter (&ps->counters.cpu_system, &pse->counters.cpu_system,
                        entry->counters.cpu_system);
+<<<<<<< HEAD
 >>>>>>> Adds gauges to pse
 
 		ps_update_counter (&ps->counters.vmem_minflt_counter,
@@ -1252,6 +1253,22 @@ static void ps_list_add(const char *name, const char *cmdline,
         entry->gauges.io_rchar);
       ps_update_counter(&ps->gauges.io_wchar, &pse->gauges.io_wchar,
         entry->gauges.io_wchar);
+=======
+
+    ps->num_proc += entry->num_proc;
+    ps->num_lwp += entry->num_lwp;
+    ps->num_fd += entry->num_fd;
+    ps->num_maps += entry->num_maps;
+    ps->vmem_size += entry->vmem_size;
+    ps->vmem_rss += entry->vmem_rss;
+    pse->gauges.vmem_data += entry->gauges.vmem_data;
+    ps->vmem_code += entry->vmem_code;
+    ps->stack_size += entry->stack_size;
+
+    if ((entry->io_rchar != -1) && (entry->io_wchar != -1)) {
+      ps_update_counter(&ps->io_rchar, &pse->io_rchar, entry->io_rchar);
+      ps_update_counter(&ps->io_wchar, &pse->io_wchar, entry->io_wchar);
+>>>>>>> Seeing if this is a pse/ps bug
     }
 
     if ((entry->gauges.io_syscr != -1) && (entry->gauges.io_syscw != -1)) {
