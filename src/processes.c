@@ -2361,11 +2361,11 @@ static int ps_read(void) {
         }
 
         pse.num_proc++;
-        pse.vmem_size = task_basic_info.virtual_size;
-        pse.vmem_rss = task_basic_info.resident_size;
+        pse.gauges.vmem_size = task_basic_info.virtual_size;
+        pse.gauges.vmem_rss = task_basic_info.resident_size;
         /* Does not seem to be easily exposed */
-        pse.vmem_data = 0;
-        pse.vmem_code = 0;
+        pse.gauges.vmem_data = 0;
+        pse.gauges.vmem_code = 0;
 
         pse.io_rchar = -1;
         pse.io_wchar = -1;
@@ -2380,11 +2380,11 @@ static int ps_read(void) {
         /* Number of memory mappings */
         pse.num_maps = 0;
 
-        pse.vmem_minflt_counter = task_events_info.cow_faults;
-        pse.vmem_majflt_counter = task_events_info.faults;
+        pse.counters.vmem_minflt = task_events_info.cow_faults;
+        pse.counters.vmem_majflt = task_events_info.faults;
 
-        pse.cpu_user_counter = task_absolutetime_info.total_user;
-        pse.cpu_system_counter = task_absolutetime_info.total_system;
+        pse.counters.cpu_user = task_absolutetime_info.total_user;
+        pse.counters.cpu_system = task_absolutetime_info.total_system;
 
         /* context switch counters not implemented */
         pse.cswitch_vol = -1;
@@ -2822,7 +2822,7 @@ static int ps_read(void) {
       pse.gauges.vmem_data = procs[i].p_vm_dsize * pagesize;
       pse.gauges.vmem_code = procs[i].p_vm_tsize * pagesize;
       pse.gauges.stack_size = procs[i].p_vm_ssize * pagesize;
-      pse.gauges.vmem_size = pse.stack_size + pse.vmem_code + pse.vmem_data;
+      pse.gauges.vmem_size = pse.gauges.stack_size + pse.gauges.vmem_code + pse.gauges.vmem_data;
       pse.counters.vmem_minflt_counter = procs[i].p_uru_minflt;
       pse.counters.vmem_majflt_counter = procs[i].p_uru_majflt;
 
@@ -2994,22 +2994,22 @@ static int ps_read(void) {
       }
 
       /* tv_usec is nanosec ??? */
-      pse.cpu_user_counter = procentry[i].pi_ru.ru_utime.tv_sec * 1000000 +
+      pse.counters.cpu_user = procentry[i].pi_ru.ru_utime.tv_sec * 1000000 +
                              procentry[i].pi_ru.ru_utime.tv_usec / 1000;
 
       /* tv_usec is nanosec ??? */
-      pse.cpu_system_counter = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
+      pse.counters.cpu_system = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
                                procentry[i].pi_ru.ru_stime.tv_usec / 1000;
 
-      pse.vmem_minflt_counter = procentry[i].pi_minflt;
-      pse.vmem_majflt_counter = procentry[i].pi_majflt;
+      pse.counters.vmem_minflt = procentry[i].pi_minflt;
+      pse.counters.vmem_majflt = procentry[i].pi_majflt;
 
-      pse.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
-      pse.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
+      pse.gauges.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
+      pse.gauges.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
       /* Not supported/implemented */
-      pse.vmem_data = 0;
-      pse.vmem_code = 0;
-      pse.stack_size = 0;
+      pse.gauges.vmem_data = 0;
+      pse.gauges.vmem_code = 0;
+      pse.gauges.stack_size = 0;
 
       pse.io_rchar = -1;
       pse.io_wchar = -1;
