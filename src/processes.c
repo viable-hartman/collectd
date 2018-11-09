@@ -893,7 +893,7 @@ static void ps_list_add(const char *name, const char *cmdline,
     ps->num_maps += entry->num_maps;
     ps->vmem_size += entry->vmem_size;
     ps->vmem_rss += entry->vmem_rss;
-    ps->vmem_data += entry->vmem_data;
+    pse->gauges.vmem_data += entry->gauges.vmem_data;
     ps->vmem_code += entry->vmem_code;
     ps->stack_size += entry->stack_size;
 
