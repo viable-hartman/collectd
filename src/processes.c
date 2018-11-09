@@ -2649,20 +2649,25 @@ static int ps_read(void) {
 
       memset(&pse, 0, sizeof(pse));
       pse.id = procs[i].ki_pid;
+      pse.age      = 0;
 
-      pse.num_proc = 1;
-      pse.num_lwp = procs[i].ki_numthreads;
+			/* no I/O data */
+			/* context switch counters not implemented */
+			pse.gauges = procstat_gauges_init;
 
-      pse.vmem_size = procs[i].ki_size;
-      pse.vmem_rss = procs[i].ki_rssize * pagesize;
-      pse.vmem_data = procs[i].ki_dsize * pagesize;
-      pse.vmem_code = procs[i].ki_tsize * pagesize;
-      pse.stack_size = procs[i].ki_ssize * pagesize;
-      pse.vmem_minflt_counter = procs[i].ki_rusage.ru_minflt;
-      pse.vmem_majflt_counter = procs[i].ki_rusage.ru_majflt;
+			pse.gauges.num_proc = 1;
+			pse.gauges.num_lwp  = procs[i].ki_numthreads;
 
-      pse.cpu_user_counter = 0;
-      pse.cpu_system_counter = 0;
+			pse.gauges.vmem_size = procs[i].ki_size;
+			pse.gauges.vmem_rss = procs[i].ki_rssize * pagesize;
+			pse.gauges.vmem_data = procs[i].ki_dsize * pagesize;
+			pse.gauges.vmem_code = procs[i].ki_tsize * pagesize;
+			pse.gauges.stack_size = procs[i].ki_ssize * pagesize;
+			pse.counters.vmem_minflt = procs[i].ki_rusage.ru_minflt;
+			pse.counters.vmem_majflt = procs[i].ki_rusage.ru_majflt;
+
+			pse.counters.cpu_user = 0;
+			pse.counters.cpu_system = 0;
       /*
        * The u-area might be swapped out, and we can't get
        * at it because we have a crashdump and no swap.
@@ -2670,9 +2675,9 @@ static int ps_read(void) {
        * leave them 0.
        */
       if (procs[i].ki_flag & P_INMEM) {
-        pse.cpu_user_counter = procs[i].ki_rusage.ru_utime.tv_usec +
+        pse.counters.cpu_user = procs[i].ki_rusage.ru_utime.tv_usec +
                                (1000000lu * procs[i].ki_rusage.ru_utime.tv_sec);
-        pse.cpu_system_counter =
+        pse.counters.cpu_system =
             procs[i].ki_rusage.ru_stime.tv_usec +
             (1000000lu * procs[i].ki_rusage.ru_stime.tv_sec);
       }
