@@ -269,6 +269,7 @@ typedef struct procstat_entry_s
 <<<<<<< HEAD
 #define PROCSTAT_NAME_LEN 256
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 typedef struct procstat_counters_s {
   derive_t vmem_minflt_counter;
@@ -283,84 +284,7 @@ typedef struct procstat_gauges_s {
 =======
 /* typedef struct process_entry_s {
 >>>>>>> Moves process_entry_s
-  unsigned long id;
-  char name[PROCSTAT_NAME_LEN];
-
-  unsigned long num_proc;
-  unsigned long num_maps;
-  unsigned long num_lwp;
-  unsigned long num_fd;
-  unsigned long vmem_size;
-  unsigned long vmem_rss;
-  unsigned long vmem_data;
-  unsigned long vmem_code;
-  unsigned long stack_size;
-
-<<<<<<< HEAD
-  procstat_counters_t counters;
-
 =======
-  derive_t vmem_minflt_counter;
-  derive_t vmem_majflt_counter;
-  procstat_gauges_t gauges;
-  procstat_counters_t counters;
-
-  derive_t cpu_user_counter;
-  derive_t cpu_system_counter;
-
-<<<<<<< HEAD
->>>>>>> Moves process_entry_s
-  /* io data */
-=======
->>>>>>> Fixes move of process_entry_s
-  derive_t io_rchar;
-  derive_t io_wchar;
-  derive_t io_syscr;
-  derive_t io_syscw;
-  derive_t io_diskr;
-  derive_t io_diskw;
-  bool has_io;
-
-  derive_t cswitch_vol;
-  derive_t cswitch_invol;
-  bool has_cswitch;
-
-#if HAVE_LIBTASKSTATS
-  ts_delay_t delay;
-#endif
-  bool has_delay;
-
-<<<<<<< HEAD
-  bool has_fd;
-
-  bool has_maps;
-<<<<<<< HEAD
-} procstat_gauges_t;
-
-static procstat_gauges_t procstat_gauges_init = {
-	.num_proc      = 0,
-	.num_lwp       = 0,
-  .num_maps      = 0,
-	.vmem_size     = 0,
-	.vmem_rss      = 0,
-	.vmem_data     = 0,
-	.vmem_code     = 0,
-	.stack_size    = 0,
-	.io_rchar      = -1,
-	.io_wchar      = -1,
-	.io_syscr      = -1,
-	.io_syscw      = -1,
-	.io_diskr      = -1,
-	.io_diskw      = -1,
-	.cswitch_vol   = -1,
-	.cswitch_invol = -1,
-};
-
-=======
-} process_entry_t; */
->>>>>>> Moves process_entry_s
-
-
 
 typedef struct procstat_gauges_s {
 	unsigned long num_proc;
@@ -408,7 +332,139 @@ typedef struct procstat_counters_s {
 	derive_t cpu_system;
 } procstat_counters_t;
 
+typedef struct process_entry_s {
+>>>>>>> Moves gauges and counters declaration above process_entry_s
+  unsigned long id;
+  char name[PROCSTAT_NAME_LEN];
 
+  unsigned long num_proc;
+  unsigned long num_maps;
+  unsigned long num_lwp;
+  unsigned long num_fd;
+  unsigned long vmem_size;
+  unsigned long vmem_rss;
+  unsigned long vmem_data;
+  unsigned long vmem_code;
+  unsigned long stack_size;
+
+<<<<<<< HEAD
+  procstat_counters_t counters;
+
+=======
+  derive_t vmem_minflt_counter;
+  derive_t vmem_majflt_counter;
+  procstat_gauges_t gauges;
+  procstat_counters_t counters;
+
+  derive_t cpu_user_counter;
+  derive_t cpu_system_counter;
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> Moves process_entry_s
+  /* io data */
+=======
+>>>>>>> Fixes move of process_entry_s
+=======
+  /* io data */
+>>>>>>> Moves gauges and counters declaration above process_entry_s
+  derive_t io_rchar;
+  derive_t io_wchar;
+  derive_t io_syscr;
+  derive_t io_syscw;
+  derive_t io_diskr;
+  derive_t io_diskw;
+  bool has_io;
+
+  derive_t cswitch_vol;
+  derive_t cswitch_invol;
+  bool has_cswitch;
+
+#if HAVE_LIBTASKSTATS
+  ts_delay_t delay;
+#endif
+  bool has_delay;
+
+<<<<<<< HEAD
+  bool has_fd;
+
+  bool has_maps;
+<<<<<<< HEAD
+<<<<<<< HEAD
+} procstat_gauges_t;
+
+static procstat_gauges_t procstat_gauges_init = {
+	.num_proc      = 0,
+	.num_lwp       = 0,
+  .num_maps      = 0,
+	.vmem_size     = 0,
+	.vmem_rss      = 0,
+	.vmem_data     = 0,
+	.vmem_code     = 0,
+	.stack_size    = 0,
+	.io_rchar      = -1,
+	.io_wchar      = -1,
+	.io_syscr      = -1,
+	.io_syscw      = -1,
+	.io_diskr      = -1,
+	.io_diskw      = -1,
+	.cswitch_vol   = -1,
+	.cswitch_invol = -1,
+};
+
+=======
+} process_entry_t; */
+>>>>>>> Moves process_entry_s
+=======
+} process_entry_t;
+>>>>>>> Moves gauges and counters declaration above process_entry_s
+
+
+
+/*typedef struct procstat_gauges_s {
+	unsigned long num_proc;
+	unsigned long num_lwp;
+	unsigned long vmem_size;
+	unsigned long vmem_rss;
+	unsigned long vmem_data;
+	unsigned long vmem_code;
+	unsigned long stack_size;
+
+	derive_t io_rchar;
+	derive_t io_wchar;
+	derive_t io_syscr;
+	derive_t io_syscw;
+	derive_t io_diskr;
+	derive_t io_diskw;
+
+	derive_t cswitch_vol;
+	derive_t cswitch_invol;
+} procstat_gauges_t;
+
+static procstat_gauges_t procstat_gauges_init = {
+	.num_proc      = 0,
+	.num_lwp       = 0,
+	.vmem_size     = 0,
+	.vmem_rss      = 0,
+	.vmem_data     = 0,
+	.vmem_code     = 0,
+	.stack_size    = 0,
+	.io_rchar      = -1,
+	.io_wchar      = -1,
+	.io_syscr      = -1,
+	.io_syscw      = -1,
+	.io_diskr      = -1,
+	.io_diskw      = -1,
+	.cswitch_vol   = -1,
+	.cswitch_invol = -1,
+};
+
+typedef struct procstat_counters_s {
+	derive_t vmem_minflt;
+	derive_t vmem_majflt;
+	derive_t cpu_user;
+	derive_t cpu_system;
+} procstat_counters_t; */
 
 typedef struct procstat_entry_s {
   unsigned long id;
