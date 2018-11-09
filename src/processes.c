@@ -4114,7 +4114,11 @@ static int ps_read(void) {
 		pse.counters = ps.counters;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     status = ps_read_process(pid, &pse, &state);
+=======
+    status = ps_read_process(pid, &ps, &state);
+>>>>>>> Changes ps to pse as argument to ps_read_process calls
     if (status != 0) {
       DEBUG("ps_read_process failed: %i", status);
       continue;
@@ -5200,7 +5204,7 @@ static int ps_read(void) {
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 
-    status = ps_read_process(pid, &pse, &state);
+    status = ps_read_process(pid, &ps, &state);
     if (status != 0) {
       DEBUG("ps_read_process failed: %i", status);
       continue;
