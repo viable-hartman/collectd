@@ -4222,8 +4222,8 @@ static int ps_read(void) {
 		}
 >>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
 
-    ps_list_add(pse.name,
-                ps_get_cmdline(pid, pse.name, cmdline, sizeof(cmdline)), &pse);
+    ps_list_add(ps.name,
+                ps_get_cmdline(pid, ps.name, cmdline, sizeof(cmdline)), &pse);
   }
 
   closedir(proc);
@@ -5253,8 +5253,8 @@ static int ps_read(void) {
       break;
     }
 
-    ps_list_add(pse.name,
-                ps_get_cmdline(pid, pse.name, cmdline, sizeof(cmdline)), &pse);
+    ps_list_add(ps.name,
+                ps_get_cmdline(pid, ps.name, cmdline, sizeof(cmdline)), &pse);
   } /* while(readdir) */
   closedir(proc);
 
