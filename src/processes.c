@@ -692,7 +692,25 @@ static void ps_list_add(const char *name, const char *cmdline,
 		ps_update_counter (&ps->counters.cpu_system, &pse->counters.cpu_system,
                        entry->counters.cpu_system);
 
-		pse->gauges = entry->gauges;
+    ps->num_proc += entry->num_proc;
+    ps->num_lwp += entry->num_lwp;
+    ps->num_fd += entry->num_fd;
+    ps->num_maps += entry->num_maps;
+    ps->vmem_size += entry->vmem_size;
+    ps->vmem_rss += entry->vmem_rss;
+    pse->gauges.vmem_data += entry->gauges.vmem_data;
+    ps->vmem_code += entry->vmem_code;
+    ps->stack_size += entry->stack_size;
+
+    if ((entry->io_rchar != -1) && (entry->io_wchar != -1)) {
+      ps_update_counter(&ps->io_rchar, &pse->io_rchar, entry->io_rchar);
+      ps_update_counter(&ps->io_wchar, &pse->io_wchar, entry->io_wchar);
+    }
+
+    if ((entry->io_syscr != -1) && (entry->io_syscw != -1)) {
+      ps_update_counter(&ps->io_syscr, &pse->io_syscr, entry->io_syscr);
+      ps_update_counter(&ps->io_syscw, &pse->io_syscw, entry->io_syscw);
+    }
 
 		ps_procstat_gauges_add(&ps->gauges, &pse->gauges);
 
