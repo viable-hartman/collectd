@@ -641,9 +641,12 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
 #endif
 
 /* add process entry to 'instances' of process 'name' (or refresh it) */
-static void ps_list_add (const char *name, const char *cmdline, procstat_entry_t *entry)
-{
-	procstat_entry_t *pse;
+static void ps_list_add(const char *name, const char *cmdline,
+                        procstat_entry_t *entry) {
+  procstat_entry_t *pse;
+
+  if (entry->id == 0)
+    return;
 
 	if (entry->id == 0)
 		return;
@@ -1563,7 +1566,7 @@ static void ps_fill_details(const procstat_t *ps, process_entry_t *entry) {
 } /* void ps_fill_details (...) */
 
 /* ps_read_process reads process counters on Linux. */
-static int ps_read_process(long pid, process_entry_t *ps, char *state) {
+static int ps_read_process(long pid, procstat_t *ps, char *state) {
   char filename[64];
   char buffer[1024];
 
