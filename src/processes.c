@@ -2531,7 +2531,7 @@ static int ps_read(void) {
 
     memset(&pse, 0, sizeof(pse));
     pse.id = pid;
-    pse.age      = 0;
+    pse.age = 0;
 
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
@@ -3073,6 +3073,7 @@ static int ps_read(void) {
 
   while ((ent = readdir(proc)) != NULL) {
     long pid;
+    struct procstat ps;
     process_entry_t pse;
     char *endptr;
 
@@ -3085,6 +3086,10 @@ static int ps_read(void) {
 
     memset(&pse, 0, sizeof(pse));
     pse.id = pid;
+    pse.age = 0;
+
+		pse.gauges = ps.gauges;
+		pse.counters = ps.counters;
 
     status = ps_read_process(pid, &pse, &state);
     if (status != 0) {
