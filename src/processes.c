@@ -651,10 +651,9 @@ static void ps_list_add(const char *name, const char *cmdline,
 	if (entry->id == 0)
 		return;
 
-	for (procstat_t *ps = list_head_g; ps != NULL; ps = ps->next)
-	{
-		if ((ps_list_match (name, cmdline, ps)) == 0)
-			continue;
+#if KERNEL_LINUX
+    ps_fill_details(pse, entry);
+#endif
 
 		for (pse = ps->instances; pse != NULL; pse = pse->next)
 			if ((pse->id == entry->id) || (pse->next == NULL))
