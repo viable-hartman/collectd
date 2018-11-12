@@ -660,7 +660,7 @@ static void ps_list_add(const char *name, const char *cmdline,
       continue;
 
 #if KERNEL_LINUX
-    ps_fill_details(ps, entry);
+    ps_fill_details(pse, entry);
 #endif
 
     for (pse = ps->instances; pse != NULL; pse = pse->next)
