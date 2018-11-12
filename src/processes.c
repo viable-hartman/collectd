@@ -888,10 +888,10 @@ static void ps_list_add(const char *name, const char *cmdline,
 		ps_update_counter (&ps->counters.cpu_system, &pse->counters.cpu_system,
                        entry->counters.cpu_system);
 
-    ps->num_proc += entry->num_proc;
+    ps->gauges.num_proc += entry->gauges.num_proc;
     ps->num_lwp += entry->num_lwp;
     ps->num_fd += entry->num_fd;
-    ps->num_maps += entry->num_maps;
+    ps->gauges.num_maps += entry->gauges.num_maps;
     ps->gauges.vmem_size += entry->gauges.vmem_size;
     ps->gauges.vmem_rss += entry->gauges.vmem_rss;
     ps->gauges.vmem_data += entry->gauges.vmem_data;
