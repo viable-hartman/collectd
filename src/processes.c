@@ -202,6 +202,7 @@ typedef struct procstat_gauges_s {
 static procstat_gauges_t procstat_gauges_init = {
 	.num_proc      = 0,
 	.num_lwp       = 0,
+  .num_maps      = 0,
 	.vmem_size     = 0,
 	.vmem_rss      = 0,
 	.vmem_data     = 0,
@@ -888,8 +889,8 @@ static void ps_list_add(const char *name, const char *cmdline,
                        entry->counters.cpu_system);
 
     ps->gauges.num_proc += entry->gauges.num_proc;
-    ps->num_lwp += entry->num_lwp;
-    ps->num_fd += entry->num_fd;
+    ps->gauges.num_lwp += entry->gauges.num_lwp;
+    ps->gauges.num_fd += entry->gauges.num_fd;
     ps->gauges.num_maps += entry->gauges.num_maps;
     ps->gauges.vmem_size += entry->gauges.vmem_size;
     ps->gauges.vmem_rss += entry->gauges.vmem_rss;
