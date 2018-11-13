@@ -259,6 +259,7 @@ typedef struct procstat_entry_s
 typedef struct procstat_gauges_s {
 	unsigned long num_proc;
 	unsigned long num_lwp;
+  unsigned long num_maps;
 	unsigned long vmem_size;
 	unsigned long vmem_rss;
 	unsigned long vmem_data;
@@ -307,6 +308,7 @@ typedef struct process_entry_s {
   char name[PROCSTAT_NAME_LEN];
 
   unsigned long num_proc;
+  unsigned long num_maps;
   unsigned long num_lwp;
   unsigned long num_fd;
   unsigned long num_maps;
