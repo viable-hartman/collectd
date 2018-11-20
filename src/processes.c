@@ -315,6 +315,7 @@ typedef struct procstat_gauges_s {
 } procstat_gauges_t;
 */
 
+<<<<<<< HEAD
 static procstat_gauges_t procstat_gauges_init = {
 	.num_proc      = 0,
 	.num_lwp       = 0,
@@ -333,6 +334,8 @@ static procstat_gauges_t procstat_gauges_init = {
 	.cswitch_invol = -1,
 };
 
+=======
+>>>>>>> deletes commented out code, moved gauges_init, adds gauges.
 typedef struct procstat_counters_s {
   derive_t vmem_minflt_counter;
   derive_t vmem_majflt_counter;
@@ -447,31 +450,10 @@ static procstat_gauges_t procstat_gauges_init = {
 } procstat_gauges_t;
 >>>>>>> attempting to fix gauges and counters
 
-
-
-/*typedef struct procstat_gauges_s {
-	unsigned long num_proc;
-	unsigned long num_lwp;
-	unsigned long vmem_size;
-	unsigned long vmem_rss;
-	unsigned long vmem_data;
-	unsigned long vmem_code;
-	unsigned long stack_size;
-
-	derive_t io_rchar;
-	derive_t io_wchar;
-	derive_t io_syscr;
-	derive_t io_syscw;
-	derive_t io_diskr;
-	derive_t io_diskw;
-
-	derive_t cswitch_vol;
-	derive_t cswitch_invol;
-} procstat_gauges_t;
-
 static procstat_gauges_t procstat_gauges_init = {
 	.num_proc      = 0,
 	.num_lwp       = 0,
+  .num_maps      = 0,
 	.vmem_size     = 0,
 	.vmem_rss      = 0,
 	.vmem_data     = 0,
@@ -487,12 +469,6 @@ static procstat_gauges_t procstat_gauges_init = {
 	.cswitch_invol = -1,
 };
 
-typedef struct procstat_counters_s {
-	derive_t vmem_minflt;
-	derive_t vmem_majflt;
-	derive_t cpu_user;
-	derive_t cpu_system;
-} procstat_counters_t; */
 
 typedef struct procstat_entry_s {
   unsigned long id;
@@ -628,9 +604,12 @@ typedef struct procstat {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> attempting to fix gauges and counters
+=======
+>>>>>>> deletes commented out code, moved gauges_init, adds gauges.
 =======
 	procstat_gauges_t gauges;
 	procstat_counters_t counters;
@@ -675,10 +654,15 @@ typedef struct procstat {
   derive_t cswitch_vol;
   derive_t cswitch_invol; */
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> deletes commented out code, moved gauges_init, adds gauges.
 =======
 >>>>>>> attempting to fix gauges and counters
+=======
+=======
+>>>>>>> deletes commented out code, moved gauges_init, adds gauges.
+>>>>>>> deletes commented out code, moved gauges_init, adds gauges.
 
   /* Linux Delay Accounting. Unit is ns/s. */
   gauge_t delay_cpu;
@@ -2321,7 +2305,158 @@ static void ps_submit_proc_list(procstat_t *ps) {
   sstrncpy(vl.plugin, "processes", sizeof(vl.plugin));
   sstrncpy(vl.plugin_instance, ps->name, sizeof(vl.plugin_instance));
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+
+  sstrncpy(vl.type, "ps_vm", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.vmem_size;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_rss", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.vmem_rss;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_data", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.vmem_data;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_code", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.vmem_code;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_stacksize", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.stack_size;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_cputime", sizeof(vl.type));
+  vl.values[0].derive = ps->counters.cpu_user_counter;
+  vl.values[1].derive = ps->counters.cpu_system_counter;
+  vl.values_len = 2;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_count", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.num_proc;
+  vl.values[1].gauge = ps->gauges.num_lwp;
+  vl.values_len = 2;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_pagefaults", sizeof(vl.type));
+  vl.values[0].derive = ps->counters.vmem_minflt_counter;
+  vl.values[1].derive = ps->counters.vmem_majflt_counter;
+  vl.values_len = 2;
+  plugin_dispatch_values(&vl);
+
+  if ((ps->io_rchar != -1) && (ps->io_wchar != -1)) {
+    sstrncpy(vl.type, "io_octets", sizeof(vl.type));
+    vl.values[0].derive = ps->io_rchar;
+    vl.values[1].derive = ps->io_wchar;
+    vl.values_len = 2;
+    plugin_dispatch_values(&vl);
+  }
+
+  if ((ps->io_syscr != -1) && (ps->io_syscw != -1)) {
+    sstrncpy(vl.type, "io_ops", sizeof(vl.type));
+    vl.values[0].derive = ps->io_syscr;
+    vl.values[1].derive = ps->io_syscw;
+    vl.values_len = 2;
+    plugin_dispatch_values(&vl);
+  }
+
+  if ((ps->io_diskr != -1) && (ps->io_diskw != -1)) {
+    sstrncpy(vl.type, "disk_octets", sizeof(vl.type));
+    vl.values[0].derive = ps->io_diskr;
+    vl.values[1].derive = ps->io_diskw;
+    vl.values_len = 2;
+    plugin_dispatch_values(&vl);
+  }
+
+  if (ps->num_fd > 0) {
+    sstrncpy(vl.type, "file_handles", sizeof(vl.type));
+    vl.values[0].gauge = ps->num_fd;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+  }
+
+  if (ps->num_maps > 0) {
+    sstrncpy(vl.type, "file_handles", sizeof(vl.type));
+    sstrncpy(vl.type_instance, "mapped", sizeof(vl.type_instance));
+    vl.values[0].gauge = ps->num_maps;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+  }
+
+  if ((ps->cswitch_vol != -1) && (ps->cswitch_invol != -1)) {
+    sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
+    sstrncpy(vl.type_instance, "voluntary", sizeof(vl.type_instance));
+    vl.values[0].derive = ps->cswitch_vol;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+
+    sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
+    sstrncpy(vl.type_instance, "involuntary", sizeof(vl.type_instance));
+    vl.values[0].derive = ps->cswitch_invol;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+  }
+
+  /* The ps->delay_* metrics are in nanoseconds per second. Convert to seconds
+   * per second. */
+  gauge_t const delay_factor = 1000000000.0;
+
+  struct {
+    const char *type_instance;
+    gauge_t rate_ns;
+  } delay_metrics[] = {
+      {"delay-cpu", ps->delay_cpu},
+      {"delay-blkio", ps->delay_blkio},
+      {"delay-swapin", ps->delay_swapin},
+      {"delay-freepages", ps->delay_freepages},
+  };
+  for (size_t i = 0; i < STATIC_ARRAY_SIZE(delay_metrics); i++) {
+    if (isnan(delay_metrics[i].rate_ns)) {
+      continue;
+    }
+    sstrncpy(vl.type, "delay_rate", sizeof(vl.type));
+    sstrncpy(vl.type_instance, delay_metrics[i].type_instance,
+             sizeof(vl.type_instance));
+    vl.values[0].gauge = delay_metrics[i].rate_ns / delay_factor;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+  }
+
+  DEBUG(
+      "name = %s; num_proc = %lu; num_lwp = %lu; num_fd = %lu; num_maps = %lu; "
+      "vmem_size = %lu; vmem_rss = %lu; vmem_data = %lu; "
+      "vmem_code = %lu; "
+      "vmem_minflt_counter = %" PRIi64 "; vmem_majflt_counter = %" PRIi64 "; "
+      "cpu_user_counter = %" PRIi64 "; cpu_system_counter = %" PRIi64 "; "
+      "io_rchar = %" PRIi64 "; io_wchar = %" PRIi64 "; "
+      "io_syscr = %" PRIi64 "; io_syscw = %" PRIi64 "; "
+      "io_diskr = %" PRIi64 "; io_diskw = %" PRIi64 "; "
+      "cswitch_vol = %" PRIi64 "; cswitch_invol = %" PRIi64 "; "
+      "delay_cpu = %g; delay_blkio = %g; "
+      "delay_swapin = %g; delay_freepages = %g;",
+      ps->name, ps->num_proc, ps->num_lwp, ps->num_fd, ps->num_maps,
+      ps->vmem_size, ps->vmem_rss, ps->vmem_data, ps->vmem_code,
+      ps->vmem_minflt_counter, ps->vmem_majflt_counter, ps->cpu_user_counter,
+      ps->cpu_system_counter, ps->io_rchar, ps->io_wchar, ps->io_syscr,
+      ps->io_syscw, ps->io_diskr, ps->io_diskw, ps->cswitch_vol,
+      ps->cswitch_invol, ps->delay_cpu, ps->delay_blkio, ps->delay_swapin,
+      ps->delay_freepages);
+
+} /* void ps_submit_proc_list */
+=======
+static char *ps_get_cmdline (long pid, char *name,
+    char *buf, size_t buf_len);
+static char *ps_get_command(pid_t pid);
+static char *ps_get_owner(pid_t pid);
+>>>>>>> deletes commented out code, moved gauges_init, adds gauges.
 
 // Increase this value if any of the callers use a larger 'values_len'.
 // (If the assertion fails, you know you have this problem).
