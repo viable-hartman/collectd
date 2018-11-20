@@ -222,16 +222,6 @@ typedef struct procstat_counters_s {
   derive_t cpu_user_counter;
   derive_t cpu_system_counter;
 
-  /* io data */
-  derive_t io_rchar;
-  derive_t io_wchar;
-  derive_t io_syscr;
-  derive_t io_syscw;
-  derive_t io_diskr;
-  derive_t io_diskw;
-
-  derive_t cswitch_vol;
-  derive_t cswitch_invol;
 } procstat_counters_t;
 
 typedef struct procstat_gauges_s {
@@ -2430,7 +2420,7 @@ static int ps_read(void) {
           continue; /* with next thread_list */
         }
 
-        pse.num_proc++;
+        pse.gauges.num_proc++;
         pse.gauges.vmem_size = task_basic_info.virtual_size;
         pse.gauges.vmem_rss = task_basic_info.resident_size;
         /* Does not seem to be easily exposed */
@@ -2445,10 +2435,10 @@ static int ps_read(void) {
         pse.io_diskw = -1;
 
         /* File descriptor count not implemented */
-        pse.num_fd = 0;
+        pse.gauges.num_fd = 0;
 
         /* Number of memory mappings */
-        pse.num_maps = 0;
+        pse.gauges.num_maps = 0;
 
         pse.counters.vmem_minflt = task_events_info.cow_faults;
         pse.counters.vmem_majflt = task_events_info.faults;
@@ -2951,20 +2941,25 @@ static int ps_read(void) {
 					+ (1000000lu * procs[i].ki_rusage.ru_stime.tv_sec);
 			}
 
-			ps_list_add (procs[i].ki_comm, have_cmdline ? cmdline : NULL, &pse);
+      /* no I/O data */
+      pse.gauges.io_rchar = -1;
+      pse.gauges.io_wchar = -1;
+      pse.gauges.io_syscr = -1;
+      pse.gauges.io_syscw = -1;
+      pse.gauges.io_diskr = -1;
+      pse.gauges.io_diskw = -1;
 
-			switch (procs[i].ki_stat)
-			{
-				case SSTOP:	stopped++;	break;
-				case SSLEEP:	sleeping++;	break;
-				case SRUN:	running++;	break;
-				case SIDL:	idle++;		break;
-				case SWAIT:	wait++;		break;
-				case SLOCK:	blocked++;	break;
-				case SZOMB:	zombies++;	break;
-			}
-		} /* if ((proc_ptr == NULL) || (proc_ptr->ki_pid != procs[i].ki_pid)) */
-	}
+      /* file descriptor count not implemented */
+      pse.num_fd = 0;
+
+      /* Number of memory mappings */
+      pse.num_maps = 0;
+
+      /* context switch counters not implemented */
+      pse.gauges.cswitch_vol = -1;
+      pse.gauges.cswitch_invol = -1;
+
+      ps_list_add(procs[i].p_comm, have_cmdline ? cmdline : NULL, &pse);
 
 	kvm_close(kd);
 
