@@ -1590,7 +1590,7 @@ static int ps_read_process(long pid, procstat_t *ps, char *state) {
 
   if (*state == 'Z') {
     ps->num_lwp = 0;
-    ps->num_proc = 0;
+    ps->gauges.num_proc = 0;
   } else {
     ps->num_lwp = strtoul(fields[17], /* endptr = */ NULL, /* base = */ 10);
     if ((ps_read_status(pid, ps)) != 0) {
@@ -1601,11 +1601,11 @@ static int ps_read_process(long pid, procstat_t *ps, char *state) {
     }
     if (ps->num_lwp == 0)
       ps->num_lwp = 1;
-    ps->num_proc = 1;
+    ps->gauges.num_proc = 1;
   }
 
   /* Leave the rest at zero if this is only a zombi */
-  if (ps->num_proc == 0) {
+  if (ps->gauges.num_proc == 0) {
     DEBUG("processes plugin: This is only a zombie: pid = %li; "
           "name = %s;",
           pid, ps->name);
@@ -1980,7 +1980,7 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
   sstrncpy(ps->name, myInfo->pr_fname, sizeof(myInfo->pr_fname));
   ps->num_lwp = myStatus->pr_nlwp;
   if (myInfo->pr_wstat != 0) {
-    ps->num_proc = 0;
+    ps->gauges.num_proc = 0;
     ps->num_lwp = 0;
     *state = (char)'Z';
 
@@ -1989,7 +1989,7 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
     sfree(myUsage);
     return 0;
   } else {
-    ps->num_proc = 1;
+    ps->gauges.num_proc = 1;
     ps->num_lwp = myInfo->pr_nlwp;
   }
 
