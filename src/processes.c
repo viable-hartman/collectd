@@ -431,7 +431,7 @@ static mach_msg_type_number_t pset_list_len;
 
 #elif KERNEL_LINUX
 static long pagesize_g;
-static void ps_fill_details(const procstat_t *ps, process_entry_t *entry);
+static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry);
 /* #endif KERNEL_LINUX */
 
 #elif HAVE_LIBKVM_GETPROCS &&                                                  \
@@ -636,7 +636,7 @@ static void ps_update_delay_one(gauge_t *out_rate_sum,
 }
 
 static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
-                            process_entry_t *curr) {
+                            procstat_entry_t *curr) {
   cdtime_t now = cdtime();
 
   ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu, curr->delay.cpu_ns,
@@ -1385,7 +1385,7 @@ static void ps_submit_fork_rate(derive_t value) {
 
 /* ------- additional functions for KERNEL_LINUX/HAVE_THREAD_INFO ------- */
 #if KERNEL_LINUX
-static int ps_read_tasks_status(process_entry_t *ps) {
+static int ps_read_tasks_status(procstat_entry_t *ps) {
   char dirname[64];
   DIR *dh;
   char filename[64];
@@ -1462,7 +1462,7 @@ static int ps_read_tasks_status(process_entry_t *ps) {
 } /* int *ps_read_tasks_status */
 
 /* Read data from /proc/pid/status */
-static int ps_read_status(long pid, process_entry_t *ps) {
+static int ps_read_status(long pid, procstat_entry_t *ps) {
   FILE *fh;
   char buffer[1024];
   char filename[64];
@@ -1517,7 +1517,7 @@ static int ps_read_status(long pid, process_entry_t *ps) {
   return 0;
 } /* int *ps_read_status */
 
-static int ps_read_io(process_entry_t *ps) {
+static int ps_read_io(procstat_entry_t *ps) {
   FILE *fh;
   char buffer[1024];
   char filename[64];
@@ -1619,7 +1619,7 @@ static int ps_count_fd(int pid) {
 } /* int ps_count_fd (pid) */
 
 #if HAVE_LIBTASKSTATS
-static int ps_delay(process_entry_t *ps) {
+static int ps_delay(procstat_entry_t *ps) {
   if (taskstats_handle == NULL) {
     return ENOTCONN;
   }
@@ -1669,7 +1669,7 @@ static int ps_delay(process_entry_t *ps) {
 }
 #endif
 
-static void ps_fill_details(const procstat_t *ps, process_entry_t *entry) {
+static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
   if (entry->has_io == false) {
     ps_read_io(entry);
     entry->has_io = true;
@@ -2074,7 +2074,7 @@ static char *ps_get_cmdline(long pid,
  * The values for input and ouput chars are calculated "by hand"
  * Added a few "solaris" specific process states as well
  */
-static int ps_read_process(long pid, process_entry_t *ps, char *state) {
+static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
   char filename[64];
   char f_psinfo[64], f_usage[64];
   char *buffer;
@@ -2288,7 +2288,7 @@ static int ps_read(void) {
   int blocked = 0;
 
   procstat_t *ps;
-  process_entry_t pse;
+  procstat_entry_t pse;
 
   ps_list_reset();
 
@@ -2601,7 +2601,7 @@ static int ps_read(void) {
   struct kinfo_proc *proc_ptr = NULL;
   int count; /* returns number of processes */
 
-  process_entry_t pse;
+  procstat_entry_t pse;
 
   ps_list_reset();
 
@@ -2761,7 +2761,7 @@ static int ps_read(void) {
   struct kinfo_proc *proc_ptr = NULL;
   int count; /* returns number of processes */
 
-  process_entry_t pse;
+  procstat_entry_t pse;
 
   ps_list_reset();
 
@@ -2918,7 +2918,7 @@ static int ps_read(void) {
   pid_t pindex = 0;
   int nprocs;
 
-  process_entry_t pse;
+  procstat_entry_t pse;
 
   ps_list_reset();
   while ((nprocs = getprocs64(procentry, sizeof(struct procentry64),
@@ -3078,7 +3078,7 @@ static int ps_read(void) {
   while ((ent = readdir(proc)) != NULL) {
     long pid;
     struct procstat ps;
-    process_entry_t pse;
+    procstat_entry_t pse;
     char *endptr;
 
     if (!isdigit((int)ent->d_name[0]))
