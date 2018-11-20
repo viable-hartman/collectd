@@ -1006,16 +1006,6 @@ static void ps_list_reset(void) {
   procstat_entry_t *pse_prev;
 
   for (procstat_t *ps = list_head_g; ps != NULL; ps = ps->next) {
-    ps->num_proc = 0;
-    ps->num_lwp = 0;
-    ps->num_fd = 0;
-    ps->num_maps = 0;
-    ps->gauges.vmem_size = 0;
-    ps->vmem_rss = 0;
-    ps->vmem_data = 0;
-    ps->vmem_code = 0;
-    ps->stack_size = 0;
-
     ps->delay_cpu = NAN;
     ps->delay_blkio = NAN;
     ps->delay_swapin = NAN;
