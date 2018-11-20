@@ -1299,6 +1299,7 @@ static void ps_list_add(const char *name, const char *cmdline,
 
     if ((entry->io_rchar != -1) && (entry->io_wchar != -1)) {
 <<<<<<< HEAD
+<<<<<<< HEAD
       ps_update_counter(&ps->io_rchar, &pse->io_rchar, entry->io_rchar);
       ps_update_counter(&ps->io_wchar, &pse->io_wchar, entry->io_wchar);
 >>>>>>> Seeing if this is a pse/ps bug
@@ -1319,20 +1320,38 @@ static void ps_list_add(const char *name, const char *cmdline,
 =======
       ps_update_counter(&ps->gauges.io_rchar, &pse->io_rchar, entry->io_rchar);
       ps_update_counter(&ps->gauges.io_wchar, &pse->io_wchar, entry->io_wchar);
+=======
+      ps_update_counter(&ps->gauges.io_rchar, &pse->gauges.io_rchar,
+        entry->gauges.io_rchar);
+      ps_update_counter(&ps->gauges.io_wchar, &pse->gauges.io_wchar,
+        entry->gauges.io_wchar);
+>>>>>>> gauges. ...
     }
 
     if ((entry->io_syscr != -1) && (entry->io_syscw != -1)) {
-      ps_update_counter(&ps->gauges.io_syscr, &pse->io_syscr, entry->io_syscr);
-      ps_update_counter(&ps->gauges.io_syscw, &pse->io_syscw, entry->io_syscw);
+      ps_update_counter(&ps->gauges.io_syscr, &pse->gauges.io_syscr,
+        entry->gauges.io_syscr);
+      ps_update_counter(&ps->gauges.io_syscw, &pse->gauges.io_syscw,
+        entry->gauges.io_syscw);
     }
 
     if ((entry->io_diskr != -1) && (entry->io_diskw != -1)) {
+<<<<<<< HEAD
       ps_update_counter(&ps->gauges.io_diskr, &pse->io_diskr, entry->io_diskr);
       ps_update_counter(&ps->gauges.io_diskw, &pse->io_diskw, entry->io_diskw);
 >>>>>>> gauges.
     }
 
     if ((entry->gauges.cswitch_vol != -1) && (entry->gauges.cswitch_invol != -1)) {
+=======
+      ps_update_counter(&ps->gauges.io_diskr, &pse->gauges.io_diskr,
+        entry->gauges.io_diskr);
+      ps_update_counter(&ps->gauges.io_diskw, &pse->gauges.io_diskw,
+        entry->gauges.io_diskw);
+    }
+
+    if ((entry->cswitch_vol != -1) && (entry->cswitch_invol != -1)) {
+>>>>>>> gauges. ...
       ps_update_counter(&ps->gauges.cswitch_vol, &pse->gauges.cswitch_vol,
                         entry->gauges.cswitch_vol);
       ps_update_counter(&ps->gauges.cswitch_invol, &pse->gauges.cswitch_invol,
@@ -1340,6 +1359,7 @@ static void ps_list_add(const char *name, const char *cmdline,
     }
 
     ps_update_counter(&ps->counters.vmem_minflt_counter,
+<<<<<<< HEAD
 <<<<<<< HEAD
                       &pse->counters.vmem_minflt_counter,
                       entry->counters.vmem_minflt_counter);
@@ -1356,16 +1376,26 @@ static void ps_list_add(const char *name, const char *cmdline,
 =======
                       &pse->vmem_minflt_counter,
                       entry->vmem_minflt_counter);
+=======
+                      &pse->counters.vmem_minflt_counter,
+                      entry->counters.vmem_minflt_counter);
+>>>>>>> gauges. ...
     ps_update_counter(&ps->counters.vmem_majflt_counter,
-                      &pse->vmem_majflt_counter,
-                      entry->vmem_majflt_counter);
+                      &pse->counters.vmem_majflt_counter,
+                      entry->counters.vmem_majflt_counter);
 
-    ps_update_counter(&ps->counters.cpu_user_counter, &pse->cpu_user_counter,
-                      entry->cpu_user_counter);
+    ps_update_counter(&ps->counters.cpu_user_counter,
+                      &pse->counters.cpu_user_counter,
+                      entry->counters.cpu_user_counter);
     ps_update_counter(&ps->counters.cpu_system_counter,
+<<<<<<< HEAD
                       &pse->cpu_system_counter,
                       entry->cpu_system_counter);
 >>>>>>> gauges.
+=======
+                      &pse->counters.cpu_system_counter,
+                      entry->counters.cpu_system_counter);
+>>>>>>> gauges. ...
 
 #if HAVE_LIBTASKSTATS
     ps_update_delay(ps, pse, entry);
@@ -2420,16 +2450,16 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->gauges.cswitch_vol != -1) && (ps->cswitch_invol != -1)) {
+  if ((ps->gauges.cswitch_vol != -1) && (ps->gauges.cswitch_invol != -1)) {
     sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
     sstrncpy(vl.type_instance, "voluntary", sizeof(vl.type_instance));
-    vl.values[0].derive = ps->cswitch_vol;
+    vl.values[0].derive = ps->gauges.cswitch_vol;
     vl.values_len = 1;
     plugin_dispatch_values(&vl);
 
     sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
     sstrncpy(vl.type_instance, "involuntary", sizeof(vl.type_instance));
-    vl.values[0].derive = ps->cswitch_invol;
+    vl.values[0].derive = ps->gauges.cswitch_invol;
     vl.values_len = 1;
     plugin_dispatch_values(&vl);
   }
@@ -3055,6 +3085,7 @@ static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   if (ps->gauges.num_fd > 0) {
     sstrncpy(vl.type, "file_handles", sizeof(vl.type));
     vl.values[0].gauge = ps->gauges.num_fd;
@@ -3066,6 +3097,15 @@ static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
   ps->cswitch_vol = cswitch_vol;
   ps->cswitch_invol = cswitch_invol;
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+=======
+<<<<<<< HEAD
+  ps->cswitch_vol = cswitch_vol;
+  ps->cswitch_invol = cswitch_invol;
+=======
+  ps->gauges.cswitch_vol = cswitch_vol;
+  ps->gauges.cswitch_invol = cswitch_invol;
+>>>>>>> gauges. ...
+>>>>>>> gauges. ...
 
   if (ps->gauges.num_maps > 0) {
     sstrncpy(vl.type, "file_handles", sizeof(vl.type));
@@ -4888,10 +4928,14 @@ static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
 >>>>>>> Replaces process_entry_t with procstat_entry_t
 =======
 static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
+<<<<<<< HEAD
 >>>>>>> process_entry_t
   if (entry->has_io == false) {
+=======
+  if (entry->gauges.has_io == false) {
+>>>>>>> gauges. ...
     ps_read_io(entry);
-    entry->has_io = true;
+    entry->gauges.has_io = true;
   }
 =======
 	if ( (ps_read_io (pid, ps)) == NULL)
@@ -4926,8 +4970,17 @@ static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
+<<<<<<< HEAD
   while (42) {
     ssize_t status;
+=======
+  if (ps->report_ctx_switch) {
+    if (entry->gauges.has_cswitch == false) {
+      ps_read_tasks_status(entry);
+      entry->gauges.has_cswitch = true;
+    }
+  }
+>>>>>>> gauges. ...
 
 <<<<<<< HEAD
     status = read(fd, (void *)buf_ptr, len);
@@ -4935,10 +4988,10 @@ static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
 <<<<<<< HEAD
   if (ps->report_maps_num) {
     int num_maps;
-    if (entry->has_maps == false && (num_maps = ps_count_maps(entry->id)) > 0) {
+    if (entry->gauges.has_maps == false && (num_maps = ps_count_maps(entry->id)) > 0) {
       entry->num_maps = num_maps;
     }
-    entry->has_maps = true;
+    entry->gauges.has_maps = true;
   }
 =======
 	if ( report_ctx_switch )
@@ -4955,10 +5008,10 @@ static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
 =======
   if (ps->report_fd_num) {
     int num_fd;
-    if (entry->has_fd == false && (num_fd = ps_count_fd(entry->id)) > 0) {
+    if (entry->gauges.has_fd == false && (num_fd = ps_count_fd(entry->id)) > 0) {
       entry->num_fd = num_fd;
     }
-    entry->has_fd = true;
+    entry->gauges.has_fd = true;
   }
 =======
     sstrncpy(vl.type, "delay_rate", sizeof(vl.type));
@@ -5605,18 +5658,18 @@ static char *ps_get_command(pid_t pid)
     FILE *f = NULL;
 =======
   if (*state == 'Z') {
-    ps->num_lwp = 0;
+    ps->gauges.num_lwp = 0;
     ps->gauges.num_proc = 0;
   } else {
-    ps->num_lwp = strtoul(fields[17], /* endptr = */ NULL, /* base = */ 10);
+    ps->gauges.num_lwp = strtoul(fields[17], /* endptr = */ NULL, /* base = */ 10);
     if ((ps_read_status(pid, ps)) != 0) {
       /* No VMem data */
       ps->gauges.vmem_data = -1;
       ps->gauges.vmem_code = -1;
       DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
     }
-    if (ps->num_lwp == 0)
-      ps->num_lwp = 1;
+    if (ps->gauges.num_lwp == 0)
+      ps->gauges.num_lwp = 1;
     ps->gauges.num_proc = 1;
   }
 >>>>>>> gauges. ...
@@ -5675,7 +5728,7 @@ static char *ps_get_owner(pid_t pid)
             continue;
 =======
   ps->cpu_user_counter = cpu_user_counter;
-  ps->cpu_system_counter = cpu_system_counter;
+  ps->counters.cpu_system_counter = cpu_system_counter;
   ps->gauges.vmem_size = (unsigned long)vmem_size;
   ps->gauges.vmem_rss = (unsigned long)vmem_rss;
   ps->stack_size = (unsigned long)stack_size;
@@ -5704,9 +5757,14 @@ static char *ps_get_owner(pid_t pid)
   ps->gauges.io_diskw = -1;
 >>>>>>> gauges.
 
+<<<<<<< HEAD
     fclose (f);
     return result;
 }
+=======
+  ps->gauges.cswitch_vol = -1;
+  ps->gauges.cswitch_invol = -1;
+>>>>>>> gauges. ...
 
 static int read_fork_rate (void)
 {
