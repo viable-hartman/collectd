@@ -847,18 +847,18 @@ static void ps_list_add(const char *name, const char *cmdline,
     ps->gauges.stack_size += entry->gauges.stack_size;
 
     if ((entry->io_rchar != -1) && (entry->io_wchar != -1)) {
-      ps_update_counter(&ps->io_rchar, &pse->io_rchar, entry->io_rchar);
-      ps_update_counter(&ps->io_wchar, &pse->io_wchar, entry->io_wchar);
+      ps_update_counter(&ps->gauges.io_rchar, &pse->io_rchar, entry->io_rchar);
+      ps_update_counter(&ps->gauges.io_wchar, &pse->io_wchar, entry->io_wchar);
     }
 
     if ((entry->io_syscr != -1) && (entry->io_syscw != -1)) {
-      ps_update_counter(&ps->io_syscr, &pse->io_syscr, entry->io_syscr);
-      ps_update_counter(&ps->io_syscw, &pse->io_syscw, entry->io_syscw);
+      ps_update_counter(&ps->gauges.io_syscr, &pse->io_syscr, entry->io_syscr);
+      ps_update_counter(&ps->gauges.io_syscw, &pse->io_syscw, entry->io_syscw);
     }
 
     if ((entry->io_diskr != -1) && (entry->io_diskw != -1)) {
-      ps_update_counter(&ps->io_diskr, &pse->io_diskr, entry->io_diskr);
-      ps_update_counter(&ps->io_diskw, &pse->io_diskw, entry->io_diskw);
+      ps_update_counter(&ps->gauges.io_diskr, &pse->io_diskr, entry->io_diskr);
+      ps_update_counter(&ps->gauges.io_diskw, &pse->io_diskw, entry->io_diskw);
     }
 
     if ((entry->cswitch_vol != -1) && (entry->cswitch_invol != -1)) {
@@ -868,14 +868,17 @@ static void ps_list_add(const char *name, const char *cmdline,
                         entry->cswitch_invol);
     }
 
-    ps_update_counter(&ps->vmem_minflt_counter, &pse->vmem_minflt_counter,
+    ps_update_counter(&ps->counters.vmem_minflt_counter,
+                      &pse->vmem_minflt_counter,
                       entry->vmem_minflt_counter);
-    ps_update_counter(&ps->vmem_majflt_counter, &pse->vmem_majflt_counter,
+    ps_update_counter(&ps->counters.vmem_majflt_counter,
+                      &pse->vmem_majflt_counter,
                       entry->vmem_majflt_counter);
 
-    ps_update_counter(&ps->cpu_user_counter, &pse->cpu_user_counter,
+    ps_update_counter(&ps->counters.cpu_user_counter, &pse->cpu_user_counter,
                       entry->cpu_user_counter);
-    ps_update_counter(&ps->cpu_system_counter, &pse->cpu_system_counter,
+    ps_update_counter(&ps->counters.cpu_system_counter,
+                      &pse->cpu_system_counter,
                       entry->cpu_system_counter);
 
 #if HAVE_LIBTASKSTATS
@@ -1629,26 +1632,26 @@ static void ps_submit_proc_list(procstat_t *ps) {
   vl.values_len = 2;
   plugin_dispatch_values(&vl);
 
-  if ((ps->gauges.io_rchar != -1) && (ps->io_wchar != -1)) {
+  if ((ps->gauges.io_rchar != -1) && (ps->gauges.io_wchar != -1)) {
     sstrncpy(vl.type, "io_octets", sizeof(vl.type));
-    vl.values[0].derive = ps->io_rchar;
-    vl.values[1].derive = ps->io_wchar;
+    vl.values[0].derive = ps->gauges.io_rchar;
+    vl.values[1].derive = ps->gauges.io_wchar;
     vl.values_len = 2;
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->gauges,io_syscr != -1) && (ps->io_syscw != -1)) {
+  if ((ps->gauges,io_syscr != -1) && (ps->gauges.io_syscw != -1)) {
     sstrncpy(vl.type, "io_ops", sizeof(vl.type));
-    vl.values[0].derive = ps->io_syscr;
-    vl.values[1].derive = ps->io_syscw;
+    vl.values[0].derive = ps->gauges.io_syscr;
+    vl.values[1].derive = ps->gauges.io_syscw;
     vl.values_len = 2;
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->gauges.io_diskr != -1) && (ps->io_diskw != -1)) {
+  if ((ps->gauges.io_diskr != -1) && (ps->gauges.io_diskw != -1)) {
     sstrncpy(vl.type, "disk_octets", sizeof(vl.type));
-    vl.values[0].derive = ps->io_diskr;
-    vl.values[1].derive = ps->io_diskw;
+    vl.values[0].derive = ps->gauges.io_diskr;
+    vl.values[1].derive = ps->gauges.io_diskw;
     vl.values_len = 2;
     plugin_dispatch_values(&vl);
   }
@@ -2151,7 +2154,7 @@ static int ps_read_status(long pid, procstat_entry_t *ps) {
     WARNING("processes: fclose: %s", STRERRNO);
   }
 
-  ps->vmem_data = data * 1024;
+  ps->gauges.vmem_data = data * 1024;
   ps->gauges.vmem_code = (exe + lib) * 1024;
   if (threads != 0)
     ps->num_lwp = threads;
@@ -2179,17 +2182,17 @@ static int ps_read_io(procstat_entry_t *ps) {
     char *endptr;
 
     if (strncasecmp(buffer, "rchar:", 6) == 0)
-      val = &(ps->io_rchar);
+      val = &(ps->gauges.io_rchar);
     else if (strncasecmp(buffer, "wchar:", 6) == 0)
-      val = &(ps->io_wchar);
+      val = &(ps->gauges.io_wchar);
     else if (strncasecmp(buffer, "syscr:", 6) == 0)
-      val = &(ps->io_syscr);
+      val = &(ps->gauges.io_syscr);
     else if (strncasecmp(buffer, "syscw:", 6) == 0)
-      val = &(ps->io_syscw);
+      val = &(ps->gauges.io_syscw);
     else if (strncasecmp(buffer, "read_bytes:", 11) == 0)
-      val = &(ps->io_diskr);
+      val = &(ps->gauges.io_diskr);
     else if (strncasecmp(buffer, "write_bytes:", 12) == 0)
-      val = &(ps->io_diskw);
+      val = &(ps->gauges.io_diskw);
     else
       continue;
 
@@ -3045,7 +3048,7 @@ static char *ps_get_command(pid_t pid)
     ps->num_lwp = strtoul(fields[17], /* endptr = */ NULL, /* base = */ 10);
     if ((ps_read_status(pid, ps)) != 0) {
       /* No VMem data */
-      ps->vmem_data = -1;
+      ps->gauges.vmem_data = -1;
       ps->gauges.vmem_code = -1;
       DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
     }
@@ -3060,6 +3063,7 @@ static char *ps_get_command(pid_t pid)
     if (!f)
         return NULL;
 
+<<<<<<< HEAD
     result = fgets(buffer, sizeof(buffer), f);
     if (result)
     {
@@ -3071,6 +3075,14 @@ static char *ps_get_command(pid_t pid)
     fclose (f);
     return sstrdup(result);
 }
+=======
+  cpu_user_counter = atoll(fields[11]);
+  cpu_system_counter = atoll(fields[12]);
+  vmem_size = atoll(fields[20]);
+  vmem_rss = atoll(fields[21]);
+  ps->counters.vmem_minflt_counter = atol(fields[7]);
+  ps->counters.vmem_majflt_counter = atol(fields[9]);
+>>>>>>> gauges.
 
 static char *ps_get_owner(pid_t pid)
 {
@@ -3102,10 +3114,11 @@ static char *ps_get_owner(pid_t pid)
   ps->cpu_user_counter = cpu_user_counter;
   ps->cpu_system_counter = cpu_system_counter;
   ps->gauges.vmem_size = (unsigned long)vmem_size;
-  ps->vmem_rss = (unsigned long)vmem_rss;
+  ps->gauges.vmem_rss = (unsigned long)vmem_rss;
   ps->stack_size = (unsigned long)stack_size;
 >>>>>>> gauges. ...
 
+<<<<<<< HEAD
         uid = strtoul (line + 5, &uid_end, /* base */ 10);
         getpwuid_r (uid, &passwd, passwd_buffer, sizeof(passwd_buffer),
                 &passwd_result);
@@ -3118,6 +3131,15 @@ static char *ps_get_owner(pid_t pid)
         }
         break;
     }
+=======
+  /* no data by default. May be filled by ps_fill_details () */
+  ps->gauges.io_rchar = -1;
+  ps->gauges.io_wchar = -1;
+  ps->gauges.io_syscr = -1;
+  ps->gauges.io_syscw = -1;
+  ps->gauges.io_diskr = -1;
+  ps->gauges.io_diskw = -1;
+>>>>>>> gauges.
 
     fclose (f);
     return result;
