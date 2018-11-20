@@ -5150,7 +5150,11 @@ static char *ps_get_command(pid_t pid)
     FILE *f = NULL;
 =======
   if (*state == 'Z') {
+<<<<<<< HEAD
     ps->gauges.num_lwp = 0;
+=======
+    ps->num_lwp = 0;
+>>>>>>> gauges.num_proc
     ps->gauges.num_proc = 0;
   } else {
     ps->gauges.num_lwp = strtoul(fields[17], /* endptr = */ NULL, /* base = */ 10);
@@ -5160,16 +5164,31 @@ static char *ps_get_command(pid_t pid)
       ps->gauges.vmem_code = -1;
       DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
     }
+<<<<<<< HEAD
     if (ps->gauges.num_lwp == 0)
       ps->gauges.num_lwp = 1;
+=======
+    if (ps->num_lwp == 0)
+      ps->num_lwp = 1;
+>>>>>>> gauges.num_proc
     ps->gauges.num_proc = 1;
   }
 >>>>>>> gauges. ...
 
+<<<<<<< HEAD
     snprintf(file_name, sizeof(file_name), "/proc/%d/comm", pid);
     f = fopen(file_name, "r");
     if (!f)
         return NULL;
+=======
+  /* Leave the rest at zero if this is only a zombi */
+  if (ps->gauges.num_proc == 0) {
+    DEBUG("processes plugin: This is only a zombie: pid = %li; "
+          "name = %s;",
+          pid, ps->name);
+    return 0;
+  }
+>>>>>>> gauges.num_proc
 
 <<<<<<< HEAD
     result = fgets(buffer, sizeof(buffer), f);
@@ -5929,7 +5948,11 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
   ps->gauges.num_lwp = myStatus->pr_nlwp;
   if (myInfo->pr_wstat != 0) {
     ps->gauges.num_proc = 0;
+<<<<<<< HEAD
     ps->gauges.num_lwp = 0;
+=======
+    ps->num_lwp = 0;
+>>>>>>> gauges.num_proc
     *state = (char)'Z';
 
     sfree(myStatus);
@@ -5938,7 +5961,11 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
     return 0;
   } else {
     ps->gauges.num_proc = 1;
+<<<<<<< HEAD
     ps->gauges.num_lwp = myInfo->pr_nlwp;
+=======
+    ps->num_lwp = myInfo->pr_nlwp;
+>>>>>>> gauges.num_proc
   }
 
   /*
