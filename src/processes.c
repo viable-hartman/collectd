@@ -1170,6 +1170,7 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
   cdtime_t now = cdtime();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu,
                       curr->gauges.delay.cpu_ns,
                       now);
@@ -1188,6 +1189,16 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
   ps_update_delay_one(&out->gauges.delay_freepages, &prev->gauges.delay_freepages,
 >>>>>>> gauges.delay etc
                       curr->gauges.delay.freepages_ns, now);
+=======
+  ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu, curr->delay.cpu_ns,
+                      now);
+  ps_update_delay_one(&out->delay_blkio, &prev->delay_blkio,
+                      curr->delay.blkio_ns, now);
+  ps_update_delay_one(&out->delay_swapin, &prev->delay_swapin,
+                      curr->delay.swapin_ns, now);
+  ps_update_delay_one(&out->delay_freepages, &prev->delay_freepages,
+                      curr->delay.freepages_ns, now);
+>>>>>>> fixes delay
 }
 #endif
 
@@ -1368,8 +1379,12 @@ static void ps_list_add(const char *name, const char *cmdline,
         entry->gauges.io_diskw);
     }
 
+<<<<<<< HEAD
     if ((entry->cswitch_vol != -1) && (entry->cswitch_invol != -1)) {
 >>>>>>> gauges. ...
+=======
+    if ((entry->gauges.cswitch_vol != -1) && (entry->gauges.cswitch_invol != -1)) {
+>>>>>>> fixes delay
       ps_update_counter(&ps->gauges.cswitch_vol, &pse->gauges.cswitch_vol,
                         entry->gauges.cswitch_vol);
       ps_update_counter(&ps->gauges.cswitch_invol, &pse->gauges.cswitch_invol,
@@ -2228,13 +2243,13 @@ static void ps_submit_proc_stats (
     dispatch_value_helper(&vl, "ps_stacksize", NULL, 1, doing_detail,
                           config->ps_stacksize);
 
-    vl.values[0].derive = procstat_counters->vmem_minflt;
-    vl.values[1].derive = procstat_counters->vmem_majflt;
+    vl.values[0].derive = procstat_counters->vmem_minflt_counter;
+    vl.values[1].derive = procstat_counters->vmem_majflt_counter;
     dispatch_value_helper(&vl, "ps_pagefaults", NULL, 2, doing_detail,
                           config->ps_pagefaults);
 
-    vl.values[0].derive = procstat_counters->cpu_user;
-    vl.values[1].derive = procstat_counters->cpu_system;
+    vl.values[0].derive = procstat_counters->cpu_user_counter;
+    vl.values[1].derive = procstat_counters->cpu_system_counter;
     dispatch_value_helper(&vl, "ps_cputime", NULL, 2, doing_detail,
                           config->ps_cputime);
 
@@ -4643,6 +4658,7 @@ static int ps_delay(procstat_entry_t *ps) {
   }
 >>>>>>> Replaces process_entry_t with procstat_entry_t
 
+<<<<<<< HEAD
   snprintf(file, sizeof(file), "/proc/%li/cmdline", pid);
 
   errno = 0;
@@ -4653,6 +4669,47 @@ static int ps_delay(procstat_entry_t *ps) {
     if (errno != ENOENT)
       WARNING("processes plugin: Failed to open `%s': %s.", file, STRERRNO);
     return NULL;
+=======
+  int status = ts_delay_by_tgid(taskstats_handle, (uint32_t)ps->id, &ps->gauges.delay);
+  if (status == EPERM) {
+    static c_complain_t c;
+#if defined(HAVE_SYS_CAPABILITY_H) && defined(CAP_NET_ADMIN)
+    if (check_capability(CAP_NET_ADMIN) != 0) {
+      if (getuid() == 0) {
+        c_complain(
+            LOG_ERR, &c,
+            "processes plugin: Reading Delay Accounting metric failed: %s. "
+            "collectd is running as root, but missing the CAP_NET_ADMIN "
+            "capability. The most common cause for this is that the init "
+            "system is dropping capabilities.",
+            STRERROR(status));
+      } else {
+        c_complain(
+            LOG_ERR, &c,
+            "processes plugin: Reading Delay Accounting metric failed: %s. "
+            "collectd is not running as root and missing the CAP_NET_ADMIN "
+            "capability. Either run collectd as root or grant it the "
+            "CAP_NET_ADMIN capability using \"setcap cap_net_admin=ep " PREFIX
+            "/sbin/collectd\".",
+            STRERROR(status));
+      }
+    } else {
+      ERROR("processes plugin: ts_delay_by_tgid failed: %s. The CAP_NET_ADMIN "
+            "capability is available (I checked), so this error is utterly "
+            "unexpected.",
+            STRERROR(status));
+    }
+#else
+    c_complain(LOG_ERR, &c,
+               "processes plugin: Reading Delay Accounting metric failed: %s. "
+               "Reading Delay Accounting metrics requires root privileges.",
+               STRERROR(status));
+#endif
+    return status;
+  } else if (status != 0) {
+    ERROR("processes plugin: ts_delay_by_tgid failed: %s", STRERROR(status));
+    return status;
+>>>>>>> fixes delay
   }
 =======
 static procstat_t *ps_read_status (long pid, procstat_t *ps)
