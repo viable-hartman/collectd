@@ -1695,9 +1695,9 @@ static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
   }
 
 #if HAVE_LIBTASKSTATS
-  if (ps->report_delay && !entry->has_delay) {
+  if (ps->report_delay && !entry->gauges.has_delay) {
     if (ps_delay(entry) == 0) {
-      entry->has_delay = true;
+      entry->gauges.has_delay = true;
     }
   }
 #endif
