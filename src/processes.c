@@ -1082,7 +1082,159 @@ static void ps_submit_proc_stats (
 
 #undef MAX_VALUE_LIST_SIZE
 
+static void ps_submit_procstat_entry (const char *instance_name,
+        procstat_entry_t *entry)
+{
+    char commandline[CMDLINE_BUFFER_SIZE];
+    const char *cmd_line_to_use;
+    char pid[32];
+    char *command;
+    char *owner;
 
+    cmd_line_to_use = ps_get_cmdline(entry->id, NULL, commandline,
+        sizeof(commandline));
+    if (cmd_line_to_use == NULL) {
+        // No command line. Probably a kernel process?
+        return;
+    }
+    snprintf(pid, sizeof(pid), "%lu", entry->id);
+    owner = ps_get_owner(entry->id);
+    command = ps_get_command(entry->id);
+
+    ps_submit_proc_stats (
+            1,
+            instance_name,
+            pid,
+            owner,
+            command,
+            cmd_line_to_use,
+            &entry->gauges,
+            &entry->counters);
+
+    sfree (command);
+    sfree (owner);
+}
+
+/* submit info about specific process (e.g.: memory taken, cpu usage, etc..) */
+static void ps_submit_proc_list(procstat_t *ps) {
+  ps_submit_proc_stats (
+          0,
+          ps->name,
+          NULL,  // pid
+          NULL,  // owner
+          NULL,  // command
+          NULL,  // command_line
+          &ps->gauges,
+          &ps->counters);
+  if (some_detail_active_g) {
+        procstat_entry_t *entry;
+        for (entry = ps->instances; entry != NULL; entry = entry->next)
+        {
+            ps_submit_procstat_entry (ps->name, entry);
+        }
+    }
+  value_list_t vl = VALUE_LIST_INIT;
+  value_t values[2];
+
+  vl.values = values;
+  sstrncpy(vl.plugin, "processes", sizeof(vl.plugin));
+  sstrncpy(vl.plugin_instance, ps->name, sizeof(vl.plugin_instance));
+
+  sstrncpy(vl.type, "ps_vm", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.vmem_size;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_rss", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.vmem_rss;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_data", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.vmem_data;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_code", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.vmem_code;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_stacksize", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.stack_size;
+  vl.values_len = 1;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_cputime", sizeof(vl.type));
+  vl.values[0].derive = ps->counters.cpu_user_counter;
+  vl.values[1].derive = ps->counters.cpu_system_counter;
+  vl.values_len = 2;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_count", sizeof(vl.type));
+  vl.values[0].gauge = ps->gauges.num_proc;
+  vl.values[1].gauge = ps->gauges.num_lwp;
+  vl.values_len = 2;
+  plugin_dispatch_values(&vl);
+
+  sstrncpy(vl.type, "ps_pagefaults", sizeof(vl.type));
+  vl.values[0].derive = ps->counters.vmem_minflt_counter;
+  vl.values[1].derive = ps->counters.vmem_majflt_counter;
+  vl.values_len = 2;
+  plugin_dispatch_values(&vl);
+
+  if ((ps->gauges.io_rchar != -1) && (ps->io_wchar != -1)) {
+    sstrncpy(vl.type, "io_octets", sizeof(vl.type));
+    vl.values[0].derive = ps->io_rchar;
+    vl.values[1].derive = ps->io_wchar;
+    vl.values_len = 2;
+    plugin_dispatch_values(&vl);
+  }
+
+  if ((ps->gauges,io_syscr != -1) && (ps->io_syscw != -1)) {
+    sstrncpy(vl.type, "io_ops", sizeof(vl.type));
+    vl.values[0].derive = ps->io_syscr;
+    vl.values[1].derive = ps->io_syscw;
+    vl.values_len = 2;
+    plugin_dispatch_values(&vl);
+  }
+
+  if ((ps->gauges.io_diskr != -1) && (ps->io_diskw != -1)) {
+    sstrncpy(vl.type, "disk_octets", sizeof(vl.type));
+    vl.values[0].derive = ps->io_diskr;
+    vl.values[1].derive = ps->io_diskw;
+    vl.values_len = 2;
+    plugin_dispatch_values(&vl);
+  }
+
+  if (ps->gauges.num_fd > 0) {
+    sstrncpy(vl.type, "file_handles", sizeof(vl.type));
+    vl.values[0].gauge = ps->num_fd;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+  }
+
+  if (ps->gauges.num_maps > 0) {
+    sstrncpy(vl.type, "file_handles", sizeof(vl.type));
+    sstrncpy(vl.type_instance, "mapped", sizeof(vl.type_instance));
+    vl.values[0].gauge = ps->num_maps;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+  }
+
+  if ((ps->gauges.cswitch_vol != -1) && (ps->cswitch_invol != -1)) {
+    sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
+    sstrncpy(vl.type_instance, "voluntary", sizeof(vl.type_instance));
+    vl.values[0].derive = ps->cswitch_vol;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+
+    sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
+    sstrncpy(vl.type_instance, "involuntary", sizeof(vl.type_instance));
+    vl.values[0].derive = ps->cswitch_invol;
+    vl.values_len = 1;
+    plugin_dispatch_values(&vl);
+  }
 
   /* The ps->delay_* metrics are in nanoseconds per second. Convert to seconds
    * per second. */
@@ -1318,7 +1470,7 @@ static int ps_read_status(long pid, procstat_entry_t *ps) {
   }
 
   ps->vmem_data = data * 1024;
-  ps->vmem_code = (exe + lib) * 1024;
+  ps->gauges.vmem_code = (exe + lib) * 1024;
   if (threads != 0)
     ps->num_lwp = threads;
 
@@ -1596,7 +1748,7 @@ static int ps_read_process(long pid, procstat_t *ps, char *state) {
     if ((ps_read_status(pid, ps)) != 0) {
       /* No VMem data */
       ps->vmem_data = -1;
-      ps->vmem_code = -1;
+      ps->gauges.vmem_code = -1;
       DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
     }
     if (ps->num_lwp == 0)
@@ -1634,7 +1786,7 @@ static int ps_read_process(long pid, procstat_t *ps, char *state) {
 
   ps->cpu_user_counter = cpu_user_counter;
   ps->cpu_system_counter = cpu_system_counter;
-  ps->vmem_size = (unsigned long)vmem_size;
+  ps->gauges.vmem_size = (unsigned long)vmem_size;
   ps->vmem_rss = (unsigned long)vmem_rss;
   ps->stack_size = (unsigned long)stack_size;
 
@@ -1981,7 +2133,7 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
   ps->num_lwp = myStatus->pr_nlwp;
   if (myInfo->pr_wstat != 0) {
     ps->gauges.num_proc = 0;
-    ps->num_lwp = 0;
+    ps->gauges.num_lwp = 0;
     *state = (char)'Z';
 
     sfree(myStatus);
@@ -1990,37 +2142,36 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
     return 0;
   } else {
     ps->gauges.num_proc = 1;
-    ps->num_lwp = myInfo->pr_nlwp;
+    ps->gauges.num_lwp = myInfo->pr_nlwp;
   }
 
   /*
    * Convert system time and user time from nanoseconds to microseconds
    * for compatibility with the linux module
    */
-  ps->cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
-  ps->cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
+  ps->counters.cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
+  ps->counters.cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
 
   /*
    * Convert rssize from KB to bytes to be consistent w/ the linux module
    */
-	ps->gauges.cswitch_vol   = -1;
-	ps->gauges.cswitch_invol = -1;
+
 
   /*
    * TODO: Data and code segment calculations for Solaris
    */
 
-  ps->vmem_data = -1;
-  ps->vmem_code = -1;
-  ps->stack_size = myStatus->pr_stksize;
+  ps->gauges,vmem_data = -1;
+  ps->gauges.vmem_code = -1;
+  ps->gauges.stack_size = myStatus->pr_stksize;
 
   /*
    * TODO: File descriptor count for Solaris
    */
-  ps->num_fd = 0;
+  ps->gauges.num_fd = 0;
 
   /* Number of memory mappings */
-  ps->num_maps = 0;
+  ps->gauges.num_maps = 0;
 
   /*
    * Calculating input/ouput chars
@@ -2032,18 +2183,18 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
   ulong_t chars_per_block = 1;
   if (tot_blocks != 0)
     chars_per_block = tot_chars / tot_blocks;
-  ps->io_rchar = myUsage->pr_inblk * chars_per_block;
-  ps->io_wchar = myUsage->pr_oublk * chars_per_block;
-  ps->io_syscr = myUsage->pr_sysc;
-  ps->io_syscw = myUsage->pr_sysc;
-  ps->io_diskr = -1;
-  ps->io_diskw = -1;
+  ps->gauges.io_rchar = myUsage->pr_inblk * chars_per_block;
+  ps->gauges.io_wchar = myUsage->pr_oublk * chars_per_block;
+  ps->gauges.io_syscr = myUsage->pr_sysc;
+  ps->gauges.io_syscw = myUsage->pr_sysc;
+  ps->gauges.io_diskr = -1;
+  ps->gauges.io_diskw = -1;
 
   /*
    * TODO: context switch counters for Solaris
 */
-  ps->cswitch_vol = -1;
-  ps->cswitch_invol = -1;
+  ps->gauges.cswitch_vol = -1;
+  ps->gauges.cswitch_invol = -1;
 
   /*
    * TODO: Find way of setting BLOCKED and PAGING status
