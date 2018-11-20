@@ -300,7 +300,6 @@ typedef struct procstat_gauges_s {
   unsigned long vmem_code;
   unsigned long stack_size;
 
-  procstat_gauges_t gauges;
   procstat_counters_t counters;
 
   /* io data */
