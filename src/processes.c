@@ -2161,10 +2161,14 @@ static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
 /* Read data from /proc/pid/status */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int ps_read_status(long pid, process_entry_t *ps) {
 =======
 static int ps_read_status(long pid, procstat_entry_t *ps) {
 >>>>>>> Replaces process_entry_t with procstat_entry_t
+=======
+static int ps_read_status(long pid, procstat_entry_t *ps) {
+>>>>>>> process_entry_t
   FILE *fh;
   char buffer[1024];
   char filename[64];
@@ -3438,12 +3442,16 @@ static char *ps_get_cmdline(long pid,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static int ps_read_process(long pid, process_entry_t *ps, char *state) {
 =======
 static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
 >>>>>>> Replaces process_entry_t with procstat_entry_t
+=======
+static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
+>>>>>>> process_entry_t
   char filename[64];
   char f_psinfo[64], f_usage[64];
   char *buffer;
