@@ -766,14 +766,14 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
                             procstat_entry_t *curr) {
   cdtime_t now = cdtime();
 
-  ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu, curr->delay.cpu_ns,
+  ps_update_delay_one(&out->gauges.delay_cpu, &prev->gauges.delay_cpu, curr->gauges.delay.cpu_ns,
                       now);
-  ps_update_delay_one(&out->delay_blkio, &prev->delay_blkio,
-                      curr->delay.blkio_ns, now);
-  ps_update_delay_one(&out->delay_swapin, &prev->delay_swapin,
-                      curr->delay.swapin_ns, now);
-  ps_update_delay_one(&out->delay_freepages, &prev->delay_freepages,
-                      curr->delay.freepages_ns, now);
+  ps_update_delay_one(&out->gauges.delay_blkio, &prev->gauges.delay_blkio,
+                      curr->gauges.delay.blkio_ns, now);
+  ps_update_delay_one(&out->gauges.delay_swapin, &prev->gauges.delay_swapin,
+                      curr->gauges.delay.swapin_ns, now);
+  ps_update_delay_one(&out->gauges.delay_freepages, &prev->gauges.delay_freepages,
+                      curr->gauges.delay.freepages_ns, now);
 }
 #endif
 
@@ -846,21 +846,21 @@ static void ps_list_add(const char *name, const char *cmdline,
     ps->gauges.vmem_code += entry->gauges.vmem_code;
     ps->gauges.stack_size += entry->gauges.stack_size;
 
-    if ((entry->io_rchar != -1) && (entry->io_wchar != -1)) {
+    if ((entry->gauges.io_rchar != -1) && (entry->gauges.io_wchar != -1)) {
       ps_update_counter(&ps->gauges.io_rchar, &pse->gauges.io_rchar,
         entry->gauges.io_rchar);
       ps_update_counter(&ps->gauges.io_wchar, &pse->gauges.io_wchar,
         entry->gauges.io_wchar);
     }
 
-    if ((entry->io_syscr != -1) && (entry->io_syscw != -1)) {
+    if ((entry->gauges.io_syscr != -1) && (entry->gauges.io_syscw != -1)) {
       ps_update_counter(&ps->gauges.io_syscr, &pse->gauges.io_syscr,
         entry->gauges.io_syscr);
       ps_update_counter(&ps->gauges.io_syscw, &pse->gauges.io_syscw,
         entry->gauges.io_syscw);
     }
 
-    if ((entry->io_diskr != -1) && (entry->io_diskw != -1)) {
+    if ((entry->gauges.io_diskr != -1) && (entry->gauges.io_diskw != -1)) {
       ps_update_counter(&ps->gauges.io_diskr, &pse->gauges.io_diskr,
         entry->gauges.io_diskr);
       ps_update_counter(&ps->gauges.io_diskw, &pse->gauges.io_diskw,
@@ -1647,7 +1647,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->gauges,io_syscr != -1) && (ps->gauges.io_syscw != -1)) {
+  if ((ps->gauges.io_syscr != -1) && (ps->gauges.io_syscw != -1)) {
     sstrncpy(vl.type, "io_ops", sizeof(vl.type));
     vl.values[0].derive = ps->gauges.io_syscr;
     vl.values[1].derive = ps->gauges.io_syscw;
@@ -1665,7 +1665,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
 
   if (ps->gauges.num_fd > 0) {
     sstrncpy(vl.type, "file_handles", sizeof(vl.type));
-    vl.values[0].gauge = ps->num_fd;
+    vl.values[0].gauge = ps->gauges.num_fd;
     vl.values_len = 1;
     plugin_dispatch_values(&vl);
   }
@@ -1673,7 +1673,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
   if (ps->gauges.num_maps > 0) {
     sstrncpy(vl.type, "file_handles", sizeof(vl.type));
     sstrncpy(vl.type_instance, "mapped", sizeof(vl.type_instance));
-    vl.values[0].gauge = ps->num_maps;
+    vl.values[0].gauge = ps->gauges.num_maps;
     vl.values_len = 1;
     plugin_dispatch_values(&vl);
   }
@@ -2169,7 +2169,7 @@ static int ps_read_status(long pid, procstat_entry_t *ps) {
   ps->gauges.vmem_data = data * 1024;
   ps->gauges.vmem_code = (exe + lib) * 1024;
   if (threads != 0)
-    ps->num_lwp = threads;
+    ps->gauges.num_lwp = threads;
 
   return 0;
 } /* int *ps_read_status */
@@ -2638,7 +2638,7 @@ static int ps_read_process (long pid, procstat_t *ps, char *state)
   if (ps->report_maps_num) {
     int num_maps;
     if (entry->gauges.has_maps == false && (num_maps = ps_count_maps(entry->id)) > 0) {
-      entry->num_maps = num_maps;
+      entry->gauges.num_maps = num_maps;
     }
     entry->gauges.has_maps = true;
   }
@@ -2764,7 +2764,7 @@ static int ps_read_tasks_status(process_entry_t *ps) {
   if (ps->report_fd_num) {
     int num_fd;
     if (entry->gauges.has_fd == false && (num_fd = ps_count_fd(entry->id)) > 0) {
-      entry->num_fd = num_fd;
+      entry->gauges.num_fd = num_fd;
     }
     entry->gauges.has_fd = true;
   }
@@ -3120,6 +3120,7 @@ static char *ps_get_owner(pid_t pid)
             break;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (strncmp (line, "Uid:", 4) != 0)
             continue;
 =======
@@ -3129,6 +3130,13 @@ static char *ps_get_owner(pid_t pid)
   ps->gauges.vmem_rss = (unsigned long)vmem_rss;
   ps->stack_size = (unsigned long)stack_size;
 >>>>>>> gauges. ...
+=======
+  ps->counters.cpu_user_counter = cpu_user_counter;
+  ps->counters.cpu_system_counter = cpu_system_counter;
+  ps->gauges.vmem_size = (unsigned long)vmem_size;
+  ps->gauges.vmem_rss = (unsigned long)vmem_rss;
+  ps->gauges.stack_size = (unsigned long)stack_size;
+>>>>>>> gauges.delay etc
 
 <<<<<<< HEAD
         uid = strtoul (line + 5, &uid_end, /* base */ 10);
@@ -3625,7 +3633,7 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
    * TODO: Data and code segment calculations for Solaris
    */
 
-  ps->gauges,vmem_data = -1;
+  ps->gauges.vmem_data = -1;
   ps->gauges.vmem_code = -1;
   ps->gauges.stack_size = myStatus->pr_stksize;
 
