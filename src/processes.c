@@ -362,6 +362,7 @@ typedef struct procstat_gauges_s {
   unsigned long stack_size;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   procstat_counters_t counters;
 
 =======
@@ -380,6 +381,11 @@ typedef struct procstat_gauges_s {
 =======
 >>>>>>> Fixes move of process_entry_s
 =======
+=======
+  procstat_gauges_t gauges;
+  procstat_counters_t counters;
+
+>>>>>>> Adds _counter when needed
   /* io data */
 >>>>>>> Moves gauges and counters declaration above process_entry_s
   derive_t io_rchar;
@@ -1246,11 +1252,14 @@ static void ps_list_add(const char *name, const char *cmdline,
 <<<<<<< HEAD
 =======
 
-		ps_update_counter (&ps->counters.vmem_minflt, &pse->counters.vmem_minflt,
-                       entry->counters.vmem_minflt);
-		ps_update_counter (&ps->counters.vmem_majflt, &pse->counters.vmem_majflt,
-                       entry->counters.vmem_majflt);
+		ps_update_counter (&ps->counters.vmem_minflt_counter,
+                       &pse->counters.vmem_minflt_counter,
+                       entry->counters.vmem_minflt_counter);
+		ps_update_counter (&ps->counters.vmem_majflt_counter,
+                       &pse->counters.vmem_majflt_counter,
+                       entry->counters.vmem_majflt_counter);
 
+<<<<<<< HEAD
 		ps_update_counter (&ps->counters.cpu_user, &pse->counters.cpu_user,
                        entry->counters.cpu_user);
 		ps_update_counter (&ps->counters.cpu_system, &pse->counters.cpu_system,
@@ -1265,12 +1274,15 @@ static void ps_list_add(const char *name, const char *cmdline,
                        &pse->counters.vmem_majflt_counter,
                        entry->counters.vmem_majflt_counter);
 
+=======
+>>>>>>> Adds _counter when needed
 		ps_update_counter (&ps->counters.cpu_user_counter,
                        &pse->counters.cpu_user_counter,
                        entry->counters.cpu_user_counter);
 		ps_update_counter (&ps->counters.cpu_system_counter,
                        &pse->counters.cpu_system_counter,
                        entry->counters.cpu_system_counter);
+<<<<<<< HEAD
 
     ps->gauges.num_proc += entry->gauges.num_proc;
     ps->gauges.num_lwp += entry->gauges.num_lwp;
@@ -1288,6 +1300,8 @@ static void ps_list_add(const char *name, const char *cmdline,
       ps_update_counter(&ps->gauges.io_wchar, &pse->gauges.io_wchar,
         entry->gauges.io_wchar);
 =======
+=======
+>>>>>>> Adds _counter when needed
 
     ps->gauges.num_proc += entry->gauges.num_proc;
     ps->gauges.num_lwp += entry->gauges.num_lwp;
@@ -6457,6 +6471,7 @@ static int ps_read(void) {
 =======
 >>>>>>> More gauges
 
+<<<<<<< HEAD
         pse.counters.cpu_user_counter = task_absolutetime_info.total_user;
         pse.counters.cpu_system_counter = task_absolutetime_info.total_system;
 =======
@@ -6466,6 +6481,13 @@ static int ps_read(void) {
         pse.counters.cpu_user = task_absolutetime_info.total_user;
         pse.counters.cpu_system = task_absolutetime_info.total_system;
 >>>>>>> Switches various vars to be using gauges and counters
+=======
+        pse.counters.vmem_minflt_counter = task_events_info.cow_faults;
+        pse.counters.vmem_majflt_counter = task_events_info.faults;
+
+        pse.counters.cpu_user_counter = task_absolutetime_info.total_user;
+        pse.counters.cpu_system_counter = task_absolutetime_info.total_system;
+>>>>>>> Adds _counter when needed
 
         /* context switch counters not implemented */
         pse.cswitch_vol = -1;
@@ -7725,12 +7747,17 @@ static int ps_read(void) {
                                procentry[i].pi_ru.ru_stime.tv_usec / 1000;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       pse.counters.vmem_minflt_counter = procentry[i].pi_minflt;
       pse.counters.vmem_majflt_counter = procentry[i].pi_majflt;
 =======
       pse.counters.vmem_minflt = procentry[i].pi_minflt;
       pse.counters.vmem_majflt = procentry[i].pi_majflt;
 >>>>>>> Switches various vars to be using gauges and counters
+=======
+      pse.counters.vmem_minflt_counter = procentry[i].pi_minflt;
+      pse.counters.vmem_majflt_counter = procentry[i].pi_majflt;
+>>>>>>> Adds _counter when needed
 
       pse.gauges.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
       pse.gauges.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
