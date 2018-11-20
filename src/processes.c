@@ -2865,10 +2865,14 @@ static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
 /* Read data from /proc/pid/status */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int ps_read_status(long pid, process_entry_t *ps) {
 =======
 static int ps_read_status(long pid, procstat_entry_t *ps) {
 >>>>>>> Replaces process_entry_t with procstat_entry_t
+=======
+static int ps_read_status(long pid, procstat_entry_t *ps) {
+>>>>>>> process_entry_t
   FILE *fh;
   char buffer[1024];
   char filename[64];
@@ -4618,15 +4622,21 @@ static int ps_read_process (long pid, procstat_t *ps, char *state)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   n = 0;
 =======
 =======
 >>>>>>> Replaces process_entry_t with procstat_entry_t
+=======
+>>>>>>> process_entry_t
 <<<<<<< HEAD
 static void ps_fill_details(const procstat_t *ps, process_entry_t *entry) {
 =======
 static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
 >>>>>>> Replaces process_entry_t with procstat_entry_t
+=======
+static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
+>>>>>>> process_entry_t
   if (entry->has_io == false) {
     ps_read_io(entry);
     entry->has_io = true;
@@ -5663,8 +5673,11 @@ static char *ps_get_cmdline(long pid,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> process_entry_t
 =======
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 =======
@@ -5678,11 +5691,17 @@ static int ps_read_process(long pid, process_entry_t *ps, char *state) {
 static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
 >>>>>>> Replaces process_entry_t with procstat_entry_t
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
 >>>>>>> process_entry_t
 =======
 >>>>>>> Replaces process_entry_t with procstat_entry_t
+=======
+=======
+static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
+>>>>>>> process_entry_t
+>>>>>>> process_entry_t
   char filename[64];
   char f_psinfo[64], f_usage[64];
   char *buffer;
