@@ -1010,7 +1010,7 @@ static void ps_list_reset(void) {
     ps->num_lwp = 0;
     ps->num_fd = 0;
     ps->num_maps = 0;
-    ps->vmem_size = 0;
+    ps->gauges.vmem_size = 0;
     ps->vmem_rss = 0;
     ps->vmem_data = 0;
     ps->vmem_code = 0;
