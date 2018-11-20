@@ -271,6 +271,7 @@ typedef struct procstat_entry_s
 #define PROCSTAT_NAME_LEN 256
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 typedef struct procstat_counters_s {
   derive_t vmem_minflt_counter;
@@ -287,6 +288,9 @@ typedef struct procstat_gauges_s {
 >>>>>>> Moves process_entry_s
 =======
 
+=======
+/*
+>>>>>>> attempting to fix gauges and counters
 typedef struct procstat_gauges_s {
 	unsigned long num_proc;
 	unsigned long num_lwp;
@@ -298,7 +302,7 @@ typedef struct procstat_gauges_s {
 	unsigned long vmem_code;
 	unsigned long stack_size;
 
-	/* io data */
+	/* io data *//*
 	derive_t io_rchar;
 	derive_t io_wchar;
 	derive_t io_syscr;
@@ -309,6 +313,7 @@ typedef struct procstat_gauges_s {
 	derive_t cswitch_vol;
 	derive_t cswitch_invol;
 } procstat_gauges_t;
+*/
 
 static procstat_gauges_t procstat_gauges_init = {
 	.num_proc      = 0,
@@ -329,14 +334,30 @@ static procstat_gauges_t procstat_gauges_init = {
 };
 
 typedef struct procstat_counters_s {
-	derive_t vmem_minflt;
-	derive_t vmem_majflt;
-	derive_t cpu_user;
-	derive_t cpu_system;
+  derive_t vmem_minflt_counter;
+  derive_t vmem_majflt_counter;
+
+  derive_t cpu_user_counter;
+  derive_t cpu_system_counter;
+
+  /* io data */
+  derive_t io_rchar;
+  derive_t io_wchar;
+  derive_t io_syscr;
+  derive_t io_syscw;
+  derive_t io_diskr;
+  derive_t io_diskw;
+
+  derive_t cswitch_vol;
+  derive_t cswitch_invol;
 } procstat_counters_t;
 
+<<<<<<< HEAD
 typedef struct process_entry_s {
 >>>>>>> Moves gauges and counters declaration above process_entry_s
+=======
+typedef struct procstat_gauges_s {
+>>>>>>> attempting to fix gauges and counters
   unsigned long id;
   char name[PROCSTAT_NAME_LEN];
 
@@ -395,6 +416,7 @@ typedef struct process_entry_s {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 } procstat_gauges_t;
 
 static procstat_gauges_t procstat_gauges_init = {
@@ -425,6 +447,9 @@ static procstat_gauges_t procstat_gauges_init = {
 =======
 } procstat_entry_t;
 >>>>>>> Replaces process_entry_t with procstat_entry_t
+=======
+} procstat_gauges_t;
+>>>>>>> attempting to fix gauges and counters
 
 
 
@@ -487,6 +512,7 @@ typedef struct procstat_entry_s {
   struct procstat_entry_s *next;
 >>>>>>> Deletes duplicate declaration of gauges and counters in procstat_entry_s
 
+<<<<<<< HEAD
   derive_t vmem_minflt_counter;
   derive_t vmem_majflt_counter;
 
@@ -506,6 +532,8 @@ typedef struct procstat_entry_s {
 >>>>>>> Adds procstat_counters_t counters and procstat_gauges_t gauges
 
 <<<<<<< HEAD
+=======
+>>>>>>> attempting to fix gauges and counters
 #if HAVE_LIBTASKSTATS
   value_to_rate_state_t delay_cpu;
   value_to_rate_state_t delay_blkio;
@@ -603,7 +631,10 @@ typedef struct procstat {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> attempting to fix gauges and counters
 =======
 	procstat_gauges_t gauges;
 	procstat_counters_t counters;
@@ -612,6 +643,9 @@ typedef struct procstat {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> attempting to fix gauges and counters
 =======
 /*
 >>>>>>> attempting to fix gauges and counters
@@ -644,8 +678,11 @@ typedef struct procstat {
 
   derive_t cswitch_vol;
   derive_t cswitch_invol; */
+<<<<<<< HEAD
 =======
 >>>>>>> deletes commented out code, moved gauges_init, adds gauges.
+=======
+>>>>>>> attempting to fix gauges and counters
 
   /* Linux Delay Accounting. Unit is ns/s. */
   gauge_t delay_cpu;
