@@ -394,6 +394,7 @@ typedef struct process_entry_s {
   bool has_maps;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 } procstat_gauges_t;
 
 static procstat_gauges_t procstat_gauges_init = {
@@ -421,6 +422,9 @@ static procstat_gauges_t procstat_gauges_init = {
 =======
 } process_entry_t;
 >>>>>>> Moves gauges and counters declaration above process_entry_s
+=======
+} procstat_entry_t;
+>>>>>>> Replaces process_entry_t with procstat_entry_t
 
 
 
@@ -2283,6 +2287,31 @@ static void dispatch_value_helper (value_list_t *vl,
     vl->values_len = values_len;
     plugin_dispatch_values(vl);
 }
+<<<<<<< HEAD
+=======
+#endif /* KERNEL_LINUX || KERNEL_SOLARIS*/
+
+/* ------- additional functions for KERNEL_LINUX/HAVE_THREAD_INFO ------- */
+#if KERNEL_LINUX
+static int ps_read_tasks_status(procstat_entry_t *ps) {
+  char dirname[64];
+  DIR *dh;
+  char filename[64];
+  FILE *fh;
+  struct dirent *ent;
+  derive_t cswitch_vol = 0;
+  derive_t cswitch_invol = 0;
+  char buffer[1024];
+  char *fields[8];
+  int numfields;
+
+  snprintf(dirname, sizeof(dirname), "/proc/%li/task", ps->id);
+
+  if ((dh = opendir(dirname)) == NULL) {
+    DEBUG("Failed to open directory `%s'", dirname);
+    return -1;
+  }
+>>>>>>> Replaces process_entry_t with procstat_entry_t
 
 static void ps_submit_proc_stats (
         _Bool doing_detail,
@@ -2835,7 +2864,11 @@ static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
 =======
 /* Read data from /proc/pid/status */
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int ps_read_status(long pid, process_entry_t *ps) {
+=======
+static int ps_read_status(long pid, procstat_entry_t *ps) {
+>>>>>>> Replaces process_entry_t with procstat_entry_t
   FILE *fh;
   char buffer[1024];
   char filename[64];
@@ -2932,12 +2965,16 @@ static void dispatch_value_helper (value_list_t *vl,
 =======
 #endif /* KERNEL_LINUX || KERNEL_SOLARIS*/
 
+<<<<<<< HEAD
 /* ------- additional functions for KERNEL_LINUX/HAVE_THREAD_INFO ------- */
 #if KERNEL_LINUX
 static int ps_read_tasks_status(procstat_entry_t *ps) {
   char dirname[64];
   DIR *dh;
   char filename[64];
+=======
+static int ps_read_io(procstat_entry_t *ps) {
+>>>>>>> Replaces process_entry_t with procstat_entry_t
   FILE *fh;
   struct dirent *ent;
   derive_t cswitch_vol = 0;
@@ -4281,8 +4318,16 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
 
   size_t n;
 
+<<<<<<< HEAD
   if ((pid < 1) || (NULL == buf) || (buf_len < 2))
     return NULL;
+=======
+#if HAVE_LIBTASKSTATS
+static int ps_delay(procstat_entry_t *ps) {
+  if (taskstats_handle == NULL) {
+    return ENOTCONN;
+  }
+>>>>>>> Replaces process_entry_t with procstat_entry_t
 
   snprintf(file, sizeof(file), "/proc/%li/cmdline", pid);
 
@@ -4572,10 +4617,16 @@ static int ps_read_process (long pid, procstat_t *ps, char *state)
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   n = 0;
 =======
+=======
+>>>>>>> Replaces process_entry_t with procstat_entry_t
 <<<<<<< HEAD
 static void ps_fill_details(const procstat_t *ps, process_entry_t *entry) {
+=======
+static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
+>>>>>>> Replaces process_entry_t with procstat_entry_t
   if (entry->has_io == false) {
     ps_read_io(entry);
     entry->has_io = true;
@@ -5611,11 +5662,14 @@ static char *ps_get_cmdline(long pid,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 =======
+=======
+>>>>>>> Replaces process_entry_t with procstat_entry_t
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
@@ -5623,9 +5677,12 @@ static int ps_read_process(long pid, process_entry_t *ps, char *state) {
 =======
 static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
 >>>>>>> Replaces process_entry_t with procstat_entry_t
+<<<<<<< HEAD
 =======
 static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
 >>>>>>> process_entry_t
+=======
+>>>>>>> Replaces process_entry_t with procstat_entry_t
   char filename[64];
   char f_psinfo[64], f_usage[64];
   char *buffer;
@@ -7884,10 +7941,14 @@ static int ps_read(void) {
     long pid;
     struct procstat ps;
 <<<<<<< HEAD
+<<<<<<< HEAD
     procstat_entry_t pse;
 =======
     process_entry_t pse;
 >>>>>>> Adds in ps declaration
+=======
+    procstat_entry_t pse;
+>>>>>>> Replaces process_entry_t with procstat_entry_t
     char *endptr;
 
     if (!isdigit((int)ent->d_name[0]))
