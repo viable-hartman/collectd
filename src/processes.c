@@ -809,14 +809,14 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
                             procstat_entry_t *curr) {
   cdtime_t now = cdtime();
 
-  ps_update_delay_one(&out->gauges.delay_cpu, &prev->gauges.delay_cpu, curr->gauges.delay.cpu_ns,
+  ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu, curr->delay.cpu_ns,
                       now);
-  ps_update_delay_one(&out->gauges.delay_blkio, &prev->gauges.delay_blkio,
-                      curr->gauges.delay.blkio_ns, now);
-  ps_update_delay_one(&out->gauges.delay_swapin, &prev->gauges.delay_swapin,
-                      curr->gauges.delay.swapin_ns, now);
-  ps_update_delay_one(&out->gauges.delay_freepages, &prev->gauges.delay_freepages,
-                      curr->gauges.delay.freepages_ns, now);
+  ps_update_delay_one(&out->delay_blkio, &prev->delay_blkio,
+                      curr->delay.blkio_ns, now);
+  ps_update_delay_one(&out->delay_swapin, &prev->delay_swapin,
+                      curr->delay.swapin_ns, now);
+  ps_update_delay_one(&out->delay_freepages, &prev->delay_freepages,
+                      curr->delay.freepages_ns, now);
 }
 #endif
 
@@ -910,7 +910,7 @@ static void ps_list_add(const char *name, const char *cmdline,
         entry->gauges.io_diskw);
     }
 
-    if ((entry->cswitch_vol != -1) && (entry->cswitch_invol != -1)) {
+    if ((entry->gauges.cswitch_vol != -1) && (entry->gauges.cswitch_invol != -1)) {
       ps_update_counter(&ps->gauges.cswitch_vol, &pse->gauges.cswitch_vol,
                         entry->gauges.cswitch_vol);
       ps_update_counter(&ps->gauges.cswitch_invol, &pse->gauges.cswitch_invol,
@@ -1454,13 +1454,13 @@ static void ps_submit_proc_stats (
     dispatch_value_helper(&vl, "ps_stacksize", NULL, 1, doing_detail,
                           config->ps_stacksize);
 
-    vl.values[0].derive = procstat_counters->vmem_minflt;
-    vl.values[1].derive = procstat_counters->vmem_majflt;
+    vl.values[0].derive = procstat_counters->vmem_minflt_counter;
+    vl.values[1].derive = procstat_counters->vmem_majflt_counter;
     dispatch_value_helper(&vl, "ps_pagefaults", NULL, 2, doing_detail,
                           config->ps_pagefaults);
 
-    vl.values[0].derive = procstat_counters->cpu_user;
-    vl.values[1].derive = procstat_counters->cpu_system;
+    vl.values[0].derive = procstat_counters->cpu_user_counter;
+    vl.values[1].derive = procstat_counters->cpu_system_counter;
     dispatch_value_helper(&vl, "ps_cputime", NULL, 2, doing_detail,
                           config->ps_cputime);
 
@@ -2294,7 +2294,7 @@ static int ps_delay(procstat_entry_t *ps) {
     return ENOTCONN;
   }
 
-  int status = ts_delay_by_tgid(taskstats_handle, (uint32_t)ps->id, &ps->delay);
+  int status = ts_delay_by_tgid(taskstats_handle, (uint32_t)ps->id, &ps->gauges.delay);
   if (status == EPERM) {
     static c_complain_t c;
 #if defined(HAVE_SYS_CAPABILITY_H) && defined(CAP_NET_ADMIN)
