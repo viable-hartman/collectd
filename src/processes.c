@@ -2819,9 +2819,9 @@ static int ps_read_tasks_status(process_entry_t *ps) {
   }
 
 #if HAVE_LIBTASKSTATS
-  if (ps->report_delay && !entry->has_delay) {
+  if (ps->report_delay && !entry->gauges.has_delay) {
     if (ps_delay(entry) == 0) {
-      entry->has_delay = true;
+      entry->gauges.has_delay = true;
     }
   }
 #endif
