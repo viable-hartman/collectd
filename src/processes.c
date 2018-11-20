@@ -369,6 +369,7 @@ typedef struct procstat_gauges_s {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   procstat_counters_t counters;
 
 =======
@@ -389,6 +390,8 @@ typedef struct procstat_gauges_s {
 =======
 =======
   procstat_gauges_t gauges;
+=======
+>>>>>>> removes weird gauges declaration
   procstat_counters_t counters;
 
 >>>>>>> Adds _counter when needed
