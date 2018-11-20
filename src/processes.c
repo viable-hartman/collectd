@@ -255,30 +255,6 @@ typedef struct procstat_entry_s
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
 #define PROCSTAT_NAME_LEN 256
-/*
-typedef struct procstat_gauges_s {
-	unsigned long num_proc;
-	unsigned long num_lwp;
-  unsigned long num_maps;
-  unsigned long num_fd;
-	unsigned long vmem_size;
-	unsigned long vmem_rss;
-	unsigned long vmem_data;
-	unsigned long vmem_code;
-	unsigned long stack_size;
-
-	/* io data *//*
-	derive_t io_rchar;
-	derive_t io_wchar;
-	derive_t io_syscr;
-	derive_t io_syscw;
-	derive_t io_diskr;
-	derive_t io_diskw;
-
-	derive_t cswitch_vol;
-	derive_t cswitch_invol;
-} procstat_gauges_t;
-*/
 
 <<<<<<< HEAD
 static procstat_gauges_t procstat_gauges_init = {
@@ -649,14 +625,14 @@ static procstat_t *ps_list_register(const char *name, const char *regexp) {
   }
   sstrncpy(new->name, name, sizeof(new->name));
 
-  new->io_rchar = -1;
-  new->io_wchar = -1;
-  new->io_syscr = -1;
-  new->io_syscw = -1;
-  new->io_diskr = -1;
-  new->io_diskw = -1;
-  new->cswitch_vol = -1;
-  new->cswitch_invol = -1;
+  new->gauges.io_rchar = -1;
+  new->gauges.io_wchar = -1;
+  new->gauges.io_syscr = -1;
+  new->gauges.io_syscw = -1;
+  new->gauges.io_diskr = -1;
+  new->gauges.io_diskw = -1;
+  new->gauges.cswitch_vol = -1;
+  new->gauges.cswitch_invol = -1;
 
   new->report_fd_num = report_fd_num;
   new->report_maps_num = report_maps_num;
@@ -809,14 +785,15 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
                             procstat_entry_t *curr) {
   cdtime_t now = cdtime();
 
-  ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu, curr->delay.cpu_ns,
+  ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu,
+                      curr->gauges.delay.cpu_ns,
                       now);
   ps_update_delay_one(&out->delay_blkio, &prev->delay_blkio,
-                      curr->delay.blkio_ns, now);
+                      curr->gauges.delay.blkio_ns, now);
   ps_update_delay_one(&out->delay_swapin, &prev->delay_swapin,
-                      curr->delay.swapin_ns, now);
+                      curr->gauges.delay.swapin_ns, now);
   ps_update_delay_one(&out->delay_freepages, &prev->delay_freepages,
-                      curr->delay.freepages_ns, now);
+                      curr->gauges.delay.freepages_ns, now);
 }
 #endif
 
