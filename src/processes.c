@@ -1642,7 +1642,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
   vl.values_len = 2;
   plugin_dispatch_values(&vl);
 
-  if ((ps->io_rchar != -1) && (ps->io_wchar != -1)) {
+  if ((ps->gauges.io_rchar != -1) && (ps->io_wchar != -1)) {
     sstrncpy(vl.type, "io_octets", sizeof(vl.type));
     vl.values[0].derive = ps->io_rchar;
     vl.values[1].derive = ps->io_wchar;
@@ -1650,7 +1650,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->io_syscr != -1) && (ps->io_syscw != -1)) {
+  if ((ps->gauges,io_syscr != -1) && (ps->io_syscw != -1)) {
     sstrncpy(vl.type, "io_ops", sizeof(vl.type));
     vl.values[0].derive = ps->io_syscr;
     vl.values[1].derive = ps->io_syscw;
@@ -1658,7 +1658,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->io_diskr != -1) && (ps->io_diskw != -1)) {
+  if ((ps->gauges.io_diskr != -1) && (ps->io_diskw != -1)) {
     sstrncpy(vl.type, "disk_octets", sizeof(vl.type));
     vl.values[0].derive = ps->io_diskr;
     vl.values[1].derive = ps->io_diskw;
@@ -1666,14 +1666,14 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
-  if (ps->num_fd > 0) {
+  if (ps->gauges.num_fd > 0) {
     sstrncpy(vl.type, "file_handles", sizeof(vl.type));
     vl.values[0].gauge = ps->num_fd;
     vl.values_len = 1;
     plugin_dispatch_values(&vl);
   }
 
-  if (ps->num_maps > 0) {
+  if (ps->gauges.num_maps > 0) {
     sstrncpy(vl.type, "file_handles", sizeof(vl.type));
     sstrncpy(vl.type_instance, "mapped", sizeof(vl.type_instance));
     vl.values[0].gauge = ps->num_maps;
@@ -1681,7 +1681,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->cswitch_vol != -1) && (ps->cswitch_invol != -1)) {
+  if ((ps->gauges.cswitch_vol != -1) && (ps->cswitch_invol != -1)) {
     sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
     sstrncpy(vl.type_instance, "voluntary", sizeof(vl.type_instance));
     vl.values[0].derive = ps->cswitch_vol;
@@ -2165,7 +2165,7 @@ static int ps_read_status(long pid, procstat_entry_t *ps) {
   }
 
   ps->vmem_data = data * 1024;
-  ps->vmem_code = (exe + lib) * 1024;
+  ps->gauges.vmem_code = (exe + lib) * 1024;
   if (threads != 0)
     ps->num_lwp = threads;
 
@@ -3065,6 +3065,7 @@ static int read_fork_rate(void) {
   if (!value_valid)
     return -1;
 
+<<<<<<< HEAD
   ps_submit_fork_rate(value.derive);
   return 0;
 <<<<<<< HEAD
@@ -3075,6 +3076,23 @@ static char *ps_get_command(pid_t pid)
     char file_name[128];
     char buffer[128];
     FILE *f = NULL;
+=======
+  if (*state == 'Z') {
+    ps->num_lwp = 0;
+    ps->gauges.num_proc = 0;
+  } else {
+    ps->num_lwp = strtoul(fields[17], /* endptr = */ NULL, /* base = */ 10);
+    if ((ps_read_status(pid, ps)) != 0) {
+      /* No VMem data */
+      ps->vmem_data = -1;
+      ps->gauges.vmem_code = -1;
+      DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
+    }
+    if (ps->num_lwp == 0)
+      ps->num_lwp = 1;
+    ps->gauges.num_proc = 1;
+  }
+>>>>>>> gauges. ...
 
     snprintf(file_name, sizeof(file_name), "/proc/%d/comm", pid);
     f = fopen(file_name, "r");
@@ -3116,8 +3134,16 @@ static char *ps_get_owner(pid_t pid)
         if (line == NULL)
             break;
 
+<<<<<<< HEAD
         if (strncmp (line, "Uid:", 4) != 0)
             continue;
+=======
+  ps->cpu_user_counter = cpu_user_counter;
+  ps->cpu_system_counter = cpu_system_counter;
+  ps->gauges.vmem_size = (unsigned long)vmem_size;
+  ps->vmem_rss = (unsigned long)vmem_rss;
+  ps->stack_size = (unsigned long)stack_size;
+>>>>>>> gauges. ...
 
         uid = strtoul (line + 5, &uid_end, /* base */ 10);
         getpwuid_r (uid, &passwd, passwd_buffer, sizeof(passwd_buffer),
@@ -3454,7 +3480,7 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
   ps->num_lwp = myStatus->pr_nlwp;
   if (myInfo->pr_wstat != 0) {
     ps->gauges.num_proc = 0;
-    ps->num_lwp = 0;
+    ps->gauges.num_lwp = 0;
     *state = (char)'Z';
 
     sfree(myStatus);
@@ -3463,13 +3489,14 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
     return 0;
   } else {
     ps->gauges.num_proc = 1;
-    ps->num_lwp = myInfo->pr_nlwp;
+    ps->gauges.num_lwp = myInfo->pr_nlwp;
   }
 
   /*
    * Convert system time and user time from nanoseconds to microseconds
    * for compatibility with the linux module
    */
+<<<<<<< HEAD
   ps->cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
   ps->cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
 <<<<<<< HEAD
@@ -3568,10 +3595,15 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
    */
 <<<<<<< HEAD
 =======
+=======
+  ps->counters.cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
+  ps->counters.cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
+>>>>>>> gauges. ...
 
   /*
    * Convert rssize from KB to bytes to be consistent w/ the linux module
    */
+<<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   ps->vmem_rss = myInfo->pr_rssize * 1024;
   ps->vmem_size = myInfo->pr_size * 1024;
@@ -3581,22 +3613,28 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
 	ps->gauges.cswitch_vol   = -1;
 	ps->gauges.cswitch_invol = -1;
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
+=======
+  ps->gauges.vmem_rss = myInfo->pr_rssize * 1024;
+  ps->gauges.vmem_size = myInfo->pr_size * 1024;
+  ps->counters.vmem_minflt_counter = myUsage->pr_minf;
+  ps->counters.vmem_majflt_counter = myUsage->pr_majf;
+>>>>>>> gauges. ...
 
   /*
    * TODO: Data and code segment calculations for Solaris
    */
 
-  ps->vmem_data = -1;
-  ps->vmem_code = -1;
-  ps->stack_size = myStatus->pr_stksize;
+  ps->gauges,vmem_data = -1;
+  ps->gauges.vmem_code = -1;
+  ps->gauges.stack_size = myStatus->pr_stksize;
 
   /*
    * TODO: File descriptor count for Solaris
    */
-  ps->num_fd = 0;
+  ps->gauges.num_fd = 0;
 
   /* Number of memory mappings */
-  ps->num_maps = 0;
+  ps->gauges.num_maps = 0;
 
   /*
    * Calculating input/ouput chars
@@ -3608,18 +3646,18 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
   ulong_t chars_per_block = 1;
   if (tot_blocks != 0)
     chars_per_block = tot_chars / tot_blocks;
-  ps->io_rchar = myUsage->pr_inblk * chars_per_block;
-  ps->io_wchar = myUsage->pr_oublk * chars_per_block;
-  ps->io_syscr = myUsage->pr_sysc;
-  ps->io_syscw = myUsage->pr_sysc;
-  ps->io_diskr = -1;
-  ps->io_diskw = -1;
+  ps->gauges.io_rchar = myUsage->pr_inblk * chars_per_block;
+  ps->gauges.io_wchar = myUsage->pr_oublk * chars_per_block;
+  ps->gauges.io_syscr = myUsage->pr_sysc;
+  ps->gauges.io_syscw = myUsage->pr_sysc;
+  ps->gauges.io_diskr = -1;
+  ps->gauges.io_diskw = -1;
 
   /*
    * TODO: context switch counters for Solaris
 */
-  ps->cswitch_vol = -1;
-  ps->cswitch_invol = -1;
+  ps->gauges.cswitch_vol = -1;
+  ps->gauges.cswitch_invol = -1;
 
   /*
    * TODO: Find way of setting BLOCKED and PAGING status
