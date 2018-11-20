@@ -264,7 +264,7 @@ typedef struct process_entry_s {
   bool has_fd;
 
   bool has_maps;
-} process_entry_t;
+} procstat_entry_t;
 
 
 
