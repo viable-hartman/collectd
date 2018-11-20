@@ -264,7 +264,7 @@ typedef struct process_entry_s {
   bool has_fd;
 
   bool has_maps;
-} process_entry_t;
+} procstat_entry_t;
 
 
 
@@ -410,7 +410,7 @@ static mach_msg_type_number_t pset_list_len;
 
 #elif KERNEL_LINUX
 static long pagesize_g;
-static void ps_fill_details(const procstat_t *ps, process_entry_t *entry);
+static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry);
 /* #endif KERNEL_LINUX */
 
 #elif HAVE_LIBKVM_GETPROCS &&                                                  \
@@ -629,7 +629,7 @@ static void ps_update_delay_one(gauge_t *out_rate_sum,
 }
 
 static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
-                            process_entry_t *curr) {
+                            procstat_entry_t *curr) {
   cdtime_t now = cdtime();
 
   ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu, curr->delay.cpu_ns,
@@ -1263,7 +1263,7 @@ static void ps_submit_fork_rate(derive_t value) {
 
 /* ------- additional functions for KERNEL_LINUX/HAVE_THREAD_INFO ------- */
 #if KERNEL_LINUX
-static int ps_read_tasks_status(process_entry_t *ps) {
+static int ps_read_tasks_status(procstat_entry_t *ps) {
   char dirname[64];
   DIR *dh;
   char filename[64];
@@ -1340,7 +1340,7 @@ static int ps_read_tasks_status(process_entry_t *ps) {
 } /* int *ps_read_tasks_status */
 
 /* Read data from /proc/pid/status */
-static int ps_read_status(long pid, process_entry_t *ps) {
+static int ps_read_status(long pid, procstat_entry_t *ps) {
   FILE *fh;
   char buffer[1024];
   char filename[64];
@@ -1395,7 +1395,7 @@ static int ps_read_status(long pid, process_entry_t *ps) {
   return 0;
 } /* int *ps_read_status */
 
-static int ps_read_io(process_entry_t *ps) {
+static int ps_read_io(procstat_entry_t *ps) {
   FILE *fh;
   char buffer[1024];
   char filename[64];
@@ -1497,7 +1497,7 @@ static int ps_count_fd(int pid) {
 } /* int ps_count_fd (pid) */
 
 #if HAVE_LIBTASKSTATS
-static int ps_delay(process_entry_t *ps) {
+static int ps_delay(procstat_entry_t *ps) {
   if (taskstats_handle == NULL) {
     return ENOTCONN;
   }
@@ -1547,7 +1547,7 @@ static int ps_delay(process_entry_t *ps) {
 }
 #endif
 
-static void ps_fill_details(const procstat_t *ps, process_entry_t *entry) {
+static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
   if (entry->has_io == false) {
     ps_read_io(entry);
     entry->has_io = true;
@@ -2022,91 +2022,56 @@ static char *ps_get_cmdline(long pid,
  * The values for input and ouput chars are calculated "by hand"
  * Added a few "solaris" specific process states as well
  */
-static int ps_read_process(long pid, procstat_t *ps, char *state)
-{
-	char filename[64];
-	char f_psinfo[64], f_usage[64];
-	char *buffer;
+static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
+  char filename[64];
+  char f_psinfo[64], f_usage[64];
+  char *buffer;
 
-	pstatus_t *myStatus;
-	psinfo_t *myInfo;
-	prusage_t *myUsage;
+  pstatus_t *myStatus;
+  psinfo_t *myInfo;
+  prusage_t *myUsage;
 
-	snprintf(filename, sizeof (filename), "/proc/%li/status", pid);
-	snprintf(f_psinfo, sizeof (f_psinfo), "/proc/%li/psinfo", pid);
-	snprintf(f_usage, sizeof (f_usage), "/proc/%li/usage", pid);
+  snprintf(filename, sizeof(filename), "/proc/%li/status", pid);
+  snprintf(f_psinfo, sizeof(f_psinfo), "/proc/%li/psinfo", pid);
+  snprintf(f_usage, sizeof(f_usage), "/proc/%li/usage", pid);
 
+  buffer = calloc(1, sizeof(pstatus_t));
+  read_file_contents(filename, buffer, sizeof(pstatus_t));
+  myStatus = (pstatus_t *)buffer;
 
-	buffer = calloc(1, sizeof (pstatus_t));
-	read_file_contents(filename, buffer, sizeof (pstatus_t));
-	myStatus = (pstatus_t *) buffer;
+  buffer = calloc(1, sizeof(psinfo_t));
+  read_file_contents(f_psinfo, buffer, sizeof(psinfo_t));
+  myInfo = (psinfo_t *)buffer;
 
-	buffer = calloc(1, sizeof (psinfo_t));
-	read_file_contents(f_psinfo, buffer, sizeof (psinfo_t));
-	myInfo = (psinfo_t *) buffer;
+  buffer = calloc(1, sizeof(prusage_t));
+  read_file_contents(f_usage, buffer, sizeof(prusage_t));
+  myUsage = (prusage_t *)buffer;
 
-	buffer = calloc(1, sizeof (prusage_t));
-	read_file_contents(f_usage, buffer, sizeof (prusage_t));
-	myUsage = (prusage_t *) buffer;
+  sstrncpy(ps->name, myInfo->pr_fname, sizeof(myInfo->pr_fname));
+  ps->num_lwp = myStatus->pr_nlwp;
+  if (myInfo->pr_wstat != 0) {
+    ps->num_proc = 0;
+    ps->num_lwp = 0;
+    *state = (char)'Z';
 
-	sstrncpy(ps->name, myInfo->pr_fname, sizeof (myInfo->pr_fname));
-	ps->gauges.num_lwp = myStatus->pr_nlwp;
-	if (myInfo->pr_wstat != 0) {
-		ps->gauges.num_proc = 0;
-		ps->gauges.num_lwp = 0;
-		*state = (char) 'Z';
+    sfree(myStatus);
+    sfree(myInfo);
+    sfree(myUsage);
+    return 0;
+  } else {
+    ps->num_proc = 1;
+    ps->num_lwp = myInfo->pr_nlwp;
+  }
 
-		sfree(myStatus);
-		sfree(myInfo);
-		sfree(myUsage);
-		return (0);
-	} else {
-		ps->gauges.num_proc = 1;
-		ps->gauges.num_lwp = myInfo->pr_nlwp;
-	}
+  /*
+   * Convert system time and user time from nanoseconds to microseconds
+   * for compatibility with the linux module
+   */
+  ps->cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
+  ps->cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
 
-	/*
-	 * Convert system time and user time from nanoseconds to microseconds
-	 * for compatibility with the linux module
-	 */
-	ps->counters.cpu_system = myStatus -> pr_stime.tv_nsec / 1000;
-	ps->counters.cpu_user = myStatus -> pr_utime.tv_nsec / 1000;
-
-	/*
-	 * Convert rssize from KB to bytes to be consistent w/ the linux module
-	 */
-	ps->gauges.vmem_rss = myInfo->pr_rssize * 1024;
-	ps->gauges.vmem_size = myInfo->pr_size * 1024;
-	ps->gauges.counters.vmem_minflt = myUsage->pr_minf;
-	ps->gauges.counters.vmem_majflt = myUsage->pr_majf;
-
-	/*
-	 * TODO: Data and code segment calculations for Solaris
-	 */
-
-	ps->gauges.vmem_data = -1;
-	ps->gauges.vmem_code = -1;
-	ps->gauges.stack_size = myStatus->pr_stksize;
-
-	/*
-	 * Calculating input/ouput chars
-	 * Formula used is total chars / total blocks => chars/block
-	 * then convert input/output blocks to chars
-	 */
-	ulong_t tot_chars = myUsage->pr_ioch;
-	ulong_t tot_blocks = myUsage->pr_inblk + myUsage->pr_oublk;
-	ulong_t chars_per_block = 1;
-	if (tot_blocks != 0)
-		chars_per_block = tot_chars / tot_blocks;
-	ps->gauges.io_rchar = myUsage->pr_inblk * chars_per_block;
-	ps->gauges.io_wchar = myUsage->pr_oublk * chars_per_block;
-	ps->gauges.io_syscr = myUsage->pr_sysc;
-	ps->gauges.io_syscw = myUsage->pr_sysc;
-	ps->gauges.io_diskr = -1;
-	ps->gauges.io_diskw = -1;
-
-	/*
-	 * TODO: context switch counters for Solaris
+  /*
+   * Convert rssize from KB to bytes to be consistent w/ the linux module
    */
 	ps->gauges.cswitch_vol   = -1;
 	ps->gauges.cswitch_invol = -1;
@@ -2269,7 +2234,7 @@ static int ps_read(void) {
   int blocked = 0;
 
   procstat_t *ps;
-  process_entry_t pse;
+  procstat_entry_t pse;
 
   ps_list_reset();
 
@@ -2689,19 +2654,54 @@ static int ps_read(void) {
 /* #endif KERNEL_LINUX */
 
 #elif HAVE_LIBKVM_GETPROCS && HAVE_STRUCT_KINFO_PROC_FREEBSD
-	int running  = 0;
-	int sleeping = 0;
-	int zombies  = 0;
-	int stopped  = 0;
-	int blocked  = 0;
-	int idle     = 0;
-	int wait     = 0;
+  int running = 0;
+  int sleeping = 0;
+  int zombies = 0;
+  int stopped = 0;
+  int blocked = 0;
+  int idle = 0;
+  int wait = 0;
 
-	kvm_t *kd;
-	char errbuf[_POSIX2_LINE_MAX];
-	struct kinfo_proc *procs;          /* array of processes */
-	struct kinfo_proc *proc_ptr = NULL;
-	int count;                         /* returns number of processes */
+  kvm_t *kd;
+  char errbuf[_POSIX2_LINE_MAX];
+  struct kinfo_proc *procs; /* array of processes */
+  struct kinfo_proc *proc_ptr = NULL;
+  int count; /* returns number of processes */
+
+  procstat_entry_t pse;
+
+  ps_list_reset();
+
+  /* Open the kvm interface, get a descriptor */
+  kd = kvm_openfiles(NULL, "/dev/null", NULL, 0, errbuf);
+  if (kd == NULL) {
+    ERROR("processes plugin: Cannot open kvm interface: %s", errbuf);
+    return 0;
+  }
+
+  /* Get the list of processes. */
+  procs = kvm_getprocs(kd, KERN_PROC_ALL, 0, &count);
+  if (procs == NULL) {
+    ERROR("processes plugin: Cannot get kvm processes list: %s",
+          kvm_geterr(kd));
+    kvm_close(kd);
+    return 0;
+  }
+
+  /* Iterate through the processes in kinfo_proc */
+  for (int i = 0; i < count; i++) {
+    /* Create only one process list entry per _process_, i.e.
+     * filter out threads (duplicate PID entries). */
+    if ((proc_ptr == NULL) || (proc_ptr->ki_pid != procs[i].ki_pid)) {
+      char cmdline[CMDLINE_BUFFER_SIZE] = "";
+      bool have_cmdline = 0;
+
+      proc_ptr = &(procs[i]);
+      /* Don't probe system processes and processes without arguments */
+      if (((procs[i].ki_flag & P_SYSTEM) == 0) && (procs[i].ki_args != NULL)) {
+        char **argv;
+        int argc;
+        int status;
 
 	procstat_entry_t pse;
 
@@ -2870,7 +2870,7 @@ static int ps_read(void) {
   struct kinfo_proc *proc_ptr = NULL;
   int count; /* returns number of processes */
 
-  process_entry_t pse;
+  procstat_entry_t pse;
 
   ps_list_reset();
 
@@ -3229,7 +3229,7 @@ static int ps_read(void) {
   while ((ent = readdir(proc)) != NULL) {
     long pid;
     struct procstat ps;
-    process_entry_t pse;
+    procstat_entry_t pse;
     char *endptr;
 
     if (!isdigit((int)ent->d_name[0]))
