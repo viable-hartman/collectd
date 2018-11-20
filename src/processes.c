@@ -1490,6 +1490,7 @@ static void ps_list_reset(void) {
 
   for (procstat_t *ps = list_head_g; ps != NULL; ps = ps->next) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     ps->num_proc = 0;
     ps->num_lwp = 0;
@@ -1502,6 +1503,8 @@ static void ps_list_reset(void) {
     ps->stack_size = 0;
 
 >>>>>>> gauges.vmem_size
+=======
+>>>>>>> better utiizes procstat_gauges_init
     ps->delay_cpu = NAN;
     ps->delay_blkio = NAN;
     ps->delay_swapin = NAN;
