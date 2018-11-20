@@ -272,6 +272,7 @@ typedef struct procstat_entry_s
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 typedef struct procstat_counters_s {
   derive_t vmem_minflt_counter;
@@ -314,6 +315,8 @@ typedef struct procstat_gauges_s {
 	derive_t cswitch_invol;
 } procstat_gauges_t;
 */
+=======
+>>>>>>> more gauges.delay
 
 <<<<<<< HEAD
 static procstat_gauges_t procstat_gauges_init = {
@@ -1171,6 +1174,7 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu,
                       curr->gauges.delay.cpu_ns,
                       now);
@@ -1191,14 +1195,22 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
                       curr->gauges.delay.freepages_ns, now);
 =======
   ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu, curr->delay.cpu_ns,
+=======
+  ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu,
+                      curr->gauges.delay.cpu_ns,
+>>>>>>> more gauges.delay
                       now);
   ps_update_delay_one(&out->delay_blkio, &prev->delay_blkio,
-                      curr->delay.blkio_ns, now);
+                      curr->gauges.delay.blkio_ns, now);
   ps_update_delay_one(&out->delay_swapin, &prev->delay_swapin,
-                      curr->delay.swapin_ns, now);
+                      curr->gauges.delay.swapin_ns, now);
   ps_update_delay_one(&out->delay_freepages, &prev->delay_freepages,
+<<<<<<< HEAD
                       curr->delay.freepages_ns, now);
 >>>>>>> fixes delay
+=======
+                      curr->gauges.delay.freepages_ns, now);
+>>>>>>> more gauges.delay
 }
 #endif
 
