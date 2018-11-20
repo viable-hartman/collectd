@@ -238,13 +238,8 @@ typedef struct procstat_gauges_s {
   unsigned long vmem_code;
   unsigned long stack_size;
 
-  derive_t vmem_minflt_counter;
-  derive_t vmem_majflt_counter;
   procstat_gauges_t gauges;
   procstat_counters_t counters;
-
-  derive_t cpu_user_counter;
-  derive_t cpu_system_counter;
 
   /* io data */
   derive_t io_rchar;
@@ -677,15 +672,19 @@ static void ps_list_add(const char *name, const char *cmdline,
 
 		ps_procstat_gauges_add(&ps->gauges, &pse->gauges);
 
-		ps_update_counter (&ps->counters.vmem_minflt, &pse->counters.vmem_minflt,
-                       entry->counters.vmem_minflt);
-		ps_update_counter (&ps->counters.vmem_majflt, &pse->counters.vmem_majflt,
-                       entry->counters.vmem_majflt);
+		ps_update_counter (&ps->counters.vmem_minflt_counter,
+                       &pse->counters.vmem_minflt_counter,
+                       entry->counters.vmem_minflt_counter);
+		ps_update_counter (&ps->counters.vmem_majflt_counter,
+                       &pse->counters.vmem_majflt_counter,
+                       entry->counters.vmem_majflt_counter);
 
-		ps_update_counter (&ps->counters.cpu_user, &pse->counters.cpu_user,
-                       entry->counters.cpu_user);
-		ps_update_counter (&ps->counters.cpu_system, &pse->counters.cpu_system,
-                       entry->counters.cpu_system);
+		ps_update_counter (&ps->counters.cpu_user_counter,
+                       &pse->counters.cpu_user_counter,
+                       entry->counters.cpu_user_counter);
+		ps_update_counter (&ps->counters.cpu_system_counter,
+                       &pse->counters.cpu_system_counter,
+                       entry->counters.cpu_system_counter);
 
     ps->gauges.num_proc += entry->gauges.num_proc;
     ps->gauges.num_lwp += entry->gauges.num_lwp;
@@ -2369,11 +2368,11 @@ static int ps_read(void) {
         /* Number of memory mappings */
         pse.gauges.num_maps = 0;
 
-        pse.counters.vmem_minflt = task_events_info.cow_faults;
-        pse.counters.vmem_majflt = task_events_info.faults;
+        pse.counters.vmem_minflt_counter = task_events_info.cow_faults;
+        pse.counters.vmem_majflt_counter = task_events_info.faults;
 
-        pse.counters.cpu_user = task_absolutetime_info.total_user;
-        pse.counters.cpu_system = task_absolutetime_info.total_system;
+        pse.counters.cpu_user_counter = task_absolutetime_info.total_user;
+        pse.counters.cpu_system_counter = task_absolutetime_info.total_system;
 
         /* context switch counters not implemented */
         pse.cswitch_vol = -1;
@@ -2991,8 +2990,8 @@ static int ps_read(void) {
       pse.counters.cpu_system = procentry[i].pi_ru.ru_stime.tv_sec * 1000000 +
                                procentry[i].pi_ru.ru_stime.tv_usec / 1000;
 
-      pse.counters.vmem_minflt = procentry[i].pi_minflt;
-      pse.counters.vmem_majflt = procentry[i].pi_majflt;
+      pse.counters.vmem_minflt_counter = procentry[i].pi_minflt;
+      pse.counters.vmem_majflt_counter = procentry[i].pi_majflt;
 
       pse.gauges.vmem_size = procentry[i].pi_tsize + procentry[i].pi_dvm * pagesize;
       pse.gauges.vmem_rss = (procentry[i].pi_drss + procentry[i].pi_trss) * pagesize;
