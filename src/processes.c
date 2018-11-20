@@ -4868,6 +4868,7 @@ static int ps_read_tasks_status(process_entry_t *ps) {
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
+<<<<<<< HEAD
       if ((EAGAIN == errno) || (EINTR == errno))
         continue;
 
@@ -4875,6 +4876,12 @@ static int ps_read_tasks_status(process_entry_t *ps) {
               STRERRNO);
       close(fd);
       return NULL;
+=======
+#if HAVE_LIBTASKSTATS
+  if (ps->report_delay && !entry->gauges.has_delay) {
+    if (ps_delay(entry) == 0) {
+      entry->gauges.has_delay = true;
+>>>>>>> gauges.has_delay
     }
 <<<<<<< HEAD
 
