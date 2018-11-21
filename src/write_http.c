@@ -542,6 +542,9 @@ static int wh_write_kairosdb(const data_set_t *ds,
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> adds upstream write_http
 static int wh_write(const data_set_t *ds, const value_list_t *vl, /* {{{ */
                     user_data_t *user_data) {
   wh_callback_t *cb;
@@ -565,6 +568,7 @@ static int wh_write(const data_set_t *ds, const value_list_t *vl, /* {{{ */
     break;
   }
   return status;
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
@@ -608,6 +612,8 @@ static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> adds upstream write_http
 } /* }}} int wh_write */
 
 static int wh_notify(notification_t const *n, user_data_t *ud) /* {{{ */
