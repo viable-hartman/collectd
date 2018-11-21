@@ -3175,6 +3175,7 @@ static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int ps_read_status(long pid, process_entry_t *ps) {
 =======
 static int ps_read_status(long pid, procstat_entry_t *ps) {
@@ -3182,6 +3183,9 @@ static int ps_read_status(long pid, procstat_entry_t *ps) {
 =======
 static int ps_read_status(long pid, procstat_entry_t *ps) {
 >>>>>>> process_entry_t
+=======
+static int ps_read_status(long pid, procstat_t *ps) {
+>>>>>>> changing procstat_entry to procstat in ps_read_status param
   FILE *fh;
   char buffer[1024];
   char filename[64];
