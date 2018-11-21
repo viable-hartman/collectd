@@ -1413,7 +1413,7 @@ static int ps_read_tasks_status(procstat_entry_t *ps) {
 } /* int *ps_read_tasks_status */
 
 /* Read data from /proc/pid/status */
-static int ps_read_status(long pid, procstat_entry_t *ps) {
+static int ps_read_status(long pid, procstat_t *ps) {
   FILE *fh;
   char buffer[1024];
   char filename[64];
