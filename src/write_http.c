@@ -521,28 +521,15 @@ static int wh_write_kairosdb(const data_set_t *ds,
 } /* }}} int wh_write_kairosdb */
 
 static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
-                user_data_t *user_data)
-{
+                    user_data_t *user_data) {
         wh_callback_t *cb;
         int status;
-        cdtime_t now;
 
         if (user_data == NULL)
-                return (-EINVAL);
+    return -EINVAL;
 
         cb = user_data->data;
         assert (cb->send_metrics);
-
-        /* we want a large buffer so we get all the measurements for a time at once
-        but we also want to force flushing it every minute. this will do. longer term,
-        this could be a configurable part of a stackdriver specific write plugin */
-        pthread_mutex_lock (&cb->flush_lock);
-        now = cdtime ();
-        if (now > cb->send_buffer_init_time + MS_TO_CDTIME_T(15000)) {
-            wh_flush(0, NULL, user_data);
-            cb->buffer_flush_last = now;
-        }
-        pthread_mutex_unlock (&cb->flush_lock);
 
         switch(cb->format) {
             case WH_FORMAT_JSON:
@@ -555,7 +542,7 @@ static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
                 status = wh_write_command (ds, vl, cb);
                 break;
         }
-        return (status);
+  return status;
 } /* }}} int wh_write */
 
 static int wh_notify(notification_t const *n, user_data_t *ud) /* {{{ */
