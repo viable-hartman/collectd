@@ -1,3 +1,4 @@
+
 /**
  * collectd - src/utils_time.c
  * Copyright (C) 2010-2015  Florian octo Forster
@@ -98,56 +99,6 @@ static int get_local_time(cdtime_t t, struct tm *t_tm, long *nsec) /* {{{ */
   if (localtime_r(&t_spec.tv_sec, t_tm) == NULL) {
     int status = errno;
     ERROR("get_local_time: localtime_r failed: %s", STRERRNO);
-    return status;
-  }
-
-  *nsec = t_spec.tv_nsec;
-  return 0;
-} /* }}} int get_local_time */
-
-/**********************************************************************
- Formatting functions
-***********************************************************************/
-
-static const char zulu_zone[] = "Z";
-
-/**********************************************************************
- Time retrieval functions
-***********************************************************************/
-
-static int get_utc_time (cdtime_t t, struct tm *t_tm, long *nsec) /* {{{ */
-{
-  struct timespec t_spec;
-  int status;
-
-  CDTIME_T_TO_TIMESPEC (t, &t_spec);
-  NORMALIZE_TIMESPEC (t_spec);
-
-  if (gmtime_r (&t_spec.tv_sec, t_tm) == NULL) {
-    char errbuf[1024];
-    status = errno;
-    ERROR ("get_utc_time: gmtime_r failed: %s",
-        sstrerror (status, errbuf, sizeof (errbuf)));
-    return status;
-  }
-
-  *nsec = t_spec.tv_nsec;
-  return 0;
-} /* }}} int get_utc_time */
-
-static int get_local_time (cdtime_t t, struct tm *t_tm, long *nsec) /* {{{ */
-{
-  struct timespec t_spec;
-  int status;
-
-  CDTIME_T_TO_TIMESPEC (t, &t_spec);
-  NORMALIZE_TIMESPEC (t_spec);
-
-  if (localtime_r (&t_spec.tv_sec, t_tm) == NULL) {
-    char errbuf[1024];
-    status = errno;
-    ERROR ("get_local_time: localtime_r failed: %s",
-        sstrerror (status, errbuf, sizeof (errbuf)));
     return status;
   }
 
