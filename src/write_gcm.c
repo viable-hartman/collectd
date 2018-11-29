@@ -164,6 +164,7 @@ static _Bool wg_some_error_occurred_g = 0;
 
 // The number of metrics that need to be dropped from the queue to trigger
 <<<<<<< HEAD
+<<<<<<< HEAD
 // a warning being logged.
 #define QUEUE_DROP_REPORT_LIMIT 1000
 =======
@@ -174,6 +175,9 @@ static _Bool wg_some_error_occurred_g = 0;
 >>>>>>> Bump queue drop size to 100k; add debug logging when dropping points.
 =======
 // a warning being logged. 
+=======
+// a warning being logged.
+>>>>>>> message change for testing
 #define QUEUE_DROP_REPORT_LIMIT 1000
 >>>>>>> Collectd dropping points Logging (#89)
 
@@ -248,7 +252,7 @@ void EVP_MD_CTX_free(EVP_MD_CTX *ctx) {
 
 
 //==============================================================================
-// OpenSSL1.0 Compatibility Layer 
+// OpenSSL1.0 Compatibility Layer
 //==============================================================================
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 #include <openssl/engine.h>
@@ -269,7 +273,7 @@ void EVP_MD_CTX_free(EVP_MD_CTX *ctx) {
   EVP_MD_CTX_cleanup(ctx);
   OPENSSL_free(ctx);
 }
-#endif 
+#endif
 
 //==============================================================================
 //==============================================================================
@@ -750,7 +754,7 @@ static size_t wg_curl_write_callback(void *ptr, size_t size, size_t nmemb,
                                      void *userdata);
 
 static int wg_curl_get_or_post(char **response, const char *url,
-    const char *body, const char **headers, int num_headers, 
+    const char *body, const char **headers, int num_headers,
     _Bool silent_failures) {
   DEBUG("write_gcm: Doing %s request: url %s, body %s, num_headers %d",
 <<<<<<< HEAD
@@ -799,7 +803,7 @@ static int wg_curl_get_or_post(char **response, const char *url,
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &write_ctx);
   // http://stackoverflow.com/questions/9191668/error-longjmp-causes-uninitialized-stack-frame
   curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
-  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15L);  // 15 seconds.
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);  // 15 seconds.
 
   int result = -1;  // Pessimistically assume error.
 
@@ -1510,10 +1514,14 @@ static int wg_oauth2_sign(unsigned char *signature, size_t sig_capacity,
   }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
   
 >>>>>>> Update Write GCM plugin for compatibility with OpenSSL 1.1 API (#131)
+=======
+
+>>>>>>> message change for testing
   EVP_MD_CTX* ctx;
   ctx = EVP_MD_CTX_new();
 

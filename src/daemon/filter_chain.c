@@ -727,7 +727,7 @@ static int fc_bit_write_invoke(const data_set_t *ds, /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
             "Filter subsystem: Built-in target `write': Dispatching value to "
-            "the `%s' plugin failed with status %i.",
+            "the `%s' plugin TEST failed with status %i.",
             plugin_list[i].plugin, status);
 
         plugin_log_available_writers();
