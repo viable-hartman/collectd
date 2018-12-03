@@ -803,7 +803,7 @@ static int wg_curl_get_or_post(char **response, const char *url,
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &write_ctx);
   // http://stackoverflow.com/questions/9191668/error-longjmp-causes-uninitialized-stack-frame
   curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
-  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15L);  // 15 seconds.
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);  // 15 seconds.
 
   int result = -1;  // Pessimistically assume error.
 
