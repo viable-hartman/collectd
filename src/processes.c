@@ -2314,7 +2314,7 @@ static void ps_submit_proc_stats (
             "io_diskr = %"PRIi64"; io_diskw = %"PRIi64";"
             "cswitch_vol = %"PRIi64"; cswitch_invol = %"PRIi64";",
             instance_name, pid, procstat_gauges->num_proc, procstat_gauges->num_lwp,
-            procstat_gauges->vmem_size, procstat_gauges->vmem_rss,
+            procstat_gauges->gauges.vmem_size, procstat_gauges->vmem_rss,
             procstat_gauges->vmem_data, procstat_gauges->vmem_code,
             procstat_counters->vmem_minflt, procstat_counters->vmem_majflt,
             procstat_counters->cpu_user, procstat_counters->cpu_system,
