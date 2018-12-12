@@ -1264,13 +1264,15 @@ static void ps_submit_proc_list(procstat_t *ps) {
       "cswitch_vol = %" PRIi64 "; cswitch_invol = %" PRIi64 "; "
       "delay_cpu = %g; delay_blkio = %g; "
       "delay_swapin = %g; delay_freepages = %g;",
-      ps->name, ps->num_proc, ps->num_lwp, ps->num_fd, ps->num_maps,
-      ps->vmem_size, ps->vmem_rss, ps->vmem_data, ps->vmem_code,
-      ps->vmem_minflt_counter, ps->vmem_majflt_counter, ps->cpu_user_counter,
-      ps->cpu_system_counter, ps->io_rchar, ps->io_wchar, ps->io_syscr,
-      ps->io_syscw, ps->io_diskr, ps->io_diskw, ps->cswitch_vol,
-      ps->cswitch_invol, ps->delay_cpu, ps->delay_blkio, ps->delay_swapin,
-      ps->delay_freepages);
+      ps->name, ps->gauges.num_proc, ps->gauges.num_lwp, ps->gauges.num_fd,
+      ps->gauges.num_maps,ps->gauges.vmem_size, ps->gauges.vmem_rss,
+      ps->gauges.vmem_data, ps->gauges.vmem_code,
+      ps->counters.vmem_minflt_counter, ps->counters.vmem_majflt_counter,
+      ps->counters.cpu_user_counter,ps->counters.cpu_system_counter,
+      ps->gauges.io_rchar, ps->gauges.io_wchar, ps->gauges.io_syscr,
+      ps->gauges.io_syscw, ps->gauges.io_diskr, ps->gauges.io_diskw,
+      ps->gauges.cswitch_vol, ps->gauges.cswitch_invol, ps->delay_cpu,
+      ps->delay_blkio, ps->delay_swapin, ps->delay_freepages);
 
     cmd_line_to_use = ps_get_cmdline(entry->id, NULL, commandline,
         sizeof(commandline));
