@@ -5452,7 +5452,7 @@ necessary in rare cases.
 
 Set the outgoing IP address for IP packets. This option can be used instead of
 the I<Interface> option to explicitly define the IP address which will be used
-to send Packets to the remote server. 
+to send Packets to the remote server.
 
 =item B<ResolveInterval> I<Seconds>
 
@@ -8464,7 +8464,7 @@ the following schema:
   Bucket  20  50
   Bucket  50   0
 
-Metrics are reported with the I<type> set by B<BucketType> option (C<bucket> 
+Metrics are reported with the I<type> set by B<BucketType> option (C<bucket>
 by default) and the I<type instance>
 C<E<lt>TypeE<gt>[-E<lt>InstanceE<gt>]-E<lt>lower_boundE<gt>_E<lt>upper_boundE<gt>>.
 
@@ -11327,7 +11327,6 @@ The following placeholders will be replaced by an appropriate value:
 These placeholders are replaced by the identifier field of the same name.
 
 =item B<%{meta:>I<name>B<}>
-<<<<<<< HEAD
 
 These placeholders are replaced by the meta data value with the given name.
 
@@ -11337,17 +11336,6 @@ Please note that these placeholders are B<case sensitive>!
 
 =item B<DeleteMetaData> I<String>
 
-=======
-
-These placeholders are replaced by the meta data value with the given name.
-
-=back
-
-Please note that these placeholders are B<case sensitive>!
-
-=item B<DeleteMetaData> I<String>
-
->>>>>>> master
 Delete the named meta data field.
 
 =back
