@@ -11460,6 +11460,7 @@ The following placeholders will be replaced by an appropriate value:
 
 =over 4
 
+<<<<<<< HEAD
 =item B<%{host}>
 
 =item B<%{plugin}>
@@ -11483,6 +11484,8 @@ Please note that these placeholders are B<case sensitive>!
 
 =item B<DeleteMetaData> I<String>
 
+=======
+>>>>>>> Removes merge conflict tags
 Delete the named meta data field.
 
 =back
