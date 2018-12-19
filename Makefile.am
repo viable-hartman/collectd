@@ -2,6 +2,7 @@ ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -13,6 +14,9 @@ AM_YFLAGS = -d
 =======
  
 >>>>>>> Undo test commit
+=======
+
+>>>>>>> Changes write_stackdriver to write_gcm
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
@@ -1993,6 +1997,15 @@ if BUILD_PLUGIN_WRITE_SENSU
 pkglib_LTLIBRARIES += write_sensu.la
 write_sensu_la_SOURCES = src/write_sensu.c
 write_sensu_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+endif
+
+if BUILD_PLUGIN_WRITE_GCM
+pkglib_LTLIBRARIES += write_gcm.la
+write_gcm_la_SOURCES = src/write_gcm.c
+write_gcm_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+write_gcm_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBCURL_CFLAGS)
+write_gcm_la_LIBADD = libformat_stackdriver.la libgce.la liboauth.la \
+                     $(BUILD_WITH_LIBCURL_LIBS)
 endif
 
 if BUILD_PLUGIN_WRITE_TSDB
