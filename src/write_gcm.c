@@ -1245,10 +1245,14 @@ int wg_extract_toplevel_json_long_long(const char *json, const char *key,
 // EXAMPLE USAGE
 //
 <<<<<<< HEAD
+<<<<<<< HEAD
 // char auth_header[1024];
 =======
 // char auth_header[256];
 >>>>>>> write_gcm plugin
+=======
+// char auth_header[1024];
+>>>>>>> Changes write_stackdriver to write_gcm
 // if (wg_oauth2_get_auth_header(auth_header, sizeof(auth_header),
 //                               oauth2_ctx, credential_ctx) != 0) {
 //   return -1; // error
@@ -1280,10 +1284,14 @@ struct oauth2_ctx_s {
   pthread_mutex_t mutex;
   cdtime_t token_expire_time;
 <<<<<<< HEAD
+<<<<<<< HEAD
   char auth_header[1024];
 =======
   char auth_header[256];
 >>>>>>> write_gcm plugin
+=======
+  char auth_header[1024];
+>>>>>>> Changes write_stackdriver to write_gcm
 };
 
 static int wg_oauth2_get_auth_header_nolock(oauth2_ctx_t *ctx,
@@ -5250,8 +5258,12 @@ static int wg_transmit_unique_segment(const wg_context_t *ctx,
 >>>>>>> Dynamically allocate memory when doing curl requests in write_gcm. (#114)
   int result = -1;  // Pessimistically assume failure.
 
+<<<<<<< HEAD
   char auth_header[256];
 >>>>>>> write_gcm plugin
+=======
+  char auth_header[1024];
+>>>>>>> Changes write_stackdriver to write_gcm
   if (wg_oauth2_get_auth_header(auth_header, sizeof(auth_header),
       ctx->oauth2_ctx, ctx->cred_ctx) != 0) {
     ERROR("write_gcm: wg_oauth2_get_auth_header failed.");
