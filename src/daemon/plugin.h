@@ -451,8 +451,9 @@ cdtime_t plugin_get_interval(void);
  * Context-aware thread management.
  */
 
- int plugin_thread_create (pthread_t *thread, const pthread_attr_t *attr,
- 		void *(*start_routine) (void *), void *arg);
+int plugin_thread_create(pthread_t *thread, const pthread_attr_t *attr,
+                         void *(*start_routine)(void *), void *arg,
+                         char const *name);
 
 /*
  * Plugins need to implement this
