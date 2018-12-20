@@ -1991,6 +1991,7 @@ endif
 
 if BUILD_PLUGIN_WRITE_GCM
 <<<<<<< HEAD
+<<<<<<< HEAD
 pkglib_LTLIBRARIES += write_gcm.la
 <<<<<<< HEAD
 write_gcm_la_SOURCES = src/write_gcm.c
@@ -1999,6 +2000,9 @@ write_gcm_la_SOURCES = write_gcm.c
 >>>>>>> Adds BUILD_PLUGIN_WRITE_GCM to makefile.am
 =======
 pkglib_LTLIBRARIES += src/write_gcm.la
+=======
+pkglib_LTLIBRARIES += write_gcm.la
+>>>>>>> fixes directory
 write_gcm_la_SOURCES = src/write_gcm.c
 >>>>>>> points BUILD_PLUGIN_WRITE_GCM to correct directory
 write_gcm_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBYAJL_LDFLAGS)
