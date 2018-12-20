@@ -5845,9 +5845,13 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
     if (plugin_thread_create(&queue->consumer_thread, NULL, &wg_process_queue,
 =======
     if (plugin_thread_create(&queue->consumer_thread, NULL, processor,
+<<<<<<< HEAD
 >>>>>>> Send metrics with the 'stackdriver_metric_type' metadata key to timeSeries.create. (#81)
         ctx) != 0) {
 >>>>>>> write_gcm plugin
+=======
+        ctx, "") != 0) {
+>>>>>>> adds string param
       ERROR("write_gcm: plugin_thread_create failed");
       pthread_mutex_unlock(&queue->mutex);
       return -1;
