@@ -4218,7 +4218,7 @@ static int wg_write(const data_set_t *ds, const value_list_t *vl,
   // One-time startup of the consumer thread.
   if (!queue->consumer_thread_created) {
     if (plugin_thread_create(&queue->consumer_thread, NULL, processor,
-        ctx) != 0) {
+        ctx, "") != 0) {
       ERROR("write_gcm: plugin_thread_create failed");
       pthread_mutex_unlock(&queue->mutex);
       return -1;
