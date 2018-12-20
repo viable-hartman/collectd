@@ -1991,7 +1991,11 @@ endif
 
 if BUILD_PLUGIN_WRITE_GCM
 pkglib_LTLIBRARIES += write_gcm.la
+<<<<<<< HEAD
 write_gcm_la_SOURCES = src/write_gcm.c
+=======
+write_gcm_la_SOURCES = write_gcm.c
+>>>>>>> Adds BUILD_PLUGIN_WRITE_GCM to makefile.am
 write_gcm_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBYAJL_LDFLAGS)
 write_gcm_la_CFLAGS = $(AM_CFLAGS) $(BUILD_WITH_LIBYAJL_CPPFLAGS)
 write_gcm_la_LIBADD = $(BUILD_WITH_LIBYAJL_LIBS)
@@ -2005,10 +2009,13 @@ write_gcm_la_LIBADD += $(BUILD_WITH_LIBCURL_LIBS)
 endif
 endif
 
+<<<<<<< HEAD
 if BUILD_WITH_OWN_LIBMONGOC
 SUBDIRS = src/libmongoc
 endif
 
+=======
+>>>>>>> Adds BUILD_PLUGIN_WRITE_GCM to makefile.am
 if BUILD_PLUGIN_WRITE_GRAPHITE
 pkglib_LTLIBRARIES += write_graphite.la
 write_graphite_la_SOURCES = src/write_graphite.c
