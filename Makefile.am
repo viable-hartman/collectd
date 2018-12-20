@@ -1227,7 +1227,11 @@ endif
 
 if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
 pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
+<<<<<<< HEAD
 match_throttle_metadata_keys_la_SOURCES = src/match_throttle_metadata_keys.c src/stackdriver-agent-keys.h
+=======
+match_throttle_metadata_keys_la_SOURCES = match_throttle_metadata_keys.c stackdriver-agent-keys.h
+>>>>>>> Adds BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS to makefile.am
 match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
