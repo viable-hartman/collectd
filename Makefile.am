@@ -1690,6 +1690,12 @@ endif
 
 endif
 
+if BUILD_PLUGIN_STACKDRIVER_AGENT
+pkglib_LTLIBRARIES += stackdriver_agent.la
+stackdriver_agent_la_SOURCES = stackdriver_agent.c
+stackdriver_agent_la_LDFLAGS = -module -avoid-version
+endif
+
 if BUILD_PLUGIN_SYNPROXY
 pkglib_LTLIBRARIES += synproxy.la
 synproxy_la_SOURCES = src/synproxy.c
