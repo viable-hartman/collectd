@@ -3562,8 +3562,28 @@ fi
 =======
 >>>>>>> Fixes mongodb
 
+<<<<<<< HEAD
 SAVE_CPPFLAGS="$CPPFLAGS"
 SAVE_LDFLAGS="$LDFLAGS"
+=======
+if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"; then
+  SAVE_CPPFLAGS="$CPPFLAGS"
+  SAVE_LDFLAGS="$LDFLAGS"
+
+  CPPFLAGS="$CPPFLAGS $LIBMONGOC_CFLAGS"
+  LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
+
+  if test "x$LIBMONGOC_LDFLAGS" != "x"; then
+    AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
+  fi
+  if test "x$with_own_libmongoc" != "xyes"
+	then
+	    AC_CHECK_HEADERS(mongo.h,
+	    [with_libmongoc="yes"],
+	    [with_libmongoc="no ('mongo.h' not found)"]
+      )
+  fi
+>>>>>>> Adds in mongodb makefile and configure info
 
 CPPFLAGS="$CPPFLAGS $LIBMONGOC_CPPFLAGS"
 LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"

@@ -2035,12 +2035,19 @@ endif
 endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 if BUILD_WITH_OWN_LIBMONGOC
 SUBDIRS = src/libmongoc
 endif
 
 =======
 >>>>>>> Adds BUILD_PLUGIN_WRITE_GCM to makefile.am
+=======
+if BUILD_WITH_OWN_LIBMONGOC
+SUBDIRS += src/libmongoc
+endif
+
+>>>>>>> Adds in mongodb makefile and configure info
 if BUILD_PLUGIN_WRITE_GRAPHITE
 pkglib_LTLIBRARIES += write_graphite.la
 write_graphite_la_SOURCES = src/write_graphite.c
