@@ -3427,8 +3427,15 @@ AC_ARG_WITH([libmongoc],
       with_libmongoc="yes"
     else if test "x$withval" = "xno"; then
       with_libmongoc="no"
-    else
-      with_libmongoc="no"
+    else if test "x$withval" = "xown"; then
+         with_libmongoc="yes"
+         with_own_libmongoc="yes"
+         AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
+         AC_CONFIG_SUBDIRS([src/libmongoc])
+       else
+         LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
+         LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
+      fi
     fi; fi
   ],
   [with_libmongoc="yes"]
@@ -3513,7 +3520,7 @@ then
 >>>>>>> mongo plugin
 fi
 
-if test "x$with_libmongoc" = "xyes"; then
+if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"; then
   SAVE_CPPFLAGS="$CPPFLAGS"
   SAVE_LDFLAGS="$LDFLAGS"
 
@@ -3522,6 +3529,13 @@ if test "x$with_libmongoc" = "xyes"; then
 
   if test "x$LIBMONGOC_LDFLAGS" != "x"; then
     AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
+  fi
+  if test "x$with_own_libmongoc" != "xyes"
+	then
+	    AC_CHECK_HEADERS(mongo.h,
+	    [with_libmongoc="yes"],
+	    [with_libmongoc="no ('mongo.h' not found)"]
+      )
   fi
 
   AC_CHECK_LIB([mongoc-1.0], [mongoc_init],
