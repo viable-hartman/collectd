@@ -3473,7 +3473,7 @@ then
 	[with_libmongoc="no (symbol 'mongo_run_command' not found)"])
 fi
 
-if test "x$with_libmongoc" = "xyes"; then
+if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"; then
   SAVE_CPPFLAGS="$CPPFLAGS"
   SAVE_LDFLAGS="$LDFLAGS"
 
@@ -3482,6 +3482,13 @@ if test "x$with_libmongoc" = "xyes"; then
 
   if test "x$LIBMONGOC_LDFLAGS" != "x"; then
     AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
+  fi
+  if test "x$with_own_libmongoc" != "xyes"
+	then
+	    AC_CHECK_HEADERS(mongo.h,
+	    [with_libmongoc="yes"],
+	    [with_libmongoc="no ('mongo.h' not found)"]
+      )
   fi
 
   AC_CHECK_LIB([mongoc-1.0], [mongoc_init],
