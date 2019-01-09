@@ -1330,15 +1330,24 @@ endif
 
 if BUILD_PLUGIN_MONGODB
 pkglib_LTLIBRARIES += mongodb.la
+<<<<<<< HEAD
 mongodb_la_SOURCES = src/mongodb.c
+=======
+mongodb_la_SOURCES = mongodb.c
+>>>>>>> Adds mongodb to makefile
 mongodb_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBMONGOC_CPPFLAGS)
 mongodb_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBMONGOC_LDFLAGS)
 mongodb_la_LIBADD =
 if BUILD_WITH_OWN_LIBMONGOC
 
 # add libmongoc source files
+<<<<<<< HEAD
 mongodb_la_CPPFLAGS += -Isrc/libmongoc/src/mongoc -Isrc/libmongoc/src/libbson/src/bson
 mongodb_la_LIBADD += src/libmongoc/libmongoc-1.0.la src/libmongoc/src/libbson/libbson.la
+=======
+mongodb_la_CPPFLAGS += -Ilibmongoc/src/mongoc -Ilibmongoc/src/libbson/src/bson
+mongodb_la_LIBADD += libmongoc/libmongoc-1.0.la libmongoc/src/libbson/libbson.la
+>>>>>>> Adds mongodb to makefile
 
 else
 mongodb_la_LIBADD += -lmongoc
