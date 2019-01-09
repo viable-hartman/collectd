@@ -2044,7 +2044,7 @@ endif
 >>>>>>> Adds BUILD_PLUGIN_WRITE_GCM to makefile.am
 =======
 if BUILD_WITH_OWN_LIBMONGOC
-SUBDIRS += src/libmongoc
+SUBDIRS = src/libmongoc
 endif
 
 >>>>>>> Adds in mongodb makefile and configure info
