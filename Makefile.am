@@ -1331,10 +1331,14 @@ endif
 if BUILD_PLUGIN_MONGODB
 pkglib_LTLIBRARIES += mongodb.la
 <<<<<<< HEAD
+<<<<<<< HEAD
 mongodb_la_SOURCES = src/mongodb.c
 =======
 mongodb_la_SOURCES = mongodb.c
 >>>>>>> Adds mongodb to makefile
+=======
+mongodb_la_SOURCES = src/mongodb.c
+>>>>>>> Points to correct directory for mongodb
 mongodb_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBMONGOC_CPPFLAGS)
 mongodb_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBMONGOC_LDFLAGS)
 mongodb_la_LIBADD =
