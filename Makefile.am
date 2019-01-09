@@ -1926,6 +1926,10 @@ write_gcm_la_LIBADD += $(BUILD_WITH_LIBCURL_LIBS)
 endif
 endif
 
+if BUILD_WITH_OWN_LIBMONGOC
+SUBDIRS += src/libmongoc
+endif
+
 if BUILD_PLUGIN_WRITE_GRAPHITE
 pkglib_LTLIBRARIES += write_graphite.la
 write_graphite_la_SOURCES = src/write_graphite.c
