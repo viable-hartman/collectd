@@ -1927,7 +1927,7 @@ endif
 endif
 
 if BUILD_WITH_OWN_LIBMONGOC
-SUBDIRS += src/libmongoc
+SUBDIRS = src/libmongoc
 endif
 
 if BUILD_PLUGIN_WRITE_GRAPHITE
