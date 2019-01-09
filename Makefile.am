@@ -1346,12 +1346,17 @@ if BUILD_WITH_OWN_LIBMONGOC
 
 # add libmongoc source files
 <<<<<<< HEAD
+<<<<<<< HEAD
 mongodb_la_CPPFLAGS += -Isrc/libmongoc/src/mongoc -Isrc/libmongoc/src/libbson/src/bson
 mongodb_la_LIBADD += src/libmongoc/libmongoc-1.0.la src/libmongoc/src/libbson/libbson.la
 =======
 mongodb_la_CPPFLAGS += -Ilibmongoc/src/mongoc -Ilibmongoc/src/libbson/src/bson
 mongodb_la_LIBADD += libmongoc/libmongoc-1.0.la libmongoc/src/libbson/libbson.la
 >>>>>>> Adds mongodb to makefile
+=======
+mongodb_la_CPPFLAGS += -Isrc/libmongoc/src/mongoc -Isrc/libmongoc/src/libbson/src/bson
+mongodb_la_LIBADD += src/libmongoc/libmongoc-1.0.la src/libmongoc/src/libbson/libbson.la
+>>>>>>> Fixes mongodb directory
 
 else
 mongodb_la_LIBADD += -lmongoc
