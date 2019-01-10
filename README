@@ -584,6 +584,9 @@ Features
     - syslog
       Logs to the standard UNIX logging mechanism, syslog.
 
+    - eventlog
+      Logs to the standard Windows logging mechanism, event log.
+
     - log_logstash
       Writes log messages formatted as logstash JSON events.
 

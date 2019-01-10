@@ -1778,7 +1778,6 @@ eventlogres_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 pkglib_LTLIBRARIES += eventlog.la
 eventlog_la_SOURCES = src/eventlog.c
 eventlog_la_LDFLAGS = $(PLUGIN_LDFLAGS)
-eventlog_la_LIBADD = libcollectd.la
 eventlog_la_DEPENDENCIES = eventlogres.la
 endif
 

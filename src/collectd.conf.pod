@@ -2889,6 +2889,31 @@ collected, all other metrics will be ignored. Defaults to B<false>.
 
 =back
 
+=head2 Plugin C<eventlog>
+
+=over 4
+
+=item B<LogLevel> B<debug|info|notice|warning|err>
+
+Sets the log-level. If, for example, set to B<notice>, then all events with
+severity B<notice>, B<warning>, or B<err> will be submitted to the
+Windows event log.
+
+Please note that B<debug> is only available if collectd has been compiled with
+debugging support.
+
+
+=item B<NotifyLevel> B<OKAY>|B<WARNING>|B<FAILURE>
+
+Controls which notifications should be sent to event log. The default behaviour is
+not to send any. Less severe notifications always imply logging more severe
+notifications: Setting this to B<OKAY> means all notifications will be sent to
+event log, setting this to B<WARNING> will send B<WARNING> and B<FAILURE>
+notifications but will dismiss B<OKAY> notifications. Setting this option to
+B<FAILURE> will only send failures to event log.
+
+=back
+
 =head2 Plugin C<exec>
 
 Please make sure to read L<collectd-exec(5)> before using this plugin. It
