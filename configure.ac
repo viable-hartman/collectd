@@ -3411,85 +3411,76 @@ AC_SUBST([BUILD_WITH_LIBMODBUS_LIBS])
 
 # --with-libmongoc {{{
 AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
-AC_ARG_WITH([libmongoc],
-  [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
-  [
-    if test "x$withval" = "xyes"; then
-      with_libmongoc="yes"
-    else if test "x$withval" = "xno"; then
-      with_libmongoc="no"
-    else if test "x$withval" = "xown"; then
-         with_libmongoc="yes"
-         with_own_libmongoc="yes"
-         AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
-         AC_CONFIG_SUBDIRS([src/libmongoc])
-       else
-         LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
-         LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
-      fi
-    fi; fi
-  ],
-  [with_libmongoc="yes"]
-)
+AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
+[
+ if test "x$withval" = "xyes"
+ then
+	 with_libmongoc="yes"
+ else if test "x$withval" = "xno"
+ then
+	 with_libmongoc="no"
+ else
+     if test "x$withval" = "xown"
+     then
+	     with_libmongoc="yes"
+	     with_own_libmongoc="yes"
+	     AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
+	     AC_CONFIG_SUBDIRS([src/libmongoc])
+	 else
+	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
+	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
+	 fi
+ fi; fi
+],
+[with_libmongoc="yes"])
 
-if test "x$with_libmongoc" = "xyes"; then
-  PKG_CHECK_MODULES([LIBMONGOC], [libmongoc-1.0],
-    [with_libmongoc="yes"],
-    [with_libmongoc="no (pkg-config could not find libmongoc)"]
-  )
-fi
+SAVE_CPPFLAGS="$CPPFLAGS"
+SAVE_LDFLAGS="$LDFLAGS"
 
-if test "x$with_libmongoc" = "xyes"; then
-  SAVE_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $LIBMONGOC_CPPFLAGS"
+LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
 
-  CPPFLAGS="$CPPFLAGS $LIBMONGOC_CFLAGS"
-
-  if test "x$CPPFLAGS" != "x"; then
-    AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CFLAGS])
-  fi
-
-  AC_CHECK_HEADERS([mongoc.h],
-    [with_libmongoc="yes"],
-    [with_libmongoc="no ('mongoc.h' not found)"]
-  )
-
-  CPPFLAGS="$SAVE_CPPFLAGS"
-fi
-
-if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"; then
-  SAVE_CPPFLAGS="$CPPFLAGS"
-  SAVE_LDFLAGS="$LDFLAGS"
-
-  CPPFLAGS="$CPPFLAGS $LIBMONGOC_CFLAGS"
-  LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
-
-  if test "x$LIBMONGOC_LDFLAGS" != "x"; then
-    AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
-  fi
-  if test "x$with_own_libmongoc" != "xyes"
+if test "x$with_libmongoc" = "xyes"
+then
+	if test "x$LIBMONGOC_CPPFLAGS" != "x"
+	then
+		AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CPPFLAGS])
+	fi
+	if test "x$with_own_libmongoc" != "xyes"
 	then
 	    AC_CHECK_HEADERS(mongo.h,
 	    [with_libmongoc="yes"],
-	    [with_libmongoc="no ('mongo.h' not found)"]
-      )
-  fi
-
-  AC_CHECK_LIB([mongoc-1.0], [mongoc_init],
-    [with_libmongoc="yes"],
-    [with_libmongoc="no (symbol 'mongoc_init' not found)"]
-  )
-
-  CPPFLAGS="$SAVE_CPPFLAGS"
-  LDFLAGS="$SAVE_LDFLAGS"
+	    [with_libmongoc="no ('mongo.h' not found)"],
+[#if HAVE_STDINT_H
+# define MONGO_HAVE_STDINT 1
+#else
+# define MONGO_USE_LONG_LONG_INT 1
+#endif
+])
+    fi
+fi
+if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"
+then
+	if test "x$LIBMONGOC_LDFLAGS" != "x"
+	then
+		AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
+	fi
+	AC_CHECK_LIB(mongoc, mongo_run_command,
+	[with_libmongoc="yes"],
+	[with_libmongoc="no (symbol 'mongo_run_command' not found)"])
 fi
 
-if test "x$with_libmongoc" = "xyes"; then
-  BUILD_WITH_LIBMONGOC_CFLAGS="$LIBMONGOC_CFLAGS"
-  BUILD_WITH_LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS"
-fi
+CPPFLAGS="$SAVE_CPPFLAGS"
+LDFLAGS="$SAVE_LDFLAGS"
 
-AC_SUBST([BUILD_WITH_LIBMONGOC_CFLAGS])
-AC_SUBST([BUILD_WITH_LIBMONGOC_LDFLAGS])
+if test "x$with_libmongoc" = "xyes"
+then
+	BUILD_WITH_LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS"
+	BUILD_WITH_LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS"
+	AC_SUBST(BUILD_WITH_LIBMONGOC_CPPFLAGS)
+	AC_SUBST(BUILD_WITH_LIBMONGOC_LDFLAGS)
+fi
+AM_CONDITIONAL(BUILD_WITH_LIBMONGOC, test "x$with_libmongoc" = "xyes")
 # }}}
 
 # --with-libmosquitto {{{
