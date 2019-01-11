@@ -3428,6 +3428,7 @@ AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
 =======
 =======
 AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
+<<<<<<< HEAD
 >>>>>>> Adds back BUILD_WITH_OWN_LIBMONGOC AM_CONDITIONAL
 >>>>>>> Adds back BUILD_WITH_OWN_LIBMONGOC AM_CONDITIONAL
 AC_ARG_WITH([libmongoc],
@@ -3453,10 +3454,15 @@ AC_ARG_WITH([libmongoc],
 =======
 AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Fixes mongodb
 =======
 >>>>>>> mongo plugin
+=======
+=======
+>>>>>>> Fixes mongodb
+>>>>>>> Fixes mongodb
 AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
 [
  if test "x$withval" = "xyes"
@@ -3473,11 +3479,17 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 	     AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	     AC_CONFIG_SUBDIRS([src/libmongoc])
 >>>>>>> Fixes mongodb
 =======
 >>>>>>> mongo plugin
+=======
+=======
+	     AC_CONFIG_SUBDIRS([src/libmongoc])
+>>>>>>> Fixes mongodb
+>>>>>>> Fixes mongodb
 	 else
 	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
 	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
@@ -3487,8 +3499,11 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 [with_libmongoc="yes"])
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> mongo plugin
+=======
+>>>>>>> Fixes mongodb
 >>>>>>> mongo plugin
 
 if test "x$with_libmongoc" = "xyes"; then
@@ -3563,23 +3578,32 @@ fi
 >>>>>>> Fixes mongodb
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 SAVE_CPPFLAGS="$CPPFLAGS"
 SAVE_LDFLAGS="$LDFLAGS"
 =======
 if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"; then
   SAVE_CPPFLAGS="$CPPFLAGS"
   SAVE_LDFLAGS="$LDFLAGS"
+=======
+SAVE_CPPFLAGS="$CPPFLAGS"
+SAVE_LDFLAGS="$LDFLAGS"
+>>>>>>> Fixes mongodb
 
-  CPPFLAGS="$CPPFLAGS $LIBMONGOC_CFLAGS"
-  LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
+CPPFLAGS="$CPPFLAGS $LIBMONGOC_CPPFLAGS"
+LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
 
-  if test "x$LIBMONGOC_LDFLAGS" != "x"; then
-    AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
-  fi
-  if test "x$with_own_libmongoc" != "xyes"
+if test "x$with_libmongoc" = "xyes"
+then
+	if test "x$LIBMONGOC_CPPFLAGS" != "x"
+	then
+		AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CPPFLAGS])
+	fi
+	if test "x$with_own_libmongoc" != "xyes"
 	then
 	    AC_CHECK_HEADERS(mongo.h,
 	    [with_libmongoc="yes"],
+<<<<<<< HEAD
 	    [with_libmongoc="no ('mongo.h' not found)"]
       )
   fi
@@ -3598,6 +3622,8 @@ then
 	then
 	    AC_CHECK_HEADERS(mongo.h,
 	    [with_libmongoc="yes"],
+=======
+>>>>>>> Fixes mongodb
 	    [with_libmongoc="no ('mongo.h' not found)"],
 [#if HAVE_STDINT_H
 # define MONGO_HAVE_STDINT 1
