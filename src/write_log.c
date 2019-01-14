@@ -48,6 +48,7 @@
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 
+<<<<<<< HEAD
 /* Plugin:WriteLog has to also operate without a config, so use a global. */
 int wl_format = WL_FORMAT_GRAPHITE;
 =======
@@ -85,6 +86,8 @@ static int wl_write_graphite (const data_set_t *ds, const value_list_t *vl)
 =======
 >>>>>>> Completes rebase
 
+=======
+>>>>>>> Adds upstream write_log
 /* Plugin:WriteLog has to also operate without a config, so use a global. */
 int wl_format = WL_FORMAT_GRAPHITE;
 
@@ -92,6 +95,7 @@ static int wl_write_graphite(const data_set_t *ds, const value_list_t *vl) {
   char buffer[WL_BUF_SIZE] = {0};
   int status;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -105,6 +109,8 @@ static int wl_write_graphite(const data_set_t *ds, const value_list_t *vl) {
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Adds upstream write_log
   if (0 != strcmp(ds->type, vl->type)) {
     ERROR("write_log plugin: DS type does not match value list type");
     return -1;
@@ -117,6 +123,7 @@ static int wl_write_graphite(const data_set_t *ds, const value_list_t *vl) {
   INFO("write_log values:\n%s", buffer);
 
   return 0;
+<<<<<<< HEAD
 } /* int wl_write_graphite */
 
 static int wl_write_json(const data_set_t *ds, const value_list_t *vl) {
@@ -153,30 +160,31 @@ static int wl_write(const data_set_t *ds, const value_list_t *vl,
 =======
 >>>>>>> Completes rebase
     return (0);
+=======
+>>>>>>> Adds upstream write_log
 } /* int wl_write_graphite */
 
-static int wl_write_json (const data_set_t *ds, const value_list_t *vl)
-{
-    char buffer[WL_BUF_SIZE] = { 0 };
-    size_t bfree = sizeof(buffer);
-    size_t bfill = 0;
+static int wl_write_json(const data_set_t *ds, const value_list_t *vl) {
+  char buffer[WL_BUF_SIZE] = {0};
+  size_t bfree = sizeof(buffer);
+  size_t bfill = 0;
 
-    if (0 != strcmp (ds->type, vl->type))
-    {
-        ERROR ("write_log plugin: DS type does not match value list type");
-        return -1;
-    }
+  if (0 != strcmp(ds->type, vl->type)) {
+    ERROR("write_log plugin: DS type does not match value list type");
+    return -1;
+  }
 
-    format_json_initialize(buffer, &bfill, &bfree);
-    format_json_value_list(buffer, &bfill, &bfree, ds, vl,
-                           /* store rates = */ 0);
-    format_json_finalize(buffer, &bfill, &bfree);
+  format_json_initialize(buffer, &bfill, &bfree);
+  format_json_value_list(buffer, &bfill, &bfree, ds, vl,
+                         /* store rates = */ 0);
+  format_json_finalize(buffer, &bfill, &bfree);
 
-    INFO ("write_log values:\n%s", buffer);
+  INFO("write_log values:\n%s", buffer);
 
-    return (0);
+  return 0;
 } /* int wl_write_json */
 
+<<<<<<< HEAD
 static int wl_write (const data_set_t *ds, const value_list_t *vl,
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -233,6 +241,11 @@ static int wl_write (const data_set_t *ds, const value_list_t *vl,
         status = wl_write_json (ds, vl);
     }
 >>>>>>> Completes rebase
+=======
+static int wl_write(const data_set_t *ds, const value_list_t *vl,
+                    __attribute__((unused)) user_data_t *user_data) {
+  int status = 0;
+>>>>>>> Adds upstream write_log
 
   if (wl_format == WL_FORMAT_GRAPHITE) {
     status = wl_write_graphite(ds, vl);
@@ -243,6 +256,7 @@ static int wl_write (const data_set_t *ds, const value_list_t *vl,
   return status;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -400,12 +414,16 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
 >>>>>>> Completes rebase
     if (mode == 0)
         mode = WL_FORMAT_GRAPHITE;
+=======
+static int wl_config(oconfig_item_t *ci) /* {{{ */
+{
+  bool format_seen = false;
+>>>>>>> Adds upstream write_log
 
-    user_data_t ud = {
-        .data = (void *) (size_t) mode,
-        .free_func = NULL
-    };
+  for (int i = 0; i < ci->children_num; i++) {
+    oconfig_item_t *child = ci->children + i;
 
+<<<<<<< HEAD
     plugin_register_write ("write_log", wl_write, &ud);
 <<<<<<< HEAD
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
@@ -460,6 +478,13 @@ void module_register (void)
     plugin_register_write ("write_log", wl_write, &ud);
 }
 >>>>>>> Completes rebase
+=======
+    if (strcasecmp("Format", child->key) == 0) {
+      char str[16];
+
+      if (cf_util_get_string_buffer(child, str, sizeof(str)) != 0)
+        continue;
+>>>>>>> Adds upstream write_log
 
       if (format_seen) {
         WARNING("write_log plugin: Redefining option `%s'.", child->key);
