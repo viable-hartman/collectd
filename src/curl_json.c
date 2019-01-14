@@ -801,6 +801,7 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
@@ -809,6 +810,8 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
   if (key->instance == NULL) {
     int len = 0;
     for (int i = 0; i < db->depth; i++)
@@ -816,6 +819,7 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
                       i ? "-%s" : "%s", db->state[i + 1].name);
   } else
     sstrncpy(vl.type_instance, key->instance, sizeof(vl.type_instance));
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -845,6 +849,8 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 
   sstrncpy(vl.host, cj_host(db), sizeof(vl.host));
   sstrncpy(vl.plugin, (db->plugin_name != NULL) ? db->plugin_name : "curl_json",

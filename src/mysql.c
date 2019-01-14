@@ -259,6 +259,7 @@ static int mysql_config(oconfig_item_t *ci) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
@@ -267,6 +268,8 @@ static int mysql_config(oconfig_item_t *ci) /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 static MYSQL *getconnection(mysql_database_t *db) {
   const char *cipher;
 
@@ -319,6 +322,7 @@ static MYSQL *getconnection(mysql_database_t *db) {
 
   db->is_connected = true;
   return db->con;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -422,6 +426,8 @@ static MYSQL *getconnection (mysql_database_t *db)
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 } /* static MYSQL *getconnection (mysql_database_t *db) */
 
 static void set_host(mysql_database_t *db, char *buf, size_t buflen) {
@@ -1064,6 +1070,7 @@ static int mysql_read(user_data_t *ud) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 void module_register(void) {
@@ -1091,4 +1098,8 @@ void module_register (void)
 >>>>>>> Ensure that mysql_thread_init() is called from every thread,
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+void module_register(void) {
+  plugin_register_complex_config("mysql", mysql_config);
+>>>>>>> Completes rebase
 } /* void module_register */

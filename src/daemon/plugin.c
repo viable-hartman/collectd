@@ -631,6 +631,7 @@ static void start_read_threads(size_t num) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
@@ -639,6 +640,8 @@ static void start_read_threads(size_t num) /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
   if (read_threads != NULL)
     return;
 
@@ -691,6 +694,7 @@ static void stop_read_threads(void) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Avoid hang when restarting
 =======
@@ -731,6 +735,8 @@ static void stop_read_threads(void) {
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 } /* void stop_read_threads */
 
 static void plugin_value_list_free(value_list_t *vl) /* {{{ */
@@ -907,6 +913,7 @@ static void stop_write_threads(void) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
@@ -915,6 +922,8 @@ static void stop_write_threads(void) /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
   write_queue_t *q;
   size_t i;
 
@@ -957,6 +966,7 @@ static void stop_write_threads(void) /* {{{ */
             "the write threads.",
             i, (i == 1) ? " was" : "s were");
   }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -1025,6 +1035,8 @@ static void stop_write_threads(void) /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 } /* }}} void stop_write_threads */
 
 /*

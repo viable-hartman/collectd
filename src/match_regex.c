@@ -63,6 +63,7 @@ typedef struct mr_match_s mr_match_t;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
@@ -71,6 +72,8 @@ typedef struct mr_match_s mr_match_t;
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 struct mr_match_s {
   mr_regex_t *host;
   mr_regex_t *plugin;
@@ -99,6 +102,7 @@ struct mr_match_s
   bool invert;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 =======
@@ -120,6 +124,8 @@ struct mr_match_s
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 };
 
 /*
@@ -130,6 +136,7 @@ static void mr_free_regex(mr_regex_t *r) /* {{{ */
   if (r == NULL)
     return;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -160,6 +167,11 @@ static void mr_free_regex(mr_regex_t *r) /* {{{ */
 >>>>>>> Address review comments:
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+  regfree(&r->re);
+  memset(&r->re, 0, sizeof(r->re));
+  sfree(r->re_str);
+>>>>>>> Completes rebase
 
   if (r->next != NULL)
     mr_free_regex(r->next);
@@ -167,6 +179,7 @@ static void mr_free_regex(mr_regex_t *r) /* {{{ */
 
 static void mr_free_match(mr_match_t *m) /* {{{ */
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -179,6 +192,8 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
   if (m == NULL)
     return;
 
@@ -194,6 +209,7 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
   llist_destroy(m->meta);
 
   sfree(m);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -249,6 +265,8 @@ static void mr_free_match(mr_match_t *m) /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 } /* }}} void mr_free_match */
 
 static int mr_match_regexen(mr_regex_t *re_head, /* {{{ */
@@ -279,6 +297,7 @@ static int mr_match_regexen(mr_regex_t *re_head, /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
@@ -287,6 +306,8 @@ static int mr_match_regexen(mr_regex_t *re_head, /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 static int mr_add_regex(mr_regex_t **re_head, const char *re_str, /* {{{ */
                         const char *option) {
   mr_regex_t *re;
@@ -329,7 +350,6 @@ static int mr_add_regex(mr_regex_t **re_head, const char *re_str, /* {{{ */
 
     ptr->next = re;
   }
-<<<<<<< HEAD
 
   return 0;
 } /* }}} int mr_add_regex */
@@ -457,6 +477,7 @@ static int mr_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
 
   *user_data = m;
   return 0;
+<<<<<<< HEAD
 =======
 static int mr_add_regex (mr_regex_t **re_head, const char *re_str, /* {{{ */
 		const char *option)
@@ -854,6 +875,8 @@ static int mr_match (const data_set_t __attribute__((unused)) *ds, /* {{{ */
 >>>>>>> Allow Match:Regex to match metadata.
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 } /* }}} int mr_create */
 
 static int mr_destroy(void **user_data) /* {{{ */
@@ -917,6 +940,7 @@ static int mr_match(const data_set_t __attribute__((unused)) * ds, /* {{{ */
   return match_value;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 =======
@@ -976,6 +1000,8 @@ static int mr_match (const data_set_t __attribute__((unused)) *ds, /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 } /* }}} int mr_match */
 
 void module_register(void) {

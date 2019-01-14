@@ -7,6 +7,7 @@ AM_YFLAGS = -d
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Travis test (ignore)
 =======
@@ -56,6 +57,11 @@ SUBDIRS = src/libmongoc
 
 >>>>>>> Changes write_stackdriver to write_gcm
 >>>>>>> Changes write_stackdriver to write_gcm
+=======
+
+SUBDIRS = src/libmongoc
+
+>>>>>>> Completes rebase
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
@@ -954,12 +960,6 @@ pkglib_LTLIBRARIES += email.la
 email_la_SOURCES = src/email.c
 email_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
-<<<<<<< HEAD
-=======
-SUBDIRS = src/libmongoc
->>>>>>> mongo plugin
-=======
->>>>>>> Removes merge tags.
 
 if BUILD_PLUGIN_ENTROPY
 pkglib_LTLIBRARIES += entropy.la
@@ -1225,6 +1225,7 @@ match_value_la_SOURCES = src/match_value.c
 match_value_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
+<<<<<<< HEAD
 if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
 pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
 <<<<<<< HEAD
@@ -1239,6 +1240,8 @@ match_throttle_metadata_keys_la_SOURCES = src/match_throttle_metadata_keys.c src
 match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
+=======
+>>>>>>> Completes rebase
 if BUILD_PLUGIN_MBMON
 pkglib_LTLIBRARIES += mbmon.la
 mbmon_la_SOURCES = src/mbmon.c
@@ -1328,6 +1331,7 @@ mqtt_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(BUILD_WITH_LIBMOSQUITTO_LDFLAGS)
 mqtt_la_LIBADD = $(BUILD_WITH_LIBMOSQUITTO_LIBS)
 endif
 
+<<<<<<< HEAD
 if BUILD_PLUGIN_MONGODB
 pkglib_LTLIBRARIES += mongodb.la
 <<<<<<< HEAD
@@ -1363,6 +1367,8 @@ mongodb_la_LIBADD += -lmongoc
 endif
 endif
 
+=======
+>>>>>>> Completes rebase
 if BUILD_PLUGIN_MULTIMETER
 pkglib_LTLIBRARIES += multimeter.la
 multimeter_la_SOURCES = src/multimeter.c
@@ -1793,6 +1799,7 @@ endif
 
 endif
 
+<<<<<<< HEAD
 if BUILD_PLUGIN_STACKDRIVER_AGENT
 pkglib_LTLIBRARIES += stackdriver_agent.la
 <<<<<<< HEAD
@@ -1807,6 +1814,8 @@ stackdriver_agent_la_SOURCES = src/stackdriver_agent.c
 stackdriver_agent_la_LDFLAGS = -module -avoid-version
 endif
 
+=======
+>>>>>>> Completes rebase
 if BUILD_PLUGIN_SYNPROXY
 pkglib_LTLIBRARIES += synproxy.la
 synproxy_la_SOURCES = src/synproxy.c
@@ -2023,6 +2032,7 @@ wireless_la_SOURCES = src/wireless.c
 wireless_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
+<<<<<<< HEAD
 if BUILD_PLUGIN_WRITE_GCM
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2066,6 +2076,8 @@ SUBDIRS = src/libmongoc
 endif
 
 >>>>>>> Adds in mongodb makefile and configure info
+=======
+>>>>>>> Completes rebase
 if BUILD_PLUGIN_WRITE_GRAPHITE
 pkglib_LTLIBRARIES += write_graphite.la
 write_graphite_la_SOURCES = src/write_graphite.c

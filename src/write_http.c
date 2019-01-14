@@ -32,6 +32,7 @@
 
 #include <curl/curl.h>
 
+<<<<<<< HEAD
 #ifndef WRITE_HTTP_DEFAULT_BUFFER_SIZE
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -70,6 +71,12 @@
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+#ifndef WRITE_HTTP_DEFAULT_PREFIX
+#define WRITE_HTTP_DEFAULT_PREFIX "collectd"
+#define WRITE_HTTP_DEFAULT_BUFFER_SIZE
+#define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
+>>>>>>> Completes rebase
 #endif
 
 /*
@@ -112,6 +119,7 @@ struct wh_callback_s {
   size_t send_buffer_free;
   size_t send_buffer_fill;
   cdtime_t send_buffer_init_time;
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -157,6 +165,11 @@ struct wh_callback_s {
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+  cdtime_t buffer_flush_last;
+  pthread_mutex_t send_lock;
+  pthread_mutex_t flush_lock;
+>>>>>>> Completes rebase
 };
 typedef struct wh_callback_s wh_callback_t;
 
@@ -590,6 +603,7 @@ static int wh_write_kairosdb(const data_set_t *ds,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> adds upstream write_http
 =======
@@ -637,6 +651,8 @@ static int wh_write(const data_set_t *ds, const value_list_t *vl, /* {{{ */
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
                 user_data_t *user_data)
 {
@@ -676,6 +692,7 @@ static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Bump the buffer size for the write_http plugin and force flushing
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
@@ -690,6 +707,8 @@ static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 >>>>>>> adds upstream write_http
+=======
+>>>>>>> Completes rebase
 } /* }}} int wh_write */
 
 static int wh_notify(notification_t const *n, user_data_t *ud) /* {{{ */

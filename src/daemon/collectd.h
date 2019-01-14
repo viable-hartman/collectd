@@ -238,6 +238,7 @@ typedef int uid_t;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Disallow intervals that are less than sixty seconds
 =======
@@ -265,6 +266,9 @@ typedef int uid_t;
 #define COLLECTD_DEFAULT_INTERVAL 60.0
 >>>>>>> Merge conflicts from rebase
 >>>>>>> Merge conflicts from rebase
+=======
+# define COLLECTD_DEFAULT_INTERVAL 60.0
+>>>>>>> Completes rebase
 #endif
 
 #ifndef COLLECTD_USERAGENT

@@ -926,6 +926,7 @@ cdtime_t global_option_get_time(const char *name, cdtime_t def) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Disallow intervals that are less than sixty seconds
 =======
@@ -938,6 +939,8 @@ cdtime_t cf_get_default_interval(void) {
 =======
 =======
 >>>>>>> Merge conflicts from rebase
+=======
+>>>>>>> Completes rebase
 cdtime_t cf_get_default_interval (void)
 {
 	cdtime_t result = (global_option_get_time ("Interval",
@@ -949,6 +952,7 @@ cdtime_t cf_get_default_interval (void)
 	}
 	return result;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Disallow intervals that are less than sixty seconds
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -969,6 +973,8 @@ cdtime_t cf_get_default_interval(void) {
 =======
 >>>>>>> Merge conflicts from rebase
 >>>>>>> Merge conflicts from rebase
+=======
+>>>>>>> Completes rebase
 }
 
 void cf_unregister(const char *type) {

@@ -43,12 +43,15 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 
 /* Plugin:WriteLog has to also operate without a config, so use a global. */
 int wl_format = WL_FORMAT_GRAPHITE;
+=======
+>>>>>>> Completes rebase
 
 <<<<<<< HEAD
 =======
@@ -67,6 +70,7 @@ static int wl_write_graphite (const data_set_t *ds, const value_list_t *vl)
         ERROR ("write_log plugin: DS type does not match value list type");
         return -1;
     }
+<<<<<<< HEAD
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -78,6 +82,8 @@ static int wl_write_graphite (const data_set_t *ds, const value_list_t *vl)
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 
 /* Plugin:WriteLog has to also operate without a config, so use a global. */
 int wl_format = WL_FORMAT_GRAPHITE;
@@ -86,6 +92,7 @@ static int wl_write_graphite(const data_set_t *ds, const value_list_t *vl) {
   char buffer[WL_BUF_SIZE] = {0};
   int status;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -143,6 +150,8 @@ static int wl_write(const data_set_t *ds, const value_list_t *vl,
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
+=======
+>>>>>>> Completes rebase
     return (0);
 } /* int wl_write_graphite */
 
@@ -171,6 +180,7 @@ static int wl_write_json (const data_set_t *ds, const value_list_t *vl)
 static int wl_write (const data_set_t *ds, const value_list_t *vl,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         __attribute__ ((unused)) user_data_t *user_data)
 {
     int status = 0;
@@ -185,13 +195,18 @@ static int wl_write (const data_set_t *ds, const value_list_t *vl,
 =======
         __attribute__ ((unused)) user_data_t *user_data)
 >>>>>>> Address review comments:
+=======
+        user_data_t *user_data)
+>>>>>>> Completes rebase
 {
     int status = 0;
+    int mode = (int) (size_t) user_data->data;
 
-    if (wl_format == WL_FORMAT_GRAPHITE)
+    if (mode == WL_FORMAT_GRAPHITE)
     {
         status = wl_write_graphite (ds, vl);
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
     else if (mode == WL_FORMAT_JSON)
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
@@ -212,6 +227,12 @@ static int wl_write (const data_set_t *ds, const value_list_t *vl,
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+    else if (mode == WL_FORMAT_JSON)
+    {
+        status = wl_write_json (ds, vl);
+    }
+>>>>>>> Completes rebase
 
   if (wl_format == WL_FORMAT_GRAPHITE) {
     status = wl_write_graphite(ds, vl);
@@ -222,6 +243,7 @@ static int wl_write (const data_set_t *ds, const value_list_t *vl,
   return status;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -267,12 +289,18 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
     _Bool format_seen = 0;
 
 >>>>>>> Address review comments:
+=======
+static int wl_config (oconfig_item_t *ci) /* {{{ */
+{
+    int mode = 0;
+>>>>>>> Completes rebase
     for (int i = 0; i < ci->children_num; i++)
     {
         oconfig_item_t *child = ci->children + i;
 
         if (strcasecmp ("Format", child->key) == 0)
         {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -285,6 +313,8 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
             if (format_seen)
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> Completes rebase
             char *mode_str = NULL;
             if ((child->values_num != 1)
                 || (child->values[0].type != OCONFIG_TYPE_STRING))
@@ -294,13 +324,17 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
                 return (-EINVAL);
             }
             if (mode != 0)
+<<<<<<< HEAD
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
 =======
 >>>>>>> Address review comments:
+=======
+>>>>>>> Completes rebase
             {
                 WARNING ("write_log plugin: Redefining option `%s'.",
                     child->key);
             }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -333,6 +367,17 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
                 ERROR ("write_log plugin: Unknown format `%s' for option `%s'.",
                     str, child->key);
 >>>>>>> Address review comments:
+=======
+            mode_str = child->values[0].value.string;
+            if (strcasecmp ("Graphite", mode_str) == 0)
+                mode = WL_FORMAT_GRAPHITE;
+            else if (strcasecmp ("JSON", mode_str) == 0)
+                mode = WL_FORMAT_JSON;
+            else
+            {
+                ERROR ("write_log plugin: Unknown mode `%s' for option `%s'.",
+                    mode_str, child->key);
+>>>>>>> Completes rebase
                 return (-EINVAL);
             }
         }
@@ -342,12 +387,17 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
                 child->key);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
             return (-EINVAL);
         }
     }
 =======
         }
     }
+=======
+        }
+    }
+>>>>>>> Completes rebase
     if (mode == 0)
         mode = WL_FORMAT_GRAPHITE;
 
@@ -357,12 +407,15 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
     };
 
     plugin_register_write ("write_log", wl_write, &ud);
+<<<<<<< HEAD
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
 =======
             return (-EINVAL);
         }
     }
 >>>>>>> Address review comments:
+=======
+>>>>>>> Completes rebase
 
     return (0);
 } /* }}} int wl_config */
@@ -370,6 +423,7 @@ static int wl_config (oconfig_item_t *ci) /* {{{ */
 void module_register (void)
 {
     plugin_register_complex_config ("write_log", wl_config);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     /* If config is supplied, the global wl_format will be set. */
@@ -396,6 +450,16 @@ void module_register (void)
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+
+    user_data_t ud = {
+        .data = (void *) (size_t) WL_FORMAT_GRAPHITE,
+        .free_func = NULL
+    };
+
+    plugin_register_write ("write_log", wl_write, &ud);
+}
+>>>>>>> Completes rebase
 
       if (format_seen) {
         WARNING("write_log plugin: Redefining option `%s'.", child->key);

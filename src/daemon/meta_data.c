@@ -31,6 +31,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
@@ -46,6 +47,8 @@
 >>>>>>> Address review comments:
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 #include "meta_data.h"
 #include "plugin.h"
 
@@ -712,6 +715,7 @@ int meta_data_get_boolean(meta_data_t *md, /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
@@ -720,6 +724,8 @@ int meta_data_get_boolean(meta_data_t *md, /* {{{ */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 int meta_data_as_string(meta_data_t *md, /* {{{ */
                         const char *key, char **value) {
   meta_entry_t *e;
@@ -727,6 +733,7 @@ int meta_data_as_string(meta_data_t *md, /* {{{ */
   char buffer[MD_MAX_NONSTRING_CHARS]; /* For non-string types. */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   char *temp;
   int type;
 
@@ -912,21 +919,12 @@ int meta_data_as_string (meta_data_t *md, /* {{{ */
   char buffer[MD_MAX_NONSTRING_CHARS];  /* For non-string types. */
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
   char *temp;
   int type;
 
   if ((md == NULL) || (key == NULL) || (value == NULL))
-<<<<<<< HEAD
-    return (-EINVAL);
-
-  pthread_mutex_lock (&md->lock);
-
-  e = md_entry_lookup (md, key);
-  if (e == NULL)
-  {
-    pthread_mutex_unlock (&md->lock);
-    return (-ENOENT);
-=======
     return -EINVAL;
 
   pthread_mutex_lock(&md->lock);
@@ -935,47 +933,10 @@ int meta_data_as_string (meta_data_t *md, /* {{{ */
   if (e == NULL) {
     pthread_mutex_unlock(&md->lock);
     return -ENOENT;
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   }
 
   type = e->type;
 
-<<<<<<< HEAD
-  switch (type)
-  {
-    case MD_TYPE_STRING:
-      actual = e->value.mv_string;
-      break;
-    case MD_TYPE_SIGNED_INT:
-      ssnprintf (buffer, sizeof (buffer), "%"PRIi64, e->value.mv_signed_int);
-      actual = buffer;
-      break;
-    case MD_TYPE_UNSIGNED_INT:
-      ssnprintf (buffer, sizeof (buffer), "%"PRIu64, e->value.mv_unsigned_int);
-      actual = buffer;
-      break;
-    case MD_TYPE_DOUBLE:
-      ssnprintf (buffer, sizeof (buffer), GAUGE_FORMAT, e->value.mv_double);
-      actual = buffer;
-      break;
-    case MD_TYPE_BOOLEAN:
-      actual = e->value.mv_boolean ? "true" : "false";
-      break;
-    default:
-      pthread_mutex_unlock (&md->lock);
-      ERROR ("meta_data_as_string: unknown type %d for key `%s'", type, key);
-      return (-ENOENT);
-  }
-
-  pthread_mutex_unlock (&md->lock);
-
-  temp = md_strdup (actual);
-  if (temp == NULL)
-  {
-    pthread_mutex_unlock (&md->lock);
-    ERROR ("meta_data_as_string: md_strdup failed for key `%s'.", key);
-    return (-ENOMEM);
-=======
   switch (type) {
   case MD_TYPE_STRING:
     actual = e->value.mv_string;
@@ -1007,11 +968,11 @@ int meta_data_as_string (meta_data_t *md, /* {{{ */
   if (temp == NULL) {
     ERROR("meta_data_as_string: md_strdup failed for key `%s'.", key);
     return -ENOMEM;
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   }
 
   *value = temp;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   return (0);
 } /* }}} int meta_data_as_string */
@@ -1026,3 +987,7 @@ int meta_data_as_string (meta_data_t *md, /* {{{ */
 } /* }}} int meta_data_as_string */
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+  return 0;
+} /* }}} int meta_data_as_string */
+>>>>>>> Completes rebase

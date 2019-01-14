@@ -266,6 +266,7 @@ static int memory_read_internal(value_list_t *vl) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
@@ -274,6 +275,8 @@ static int memory_read_internal(value_list_t *vl) {
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
   FILE *fh;
   char buffer[1024];
 
@@ -346,6 +349,7 @@ static int memory_read_internal(value_list_t *vl) {
   else
     MEMORY_SUBMIT("used", mem_used, "buffered", mem_buffered, "cached",
                   mem_cached, "free", mem_free, "slab", mem_slab_total);
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -460,6 +464,8 @@ static int memory_read_internal(value_list_t *vl) {
 >>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Completes rebase
 /* #endif KERNEL_LINUX */
 
 #elif HAVE_LIBKSTAT
