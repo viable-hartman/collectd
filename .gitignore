@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # build.sh stuff:
 Makefile.in
 /INSTALL
@@ -26,6 +27,8 @@ Makefile.in
 
 =======
 >>>>>>> gitignore
+=======
+>>>>>>> Merge conflicts from rebase
 # configure stuff:
 Makefile
 !stackdriver/Makefile
@@ -60,6 +63,7 @@ src/libcollectdclient/collectd/lcc_features.h
 *.orig
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # lex / yacc stuff:
 ylwrap
 src/liboconfig/parser.c
@@ -74,6 +78,8 @@ src/liboconfig/scanner.c
 
 =======
 >>>>>>> gitignore
+=======
+>>>>>>> Merge conflicts from rebase
 # make dist stuff:
 /collectd-*.tar.gz
 /collectd-*.tar.bz2

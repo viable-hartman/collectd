@@ -237,10 +237,13 @@ typedef int uid_t;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Disallow intervals that are less than sixty seconds
 =======
 >>>>>>> Removes HEAD tag (atom bug) from collectd.h
+=======
+>>>>>>> Merge conflicts from rebase
 #define COLLECTD_DEFAULT_INTERVAL 10.0
 =======
 # define COLLECTD_DEFAULT_INTERVAL 60.0
@@ -251,12 +254,17 @@ typedef int uid_t;
 #define COLLECTD_DEFAULT_INTERVAL 10.0
 >>>>>>> Removes HEAD tag (atom bug) from collectd.h
 =======
+<<<<<<< HEAD
 >>>>>>> Disallow intervals that are less than sixty seconds
 =======
 =======
 #define COLLECTD_DEFAULT_INTERVAL 10.0
 >>>>>>> Removes HEAD tag (atom bug) from collectd.h
 >>>>>>> Removes HEAD tag (atom bug) from collectd.h
+=======
+#define COLLECTD_DEFAULT_INTERVAL 60.0
+>>>>>>> Merge conflicts from rebase
+>>>>>>> Merge conflicts from rebase
 #endif
 
 #ifndef COLLECTD_USERAGENT

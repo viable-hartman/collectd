@@ -925,14 +925,19 @@ cdtime_t global_option_get_time(const char *name, cdtime_t def) /* {{{ */
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Disallow intervals that are less than sixty seconds
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+>>>>>>> Merge conflicts from rebase
 cdtime_t cf_get_default_interval(void) {
   return global_option_get_time("Interval",
                                 DOUBLE_TO_CDTIME_T(COLLECTD_DEFAULT_INTERVAL));
 =======
+=======
+>>>>>>> Merge conflicts from rebase
 cdtime_t cf_get_default_interval (void)
 {
 	cdtime_t result = (global_option_get_time ("Interval",
@@ -943,6 +948,7 @@ cdtime_t cf_get_default_interval (void)
 		ERROR ("The Stackdriver agent only supports intervals of 60 seconds or more. Using 60 seconds.");
 	}
 	return result;
+<<<<<<< HEAD
 >>>>>>> Disallow intervals that are less than sixty seconds
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -954,10 +960,15 @@ cdtime_t cf_get_default_interval(void) {
                                 DOUBLE_TO_CDTIME_T(COLLECTD_DEFAULT_INTERVAL));
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Disallow intervals that are less than sixty seconds
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+=======
+=======
+>>>>>>> Merge conflicts from rebase
+>>>>>>> Merge conflicts from rebase
 }
 
 void cf_unregister(const char *type) {
