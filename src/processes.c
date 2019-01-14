@@ -150,7 +150,6 @@
 #define MAXPROCENTRY 32
 #define MAXTHRDENTRY 16
 #define MAXARGLN 1024
-#define VALUE_UNSET -1
 /* #endif HAVE_PROCINFO_H */
 
 #elif KERNEL_SOLARIS
@@ -212,8 +211,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Checking processes.c for rebase
+=======
+#define VALUE_UNSET -1
+>>>>>>> Define VALUE_UNSET
 
 typedef struct procstat_counters_s {
   derive_t vmem_minflt_counter;
