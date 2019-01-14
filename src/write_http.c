@@ -32,22 +32,10 @@
 
 #include <curl/curl.h>
 
-#ifndef WRITE_HTTP_DEFAULT_BUFFER_SIZE
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-#define WRITE_HTTP_DEFAULT_BUFFER_SIZE 4096
-#endif
-
 #ifndef WRITE_HTTP_DEFAULT_PREFIX
 #define WRITE_HTTP_DEFAULT_PREFIX "collectd"
-<<<<<<< HEAD
-=======
-# define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+#define WRITE_HTTP_DEFAULT_BUFFER_SIZE
+#define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
 #endif
 
 /*
@@ -90,29 +78,9 @@ struct wh_callback_s {
   size_t send_buffer_free;
   size_t send_buffer_fill;
   cdtime_t send_buffer_init_time;
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+  cdtime_t buffer_flush_last;
   pthread_mutex_t send_lock;
-
-  int data_ttl;
-  char *metrics_prefix;
-<<<<<<< HEAD
-=======
-        char  *send_buffer;
-        size_t send_buffer_size;
-        size_t send_buffer_free;
-        size_t send_buffer_fill;
-        cdtime_t send_buffer_init_time;
-        cdtime_t buffer_flush_last;
-
-        pthread_mutex_t send_lock;
-        pthread_mutex_t flush_lock;
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+  pthread_mutex_t flush_lock;
 };
 typedef struct wh_callback_s wh_callback_t;
 
@@ -540,38 +508,6 @@ static int wh_write_kairosdb(const data_set_t *ds,
   return 0;
 } /* }}} int wh_write_kairosdb */
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> adds upstream write_http
-static int wh_write(const data_set_t *ds, const value_list_t *vl, /* {{{ */
-                    user_data_t *user_data) {
-  wh_callback_t *cb;
-  int status;
-
-  if (user_data == NULL)
-    return -EINVAL;
-
-  cb = user_data->data;
-  assert(cb->send_metrics);
-
-  switch (cb->format) {
-  case WH_FORMAT_JSON:
-    status = wh_write_json(ds, vl, cb);
-    break;
-  case WH_FORMAT_KAIROSDB:
-    status = wh_write_kairosdb(ds, vl, cb);
-    break;
-  default:
-    status = wh_write_command(ds, vl, cb);
-    break;
-  }
-  return status;
-<<<<<<< HEAD
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
                 user_data_t *user_data)
 {
@@ -608,12 +544,6 @@ static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
                 break;
         }
         return (status);
-<<<<<<< HEAD
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> adds upstream write_http
 } /* }}} int wh_write */
 
 static int wh_notify(notification_t const *n, user_data_t *ud) /* {{{ */

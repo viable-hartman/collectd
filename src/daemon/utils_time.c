@@ -1,4 +1,3 @@
-
 /**
  * collectd - src/utils_time.c
  * Copyright (C) 2010-2015  Florian octo Forster
@@ -44,10 +43,6 @@ cdtime_t cdtime(void) { return cdtime_mock; }
 cdtime_t cdtime(void) /* {{{ */
 {
   int status;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   struct timespec ts = {0, 0};
 
   status = clock_gettime(CLOCK_REALTIME, &ts);
@@ -57,33 +52,12 @@ cdtime_t cdtime(void) /* {{{ */
   }
 
   return TIMESPEC_TO_CDTIME_T(&ts);
-<<<<<<< HEAD
-=======
-  struct timespec ts = { 0, 0 };
-
-  status = clock_gettime (CLOCK_REALTIME, &ts);
-  if (status != 0)
-  {
-    char errbuf[1024];
-    ERROR ("cdtime: clock_gettime failed: %s",
-        sstrerror (errno, errbuf, sizeof (errbuf)));
-    return 0;
-  }
-
-  return TIMESPEC_TO_CDTIME_T (&ts);
->>>>>>> Address review comments:
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} cdtime_t cdtime */
 #else /* !HAVE_CLOCK_GETTIME */
 /* Work around for Mac OS X which doesn't have clock_gettime(2). *sigh* */
 cdtime_t cdtime(void) /* {{{ */
 {
   int status;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   struct timeval tv = {0, 0};
 
   status = gettimeofday(&tv, /* struct timezone = */ NULL);
@@ -93,23 +67,6 @@ cdtime_t cdtime(void) /* {{{ */
   }
 
   return TIMEVAL_TO_CDTIME_T(&tv);
-<<<<<<< HEAD
-=======
-  struct timeval tv = { 0, 0 };
-
-  status = gettimeofday (&tv, /* struct timezone = */ NULL);
-  if (status != 0)
-  {
-    char errbuf[1024];
-    ERROR ("cdtime: gettimeofday failed: %s",
-        sstrerror (errno, errbuf, sizeof (errbuf)));
-    return 0;
-  }
-
-  return TIMEVAL_TO_CDTIME_T (&tv);
->>>>>>> Address review comments:
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} cdtime_t cdtime */
 #endif
 #endif
@@ -157,16 +114,8 @@ static const char zulu_zone[] = "Z";
 /* format_zone reads time zone information from "extern long timezone", exported
  * by <time.h>, and formats it according to RFC 3339. This differs from
  * strftime()'s "%z" format by including a colon between hour and minute. */
-<<<<<<< HEAD
-<<<<<<< HEAD
 static int format_zone(char *buffer, size_t buffer_size,
                        struct tm const *tm) /* {{{ */
-=======
-static int format_zone (char *buffer, size_t buffer_size) /* {{{ */
->>>>>>> Address review comments:
-=======
-static int format_zone (char *buffer, size_t buffer_size, struct tm const *tm) /* {{{ */
->>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
 {
   char tmp[7];
   size_t sz;
@@ -174,15 +123,7 @@ static int format_zone (char *buffer, size_t buffer_size, struct tm const *tm) /
   if ((buffer == NULL) || (buffer_size < 7))
     return EINVAL;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   sz = strftime(tmp, sizeof(tmp), "%z", tm);
-=======
-  sz = strftime (tmp, sizeof (tmp), "%z", &t_tm);
->>>>>>> Address review comments:
-=======
-  sz = strftime (tmp, sizeof (tmp), "%z", tm);
->>>>>>> src/daemon/utils_time.c: Pass "struct tm *" to format_zone().
   if (sz == 0)
     return ENOMEM;
   if (sz != 5) {
@@ -202,14 +143,8 @@ static int format_zone (char *buffer, size_t buffer_size, struct tm const *tm) /
   return 0;
 } /* }}} int format_zone */
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
                    long nsec, bool print_nano, char const *zone) /* {{{ */
-=======
-static int format_rfc3339 (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano, _Bool zulu) /* {{{ */
->>>>>>> Add RFC3339 Zulu time functions
 {
   size_t len;
   char *pos = buffer;
@@ -241,29 +176,9 @@ int format_rfc3339_utc(char *buffer, size_t buffer_size, cdtime_t t,
   if ((status = get_utc_time(t, &t_tm, &nsec)) != 0)
     return status; /* The error should have already be reported. */
 
-<<<<<<< HEAD
   return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano,
                         zulu_zone);
 } /* }}} int format_rfc3339_utc */
-=======
-  if (zulu) {
-    if (gmtime_r (&t_spec.tv_sec, &t_tm) == NULL) {
-      char errbuf[1024];
-      status = errno;
-      ERROR ("format_rfc3339: gmtime_r failed: %s",
-          sstrerror (status, errbuf, sizeof (errbuf)));
-      return (status);
-    }
-  } else {
-    if (localtime_r (&t_spec.tv_sec, &t_tm) == NULL) {
-      char errbuf[1024];
-      status = errno;
-      ERROR ("format_rfc3339: localtime_r failed: %s",
-          sstrerror (status, errbuf, sizeof (errbuf)));
-      return (status);
-    }
-  }
->>>>>>> Add RFC3339 Zulu time functions
 
 int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
                          bool print_nano) /* {{{ */
@@ -276,153 +191,29 @@ int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
   if ((status = get_local_time(t, &t_tm, &nsec)) != 0)
     return status; /* The error should have already be reported. */
 
-<<<<<<< HEAD
   if ((status = format_zone(zone, sizeof(zone), &t_tm)) != 0)
     return status;
-=======
-  if (zulu) {
-    zone[0] = 'Z';
-    zone[1] = 0;
-  } else {
-    status = format_zone (zone, sizeof (zone), &t_tm);
-    if (status != 0)
-      return status;
-=======
-int format_rfc3339 (char *buffer, size_t buffer_size, struct tm const *t_tm, long nsec, _Bool print_nano, char const *zone) /* {{{ */
-=======
-int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
-                   long nsec, bool print_nano, char const *zone) /* {{{ */
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-{
-  int len;
-  char *pos = buffer;
-  size_t size_left = buffer_size;
 
-  if ((len = strftime (pos, size_left, "%Y-%m-%dT%H:%M:%S", t_tm)) == 0)
-    return ENOMEM;
-  pos += len;
-  size_left -= len;
-
-  if (print_nano) {
-    if ((len = ssnprintf (pos, size_left, ".%09ld", nsec)) == 0)
-      return ENOMEM;
-    pos += len;
-    size_left -= len;
->>>>>>> Address review comments:
-  }
->>>>>>> Add RFC3339 Zulu time functions
-
-<<<<<<< HEAD
   return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano, zone);
 } /* }}} int format_rfc3339_local */
 
-<<<<<<< HEAD
 /**********************************************************************
  Public functions
 ***********************************************************************/
 
 int rfc3339(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
-=======
-  sstrncpy (buffer, zone, buffer_size);
-=======
-  sstrncpy (pos, zone, size_left);
->>>>>>> src/daemon/utils_time.c: Fix invalid strcpy position in format_rfc3339().
-  return 0;
-} /* }}} int format_rfc3339 */
-
-int format_rfc3339_utc (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano) /* {{{ */
-{
-  struct tm t_tm;
-  long nsec = 0;
-  int status;
-
-<<<<<<< HEAD
-  if ((status = get_utc_time (t, &t_tm, &nsec)) != 0)
-    return status;  /* The error should have already be reported. */
-
-  return format_rfc3339 (buffer, buffer_size, &t_tm, nsec, print_nano, zulu_zone);
-} /* }}} int format_rfc3339_utc */
-
-int format_rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano) /* {{{ */
-=======
-  if ((status = get_utc_time(t, &t_tm, &nsec)) != 0)
-    return status; /* The error should have already be reported. */
-
-  return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano,
-                        zulu_zone);
-} /* }}} int format_rfc3339_utc */
-
-int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
-                         bool print_nano) /* {{{ */
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-{
-  struct tm t_tm;
-  long nsec = 0;
-  int status;
-<<<<<<< HEAD
-  char zone[7];  /* +00:00 */
-
-  if ((status = get_local_time (t, &t_tm, &nsec)) != 0)
-    return status;  /* The error should have already be reported. */
-
-  if ((status = format_zone (zone, sizeof (zone), &t_tm)) != 0)
-    return status;
-
-  return format_rfc3339 (buffer, buffer_size, &t_tm, nsec, print_nano, zone);
-=======
-  char zone[7]; /* +00:00 */
-
-  if ((status = get_local_time(t, &t_tm, &nsec)) != 0)
-    return status; /* The error should have already be reported. */
-
-  if ((status = format_zone(zone, sizeof(zone), &t_tm)) != 0)
-    return status;
-
-  return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano, zone);
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-} /* }}} int format_rfc3339_local */
-
-/**********************************************************************
- Public functions
-***********************************************************************/
-
-int rfc3339 (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
->>>>>>> Address review comments:
 {
   if (buffer_size < RFC3339_SIZE)
     return ENOMEM;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   return format_rfc3339_utc(buffer, buffer_size, t, 0);
 } /* }}} int rfc3339 */
-=======
-  return format_rfc3339 (buffer, buffer_size, t, 0, 0);
-} /* }}} size_t cdtime_to_rfc3339 */
->>>>>>> Add RFC3339 Zulu time functions
-=======
-  return format_rfc3339_utc (buffer, buffer_size, t, 0, utc_zone);
-=======
-  return format_rfc3339_utc (buffer, buffer_size, t, 0);
->>>>>>> Address more review comments:
-} /* }}} int rfc3339 */
->>>>>>> Address review comments:
 
 int rfc3339nano(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339NANO_SIZE)
     return ENOMEM;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   return format_rfc3339_utc(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
 
@@ -432,69 +223,12 @@ int rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
     return ENOMEM;
 
   return format_rfc3339_local(buffer, buffer_size, t, 0);
-<<<<<<< HEAD
 } /* }}} int rfc3339 */
 
 int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339NANO_SIZE)
     return ENOMEM;
-=======
-  return format_rfc3339 (buffer, buffer_size, t, 1, 0);
-} /* }}} size_t cdtime_to_rfc3339nano */
-=======
-  return format_rfc3339_utc (buffer, buffer_size, t, 1, utc_zone);
-=======
-  return format_rfc3339_utc (buffer, buffer_size, t, 1);
->>>>>>> Address more review comments:
-} /* }}} int rfc3339nano */
->>>>>>> Address review comments:
-
-<<<<<<< HEAD
-int rfc3339_zulu (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
-{
-  if (buffer_size < RFC3339_ZULU_SIZE)
-    return ENOMEM;
-
-  return format_rfc3339_utc (buffer, buffer_size, t, 0, zulu_zone);
-} /* }}} int rfc3339_zulu */
-
-int rfc3339nano_zulu (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
-{
-  if (buffer_size < RFC3339NANO_ZULU_SIZE)
-    return ENOMEM;
-
-<<<<<<< HEAD
-  return format_rfc3339 (buffer, buffer_size, t, 1, 1);
-} /* }}} size_t cdtime_to_rfc3339nano */
->>>>>>> Add RFC3339 Zulu time functions
-=======
-  return format_rfc3339_utc (buffer, buffer_size, t, 1, zulu_zone);
-} /* }}} int rfc3339nano_zulu */
-
-=======
->>>>>>> Address more review comments:
-int rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
-{
-  if (buffer_size < RFC3339_SIZE)
-    return ENOMEM;
-
-  return format_rfc3339_local (buffer, buffer_size, t, 0);
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-} /* }}} int rfc3339 */
-
-int rfc3339nano_local (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
-{
-  if (buffer_size < RFC3339NANO_SIZE)
-    return ENOMEM;
-<<<<<<< HEAD
-
-  return format_rfc3339_local (buffer, buffer_size, t, 1);
-} /* }}} int rfc3339nano */
->>>>>>> Address review comments:
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   return format_rfc3339_local(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */

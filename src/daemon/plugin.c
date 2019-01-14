@@ -627,10 +627,6 @@ static void set_thread_name(pthread_t tid, char const *name) {
 
 static void start_read_threads(size_t num) /* {{{ */
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (read_threads != NULL)
     return;
 
@@ -680,28 +676,6 @@ static void stop_read_threads(void) {
   }
   sfree(read_threads);
   read_threads_num = 0;
-<<<<<<< HEAD
-=======
-	if (read_threads == NULL)
-		return;
-
-	INFO ("collectd: Stopping %i read threads.", read_threads_num);
-
-	pthread_mutex_lock (&read_lock);
-	read_loop = 0;
-	DEBUG ("plugin: stop_read_threads: Signalling `read_cond'");
-	pthread_cond_broadcast (&read_cond);
-	pthread_mutex_unlock (&read_lock);
-
-	for (int i = 0; i < read_threads_num; i++)
-	{
-		read_threads[i] = (pthread_t) 0;
-	}
-	sfree (read_threads);
-	read_threads_num = 0;
->>>>>>> Avoid hang when restarting
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* void stop_read_threads */
 
 static void plugin_value_list_free(value_list_t *vl) /* {{{ */
@@ -874,10 +848,6 @@ static void start_write_threads(size_t num) /* {{{ */
 
 static void stop_write_threads(void) /* {{{ */
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   write_queue_t *q;
   size_t i;
 
@@ -920,53 +890,6 @@ static void stop_write_threads(void) /* {{{ */
             "the write threads.",
             i, (i == 1) ? " was" : "s were");
   }
-<<<<<<< HEAD
-=======
-	write_queue_t *q;
-	size_t i;
-
-	if (write_threads == NULL)
-		return;
-
-	INFO ("collectd: Stopping %zu write threads.", write_threads_num);
-
-	pthread_mutex_lock (&write_lock);
-	write_loop = 0;
-	DEBUG ("plugin: stop_write_threads: Signalling `write_cond'");
-	pthread_cond_broadcast (&write_cond);
-	pthread_mutex_unlock (&write_lock);
-
-	for (i = 0; i < write_threads_num; i++)
-	{
-		write_threads[i] = (pthread_t) 0;
-	}
-	sfree (write_threads);
-	write_threads_num = 0;
-
-	pthread_mutex_lock (&write_lock);
-	i = 0;
-	for (q = write_queue_head; q != NULL; )
-	{
-		write_queue_t *q1 = q;
-		plugin_value_list_free (q->vl);
-		q = q->next;
-		sfree (q1);
-		i++;
-	}
-	write_queue_head = NULL;
-	write_queue_tail = NULL;
-	write_queue_length = 0;
-	pthread_mutex_unlock (&write_lock);
-
-	if (i > 0)
-	{
-		WARNING ("plugin: %zu value list%s left after shutting down "
-				"the write threads.",
-				i, (i == 1) ? " was" : "s were");
-	}
->>>>>>> Avoid hang when restarting
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 } /* }}} void stop_write_threads */
 
 /*

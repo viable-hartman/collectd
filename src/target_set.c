@@ -31,42 +31,13 @@
 #include "meta_data.h"
 #include "utils_subst.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 struct ts_key_list_s {
-=======
-struct ts_key_list_s
-{
->>>>>>> Allow deleting metadata keys.
-=======
-struct ts_key_list_s {
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   char *key;
   struct ts_key_list_s *next;
 };
 typedef struct ts_key_list_s ts_key_list_t;
-<<<<<<< HEAD
 
-<<<<<<< HEAD
 static void ts_key_list_free(ts_key_list_t *l) /* {{{ */
-=======
-static void ts_key_list_free (ts_key_list_t *l) /* {{{ */
-{
-  if (l == NULL)
-    return;
-
-  sfree (l->key);
-
-  if (l->next != NULL)
-    ts_key_list_free (l->next);
-
-  sfree (l);
-} /* }}} void ts_name_list_free */
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-
-struct ts_data_s
->>>>>>> Allow deleting metadata keys.
 {
   if (l == NULL)
     return;
@@ -94,28 +65,12 @@ static int ts_util_get_key_and_string_wo_strdup(const oconfig_item_t *ci,
                                                 char **ret_key,
                                                 char **ret_string) /* {{{ */
 {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if ((ci->values_num != 2) || (ci->values[0].type != OCONFIG_TYPE_STRING) ||
       (ci->values[1].type != OCONFIG_TYPE_STRING)) {
     ERROR("ts_util_get_key_and_string_wo_strdup: The %s option requires "
           "exactly two string arguments.",
           ci->key);
     return -1;
-<<<<<<< HEAD
-=======
-  if ((ci->values_num != 2)
-      || (ci->values[0].type != OCONFIG_TYPE_STRING)
-      || (ci->values[1].type != OCONFIG_TYPE_STRING))
-  {
-    ERROR ("ts_util_get_key_and_string_wo_strdup: The %s option requires "
-        "exactly two string arguments.", ci->key);
-    return (-1);
->>>>>>> Allow deleting metadata keys.
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   }
 
   *ret_key = ci->values[0].value.string;
@@ -154,16 +109,11 @@ static int ts_config_add_meta(meta_data_t **dest, /* {{{ */
   if (status != 0)
     return status;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (strlen(key) == 0) {
     ERROR("Target `set': The `%s' option does not accept empty string as "
           "first argument.",
           ci->key);
     return -1;
-<<<<<<< HEAD
   }
 
   if (!may_be_empty && (strlen(string) == 0)) {
@@ -178,38 +128,12 @@ static int ts_config_add_meta(meta_data_t **dest, /* {{{ */
     if ((*dest = meta_data_create()) == NULL) {
       ERROR("Target `set': failed to create a meta data for `%s'.", ci->key);
       return -ENOMEM;
-=======
-  if (strlen (key) == 0)
-  {
-    ERROR ("Target `set': The `%s' option does not accept empty string as "
-        "first argument.", ci->key);
-    return (-1);
-  }
-
-  if (!may_be_empty && (strlen (string) == 0))
-  {
-    ERROR ("Target `set': The `%s' option does not accept empty string as "
-        "second argument.", ci->key);
-    return (-1);
-  }
-
-  if ((*dest) == NULL)
-  {
-    /* Create a new meta_data_t */
-    if ((*dest = meta_data_create()) == NULL)
-    {
-      ERROR ("Target `set': failed to create a meta data for `%s'.", ci->key);
-      return (-ENOMEM);
->>>>>>> Allow deleting metadata keys.
     }
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   }
 
   return meta_data_add_string(*dest, key, string);
 } /* }}} int ts_config_add_meta */
 
-<<<<<<< HEAD
 static int ts_config_add_meta_delete(ts_key_list_t **dest, /* {{{ */
                                      const oconfig_item_t *ci) {
   ts_key_list_t *entry = NULL;
@@ -233,7 +157,6 @@ static int ts_config_add_meta_delete(ts_key_list_t **dest, /* {{{ */
     return -1;
   }
 
-<<<<<<< HEAD
   entry->next = *dest;
   *dest = entry;
 
@@ -277,162 +200,6 @@ static void ts_subst(char *dest, size_t size, const char *string, /* {{{ */
 
       REPLACE_FIELD(meta_name, value_str);
       sfree(value_str);
-=======
-  if ((*dest) == NULL) {
-    /* Create a new meta_data_t */
-    if ((*dest = meta_data_create()) == NULL) {
-      ERROR("Target `set': failed to create a meta data for `%s'.", ci->key);
-      return -ENOMEM;
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-    }
-
-    strarray_free(meta_toc, (size_t)meta_entries);
-  }
-} /* }}} int ts_subst */
-
-<<<<<<< HEAD
-static int ts_destroy(void **user_data) /* {{{ */
-=======
-static int ts_config_add_meta_delete (ts_key_list_t **dest, /* {{{ */
-    const oconfig_item_t *ci)
-{
-  ts_key_list_t *entry = NULL;
-
-  entry = calloc (1, sizeof (*entry));
-  if (entry == NULL)
-  {
-    ERROR ("ts_config_add_meta_delete: calloc failed.");
-    return (-ENOMEM);
-  }
-
-  if (cf_util_get_string (ci, &entry->key) != 0)
-  {
-    ts_key_list_free (entry);
-    return (-1);  /* An error has already been reported. */
-  }
-
-  if (strlen (entry->key) == 0)
-  {
-    ERROR ("Target `set': The `%s' option does not accept empty string as "
-        "first argument.", ci->key);
-    ts_key_list_free (entry);
-    return (-1);
-=======
-static int ts_config_add_meta_delete(ts_key_list_t **dest, /* {{{ */
-                                     const oconfig_item_t *ci) {
-  ts_key_list_t *entry = NULL;
-
-  entry = calloc(1, sizeof(*entry));
-  if (entry == NULL) {
-    ERROR("ts_config_add_meta_delete: calloc failed.");
-    return -ENOMEM;
-  }
-
-  if (cf_util_get_string(ci, &entry->key) != 0) {
-    ts_key_list_free(entry);
-    return -1; /* An error has already been reported. */
-  }
-
-  if (strlen(entry->key) == 0) {
-    ERROR("Target `set': The `%s' option does not accept empty string as "
-          "first argument.",
-          ci->key);
-    ts_key_list_free(entry);
-    return -1;
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-  }
-
-  entry->next = *dest;
-  *dest = entry;
-
-<<<<<<< HEAD
-  return (0);
-} /* }}} int ts_config_add_meta_delete */
-
-static void ts_subst (char *dest, size_t size, const char *string, /* {{{ */
-    const value_list_t *vl)
-{
-  char temp[DATA_MAX_NAME_LEN];
-
-  /* Initialize the field with the template. */
-  sstrncpy (dest, string, size);
-
-  if (strchr (dest, '%') == NULL)
-    return;
-
-#define REPLACE_FIELD(t, v) \
-  if (subst_string (temp, sizeof (temp), dest, t, v) != NULL) \
-    sstrncpy (dest, temp, size);
-  REPLACE_FIELD ("%{host}", vl->host);
-  REPLACE_FIELD ("%{plugin}", vl->plugin);
-  REPLACE_FIELD ("%{plugin_instance}", vl->plugin_instance);
-  REPLACE_FIELD ("%{type}", vl->type);
-  REPLACE_FIELD ("%{type_instance}", vl->type_instance);
-
-  if (vl->meta != NULL)
-  {
-    char **meta_toc;
-    int meta_entries = meta_data_toc (vl->meta, &meta_toc);
-    for (int i = 0; i < meta_entries; i++)
-    {
-=======
-  return 0;
-} /* }}} int ts_config_add_meta_delete */
-
-static void ts_subst(char *dest, size_t size, const char *string, /* {{{ */
-                     const value_list_t *vl) {
-  char temp[DATA_MAX_NAME_LEN];
-
-  /* Initialize the field with the template. */
-  sstrncpy(dest, string, size);
-
-  if (strchr(dest, '%') == NULL)
-    return;
-
-#define REPLACE_FIELD(t, v)                                                    \
-  if (subst_string(temp, sizeof(temp), dest, t, v) != NULL)                    \
-    sstrncpy(dest, temp, size);
-  REPLACE_FIELD("%{host}", vl->host);
-  REPLACE_FIELD("%{plugin}", vl->plugin);
-  REPLACE_FIELD("%{plugin_instance}", vl->plugin_instance);
-  REPLACE_FIELD("%{type}", vl->type);
-  REPLACE_FIELD("%{type_instance}", vl->type_instance);
-
-  if (vl->meta != NULL) {
-    char **meta_toc = NULL;
-    int status = meta_data_toc(vl->meta, &meta_toc);
-    if (status <= 0)
-      return;
-    size_t meta_entries = (size_t)status;
-
-    for (size_t i = 0; i < meta_entries; i++) {
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-      char meta_name[DATA_MAX_NAME_LEN];
-      char *value_str;
-      const char *key = meta_toc[i];
-
-<<<<<<< HEAD
-      ssnprintf (meta_name, sizeof (meta_name), "%%{meta:%s}", key);
-      if (meta_data_as_string (vl->meta, key, &value_str) != 0)
-        continue;
-
-      REPLACE_FIELD (meta_name, value_str);
-      sfree (value_str);
-    }
-
-    strarray_free (meta_toc, (size_t) meta_entries);
-  }
-} /* }}} int ts_subst */
-
-static int ts_destroy (void **user_data) /* {{{ */
->>>>>>> Allow deleting metadata keys.
-=======
-      snprintf(meta_name, sizeof(meta_name), "%%{meta:%s}", key);
-      if (meta_data_as_string(vl->meta, key, &value_str) != 0)
-        continue;
-
-      REPLACE_FIELD(meta_name, value_str);
-      sfree(value_str);
     }
 
     strarray_free(meta_toc, (size_t)meta_entries);
@@ -440,7 +207,6 @@ static int ts_destroy (void **user_data) /* {{{ */
 } /* }}} int ts_subst */
 
 static int ts_destroy(void **user_data) /* {{{ */
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 {
   ts_data_t *data;
 
@@ -457,18 +223,8 @@ static int ts_destroy(void **user_data) /* {{{ */
   /* free (data->type); */
   free(data->type_instance);
   meta_data_destroy(data->meta);
-<<<<<<< HEAD
-<<<<<<< HEAD
   ts_key_list_free(data->meta_delete);
   free(data);
-=======
-  ts_key_list_free (data->meta_delete);
-  free (data);
->>>>>>> Allow deleting metadata keys.
-=======
-  ts_key_list_free(data->meta_delete);
-  free(data);
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 
   return 0;
 } /* }}} int ts_destroy */
@@ -511,10 +267,6 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
       status = ts_config_add_string (&data->type, child,
           /* may be empty = */ 0);
 #endif
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
     else if (strcasecmp("TypeInstance", child->key) == 0)
       status = ts_config_add_string(&data->type_instance, child,
                                     /* may be empty = */ 1);
@@ -527,23 +279,6 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
       ERROR("Target `set': The `%s' configuration option is not understood "
             "and will be ignored.",
             child->key);
-<<<<<<< HEAD
-=======
-    else if (strcasecmp ("TypeInstance", child->key) == 0)
-      status = ts_config_add_string (&data->type_instance, child,
-          /* may be empty = */ 1);
-    else if (strcasecmp ("MetaData", child->key) == 0)
-      status = ts_config_add_meta (&data->meta, child,
-          /* may be empty = */ 1);
-    else if (strcasecmp ("DeleteMetaData", child->key) == 0)
-      status = ts_config_add_meta_delete (&data->meta_delete, child);
-    else
-    {
-      ERROR ("Target `set': The `%s' configuration option is not understood "
-          "and will be ignored.", child->key);
->>>>>>> Allow deleting metadata keys.
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
       status = 0;
     }
 
@@ -556,10 +291,6 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
     if ((data->host == NULL) && (data->plugin == NULL) &&
         (data->plugin_instance == NULL)
         /* && (data->type == NULL) */
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
         && (data->type_instance == NULL) && (data->meta == NULL) &&
         (data->meta_delete == NULL)) {
       ERROR("Target `set': You need to set at least one of `Host', "
@@ -575,31 +306,6 @@ static int ts_create(const oconfig_item_t *ci, void **user_data) /* {{{ */
           /* MetaData and DeleteMetaData for the same key. */
           ERROR("Target `set': Can only have one of `MetaData' or "
                 "`DeleteMetaData' for any given key.");
-<<<<<<< HEAD
-=======
-        && (data->type_instance == NULL)
-        && (data->meta == NULL)
-        && (data->meta_delete == NULL))
-    {
-      ERROR ("Target `set': You need to set at least one of `Host', "
-          "`Plugin', `PluginInstance', `TypeInstance', "
-          "`MetaData', or `DeleteMetaData'.");
-      status = -1;
-    }
-
-    if (data->meta != NULL)
-    {
-      /* If data->meta_delete is NULL, this loop is a no-op. */
-      for (ts_key_list_t *l=data->meta_delete; l != NULL; l = l->next)
-      {
-        if (meta_data_type (data->meta, l->key) != 0)
-        {
-          /* MetaData and DeleteMetaData for the same key. */
-          ERROR ("Target `set': Can only have one of `MetaData' or "
-              "`DeleteMetaData' for any given key.");
->>>>>>> Allow deleting metadata keys.
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
           status = -1;
         }
       }
@@ -635,10 +341,6 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 
   orig = *vl;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   if (data->meta != NULL) {
     char temp[DATA_MAX_NAME_LEN * 2];
     char **meta_toc;
@@ -657,34 +359,10 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
     size_t meta_entries = (size_t)status;
 
     for (size_t i = 0; i < meta_entries; i++) {
-<<<<<<< HEAD
-=======
-  if (data->meta != NULL)
-  {
-    char temp[DATA_MAX_NAME_LEN*2];
-    int meta_entries;
-    char **meta_toc;
-
-    if ((new_meta = meta_data_create()) == NULL)
-    {
-      ERROR ("Target `set': failed to create replacement metadata.");
-      return (-ENOMEM);
-    }
-
-    meta_entries = meta_data_toc (data->meta, &meta_toc);
-    for (int i = 0; i < meta_entries; i++)
-    {
->>>>>>> Implement interpolation.
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
       const char *key = meta_toc[i];
       char *string;
       int status;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
       status = meta_data_get_string(data->meta, key, &string);
       if (status) {
         ERROR("Target `set': Unable to get replacement metadata value `%s'.",
@@ -727,91 +405,24 @@ static int ts_invoke(const data_set_t *ds, value_list_t *vl, /* {{{ */
 
   /* Need to merge the metadata in now, because of the shallow copy. */
   if (new_meta != NULL) {
-<<<<<<< HEAD
-=======
-      status = meta_data_get_string (data->meta, key, &string);
-      if (status)
-      {
-        ERROR ("Target `set': Unable to get replacement metadata value `%s'.",
-            key);
-        strarray_free (meta_toc, (size_t) meta_entries);
-        return (status);
-      }
-
-      ts_subst (temp, sizeof (temp), string, &orig);
-
-      DEBUG ("target_set: ts_invoke: setting metadata value for key `%s': "
-          "`%s'.", key, temp);
-
-      sfree (string);
-
-      status = meta_data_add_string (new_meta, key, temp);
-      if (status)
-      {
-        ERROR ("Target `set': Unable to set metadata value `%s'.", key);
-        strarray_free (meta_toc, (size_t) meta_entries);
-        return (status);
-      }
-    }
-
-    strarray_free (meta_toc, (size_t) meta_entries);
-  }
-
-#define SUBST_FIELD(f) \
-  if (data->f != NULL) { \
-    ts_subst (vl->f, sizeof (vl->f), data->f, &orig); \
-    DEBUG ("target_set: ts_invoke: setting "#f": `%s'.", vl->f); \
-  }
-  SUBST_FIELD (host);
-  SUBST_FIELD (plugin);
-  SUBST_FIELD (plugin_instance);
-  /* SUBST_FIELD (type); */
-  SUBST_FIELD (type_instance);
-
-  /* Need to merge the metadata in now, because of the shallow copy. */
-  if (new_meta != NULL)
-  {
->>>>>>> Implement interpolation.
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
     meta_data_clone_merge(&(vl->meta), new_meta);
     meta_data_destroy(new_meta);
   }
 
   /* If data->meta_delete is NULL, this loop is a no-op. */
-<<<<<<< HEAD
-<<<<<<< HEAD
-  for (ts_key_list_t *l = data->meta_delete; l != NULL; l = l->next) {
-    DEBUG("target_set: ts_invoke: deleting metadata value for key `%s'.",
-          l->key);
-    meta_data_delete(vl->meta, l->key);
-  }
-=======
   for (ts_key_list_t *l=data->meta_delete; l != NULL; l = l->next)
   {
-    DEBUG ("target_set: ts_invoke: deleting metadata value for key `%s'.",
-        l->key);
-=======
-  for (ts_key_list_t *l = data->meta_delete; l != NULL; l = l->next) {
-    DEBUG("target_set: ts_invoke: deleting metadata value for key `%s'.",
-          l->key);
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
     meta_data_delete(vl->meta, l->key);
   }
 
-<<<<<<< HEAD
 #define SET_FIELD(f) if (data->f != NULL) { sstrncpy (vl->f, data->f, sizeof (vl->f)); }
   SET_FIELD (host);
   SET_FIELD (plugin);
   SET_FIELD (plugin_instance);
   /* SET_FIELD (type); */
   SET_FIELD (type_instance);
->>>>>>> Allow deleting metadata keys.
 
   return FC_TARGET_CONTINUE;
-=======
-  return (FC_TARGET_CONTINUE);
->>>>>>> Implement interpolation.
 } /* }}} int ts_invoke */
 
 void module_register(void) {
