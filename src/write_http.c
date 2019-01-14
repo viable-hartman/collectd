@@ -33,6 +33,7 @@
 #include <curl/curl.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #ifndef WRITE_HTTP_DEFAULT_BUFFER_SIZE
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -77,6 +78,14 @@
 #define WRITE_HTTP_DEFAULT_BUFFER_SIZE
 #define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
 >>>>>>> Completes rebase
+=======
+#ifndef WRITE_HTTP_DEFAULT_BUFFER_SIZE
+#define WRITE_HTTP_DEFAULT_BUFFER_SIZE 4096
+#endif
+
+#ifndef WRITE_HTTP_DEFAULT_PREFIX
+#define WRITE_HTTP_DEFAULT_PREFIX "collectd"
+>>>>>>> Adds upstream write_http.c
 #endif
 
 /*
@@ -119,6 +128,7 @@ struct wh_callback_s {
   size_t send_buffer_free;
   size_t send_buffer_fill;
   cdtime_t send_buffer_init_time;
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 <<<<<<< HEAD
@@ -170,6 +180,13 @@ struct wh_callback_s {
   pthread_mutex_t send_lock;
   pthread_mutex_t flush_lock;
 >>>>>>> Completes rebase
+=======
+
+  pthread_mutex_t send_lock;
+
+  int data_ttl;
+  char *metrics_prefix;
+>>>>>>> Adds upstream write_http.c
 };
 typedef struct wh_callback_s wh_callback_t;
 
@@ -604,6 +621,7 @@ static int wh_write_kairosdb(const data_set_t *ds,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> adds upstream write_http
 =======
@@ -614,6 +632,8 @@ static int wh_write_kairosdb(const data_set_t *ds,
 =======
 >>>>>>> adds upstream write_http
 >>>>>>> adds upstream write_http
+=======
+>>>>>>> Adds upstream write_http.c
 static int wh_write(const data_set_t *ds, const value_list_t *vl, /* {{{ */
                     user_data_t *user_data) {
   wh_callback_t *cb;
@@ -637,6 +657,7 @@ static int wh_write(const data_set_t *ds, const value_list_t *vl, /* {{{ */
     break;
   }
   return status;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -709,6 +730,8 @@ static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
 >>>>>>> adds upstream write_http
 =======
 >>>>>>> Completes rebase
+=======
+>>>>>>> Adds upstream write_http.c
 } /* }}} int wh_write */
 
 static int wh_notify(notification_t const *n, user_data_t *ud) /* {{{ */
