@@ -118,6 +118,7 @@
 #define MAXPROCENTRY 32
 #define MAXTHRDENTRY 16
 #define MAXARGLN 1024
+#define VALUE_UNSET -1
 /* #endif HAVE_PROCINFO_H */
 
 #elif KERNEL_SOLARIS
@@ -229,14 +230,14 @@ static procstat_gauges_t procstat_gauges_init = {
 	.vmem_data     = 0,
 	.vmem_code     = 0,
 	.stack_size    = 0,
-	.io_rchar      = -1,
-	.io_wchar      = -1,
-	.io_syscr      = -1,
-	.io_syscw      = -1,
-	.io_diskr      = -1,
-	.io_diskw      = -1,
-	.cswitch_vol   = -1,
-	.cswitch_invol = -1,
+	.io_rchar      = VALUE_UNSET,
+	.io_wchar      = VALUE_UNSET,
+	.io_syscr      = VALUE_UNSET,
+	.io_syscw      = VALUE_UNSET,
+	.io_diskr      = VALUE_UNSET,
+	.io_diskw      = VALUE_UNSET,
+	.cswitch_vol   = VALUE_UNSET,
+	.cswitch_invol = VALUE_UNSET,
 };
 
 
@@ -341,7 +342,7 @@ static ts_t *taskstats_handle;
 #endif
 
 static derive_t ps_delta(derive_t value) {
-	return (value == -1) ? 0 : value;
+	return (value == VALUE_UNSET) ? 0 : value;
 }
 
 static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *src) {
@@ -379,14 +380,14 @@ static procstat_t *ps_list_register(const char *name, const char *regexp) {
   }
   sstrncpy(new->name, name, sizeof(new->name));
 
-  new->gauges.io_rchar = -1;
-  new->gauges.io_wchar = -1;
-  new->gauges.io_syscr = -1;
-  new->gauges.io_syscw = -1;
-  new->gauges.io_diskr = -1;
-  new->gauges.io_diskw = -1;
-  new->gauges.cswitch_vol = -1;
-  new->gauges.cswitch_invol = -1;
+  new->gauges.io_rchar = VALUE_UNSET;
+  new->gauges.io_wchar = VALUE_UNSET;
+  new->gauges.io_syscr = VALUE_UNSET;
+  new->gauges.io_syscw = VALUE_UNSET;
+  new->gauges.io_diskr = VALUE_UNSET;
+  new->gauges.io_diskw = VALUE_UNSET;
+  new->gauges.cswitch_vol = VALUE_UNSET;
+  new->gauges.cswitch_invol = VALUE_UNSET;
 
   new->report_fd_num = report_fd_num;
   new->report_maps_num = report_maps_num;
@@ -493,7 +494,7 @@ static void ps_update_counter(derive_t *group_counter, derive_t *curr_counter,
   else
     curr_value = new_counter - *curr_counter;
 
-  if (*group_counter == -1)
+  if (*group_counter == VALUE_UNSET)
     *group_counter = 0;
 
   *curr_counter = new_counter;
@@ -599,28 +600,28 @@ static void ps_list_add(const char *name, const char *cmdline,
     ps->gauges.vmem_code += entry->gauges.vmem_code;
     ps->gauges.stack_size += entry->gauges.stack_size;
 
-    if ((entry->gauges.io_rchar != -1) && (entry->gauges.io_wchar != -1)) {
+    if ((entry->gauges.io_rchar != VALUE_UNSET) && (entry->gauges.io_wchar != VALUE_UNSET)) {
       ps_update_counter(&ps->gauges.io_rchar, &pse->gauges.io_rchar,
         entry->gauges.io_rchar);
       ps_update_counter(&ps->gauges.io_wchar, &pse->gauges.io_wchar,
         entry->gauges.io_wchar);
     }
 
-    if ((entry->gauges.io_syscr != -1) && (entry->gauges.io_syscw != -1)) {
+    if ((entry->gauges.io_syscr != VALUE_UNSET) && (entry->gauges.io_syscw != VALUE_UNSET)) {
       ps_update_counter(&ps->gauges.io_syscr, &pse->gauges.io_syscr,
         entry->gauges.io_syscr);
       ps_update_counter(&ps->gauges.io_syscw, &pse->gauges.io_syscw,
         entry->gauges.io_syscw);
     }
 
-    if ((entry->gauges.io_diskr != -1) && (entry->gauges.io_diskw != -1)) {
+    if ((entry->gauges.io_diskr != VALUE_UNSET) && (entry->gauges.io_diskw != VALUE_UNSET)) {
       ps_update_counter(&ps->gauges.io_diskr, &pse->gauges.io_diskr,
         entry->gauges.io_diskr);
       ps_update_counter(&ps->gauges.io_diskw, &pse->gauges.io_diskw,
         entry->gauges.io_diskw);
     }
 
-    if ((entry->gauges.cswitch_vol != -1) && (entry->gauges.cswitch_invol != -1)) {
+    if ((entry->gauges.cswitch_vol != VALUE_UNSET) && (entry->gauges.cswitch_invol != VALUE_UNSET)) {
       ps_update_counter(&ps->gauges.cswitch_vol, &pse->gauges.cswitch_vol,
                         entry->gauges.cswitch_vol);
       ps_update_counter(&ps->gauges.cswitch_invol, &pse->gauges.cswitch_invol,
@@ -948,7 +949,6 @@ static void ps_submit_proc_stats (
 
     if (doing_detail)
     {
-        // sstrncpy(vl.type_instance, "detail", sizeof (vl.type_instance));
         vl.meta = meta_data_create();
         if (pid != NULL) {
             meta_data_add_string(vl.meta, "processes:pid", pid);
@@ -995,7 +995,7 @@ static void ps_submit_proc_stats (
     dispatch_value_helper(&vl, "ps_cputime", NULL, 2, doing_detail,
                           config->ps_cputime);
 
-    if ( (procstat_gauges->io_rchar != -1) && (procstat_gauges->io_wchar != -1) )
+    if ( (procstat_gauges->io_rchar != VALUE_UNSET) && (procstat_gauges->io_wchar != VALUE_UNSET) )
     {
         vl.values[0].derive = procstat_gauges->io_rchar;
         vl.values[1].derive = procstat_gauges->io_wchar;
@@ -1003,7 +1003,7 @@ static void ps_submit_proc_stats (
                 config->ps_disk_octets);
     }
 
-    if ( (procstat_gauges->io_syscr != -1) && (procstat_gauges->io_syscw != -1) )
+    if ( (procstat_gauges->io_syscr != VALUE_UNSET) && (procstat_gauges->io_syscw != VALUE_UNSET) )
     {
         vl.values[0].derive = procstat_gauges->io_syscr;
         vl.values[1].derive = procstat_gauges->io_syscw;
@@ -1011,7 +1011,7 @@ static void ps_submit_proc_stats (
                               config->ps_disk_ops);
     }
 
-    if ( (procstat_gauges->io_diskr != -1) && (procstat_gauges->io_diskw != -1) )
+    if ( (procstat_gauges->io_diskr != VALUE_UNSET) && (procstat_gauges->io_diskw != VALUE_UNSET) )
     {
         vl.values[0].derive = procstat_gauges->io_diskr;
         vl.values[1].derive = procstat_gauges->io_diskw;
@@ -1154,7 +1154,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
   vl.values_len = 2;
   plugin_dispatch_values(&vl);
 
-  if ((ps->gauges.io_rchar != -1) && (ps->gauges.io_wchar != -1)) {
+  if ((ps->gauges.io_rchar != VALUE_UNSET) && (ps->gauges.io_wchar != VALUE_UNSET)) {
     sstrncpy(vl.type, "io_octets", sizeof(vl.type));
     vl.values[0].derive = ps->gauges.io_rchar;
     vl.values[1].derive = ps->gauges.io_wchar;
@@ -1162,7 +1162,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->gauges.io_syscr != -1) && (ps->gauges.io_syscw != -1)) {
+  if ((ps->gauges.io_syscr != VALUE_UNSET) && (ps->gauges.io_syscw != VALUE_UNSET)) {
     sstrncpy(vl.type, "io_ops", sizeof(vl.type));
     vl.values[0].derive = ps->gauges.io_syscr;
     vl.values[1].derive = ps->gauges.io_syscw;
@@ -1170,7 +1170,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->gauges.io_diskr != -1) && (ps->gauges.io_diskw != -1)) {
+  if ((ps->gauges.io_diskr != VALUE_UNSET) && (ps->gauges.io_diskw != VALUE_UNSET)) {
     sstrncpy(vl.type, "disk_octets", sizeof(vl.type));
     vl.values[0].derive = ps->gauges.io_diskr;
     vl.values[1].derive = ps->gauges.io_diskw;
@@ -1193,7 +1193,7 @@ static void ps_submit_proc_list(procstat_t *ps) {
     plugin_dispatch_values(&vl);
   }
 
-  if ((ps->gauges.cswitch_vol != -1) && (ps->gauges.cswitch_invol != -1)) {
+  if ((ps->gauges.cswitch_vol != VALUE_UNSET) && (ps->gauges.cswitch_invol != VALUE_UNSET)) {
     sstrncpy(vl.type, "contextswitch", sizeof(vl.type));
     sstrncpy(vl.type_instance, "voluntary", sizeof(vl.type_instance));
     vl.values[0].derive = ps->gauges.cswitch_vol;
@@ -1450,7 +1450,7 @@ static int ps_read_io(procstat_entry_t *ps) {
     endptr = NULL;
     tmp = strtoll(fields[1], &endptr, /* base = */ 10);
     if ((errno != 0) || (endptr == fields[1]))
-      *val = -1;
+      *val = VALUE_UNSET;
     else
       *val = (derive_t)tmp;
   } /* while (fgets) */
@@ -1677,8 +1677,8 @@ static int ps_read_process(long pid, procstat_t *ps, char *state) {
     ps->gauges.num_lwp = strtoul(fields[17], /* endptr = */ NULL, /* base = */ 10);
     if ((ps_read_status(pid, ps)) != 0) {
       /* No VMem data */
-      ps->gauges.vmem_data = -1;
-      ps->gauges.vmem_code = -1;
+      ps->gauges.vmem_data = VALUE_UNSET;
+      ps->gauges.vmem_code = VALUE_UNSET;
       DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
     }
     if (ps->gauges.num_lwp == 0)
@@ -1721,15 +1721,15 @@ static int ps_read_process(long pid, procstat_t *ps, char *state) {
   ps->gauges.stack_size = (unsigned long)stack_size;
 
   /* no data by default. May be filled by ps_fill_details () */
-  ps->gauges.io_rchar = -1;
-  ps->gauges.io_wchar = -1;
-  ps->gauges.io_syscr = -1;
-  ps->gauges.io_syscw = -1;
-  ps->gauges.io_diskr = -1;
-  ps->gauges.io_diskw = -1;
+  ps->gauges.io_rchar = VALUE_UNSET;
+  ps->gauges.io_wchar = VALUE_UNSET;
+  ps->gauges.io_syscr = VALUE_UNSET;
+  ps->gauges.io_syscw = VALUE_UNSET;
+  ps->gauges.io_diskr = VALUE_UNSET;
+  ps->gauges.io_diskw = VALUE_UNSET;
 
-  ps->gauges.cswitch_vol = -1;
-  ps->gauges.cswitch_invol = -1;
+  ps->gauges.cswitch_vol = VALUE_UNSET;
+  ps->gauges.cswitch_invol = VALUE_UNSET;
 
   /* success */
   return 0;
@@ -2024,8 +2024,8 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
    * TODO: Data and code segment calculations for Solaris
    */
 
-  ps->gauges.vmem_data = -1;
-  ps->gauges.vmem_code = -1;
+  ps->gauges.vmem_data = VALUE_UNSET;
+  ps->gauges.vmem_code = VALUE_UNSET;
   ps->gauges.stack_size = myStatus->pr_stksize;
 
   /*
@@ -2050,14 +2050,14 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
   ps->gauges.io_wchar = myUsage->pr_oublk * chars_per_block;
   ps->gauges.io_syscr = myUsage->pr_sysc;
   ps->gauges.io_syscw = myUsage->pr_sysc;
-  ps->gauges.io_diskr = -1;
-  ps->gauges.io_diskw = -1;
+  ps->gauges.io_diskr = VALUE_UNSET;
+  ps->gauges.io_diskw = VALUE_UNSET;
 
   /*
    * TODO: context switch counters for Solaris
 */
-  ps->gauges.cswitch_vol = -1;
-  ps->gauges.cswitch_invol = -1;
+  ps->gauges.cswitch_vol = VALUE_UNSET;
+  ps->gauges.cswitch_invol = VALUE_UNSET;
 
   /*
    * TODO: Find way of setting BLOCKED and PAGING status
@@ -2260,12 +2260,12 @@ static int ps_read(void) {
         pse.gauges.vmem_data = 0;
         pse.gauges.vmem_code = 0;
 
-        pse.io_rchar = -1;
-        pse.io_wchar = -1;
-        pse.io_syscr = -1;
-        pse.io_syscw = -1;
-        pse.io_diskr = -1;
-        pse.io_diskw = -1;
+        pse.io_rchar = VALUE_UNSET;
+        pse.io_wchar = VALUE_UNSET;
+        pse.io_syscr = VALUE_UNSET;
+        pse.io_syscw = VALUE_UNSET;
+        pse.io_diskr = VALUE_UNSET;
+        pse.io_diskw = VALUE_UNSET;
 
         /* File descriptor count not implemented */
         pse.gauges.num_fd = 0;
@@ -2280,8 +2280,8 @@ static int ps_read(void) {
         pse.counters.cpu_system_counter = task_absolutetime_info.total_system;
 
         /* context switch counters not implemented */
-        pse.cswitch_vol = -1;
-        pse.cswitch_invol = -1;
+        pse.cswitch_vol = VALUE_UNSET;
+        pse.cswitch_invol = VALUE_UNSET;
       }
 
       status = task_threads(task_list[task], &thread_list, &thread_list_len);
@@ -2577,12 +2577,12 @@ static int ps_read(void) {
       }
 
       /* no I/O data */
-      pse.io_rchar = -1;
-      pse.io_wchar = -1;
-      pse.io_syscr = -1;
-      pse.io_syscw = -1;
-      pse.io_diskr = -1;
-      pse.io_diskw = -1;
+      pse.io_rchar = VALUE_UNSET;
+      pse.io_wchar = VALUE_UNSET;
+      pse.io_syscr = VALUE_UNSET;
+      pse.io_syscw = VALUE_UNSET;
+      pse.io_diskr = VALUE_UNSET;
+      pse.io_diskw = VALUE_UNSET;
 
       /* file descriptor count not implemented */
       pse.num_fd = 0;
@@ -2591,8 +2591,8 @@ static int ps_read(void) {
       pse.num_maps = 0;
 
       /* context switch counters not implemented */
-      pse.cswitch_vol = -1;
-      pse.cswitch_invol = -1;
+      pse.cswitch_vol = VALUE_UNSET;
+      pse.cswitch_invol = VALUE_UNSET;
 
       ps_list_add(procs[i].ki_comm, have_cmdline ? cmdline : NULL, &pse);
 
@@ -2737,12 +2737,12 @@ static int ps_read(void) {
 			}
 
       /* no I/O data */
-      pse.gauges.io_rchar = -1;
-      pse.gauges.io_wchar = -1;
-      pse.gauges.io_syscr = -1;
-      pse.gauges.io_syscw = -1;
-      pse.gauges.io_diskr = -1;
-      pse.gauges.io_diskw = -1;
+      pse.gauges.io_rchar = VALUE_UNSET;
+      pse.gauges.io_wchar = VALUE_UNSET;
+      pse.gauges.io_syscr = VALUE_UNSET;
+      pse.gauges.io_syscw = VALUE_UNSET;
+      pse.gauges.io_diskr = VALUE_UNSET;
+      pse.gauges.io_diskw = VALUE_UNSET;
 
       /* file descriptor count not implemented */
       pse.num_fd = 0;
@@ -2751,8 +2751,8 @@ static int ps_read(void) {
       pse.num_maps = 0;
 
       /* context switch counters not implemented */
-      pse.gauges.cswitch_vol = -1;
-      pse.gauges.cswitch_invol = -1;
+      pse.gauges.cswitch_vol = VALUE_UNSET;
+      pse.gauges.cswitch_invol = VALUE_UNSET;
 
       ps_list_add(procs[i].p_comm, have_cmdline ? cmdline : NULL, &pse);
 
@@ -2836,7 +2836,7 @@ static int ps_read(void) {
                     MAXARGLN) >= 0) {
           int n;
 
-          n = -1;
+          n = VALUE_UNSET;
           while (++n < MAXARGLN) {
             if (arglist[n] == '\0') {
               if (arglist[n + 1] == '\0')
@@ -2905,18 +2905,18 @@ static int ps_read(void) {
       pse.gauges.vmem_code = 0;
       pse.gauges.stack_size = 0;
 
-      pse.io_rchar = -1;
-      pse.io_wchar = -1;
-      pse.io_syscr = -1;
-      pse.io_syscw = -1;
-      pse.io_diskr = -1;
-      pse.io_diskw = -1;
+      pse.io_rchar = VALUE_UNSET;
+      pse.io_wchar = VALUE_UNSET;
+      pse.io_syscr = VALUE_UNSET;
+      pse.io_syscw = VALUE_UNSET;
+      pse.io_diskr = VALUE_UNSET;
+      pse.io_diskw = VALUE_UNSET;
 
       pse.num_fd = 0;
       pse.num_maps = 0;
 
-      pse.cswitch_vol = -1;
-      pse.cswitch_invol = -1;
+      pse.cswitch_vol = VALUE_UNSET;
+      pse.cswitch_invol = VALUE_UNSET;
 
       ps_list_add(cmdline, cargs, &pse);
     } /* for (i = 0 .. nprocs) */
