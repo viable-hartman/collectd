@@ -235,6 +235,7 @@ typedef int uid_t;
 #ifndef COLLECTD_DEFAULT_INTERVAL
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define COLLECTD_DEFAULT_INTERVAL 10.0
 =======
 # define COLLECTD_DEFAULT_INTERVAL 60.0
@@ -242,6 +243,9 @@ typedef int uid_t;
 =======
 #define COLLECTD_DEFAULT_INTERVAL 10.0
 >>>>>>> Removes HEAD tag (atom bug) from collectd.h
+=======
+#define COLLECTD_DEFAULT_INTERVAL 60.0
+>>>>>>> Merge conflicts from rebase
 #endif
 
 #ifndef COLLECTD_USERAGENT
