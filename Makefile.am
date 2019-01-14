@@ -59,9 +59,12 @@ SUBDIRS = src/libmongoc
 >>>>>>> Changes write_stackdriver to write_gcm
 =======
 
+<<<<<<< HEAD
 SUBDIRS = src/libmongoc
 
 >>>>>>> Completes rebase
+=======
+>>>>>>> Checking Makefile.am for rebase
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
@@ -1226,6 +1229,7 @@ match_value_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
 pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
 <<<<<<< HEAD
@@ -1242,6 +1246,14 @@ endif
 
 =======
 >>>>>>> Completes rebase
+=======
+if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
+pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
+match_throttle_metadata_keys_la_SOURCES = src/match_throttle_metadata_keys.c src/stackdriver-agent-keys.h
+match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
+endif
+
+>>>>>>> Checking Makefile.am for rebase
 if BUILD_PLUGIN_MBMON
 pkglib_LTLIBRARIES += mbmon.la
 mbmon_la_SOURCES = src/mbmon.c
@@ -1332,6 +1344,7 @@ mqtt_la_LIBADD = $(BUILD_WITH_LIBMOSQUITTO_LIBS)
 endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 if BUILD_PLUGIN_MONGODB
 pkglib_LTLIBRARIES += mongodb.la
 <<<<<<< HEAD
@@ -1343,12 +1356,18 @@ mongodb_la_SOURCES = mongodb.c
 =======
 mongodb_la_SOURCES = src/mongodb.c
 >>>>>>> Points to correct directory for mongodb
+=======
+if BUILD_PLUGIN_MONGODB
+pkglib_LTLIBRARIES += mongodb.la
+mongodb_la_SOURCES = src/mongodb.c
+>>>>>>> Checking Makefile.am for rebase
 mongodb_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBMONGOC_CPPFLAGS)
 mongodb_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBMONGOC_LDFLAGS)
 mongodb_la_LIBADD =
 if BUILD_WITH_OWN_LIBMONGOC
 
 # add libmongoc source files
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 mongodb_la_CPPFLAGS += -Isrc/libmongoc/src/mongoc -Isrc/libmongoc/src/libbson/src/bson
@@ -1361,14 +1380,21 @@ mongodb_la_LIBADD += libmongoc/libmongoc-1.0.la libmongoc/src/libbson/libbson.la
 mongodb_la_CPPFLAGS += -Isrc/libmongoc/src/mongoc -Isrc/libmongoc/src/libbson/src/bson
 mongodb_la_LIBADD += src/libmongoc/libmongoc-1.0.la src/libmongoc/src/libbson/libbson.la
 >>>>>>> Fixes mongodb directory
+=======
+mongodb_la_CPPFLAGS += -Isrc/libmongoc/src/mongoc -Isrc/libmongoc/src/libbson/src/bson
+mongodb_la_LIBADD += src/libmongoc/libmongoc-1.0.la src/libmongoc/src/libbson/libbson.la
+>>>>>>> Checking Makefile.am for rebase
 
 else
 mongodb_la_LIBADD += -lmongoc
 endif
 endif
 
+<<<<<<< HEAD
 =======
 >>>>>>> Completes rebase
+=======
+>>>>>>> Checking Makefile.am for rebase
 if BUILD_PLUGIN_MULTIMETER
 pkglib_LTLIBRARIES += multimeter.la
 multimeter_la_SOURCES = src/multimeter.c
@@ -1800,6 +1826,7 @@ endif
 endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 if BUILD_PLUGIN_STACKDRIVER_AGENT
 pkglib_LTLIBRARIES += stackdriver_agent.la
 <<<<<<< HEAD
@@ -1816,6 +1843,14 @@ endif
 
 =======
 >>>>>>> Completes rebase
+=======
+if BUILD_PLUGIN_STACKDRIVER_AGENT
+pkglib_LTLIBRARIES += stackdriver_agent.la
+stackdriver_agent_la_SOURCES = src/stackdriver_agent.c
+stackdriver_agent_la_LDFLAGS = -module -avoid-version
+endif
+
+>>>>>>> Checking Makefile.am for rebase
 if BUILD_PLUGIN_SYNPROXY
 pkglib_LTLIBRARIES += synproxy.la
 synproxy_la_SOURCES = src/synproxy.c
@@ -2033,6 +2068,7 @@ wireless_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 if BUILD_PLUGIN_WRITE_GCM
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2049,6 +2085,11 @@ pkglib_LTLIBRARIES += write_gcm.la
 >>>>>>> fixes directory
 write_gcm_la_SOURCES = src/write_gcm.c
 >>>>>>> points BUILD_PLUGIN_WRITE_GCM to correct directory
+=======
+if BUILD_PLUGIN_WRITE_GCM
+pkglib_LTLIBRARIES += write_gcm.la
+write_gcm_la_SOURCES = src/write_gcm.c
+>>>>>>> Checking Makefile.am for rebase
 write_gcm_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBYAJL_LDFLAGS)
 write_gcm_la_CFLAGS = $(AM_CFLAGS) $(BUILD_WITH_LIBYAJL_CPPFLAGS)
 write_gcm_la_LIBADD = $(BUILD_WITH_LIBYAJL_LIBS)
@@ -2064,6 +2105,7 @@ endif
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 if BUILD_WITH_OWN_LIBMONGOC
 SUBDIRS = src/libmongoc
 endif
@@ -2071,13 +2113,18 @@ endif
 =======
 >>>>>>> Adds BUILD_PLUGIN_WRITE_GCM to makefile.am
 =======
+=======
+>>>>>>> Checking Makefile.am for rebase
 if BUILD_WITH_OWN_LIBMONGOC
 SUBDIRS = src/libmongoc
 endif
 
+<<<<<<< HEAD
 >>>>>>> Adds in mongodb makefile and configure info
 =======
 >>>>>>> Completes rebase
+=======
+>>>>>>> Checking Makefile.am for rebase
 if BUILD_PLUGIN_WRITE_GRAPHITE
 pkglib_LTLIBRARIES += write_graphite.la
 write_graphite_la_SOURCES = src/write_graphite.c
