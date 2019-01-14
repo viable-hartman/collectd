@@ -257,6 +257,7 @@ typedef struct procstat_entry_s
 #define PROCSTAT_NAME_LEN 256
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static procstat_gauges_t procstat_gauges_init = {
 	.num_proc      = 0,
 	.num_lwp       = 0,
@@ -277,6 +278,8 @@ static procstat_gauges_t procstat_gauges_init = {
 
 =======
 >>>>>>> deletes commented out code, moved gauges_init, adds gauges.
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 typedef struct procstat_counters_s {
   derive_t vmem_minflt_counter;
   derive_t vmem_majflt_counter;
@@ -353,6 +356,7 @@ typedef struct procstat_entry_s {
   procstat_gauges_t gauges;
   procstat_counters_t counters;
   struct procstat_entry_s *next;
+<<<<<<< HEAD
 
 <<<<<<< HEAD
   derive_t vmem_minflt_counter;
@@ -371,6 +375,8 @@ typedef struct procstat_entry_s {
 
   derive_t cswitch_vol;
   derive_t cswitch_invol;
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 
 <<<<<<< HEAD
 =======
@@ -397,6 +403,7 @@ typedef struct procstat {
 #if HAVE_REGEX_H
   regex_t *re;
 #endif
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 =======
@@ -435,6 +442,8 @@ typedef struct procstat {
   derive_t cswitch_invol; */
 =======
 >>>>>>> deletes commented out code, moved gauges_init, adds gauges.
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 
   /* Linux Delay Accounting. Unit is ns/s. */
   gauge_t delay_cpu;
@@ -456,6 +465,7 @@ typedef struct procstat {
 static procstat_t *list_head_g;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -463,6 +473,8 @@ static procstat_t *list_head_g;
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
 =======
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 static _Bool report_ctx_switch = 0;
 typedef struct
 {
@@ -479,6 +491,7 @@ typedef struct
     _Bool cswitch_vol;
     _Bool cswitch_invol;
 } want_detail_configuration_t;
+<<<<<<< HEAD
 >>>>>>> Working to declare want_detail_configuration_t et al
 static want_detail_configuration_t want_detail_configuration_g;
 <<<<<<< HEAD
@@ -487,6 +500,10 @@ static _Bool some_detail_active_g = 0;	static _Bool some_detail_active_g = 0;
 =======
 static _Bool some_detail_active_g = 0;
 >>>>>>> Delete duplicate declaration of some_detail_active_g.
+=======
+static want_detail_configuration_t want_detail_configuration_g;
+static _Bool some_detail_active_g = 0;
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 static bool want_init = true;
 static bool report_ctx_switch;
 static bool report_fd_num;
@@ -584,6 +601,30 @@ static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *s
 static ts_t *taskstats_handle;
 #endif
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
+
+static derive_t ps_delta(derive_t value) {
+	return (value == -1) ? 0 : value;
+}
+
+static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *src) {
+	dst->num_proc   += src->num_proc;
+	dst->num_lwp    += src->num_lwp;
+	dst->vmem_size  += src->vmem_size;
+	dst->vmem_rss   += src->vmem_rss;
+	dst->vmem_data  += src->vmem_data;
+	dst->vmem_code  += src->vmem_code;
+	dst->stack_size += src->stack_size;
+
+	dst->io_rchar   += ps_delta(src->io_rchar);
+	dst->io_wchar   += ps_delta(src->io_wchar);
+	dst->io_syscr   += ps_delta(src->io_syscr);
+	dst->io_syscw   += ps_delta(src->io_syscw);
+	dst->io_diskr   += ps_delta(src->io_diskr);
+	dst->io_diskw   += ps_delta(src->io_diskw);
+
+	dst->cswitch_vol   += ps_delta(src->cswitch_vol);
+	dst->cswitch_invol += ps_delta(src->cswitch_invol);
+}
 
 static derive_t ps_delta(derive_t value) {
 	return (value == -1) ? 0 : value;
@@ -1342,9 +1383,12 @@ static void ps_submit_state(const char *state, double value) {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 =======
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 static char *ps_get_cmdline (long pid, char *name,
     char *buf, size_t buf_len);
 static char *ps_get_command(pid_t pid);
@@ -1499,8 +1543,11 @@ static void ps_submit_proc_stats (
 #undef MAX_VALUE_LIST_SIZE
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Fixing ps_config errors
 =======
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 static void ps_submit_procstat_entry (const char *instance_name,
         procstat_entry_t *entry)
 {
@@ -1535,6 +1582,7 @@ static void ps_submit_procstat_entry (const char *instance_name,
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void ps_submit_proc_list (procstat_t *ps)
 {
     ps_submit_proc_stats (
@@ -1559,6 +1607,8 @@ static void ps_submit_proc_list (procstat_t *ps)
 >>>>>>> Moves ps_submit_procstat_entry
 =======
 >>>>>>> Deletes duplicate declaration of ps_submit_proc_list
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 /* submit info about specific process (e.g.: memory taken, cpu usage, etc..) */
 static void ps_submit_proc_list(procstat_t *ps) {
   ps_submit_proc_stats (
@@ -1718,13 +1768,15 @@ static void ps_submit_proc_list(procstat_t *ps) {
       "cswitch_vol = %" PRIi64 "; cswitch_invol = %" PRIi64 "; "
       "delay_cpu = %g; delay_blkio = %g; "
       "delay_swapin = %g; delay_freepages = %g;",
-      ps->name, ps->num_proc, ps->num_lwp, ps->num_fd, ps->num_maps,
-      ps->vmem_size, ps->vmem_rss, ps->vmem_data, ps->vmem_code,
-      ps->vmem_minflt_counter, ps->vmem_majflt_counter, ps->cpu_user_counter,
-      ps->cpu_system_counter, ps->io_rchar, ps->io_wchar, ps->io_syscr,
-      ps->io_syscw, ps->io_diskr, ps->io_diskw, ps->cswitch_vol,
-      ps->cswitch_invol, ps->delay_cpu, ps->delay_blkio, ps->delay_swapin,
-      ps->delay_freepages);
+      ps->name, ps->gauges.num_proc, ps->gauges.num_lwp, ps->gauges.num_fd,
+      ps->gauges.num_maps,ps->gauges.vmem_size, ps->gauges.vmem_rss,
+      ps->gauges.vmem_data, ps->gauges.vmem_code,
+      ps->counters.vmem_minflt_counter, ps->counters.vmem_majflt_counter,
+      ps->counters.cpu_user_counter,ps->counters.cpu_system_counter,
+      ps->gauges.io_rchar, ps->gauges.io_wchar, ps->gauges.io_syscr,
+      ps->gauges.io_syscw, ps->gauges.io_diskr, ps->gauges.io_diskw,
+      ps->gauges.cswitch_vol, ps->gauges.cswitch_invol, ps->delay_cpu,
+      ps->delay_blkio, ps->delay_swapin, ps->delay_freepages);
 
 } /* void ps_submit_proc_list */
 =======
@@ -1758,6 +1810,7 @@ static void dispatch_value_helper (value_list_t *vl,
 =======
 #endif /* KERNEL_LINUX || KERNEL_SOLARIS*/
 
+<<<<<<< HEAD
 /* ------- additional functions for KERNEL_LINUX/HAVE_THREAD_INFO ------- */
 #if KERNEL_LINUX
 static int ps_read_tasks_status(procstat_entry_t *ps) {
@@ -1971,6 +2024,10 @@ static void ps_submit_proc_list (procstat_t *ps)
 
 =======
 >>>>>>> Adds ps_procstat_gauges_add
+=======
+#undef MAX_VALUE_LIST_SIZE
+
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 #if KERNEL_LINUX || KERNEL_SOLARIS
 static void ps_submit_fork_rate(derive_t value) {
   value_list_t vl = VALUE_LIST_INIT;
@@ -1989,7 +2046,11 @@ static void ps_submit_fork_rate(derive_t value) {
 /* ------- additional functions for KERNEL_LINUX/HAVE_THREAD_INFO ------- */
 #if KERNEL_LINUX
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int ps_read_tasks_status(process_entry_t *ps) {
+=======
+static int ps_read_tasks_status(procstat_entry_t *ps) {
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
   char dirname[64];
   DIR *dh;
   char filename[64];
@@ -2088,17 +2149,23 @@ static procstat_gauges_t *ps_read_tasks_status (long pid, procstat_gauges_t *g)
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   ps->cswitch_vol = cswitch_vol;
   ps->cswitch_invol = cswitch_invol;
 =======
   ps->gauges.cswitch_vol = cswitch_vol;
   ps->gauges.cswitch_invol = cswitch_invol;
 >>>>>>> gauges. ...
+=======
+  ps->gauges.cswitch_vol = cswitch_vol;
+  ps->gauges.cswitch_invol = cswitch_invol;
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 
   return 0;
 } /* int *ps_read_tasks_status */
 
 /* Read data from /proc/pid/status */
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2113,6 +2180,9 @@ static int ps_read_status(long pid, procstat_entry_t *ps) {
 =======
 static int ps_read_status(long pid, procstat_t *ps) {
 >>>>>>> changing procstat_entry to procstat in ps_read_status param
+=======
+static int ps_read_status(long pid, procstat_t *ps) {
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
   FILE *fh;
   char buffer[1024];
   char filename[64];
@@ -2588,6 +2658,7 @@ static int ps_read_process (long pid, procstat_t *ps, char *state)
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void ps_fill_details(const procstat_t *ps, process_entry_t *entry) {
 =======
 static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
@@ -2600,6 +2671,10 @@ static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
 =======
   if (entry->gauges.has_io == false) {
 >>>>>>> gauges. ...
+=======
+static void ps_fill_details(const procstat_t *ps, procstat_entry_t *entry) {
+  if (entry->gauges.has_io == false) {
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
     ps_read_io(entry);
     entry->gauges.has_io = true;
   }
@@ -2800,10 +2875,14 @@ static int ps_read_tasks_status(process_entry_t *ps) {
 
 /* ps_read_process reads process counters on Linux. */
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int ps_read_process(long pid, process_entry_t *ps, char *state) {
 =======
 static int ps_read_process(long pid, procstat_t *ps, char *state) {
 >>>>>>> Changes incorrect process_entry_t params
+=======
+static int ps_read_process(long pid, procstat_t *ps, char *state) {
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
   char filename[64];
   char buffer[1024];
 
@@ -2876,18 +2955,27 @@ static int ps_read_process(long pid, procstat_t *ps, char *state) {
   *state = fields[0][0];
 
   if (*state == 'Z') {
+<<<<<<< HEAD
     ps->num_lwp = 0;
+=======
+    ps->gauges.num_lwp = 0;
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
     ps->gauges.num_proc = 0;
   } else {
-    ps->num_lwp = strtoul(fields[17], /* endptr = */ NULL, /* base = */ 10);
+    ps->gauges.num_lwp = strtoul(fields[17], /* endptr = */ NULL, /* base = */ 10);
     if ((ps_read_status(pid, ps)) != 0) {
       /* No VMem data */
-      ps->vmem_data = -1;
-      ps->vmem_code = -1;
+      ps->gauges.vmem_data = -1;
+      ps->gauges.vmem_code = -1;
       DEBUG("ps_read_process: did not get vmem data for pid %li", pid);
     }
+<<<<<<< HEAD
     if (ps->num_lwp == 0)
       ps->num_lwp = 1;
+=======
+    if (ps->gauges.num_lwp == 0)
+      ps->gauges.num_lwp = 1;
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
     ps->gauges.num_proc = 1;
   }
 
@@ -2903,8 +2991,8 @@ static int ps_read_process(long pid, procstat_t *ps, char *state) {
   cpu_system_counter = atoll(fields[12]);
   vmem_size = atoll(fields[20]);
   vmem_rss = atoll(fields[21]);
-  ps->vmem_minflt_counter = atol(fields[7]);
-  ps->vmem_majflt_counter = atol(fields[9]);
+  ps->counters.vmem_minflt_counter = atol(fields[7]);
+  ps->counters.vmem_majflt_counter = atol(fields[9]);
 
   {
     unsigned long long stack_start = atoll(fields[25]);
@@ -2919,22 +3007,22 @@ static int ps_read_process(long pid, procstat_t *ps, char *state) {
   cpu_system_counter = cpu_system_counter * 1000000 / CONFIG_HZ;
   vmem_rss = vmem_rss * pagesize_g;
 
-  ps->cpu_user_counter = cpu_user_counter;
-  ps->cpu_system_counter = cpu_system_counter;
-  ps->vmem_size = (unsigned long)vmem_size;
-  ps->vmem_rss = (unsigned long)vmem_rss;
-  ps->stack_size = (unsigned long)stack_size;
+  ps->counters.cpu_user_counter = cpu_user_counter;
+  ps->counters.cpu_system_counter = cpu_system_counter;
+  ps->gauges.vmem_size = (unsigned long)vmem_size;
+  ps->gauges.vmem_rss = (unsigned long)vmem_rss;
+  ps->gauges.stack_size = (unsigned long)stack_size;
 
   /* no data by default. May be filled by ps_fill_details () */
-  ps->io_rchar = -1;
-  ps->io_wchar = -1;
-  ps->io_syscr = -1;
-  ps->io_syscw = -1;
-  ps->io_diskr = -1;
-  ps->io_diskw = -1;
+  ps->gauges.io_rchar = -1;
+  ps->gauges.io_wchar = -1;
+  ps->gauges.io_syscr = -1;
+  ps->gauges.io_syscw = -1;
+  ps->gauges.io_diskr = -1;
+  ps->gauges.io_diskw = -1;
 
-  ps->cswitch_vol = -1;
-  ps->cswitch_invol = -1;
+  ps->gauges.cswitch_vol = -1;
+  ps->gauges.cswitch_invol = -1;
 
   /* success */
   return 0;
@@ -3030,6 +3118,7 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
   return buf;
 } /* char *ps_get_cmdline (...) */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static int read_fork_rate(void) {
   FILE *proc_stat;
@@ -3332,6 +3421,8 @@ static char *ps_get_cmdline(long pid, char *name, char *buf, size_t buf_len) {
   return buf;
 } /* char *ps_get_cmdline (...) */
 
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 static char *ps_get_command(pid_t pid)
 {
     char *result = NULL;
@@ -3476,6 +3567,7 @@ static char *ps_get_cmdline(long pid,
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
 static int ps_read_process(long pid, process_entry_t *ps, char *state) {
@@ -3485,6 +3577,9 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
 =======
 static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
 >>>>>>> process_entry_t
+=======
+static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
   char filename[64];
   char f_psinfo[64], f_usage[64];
   char *buffer;
@@ -3529,6 +3624,7 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
    * Convert system time and user time from nanoseconds to microseconds
    * for compatibility with the linux module
    */
+<<<<<<< HEAD
 <<<<<<< HEAD
   ps->cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
   ps->cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
@@ -3632,10 +3728,15 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
   ps->counters.cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
   ps->counters.cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
 >>>>>>> gauges. ...
+=======
+  ps->counters.cpu_system_counter = myStatus->pr_stime.tv_nsec / 1000;
+  ps->counters.cpu_user_counter = myStatus->pr_utime.tv_nsec / 1000;
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 
   /*
    * Convert rssize from KB to bytes to be consistent w/ the linux module
    */
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
   ps->vmem_rss = myInfo->pr_rssize * 1024;
@@ -3647,11 +3748,16 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
 	ps->gauges.cswitch_invol = -1;
 >>>>>>> Adding a procstat_data_t struct to represent shared procstat data. (#122)
 =======
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
   ps->gauges.vmem_rss = myInfo->pr_rssize * 1024;
   ps->gauges.vmem_size = myInfo->pr_size * 1024;
   ps->counters.vmem_minflt_counter = myUsage->pr_minf;
   ps->counters.vmem_majflt_counter = myUsage->pr_majf;
+<<<<<<< HEAD
 >>>>>>> gauges. ...
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 
   /*
    * TODO: Data and code segment calculations for Solaris
@@ -4217,6 +4323,7 @@ static int ps_read(void) {
     memset(&pse, 0, sizeof(pse));
     pse.id = pid;
     pse.age = 0;
+<<<<<<< HEAD
 
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
@@ -4227,6 +4334,13 @@ static int ps_read(void) {
 =======
     status = ps_read_process(pid, &ps, &state);
 >>>>>>> Changes ps to pse as argument to ps_read_process calls
+=======
+
+		pse.gauges = ps.gauges;
+		pse.counters = ps.counters;
+
+    status = ps_read_process(pid, &ps, &state);
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
     if (status != 0) {
       DEBUG("ps_read_process failed: %i", status);
       continue;
@@ -4328,11 +4442,14 @@ static int ps_read(void) {
       paging++;
       break;
     }
+<<<<<<< HEAD
 =======
 		if (ps_get_cmdline (pid, NULL, cmdline, sizeof (cmdline)) != NULL) {
 			cmdline_processes++;
 		}
 >>>>>>> Add process health metric counts for processes with and without command line arguments (#124)
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 
     ps_list_add(ps.name,
                 ps_get_cmdline(pid, ps.name, cmdline, sizeof(cmdline)), &pse);
@@ -5308,10 +5425,17 @@ static int ps_read(void) {
     memset(&pse, 0, sizeof(pse));
     pse.id = pid;
     pse.age = 0;
+<<<<<<< HEAD
 
 		pse.gauges = ps.gauges;
 		pse.counters = ps.counters;
 
+=======
+
+		pse.gauges = ps.gauges;
+		pse.counters = ps.counters;
+
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
     status = ps_read_process(pid, &ps, &state);
     if (status != 0) {
       DEBUG("ps_read_process failed: %i", status);

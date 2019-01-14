@@ -3417,6 +3417,7 @@ AC_SUBST([BUILD_WITH_LIBMODBUS_LIBS])
 # --with-libmongoc {{{
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
 <<<<<<< HEAD
@@ -3445,6 +3446,9 @@ AC_ARG_WITH([libmongoc],
 AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
 =======
 >>>>>>> Fixes mongodb
+=======
+AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
 [
  if test "x$withval" = "xyes"
@@ -3460,9 +3464,13 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 	     with_own_libmongoc="yes"
 	     AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	     AC_CONFIG_SUBDIRS([src/libmongoc])
 >>>>>>> Fixes mongodb
+=======
+	     AC_CONFIG_SUBDIRS([src/libmongoc])
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 	 else
 	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
 	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
@@ -3470,6 +3478,7 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
  fi; fi
 ],
 [with_libmongoc="yes"])
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> mongo plugin
 
@@ -3485,18 +3494,20 @@ if test "x$with_libmongoc" = "xyes"; then
 
 <<<<<<< HEAD
   CPPFLAGS="$CPPFLAGS $LIBMONGOC_CFLAGS"
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 
-  if test "x$CPPFLAGS" != "x"; then
-    AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CFLAGS])
-  fi
+SAVE_CPPFLAGS="$CPPFLAGS"
+SAVE_LDFLAGS="$LDFLAGS"
 
-  AC_CHECK_HEADERS([mongoc.h],
-    [with_libmongoc="yes"],
-    [with_libmongoc="no ('mongoc.h' not found)"]
-  )
+CPPFLAGS="$CPPFLAGS $LIBMONGOC_CPPFLAGS"
+LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
 
+<<<<<<< HEAD
   CPPFLAGS="$SAVE_CPPFLAGS"
 =======
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 if test "x$with_libmongoc" = "xyes"
 then
 	if test "x$LIBMONGOC_CPPFLAGS" != "x"
@@ -3525,6 +3536,7 @@ then
 	AC_CHECK_LIB(mongoc, mongo_run_command,
 	[with_libmongoc="yes"],
 	[with_libmongoc="no (symbol 'mongo_run_command' not found)"])
+<<<<<<< HEAD
 >>>>>>> mongo plugin
 fi
 =======
@@ -3569,6 +3581,13 @@ fi
 CPPFLAGS="$SAVE_CPPFLAGS"
 LDFLAGS="$SAVE_LDFLAGS"
 
+=======
+fi
+
+CPPFLAGS="$SAVE_CPPFLAGS"
+LDFLAGS="$SAVE_LDFLAGS"
+
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 if test "x$with_libmongoc" = "xyes"
 then
 	BUILD_WITH_LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS"
@@ -6903,9 +6922,12 @@ if test "x$with_kvm_openfiles = "xyes" && $with_kvm_nlist" = "xyes"; then
 fi
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 if test "x$have_getutent" = "xyes"; then
   plugin_users="yes"
 =======
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
 then
 	plugin_write_gcm="yes"
@@ -6916,7 +6938,10 @@ fi
 if test "x$have_getutent" = "xyes"
 then
 	plugin_users="yes"
+<<<<<<< HEAD
 >>>>>>> write_gcm plugin
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 fi
 
 if test "x$have_getutxent" = "xyes"; then
@@ -7073,9 +7098,13 @@ AC_PLUGIN([smart],               [$plugin_smart],           [SMART statistics])
 AC_PLUGIN([snmp],                [$with_libnetsnmp],        [SNMP querying plugin])
 <<<<<<< HEAD
 AC_PLUGIN([snmp_agent],          [$with_libnetsnmpagent],   [SNMP agent plugin])
+<<<<<<< HEAD
 =======
 AC_PLUGIN([stackdriver_agent],   [$plugin_stackdriver_agent], [Metrics from the Stackdriver agent itself])
 >>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
+=======
+AC_PLUGIN([stackdriver_agent],   [$plugin_stackdriver_agent], [Metrics from the Stackdriver agent itself])
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 AC_PLUGIN([statsd],              [yes],                     [StatsD plugin])
 AC_PLUGIN([swap],                [$plugin_swap],            [Swap usage statistics])
 AC_PLUGIN([synproxy],            [$plugin_synproxy],        [Synproxy stats plugin])
@@ -7282,6 +7311,7 @@ AC_SUBST([AM_CXXFLAGS])
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 AC_CONFIG_FILES([ \
   Makefile \
   src/collectd.conf \
@@ -7293,11 +7323,17 @@ AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/daemon/Makefile src/co
 =======
 AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
 >>>>>>> removes reqs for other makefiles from configure.ac
+=======
+AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 if test "x$enable_logging_metrics" != "xno"
 then
 	AC_CONFIG_FILES([src/read_agent_logging], [chmod +x src/read_agent_logging])
 fi
+<<<<<<< HEAD
 >>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
+=======
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 AC_OUTPUT
 
 if test "x$with_librrd" = "xyes" && test "x$librrd_threadsafe" != "xyes"; then
@@ -7529,9 +7565,13 @@ AC_MSG_RESULT([    smart . . . . . . . . $enable_smart])
 AC_MSG_RESULT([    snmp  . . . . . . . . $enable_snmp])
 <<<<<<< HEAD
 AC_MSG_RESULT([    snmp_agent  . . . . . $enable_snmp_agent])
+<<<<<<< HEAD
 =======
 AC_MSG_RESULT([    stackdriver_agent . . $enable_stackdriver_agent])
 >>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
+=======
+AC_MSG_RESULT([    stackdriver_agent . . $enable_stackdriver_agent])
+>>>>>>> 25595c84371bead1fdb371a01505977465c91dc6
 AC_MSG_RESULT([    statsd  . . . . . . . $enable_statsd])
 AC_MSG_RESULT([    swap  . . . . . . . . $enable_swap])
 AC_MSG_RESULT([    synproxy  . . . . . . $enable_synproxy])
@@ -7588,4 +7628,3 @@ if test "x$dependency_warning" = "xyes"; then
 fi
 
 # vim: set fdm=marker sw=2 sts=2 ts=2 et :
-
