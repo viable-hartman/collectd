@@ -118,7 +118,6 @@
 #define MAXPROCENTRY 32
 #define MAXTHRDENTRY 16
 #define MAXARGLN 1024
-#define VALUE_UNSET -1
 /* #endif HAVE_PROCINFO_H */
 
 #elif KERNEL_SOLARIS
@@ -172,6 +171,7 @@
 #endif
 
 #define PROCSTAT_NAME_LEN 256
+#define VALUE_UNSET -1
 
 typedef struct procstat_counters_s {
   derive_t vmem_minflt_counter;
