@@ -3,8 +3,8 @@ AC_PREREQ([2.60])
 AC_INIT([collectd],[m4_esyscmd(./version-gen.sh)])
 AC_CONFIG_SRCDIR(src/target_set.c)
 AC_CONFIG_HEADERS(src/config.h)
-AC_CONFIG_AUX_DIR([libltdl/config])
-AC_CONFIG_SUBDIRS([src/libmongoc])
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl older automake's default of ARFLAGS=cru is noisy on newer binutils;
 dnl we don't really need the 'u' even in older toolchains.  Then there is
@@ -37,6 +37,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AM_PROG_CC_C_O
+AM_CONDITIONAL(COMPILER_IS_GCC, test "x$GCC" = "xyes")
 
 AC_PROG_LEX
 AC_PROG_YACC
@@ -2279,6 +2280,7 @@ if test "x$with_libcurl" = "xyes"; then
   LDFLAGS="$SAVE_LDFLAGS"
 fi
 
+AM_CONDITIONAL(BUILD_WITH_LIBCURL, test "x$with_libcurl" = "xyes")
 if test "x$c_cv_have_curlinfo_appconnect_time" = "xyes"; then
   AC_DEFINE([HAVE_CURLINFO_APPCONNECT_TIME], [1],
     [Define if curl.h defines CURLINFO_APPCONNECT_TIME.]
@@ -3478,6 +3480,7 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 	     AC_CONFIG_SUBDIRS([src/libmongoc])
 >>>>>>> Fixes mongodb
@@ -3490,6 +3493,9 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 >>>>>>> Fixes mongodb
 =======
 >>>>>>> Completes rebase
+=======
+	     AC_CONFIG_SUBDIRS([src/libmongoc])
+>>>>>>> Checking configure.ac for rebase
 	 else
 	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
 	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
@@ -3509,15 +3515,11 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 =======
 >>>>>>> Completes rebase
 
-if test "x$with_libmongoc" = "xyes"; then
-  PKG_CHECK_MODULES([LIBMONGOC], [libmongoc-1.0],
-    [with_libmongoc="yes"],
-    [with_libmongoc="no (pkg-config could not find libmongoc)"]
-  )
-fi
+SAVE_CPPFLAGS="$CPPFLAGS"
+SAVE_LDFLAGS="$LDFLAGS"
 
-if test "x$with_libmongoc" = "xyes"; then
-  SAVE_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $LIBMONGOC_CPPFLAGS"
+LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
 
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3584,6 +3586,7 @@ then
 >>>>>>> Completes rebase
 fi
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -3684,10 +3687,19 @@ if test "x$with_libmongoc" = "xyes"; then
   BUILD_WITH_LIBMONGOC_CFLAGS="$LIBMONGOC_CFLAGS"
   BUILD_WITH_LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS"
 >>>>>>> Completes rebase
-fi
+=======
+CPPFLAGS="$SAVE_CPPFLAGS"
+LDFLAGS="$SAVE_LDFLAGS"
 
-AC_SUBST([BUILD_WITH_LIBMONGOC_CFLAGS])
-AC_SUBST([BUILD_WITH_LIBMONGOC_LDFLAGS])
+if test "x$with_libmongoc" = "xyes"
+then
+	BUILD_WITH_LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS"
+	BUILD_WITH_LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS"
+	AC_SUBST(BUILD_WITH_LIBMONGOC_CPPFLAGS)
+	AC_SUBST(BUILD_WITH_LIBMONGOC_LDFLAGS)
+>>>>>>> Checking configure.ac for rebase
+fi
+AM_CONDITIONAL(BUILD_WITH_LIBMONGOC, test "x$with_libmongoc" = "xyes")
 # }}}
 
 # --with-libmosquitto {{{
@@ -4009,6 +4021,56 @@ AC_SUBST([LIBNETAPP_CPPFLAGS])
 AC_SUBST([LIBNETAPP_LDFLAGS])
 AC_SUBST([LIBNETAPP_LIBS])
 # }}}
+
+# --with-liboconfig {{{
+with_own_liboconfig="no"
+liboconfig_LDFLAGS="$LDFLAGS"
+liboconfig_CPPFLAGS="$CPPFLAGS"
+AC_ARG_WITH(liboconfig, [AS_HELP_STRING([--with-liboconfig@<:@=PREFIX@:>@], [Path to liboconfig.])],
+[
+	if test "x$withval" != "xno" && test "x$withval" != "xyes"
+	then
+		if test -d "$withval/lib"
+		then
+			liboconfig_LDFLAGS="$LDFLAGS -L$withval/lib"
+		fi
+		if test -d "$withval/include"
+		then
+			liboconfig_CPPFLAGS="$CPPFLAGS -I$withval/include"
+		fi
+	fi
+	if test "x$withval" = "xno"
+	then
+		AC_MSG_ERROR("liboconfig is required")
+	fi
+],
+[
+	with_liboconfig="yes"
+])
+
+save_LDFLAGS="$LDFLAGS"
+save_CPPFLAGS="$CPPFLAGS"
+LDFLAGS="$liboconfig_LDFLAGS"
+CPPFLAGS="$liboconfig_CPPFLAGS"
+AC_CHECK_LIB(oconfig, oconfig_parse_file,
+[
+	with_liboconfig="yes"
+	with_own_liboconfig="no"
+],
+[
+	with_liboconfig="yes"
+	with_own_liboconfig="yes"
+	LDFLAGS="$save_LDFLAGS"
+	CPPFLAGS="$save_CPPFLAGS"
+])
+
+AM_CONDITIONAL(BUILD_WITH_OWN_LIBOCONFIG, test "x$with_own_liboconfig" = "xyes")
+if test "x$with_own_liboconfig" = "xyes"
+then
+	with_liboconfig="yes (shipped version)"
+fi
+# }}}
+
 
 # --with-libnetsnmp {{{
 AC_ARG_WITH([libnetsnmp],
@@ -4601,6 +4663,8 @@ if test "x$with_libperl" = "xyes"; then
   CFLAGS="$SAVE_CFLAGS"
   LIBS="$SAVE_LIBS"
 fi
+AM_CONDITIONAL(HAVE_BROKEN_PERL_LOAD_MODULE,
+		test "x$c_cv_have_broken_perl_load_module" = "xyes")
 AC_SUBST([PERL_CFLAGS])
 AC_SUBST([PERL_LIBS])
 
@@ -5505,8 +5569,11 @@ AM_CONDITIONAL(BUILD_WITH_LIBSSL, test "x$with_libssl" = "xyes")
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Adds back section # For ipvs module
+=======
+>>>>>>> Checking configure.ac for rebase
 # For ipvs module
 have_linux_ip_vs_h="no"
 have_net_ip_vs_h="no"
@@ -5545,12 +5612,15 @@ then
 fi
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> configure.ac for libssl and libpthread
 =======
 >>>>>>> Adds back section # For ipvs module
 =======
 >>>>>>> Completes rebase
+=======
+>>>>>>> Checking configure.ac for rebase
 # --with-libstatgrab {{{
 AC_ARG_WITH([libstatgrab],
   [AS_HELP_STRING([--with-libstatgrab@<:@=PREFIX@:>@], [Path to libstatgrab.])],
@@ -6987,6 +7057,7 @@ then
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         plugin_stackdriver_agent="yes"
 =======
 >>>>>>> write_gcm plugin
@@ -6995,6 +7066,9 @@ then
 >>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
 =======
 >>>>>>> Completes rebase
+=======
+        plugin_stackdriver_agent="yes"
+>>>>>>> Checking configure.ac for rebase
 fi
 
 if test "x$have_getutent" = "xyes"
@@ -7096,6 +7170,7 @@ AC_PLUGIN([java],                [$with_java],              [Embed the Java Virt
 AC_PLUGIN([load],                [$plugin_load],            [System load])
 AC_PLUGIN([log_logstash],        [$plugin_log_logstash],    [Logstash json_event compatible logging])
 AC_PLUGIN([logfile],             [yes],                     [File logging plugin])
+AC_PLUGIN([logging_metrics],     [yes],                     [Collect Stackdriver Logging metrics])
 AC_PLUGIN([lpar],                [$with_perfstat],          [AIX logical partitions statistics])
 AC_PLUGIN([lua],                 [$with_liblua],            [Lua plugin])
 AC_PLUGIN([lvm],                 [$with_liblvm2app],        [LVM statistics])
@@ -7159,11 +7234,15 @@ AC_PLUGIN([smart],               [$plugin_smart],           [SMART statistics])
 AC_PLUGIN([snmp],                [$with_libnetsnmp],        [SNMP querying plugin])
 AC_PLUGIN([snmp_agent],          [$with_libnetsnmpagent],   [SNMP agent plugin])
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AC_PLUGIN([stackdriver_agent],   [$plugin_stackdriver_agent], [Metrics from the Stackdriver agent itself])
 >>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
 =======
 >>>>>>> Completes rebase
+=======
+AC_PLUGIN([stackdriver_agent],   [$plugin_stackdriver_agent], [Metrics from the Stackdriver agent itself])
+>>>>>>> Checking configure.ac for rebase
 AC_PLUGIN([statsd],              [yes],                     [StatsD plugin])
 AC_PLUGIN([swap],                [$plugin_swap],            [Swap usage statistics])
 AC_PLUGIN([synproxy],            [$plugin_synproxy],        [Synproxy stats plugin])
@@ -7291,6 +7370,18 @@ AC_SUBST([LOAD_PLUGIN_RRDTOOL])
 AC_SUBST([LOAD_PLUGIN_NETWORK])
 AC_SUBST([LOAD_PLUGIN_CSV])
 
+dnl ip_vs.h
+if test "x$ac_system" = "xLinux" \
+	&& test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono"
+then
+	enable_ipvs="$enable_ipvs (ip_vs.h not found)"
+fi
+
+if test "x$ip_vs_h_needs_kernel_cflags" = "xyes"
+then
+	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
+fi
+
 dnl Perl bindings
 PERL_BINDINGS_OPTIONS="PREFIX=${prefix}"
 AC_ARG_WITH(perl-bindings, [AS_HELP_STRING([--with-perl-bindings@<:@=OPTIONS@:>@], [Options passed to "perl Makefile.PL".])],
@@ -7361,6 +7452,7 @@ AC_SUBST([AM_CXXFLAGS])
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
 =======
@@ -7388,13 +7480,19 @@ AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libc
 AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
 >>>>>>> removes reqs for other makefiles from configure.ac
 >>>>>>> removes reqs for other makefiles from configure.ac
+=======
+AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
+>>>>>>> Checking configure.ac for rebase
 if test "x$enable_logging_metrics" != "xno"
 then
 	AC_CONFIG_FILES([src/read_agent_logging], [chmod +x src/read_agent_logging])
 fi
+<<<<<<< HEAD
 >>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
 =======
 >>>>>>> Completes rebase
+=======
+>>>>>>> Checking configure.ac for rebase
 AC_OUTPUT
 
 if test "x$with_librrd" = "xyes" && test "x$librrd_threadsafe" != "xyes"; then
@@ -7563,6 +7661,7 @@ AC_MSG_RESULT([    java  . . . . . . . . $enable_java])
 AC_MSG_RESULT([    load  . . . . . . . . $enable_load])
 AC_MSG_RESULT([    logfile . . . . . . . $enable_logfile])
 AC_MSG_RESULT([    log_logstash  . . . . $enable_log_logstash])
+AC_MSG_RESULT([    logging_metrics . . . $enable_logging_metrics])
 AC_MSG_RESULT([    lpar  . . . . . . . . $enable_lpar])
 AC_MSG_RESULT([    lua . . . . . . . . . $enable_lua])
 AC_MSG_RESULT([    lvm . . . . . . . . . $enable_lvm])
@@ -7625,11 +7724,15 @@ AC_MSG_RESULT([    smart . . . . . . . . $enable_smart])
 AC_MSG_RESULT([    snmp  . . . . . . . . $enable_snmp])
 AC_MSG_RESULT([    snmp_agent  . . . . . $enable_snmp_agent])
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 AC_MSG_RESULT([    stackdriver_agent . . $enable_stackdriver_agent])
 >>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
 =======
 >>>>>>> Completes rebase
+=======
+AC_MSG_RESULT([    stackdriver_agent . . $enable_stackdriver_agent])
+>>>>>>> Checking configure.ac for rebase
 AC_MSG_RESULT([    statsd  . . . . . . . $enable_statsd])
 AC_MSG_RESULT([    swap  . . . . . . . . $enable_swap])
 AC_MSG_RESULT([    synproxy  . . . . . . $enable_synproxy])
