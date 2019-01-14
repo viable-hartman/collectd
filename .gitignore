@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # build.sh stuff:
 Makefile.in
 /INSTALL
@@ -23,8 +24,13 @@ Makefile.in
 /missing
 /src/config.h.in
 
+=======
+>>>>>>> gitignore
 # configure stuff:
 Makefile
+!stackdriver/Makefile
+# allow the libmongoc Makefile until we have time to integrate it further
+!src/libmongoc/Makefile
 config.log
 config.status
 libtool
@@ -53,6 +59,7 @@ src/libcollectdclient/collectd/lcc_features.h
 *.rej
 *.orig
 
+<<<<<<< HEAD
 # lex / yacc stuff:
 ylwrap
 src/liboconfig/parser.c
@@ -65,6 +72,8 @@ src/liboconfig/scanner.c
 *.pb.cc
 *.pb.h
 
+=======
+>>>>>>> gitignore
 # make dist stuff:
 /collectd-*.tar.gz
 /collectd-*.tar.bz2
