@@ -55489,7 +55489,7 @@ $as_echo "    zone  . . . . . . . . $enable_zone" >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result:     zookeeper . . . . . . $enable_zookeeper" >&5
 $as_echo "    zookeeper . . . . . . $enable_zookeeper" >&6; }
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: " >&5
-$as_echo "" >&6; }
+$as_echo "" >&6; } 
 
 if test "x$dependency_error" = "xyes"; then
 	as_fn_error $? "\"Some plugins are missing dependencies - see the summary above for details\"" "$LINENO" 5
