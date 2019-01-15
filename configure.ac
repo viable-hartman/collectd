@@ -7453,6 +7453,7 @@ AC_SUBST([AM_CXXFLAGS])
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
 =======
@@ -7483,6 +7484,9 @@ AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libc
 =======
 AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
 >>>>>>> Checking configure.ac for rebase
+=======
+AC_CONFIG_FILES([Makefile proto/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
+>>>>>>> Removes redundant Makefile requirement from configure.ac.
 if test "x$enable_logging_metrics" != "xno"
 then
 	AC_CONFIG_FILES([src/read_agent_logging], [chmod +x src/read_agent_logging])
