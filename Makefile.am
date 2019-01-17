@@ -1,9 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
 
-<<<<<<< HEAD
-SUBDIRS = src/libmongoc
-=======
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
@@ -13,7 +10,6 @@ cpkgdatadir=$(pkgdatadir)
 cpkglibdir=$(pkglibdir)
 cpkglocalstatedir=${localstatedir}/lib/${PACKAGE_NAME}
 endif
->>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 
 BUILT_SOURCES = \
 	src/libcollectdclient/collectd/lcc_features.h \
