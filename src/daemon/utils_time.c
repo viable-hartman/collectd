@@ -47,9 +47,7 @@ cdtime_t cdtime(void) /* {{{ */
 
   status = clock_gettime(CLOCK_REALTIME, &ts);
   if (status != 0) {
-    char errbuf[1024];
-    ERROR("cdtime: clock_gettime failed: %s",
-          sstrerror(errno, errbuf, sizeof(errbuf)));
+    ERROR("cdtime: clock_gettime failed: %s", STRERRNO);
     return 0;
   }
 
@@ -64,9 +62,7 @@ cdtime_t cdtime(void) /* {{{ */
 
   status = gettimeofday(&tv, /* struct timezone = */ NULL);
   if (status != 0) {
-    char errbuf[1024];
-    ERROR("cdtime: gettimeofday failed: %s",
-          sstrerror(errno, errbuf, sizeof(errbuf)));
+    ERROR("cdtime: gettimeofday failed: %s", STRERRNO);
     return 0;
   }
 
@@ -85,10 +81,8 @@ static int get_utc_time(cdtime_t t, struct tm *t_tm, long *nsec) /* {{{ */
   NORMALIZE_TIMESPEC(t_spec);
 
   if (gmtime_r(&t_spec.tv_sec, t_tm) == NULL) {
-    char errbuf[1024];
     int status = errno;
-    ERROR("get_utc_time: gmtime_r failed: %s",
-          sstrerror(status, errbuf, sizeof(errbuf)));
+    ERROR("get_utc_time: gmtime_r failed: %s", STRERRNO);
     return status;
   }
 
@@ -102,10 +96,8 @@ static int get_local_time(cdtime_t t, struct tm *t_tm, long *nsec) /* {{{ */
   NORMALIZE_TIMESPEC(t_spec);
 
   if (localtime_r(&t_spec.tv_sec, t_tm) == NULL) {
-    char errbuf[1024];
     int status = errno;
-    ERROR("get_local_time: localtime_r failed: %s",
-          sstrerror(status, errbuf, sizeof(errbuf)));
+    ERROR("get_local_time: localtime_r failed: %s", STRERRNO);
     return status;
   }
 
@@ -151,7 +143,35 @@ static int format_zone(char *buffer, size_t buffer_size,
   return 0;
 } /* }}} int format_zone */
 
+<<<<<<< HEAD
 static int format_rfc3339 (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano, _Bool zulu) /* {{{ */
+=======
+int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
+                   long nsec, bool print_nano, char const *zone) /* {{{ */
+{
+  size_t len;
+  char *pos = buffer;
+  size_t size_left = buffer_size;
+
+  if ((len = strftime(pos, size_left, "%Y-%m-%dT%H:%M:%S", t_tm)) == 0)
+    return ENOMEM;
+  pos += len;
+  size_left -= len;
+
+  if (print_nano) {
+    if ((len = snprintf(pos, size_left, ".%09ld", nsec)) == 0)
+      return ENOMEM;
+    pos += len;
+    size_left -= len;
+  }
+
+  sstrncpy(pos, zone, size_left);
+  return 0;
+} /* }}} int format_rfc3339 */
+
+int format_rfc3339_utc(char *buffer, size_t buffer_size, cdtime_t t,
+                       bool print_nano) /* {{{ */
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 {
   struct tm t_tm;
   long nsec = 0;
@@ -179,7 +199,7 @@ static int format_rfc3339 (char *buffer, size_t buffer_size, cdtime_t t, _Bool p
   }
 
 int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
-                         _Bool print_nano) /* {{{ */
+                         bool print_nano) /* {{{ */
 {
   struct tm t_tm;
   long nsec = 0;

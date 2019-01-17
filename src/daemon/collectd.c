@@ -25,6 +25,7 @@
  *   Alvaro Barcellos <alvaro.barcellos at gmail.com>
  **/
 
+#include "cmd.h"
 #include "collectd.h"
 
 #include "common.h"
@@ -33,7 +34,6 @@
 
 #include <netdb.h>
 #include <sys/types.h>
-#include <sys/un.h>
 
 #if HAVE_LOCALE_H
 #include <locale.h>
@@ -51,6 +51,7 @@
 #define COLLECTD_LOCALE "C"
 #endif
 
+<<<<<<< HEAD
 static int loop;
 
 static void *do_flush(void __attribute__((unused)) * arg) {
@@ -66,18 +67,17 @@ static void *do_flush(void __attribute__((unused)) * arg) {
 static void sig_int_handler(int __attribute__((unused)) signal) { loop++; }
 
 static void sig_term_handler(int __attribute__((unused)) signal) { loop++; }
+=======
+#ifdef WIN32
+#undef COLLECT_DAEMON
+#include <unistd.h>
+#undef gethostname
+#include <locale.h>
+#include <winsock2.h>
+#endif
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 
-static void sig_usr1_handler(int __attribute__((unused)) signal) {
-  pthread_t thread;
-  pthread_attr_t attr;
-
-  /* flushing the data might take a while,
-   * so it should be done asynchronously */
-  pthread_attr_init(&attr);
-  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-  pthread_create(&thread, &attr, do_flush, NULL);
-  pthread_attr_destroy(&attr);
-}
+static int loop;
 
 static int init_hostname(void) {
   const char *str = global_option_get("Hostname");
@@ -86,10 +86,14 @@ static int init_hostname(void) {
     return 0;
   }
 
+#ifdef WIN32
+  long hostname_len = NI_MAXHOST;
+#else
   long hostname_len = sysconf(_SC_HOST_NAME_MAX);
   if (hostname_len == -1) {
     hostname_len = NI_MAXHOST;
   }
+#endif /* WIN32 */
   char hostname[hostname_len];
 
   if (gethostname(hostname, hostname_len) != 0) {
@@ -318,6 +322,7 @@ static int do_shutdown(void) {
   return plugin_shutdown_all();
 } /* int do_shutdown */
 
+<<<<<<< HEAD
 #if COLLECT_DAEMON
 static int pidfile_create(void) {
   FILE *fh;
@@ -432,11 +437,12 @@ struct cmdline_config {
   bool daemonize;
 };
 
+=======
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 static void read_cmdline(int argc, char **argv, struct cmdline_config *config) {
   /* read options */
   while (1) {
-    int c;
-    c = getopt(argc, argv, "BhtTC:"
+    int c = getopt(argc, argv, "BhtTC:"
 #if COLLECT_DAEMON
                                "fP:"
 #endif
@@ -517,9 +523,14 @@ static int configure_collectd(struct cmdline_config *config) {
   return 0;
 }
 
+<<<<<<< HEAD
 int main(int argc, char **argv) {
   int exit_status = 0;
+=======
+void stop_collectd(void) { loop++; }
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 
+struct cmdline_config init_config(int argc, char **argv) {
   struct cmdline_config config = {
       .daemonize = true, .create_basedir = true, .configfile = CONFIGFILE,
   };
@@ -527,7 +538,7 @@ int main(int argc, char **argv) {
   read_cmdline(argc, argv, &config);
 
   if (config.test_config)
-    return 0;
+    exit(EXIT_SUCCESS);
 
   if (optind < argc)
     exit_usage(1);
@@ -537,6 +548,7 @@ int main(int argc, char **argv) {
   if (configure_collectd(&config) != 0)
     exit(EXIT_FAILURE);
 
+<<<<<<< HEAD
 #if COLLECT_DAEMON
   /*
    * fork off child
@@ -630,16 +642,20 @@ int main(int argc, char **argv) {
           STRERRNO);
     return 1;
   }
+=======
+  return config;
+}
 
-  /*
-   * run the actual loops
-   */
+int run_loop(bool test_readall) {
+  int exit_status = 0;
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
+
   if (do_init() != 0) {
     ERROR("Error: one or more plugin init callbacks failed.");
     exit_status = 1;
   }
 
-  if (config.test_readall) {
+  if (test_readall) {
     if (plugin_read_all_once() != 0) {
       ERROR("Error: one or more plugin read callbacks failed.");
       exit_status = 1;
@@ -657,10 +673,5 @@ int main(int argc, char **argv) {
     exit_status = 1;
   }
 
-#if COLLECT_DAEMON
-  if (config.daemonize)
-    pidfile_remove();
-#endif /* COLLECT_DAEMON */
-
   return exit_status;
-} /* int main */
+} /* int run_loop */

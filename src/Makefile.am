@@ -630,12 +630,16 @@ endif
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
 pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
 match_throttle_metadata_keys_la_SOURCES = match_throttle_metadata_keys.c stackdriver-agent-keys.h
 match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
+<<<<<<< HEAD
 =======
 >>>>>>> plugin_mem
 =======
@@ -646,6 +650,8 @@ match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
 >>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
+=======
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 if BUILD_PLUGIN_MBMON
 pkglib_LTLIBRARIES += mbmon.la
 mbmon_la_SOURCES = mbmon.c
@@ -727,8 +733,11 @@ endif
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> mongo plugin
+=======
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 if BUILD_PLUGIN_MONGODB
 pkglib_LTLIBRARIES += mongodb.la
 mongodb_la_SOURCES = mongodb.c
@@ -747,10 +756,13 @@ endif
 endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> plugin_mem
 =======
 >>>>>>> mongo plugin
+=======
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 if BUILD_PLUGIN_MULTIMETER
 pkglib_LTLIBRARIES += multimeter.la
 multimeter_la_SOURCES = multimeter.c
@@ -1332,6 +1344,7 @@ write_log_la_SOURCES = write_log.c \
 write_log_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 write_log_la_LIBADD = libformat_json.la
 endif
 
@@ -1360,6 +1373,9 @@ stackdriver_agent_la_LDFLAGS = -module -avoid-version
 =======
 write_log_la_LIBADD = libformat_json.la
 >>>>>>> Add optional configuration to write_log; allow writing JSON.
+=======
+write_log_la_LIBADD = libformat_json.la
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 endif
 
 if BUILD_PLUGIN_WRITE_GCM
@@ -1562,15 +1578,21 @@ TESTS += test_plugin_ceph
 endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
+=======
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 
 if BUILD_PLUGIN_LOGGING_METRICS
 bin_SCRIPTS = read_agent_logging
 CLEANFILES += $(bin_SCRIPTS)
 endif
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> plugin_mem
 =======
 >>>>>>> Collect metrics from the Stackdriver Logging agent (#109)
+=======
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8

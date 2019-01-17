@@ -27,7 +27,6 @@
 
 #include "collectd.h"
 #include "common.h"
-
 #include "utils_config_cores.h"
 
 #include <pqos.h>
@@ -54,7 +53,7 @@ struct rdt_ctx_s {
 };
 typedef struct rdt_ctx_s rdt_ctx_t;
 
-static rdt_ctx_t *g_rdt = NULL;
+static rdt_ctx_t *g_rdt;
 
 static rdt_config_status g_state = UNKNOWN;
 
@@ -68,7 +67,7 @@ static void rdt_dump_cgroups(void) {
   DEBUG(RDT_PLUGIN ": Core Groups Dump");
   DEBUG(RDT_PLUGIN ":  groups count: %" PRIsz, g_rdt->num_groups);
 
-  for (int i = 0; i < g_rdt->num_groups; i++) {
+  for (size_t i = 0; i < g_rdt->num_groups; i++) {
     core_group_t *cgroup = g_rdt->cores.cgroups + i;
 
     memset(cores, 0, sizeof(cores));
@@ -77,7 +76,7 @@ static void rdt_dump_cgroups(void) {
                cgroup->cores[j]);
     }
 
-    DEBUG(RDT_PLUGIN ":  group[%d]:", i);
+    DEBUG(RDT_PLUGIN ":  group[%zu]:", i);
     DEBUG(RDT_PLUGIN ":    description: %s", cgroup->desc);
     DEBUG(RDT_PLUGIN ":    cores: %s", cores);
     DEBUG(RDT_PLUGIN ":    events: 0x%X", g_rdt->events[i]);
@@ -159,9 +158,9 @@ static int rdt_default_cgroups(void) {
   return num_cores;
 }
 
-static int rdt_is_core_id_valid(int core_id) {
+static int rdt_is_core_id_valid(unsigned int core_id) {
 
-  for (int i = 0; i < g_rdt->pqos_cpu->num_cores; i++)
+  for (unsigned int i = 0; i < g_rdt->pqos_cpu->num_cores; i++)
     if (core_id == g_rdt->pqos_cpu->cores[i].lcore)
       return 1;
 
@@ -183,9 +182,9 @@ static int rdt_config_cgroups(oconfig_item_t *item) {
   for (size_t group_idx = 0; group_idx < n; group_idx++) {
     core_group_t *cgroup = g_rdt->cores.cgroups + group_idx;
     for (size_t core_idx = 0; core_idx < cgroup->num_cores; core_idx++) {
-      if (!rdt_is_core_id_valid((int)cgroup->cores[core_idx])) {
-        ERROR(RDT_PLUGIN ": Core group '%s' contains invalid core id '%d'",
-              cgroup->desc, (int)cgroup->cores[core_idx]);
+      if (!rdt_is_core_id_valid(cgroup->cores[core_idx])) {
+        ERROR(RDT_PLUGIN ": Core group '%s' contains invalid core id '%u'",
+              cgroup->desc, cgroup->cores[core_idx]);
         rdt_free_cgroups();
         return -EINVAL;
       }
@@ -206,7 +205,7 @@ static int rdt_config_cgroups(oconfig_item_t *item) {
   }
 
   /* Get all available events on this platform */
-  for (int i = 0; i < g_rdt->cap_mon->u.mon->num_events; i++)
+  for (unsigned int i = 0; i < g_rdt->cap_mon->u.mon->num_events; i++)
     events |= g_rdt->cap_mon->u.mon->events[i].type;
 
   events &= ~(PQOS_PERF_EVENT_LLC_MISS);
@@ -337,8 +336,8 @@ static int rdt_config(oconfig_item_t *ci) {
   return 0;
 }
 
-static void rdt_submit_derive(char *cgroup, char *type, char *type_instance,
-                              derive_t value) {
+static void rdt_submit_derive(const char *cgroup, const char *type,
+                              const char *type_instance, derive_t value) {
   value_list_t vl = VALUE_LIST_INIT;
 
   vl.values = &(value_t){.derive = value};
@@ -353,8 +352,8 @@ static void rdt_submit_derive(char *cgroup, char *type, char *type_instance,
   plugin_dispatch_values(&vl);
 }
 
-static void rdt_submit_gauge(char *cgroup, char *type, char *type_instance,
-                             gauge_t value) {
+static void rdt_submit_gauge(const char *cgroup, const char *type,
+                             const char *type_instance, gauge_t value) {
   value_list_t vl = VALUE_LIST_INIT;
 
   vl.values = &(value_t){.gauge = value};
@@ -387,7 +386,7 @@ static int rdt_read(__attribute__((unused)) user_data_t *ud) {
   rdt_dump_data();
 #endif /* COLLECT_DEBUG */
 
-  for (int i = 0; i < g_rdt->num_groups; i++) {
+  for (size_t i = 0; i < g_rdt->num_groups; i++) {
     core_group_t *cgroup = g_rdt->cores.cgroups + i;
 
     enum pqos_mon_event mbm_events =
@@ -426,7 +425,7 @@ static int rdt_init(void) {
     return ret;
 
   /* Start monitoring */
-  for (int i = 0; i < g_rdt->num_groups; i++) {
+  for (size_t i = 0; i < g_rdt->num_groups; i++) {
     core_group_t *cg = g_rdt->cores.cgroups + i;
 
     ret = pqos_mon_start(cg->num_cores, cg->cores, g_rdt->events[i],
@@ -449,7 +448,7 @@ static int rdt_shutdown(void) {
     return 0;
 
   /* Stop monitoring */
-  for (int i = 0; i < g_rdt->num_groups; i++) {
+  for (size_t i = 0; i < g_rdt->num_groups; i++) {
     pqos_mon_stop(g_rdt->pgroups[i]);
   }
 

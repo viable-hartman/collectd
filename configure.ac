@@ -37,6 +37,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AM_PROG_CC_C_O
+AM_CONDITIONAL(COMPILER_IS_GCC, test "x$GCC" = "xyes")
 
 AC_PROG_LEX
 AC_PROG_YACC
@@ -99,6 +100,10 @@ case $host_os in
     AC_DEFINE([KERNEL_SOLARIS], [1], [True if program is to be compiled for a Solaris kernel])
     ac_system="Solaris"
     ;;
+  *mingw32*)
+    AC_DEFINE([KERNEL_WIN32], [1], [True if program is to be compiled for a Windows kernel])
+    ac_system="Windows"
+    ;;
   *)
     ac_system="unknown"
     ;;
@@ -111,6 +116,7 @@ AM_CONDITIONAL([BUILD_FREEBSD], [test "x$ac_system" = "xFreeBSD"])
 AM_CONDITIONAL([BUILD_LINUX], [test "x$ac_system" = "xLinux"])
 AM_CONDITIONAL([BUILD_OPENBSD], [test "x$ac_system" = "xOpenBSD"])
 AM_CONDITIONAL([BUILD_SOLARIS], [test "x$ac_system" = "xSolaris"])
+AM_CONDITIONAL([BUILD_WIN32], [test "x$ac_system" = "xWindows"])
 
 if test "x$ac_system" = "xSolaris"; then
   AC_DEFINE([_POSIX_PTHREAD_SEMANTICS], [1], [Define to enforce POSIX thread semantics under Solaris.])
@@ -550,6 +556,12 @@ if test "x$ac_system" = "xLinux"; then
     AC_DEFINE([HAVE_CAPABILITY], [1], [Define to 1 if you have cap_get_proc() (-lcap).])
   fi
 
+  # For pcie_errors plugin
+  AC_CHECK_HEADERS([linux/pci_regs.h],
+    [have_pci_regs_h="yes"],
+    [have_pci_regs_h="no (linux/pci_regs.h not found)"]
+  )
+
 else
   have_linux_raid_md_u_h="no"
   have_linux_wireless_h="no"
@@ -745,6 +757,7 @@ AC_CHECK_FUNCS_ONCE([ \
     getaddrinfo \
     getgrnam_r \
     getnameinfo \
+    getpwnam \
     getpwnam_r \
     gettimeofday \
     if_indextoname \
@@ -766,9 +779,12 @@ AC_CHECK_FUNCS_ONCE([ \
 AC_FUNC_STRERROR_R
 
 SAVE_CFLAGS="$CFLAGS"
-# Emulate behavior of src/Makefile.am
-if test "x$GCC" = "xyes"; then
-  CFLAGS="$CFLAGS -Wall -Werror"
+CFLAGS="-Wall -Werror"
+SAVE_LDFLAGS="$LDFLAGS"
+LDFLAGS=""
+if test "x$ac_system" = "xWindows"; then
+  # This is exported from build.sh
+  LDFLAGS="$LDFLAGS -L${GNULIB_DIR}"
 fi
 
 AC_CACHE_CHECK([for strtok_r],
@@ -842,6 +858,7 @@ if test "x$c_cv_have_strtok_r_default" = "xno"; then
 fi
 
 CFLAGS="$SAVE_CFLAGS"
+LDFLAGS="$SAVE_LDFLAGS"
 if test "x$c_cv_have_strtok_r_reentrant" = "xyes"; then
   CFLAGS="$CFLAGS -D_REENTRANT=1"
 fi
@@ -851,11 +868,17 @@ AC_CHECK_FUNCS([socket],
   [
     AC_CHECK_LIB([socket], [socket],
       [socket_needs_socket="yes"],
-      [AC_MSG_ERROR([cannot find socket() in libsocket])]
+      [
+        AC_CHECK_LIB([gnu], [rpl_socket],
+          [socket_needs_gnulib="yes"],
+          [AC_MSG_ERROR([cannot find socket() in libsocket])]
+        )
+      ]
     )
   ]
 )
 AM_CONDITIONAL([BUILD_WITH_LIBSOCKET], [test "x$socket_needs_socket" = "xyes"])
+AM_CONDITIONAL([BUILD_WITH_GNULIB], [test "x$socket_needs_gnulib" = "xyes"])
 
 clock_gettime_needs_posix4="no"
 AC_CHECK_FUNCS([clock_gettime],
@@ -1567,7 +1590,7 @@ if test "x$have_getmntent" = "xlibc"; then
               struct mntent *me;
               fh = setmntent ("/etc/mtab", "r");
               me = getmntent (fh);
-              return(me->mnt_passno);
+              return me->mnt_passno;
             ]]
           )
         ],
@@ -1590,7 +1613,7 @@ if test "x$have_getmntent" = "xlibc"; then
               int status;
               fh = fopen ("/etc/mnttab", "r");
               status = getmntent (fh, &mt);
-              return(status);
+              return status;
             ]]
           )
         ],
@@ -1878,14 +1901,23 @@ fi
 
 # libi2c-dev
 if test "x$ac_system" = "xLinux"; then
+  with_libi2c_libs=""
+  AC_CHECK_HEADERS([i2c/smbus.h],
+    [with_libi2c_libs="-li2c"]
+  )
   AC_CHECK_DECL([i2c_smbus_read_i2c_block_data],
     [with_libi2c="yes"],
     [with_libi2c="no (symbol i2c_smbus_read_i2c_block_data not found - have you installed libi2c-dev ?)"],
     [[
       #include <stdlib.h>
       #include <linux/i2c-dev.h>
+      #if HAVE_I2C_SMBUS_H
+      # include <i2c/smbus.h>
+      #endif
     ]]
   )
+  BUILD_WITH_LIBI2C_LIBS="$with_libi2c_libs"
+  AC_SUBST([BUILD_WITH_LIBI2C_LIBS])
 else
   with_libi2c="no (Linux only)"
 fi
@@ -2248,6 +2280,7 @@ if test "x$with_libcurl" = "xyes"; then
   LDFLAGS="$SAVE_LDFLAGS"
 fi
 
+AM_CONDITIONAL(BUILD_WITH_LIBCURL, test "x$with_libcurl" = "xyes")
 if test "x$c_cv_have_curlinfo_appconnect_time" = "xyes"; then
   AC_DEFINE([HAVE_CURLINFO_APPCONNECT_TIME], [1],
     [Define if curl.h defines CURLINFO_APPCONNECT_TIME.]
@@ -2635,6 +2668,7 @@ AC_ARG_WITH([libgrpc++],
     if test "x$withval" != "xno" && test "x$withval" != "xyes"; then
       with_libgrpcpp_cppflags="-I$withval/include"
       with_libgrpcpp_ldflags="-L$withval/lib"
+      with_libgrpcpp_bin="$withval/bin"
       with_libgrpcpp="yes"
     fi
     if test "x$withval" = "xno"; then
@@ -2714,7 +2748,11 @@ AC_SUBST([BUILD_WITH_LIBGRPCPP_LIBS])
 # }}}
 
 AC_ARG_VAR([GRPC_CPP_PLUGIN], [path to the grpc_cpp_plugin binary])
-AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
+if test "x$with_libgrpcpp_bin" = "x"; then
+  AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
+else
+  AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin], [], "$with_libgrpcpp_bin:$PATH")
+fi
 AM_CONDITIONAL([HAVE_GRPC_CPP], [test "x$GRPC_CPP_PLUGIN" != "x"])
 
 # --with-libiptc {{{
@@ -3044,18 +3082,33 @@ else
           PKG_CHECK_MODULES([LUA], [lua5.3],
             [with_liblua="yes"],
             [
-              PKG_CHECK_MODULES([LUA], [lua-5.2],
+              PKG_CHECK_MODULES([LUA], [lua53],
                 [with_liblua="yes"],
                 [
-                  PKG_CHECK_MODULES([LUA], [lua5.2],
+                  PKG_CHECK_MODULES([LUA], [lua-5.2],
                     [with_liblua="yes"],
                     [
-                      PKG_CHECK_MODULES([LUA], [lua-5.1],
+                      PKG_CHECK_MODULES([LUA], [lua5.2],
                         [with_liblua="yes"],
                         [
-                          PKG_CHECK_MODULES([LUA], [lua5.1],
+                          PKG_CHECK_MODULES([LUA], [lua52],
                             [with_liblua="yes"],
-                            [with_liblua="no (pkg-config cannot find liblua)"]
+                            [
+                              PKG_CHECK_MODULES([LUA], [lua-5.1],
+                                [with_liblua="yes"],
+                                [
+                                  PKG_CHECK_MODULES([LUA], [lua5.1],
+                                    [with_liblua="yes"],
+                                    [
+                                      PKG_CHECK_MODULES([LUA], [lua51],
+                                        [with_liblua="yes"],
+                                        [with_liblua="no (pkg-config cannot find liblua)"]
+                                      )
+                                    ]
+                                  )
+                                ]
+                              )
+                            ]
                           )
                         ]
                       )
@@ -3357,71 +3410,77 @@ AC_SUBST([BUILD_WITH_LIBMODBUS_LIBS])
 # }}}
 
 # --with-libmongoc {{{
-AC_ARG_WITH([libmongoc],
-  [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
-  [
-    if test "x$withval" = "xyes"; then
-      with_libmongoc="yes"
-    else if test "x$withval" = "xno"; then
-      with_libmongoc="no"
-    else
-      with_libmongoc="no"
-    fi; fi
-  ],
-  [with_libmongoc="yes"]
-)
+AM_CONDITIONAL(BUILD_WITH_OWN_LIBMONGOC, test "x$with_libmongoc" = "xown")
+AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path to libmongoc.])],
+[
+ if test "x$withval" = "xyes"
+ then
+	 with_libmongoc="yes"
+ else if test "x$withval" = "xno"
+ then
+	 with_libmongoc="no"
+ else
+     if test "x$withval" = "xown"
+     then
+	     with_libmongoc="yes"
+	     with_own_libmongoc="yes"
+	     AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
+	     AC_CONFIG_SUBDIRS([src/libmongoc])
+	 else
+	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
+	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
+	 fi
+ fi; fi
+],
+[with_libmongoc="yes"])
 
-if test "x$with_libmongoc" = "xyes"; then
-  PKG_CHECK_MODULES([LIBMONGOC], [libmongoc-1.0],
-    [with_libmongoc="yes"],
-    [with_libmongoc="no (pkg-config could not find libmongoc)"]
-  )
+SAVE_CPPFLAGS="$CPPFLAGS"
+SAVE_LDFLAGS="$LDFLAGS"
+
+CPPFLAGS="$CPPFLAGS $LIBMONGOC_CPPFLAGS"
+LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
+
+if test "x$with_libmongoc" = "xyes"
+then
+	if test "x$LIBMONGOC_CPPFLAGS" != "x"
+	then
+		AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CPPFLAGS])
+	fi
+	if test "x$with_own_libmongoc" != "xyes"
+	then
+	    AC_CHECK_HEADERS(mongo.h,
+	    [with_libmongoc="yes"],
+	    [with_libmongoc="no ('mongo.h' not found)"],
+[#if HAVE_STDINT_H
+# define MONGO_HAVE_STDINT 1
+#else
+# define MONGO_USE_LONG_LONG_INT 1
+#endif
+])
+    fi
+fi
+if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"
+then
+	if test "x$LIBMONGOC_LDFLAGS" != "x"
+	then
+		AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
+	fi
+	AC_CHECK_LIB(mongoc, mongo_run_command,
+	[with_libmongoc="yes"],
+	[with_libmongoc="no (symbol 'mongo_run_command' not found)"])
 fi
 
-if test "x$with_libmongoc" = "xyes"; then
-  SAVE_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$SAVE_CPPFLAGS"
+LDFLAGS="$SAVE_LDFLAGS"
 
-  CPPFLAGS="$CPPFLAGS $LIBMONGOC_CFLAGS"
-
-  if test "x$CPPFLAGS" != "x"; then
-    AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CFLAGS])
-  fi
-
-  AC_CHECK_HEADERS([mongoc.h],
-    [with_libmongoc="yes"],
-    [with_libmongoc="no ('mongoc.h' not found)"]
-  )
-
-  CPPFLAGS="$SAVE_CPPFLAGS"
+if test "x$with_libmongoc" = "xyes"
+then
+	BUILD_WITH_LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS"
+	BUILD_WITH_LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS"
+	AC_SUBST(BUILD_WITH_LIBMONGOC_CPPFLAGS)
+	AC_SUBST(BUILD_WITH_LIBMONGOC_LDFLAGS)
 fi
-
-if test "x$with_libmongoc" = "xyes"; then
-  SAVE_CPPFLAGS="$CPPFLAGS"
-  SAVE_LDFLAGS="$LDFLAGS"
-
-  CPPFLAGS="$CPPFLAGS $LIBMONGOC_CFLAGS"
-  LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
-
-  if test "x$LIBMONGOC_LDFLAGS" != "x"; then
-    AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
-  fi
-
-  AC_CHECK_LIB([mongoc-1.0], [mongoc_init],
-    [with_libmongoc="yes"],
-    [with_libmongoc="no (symbol 'mongoc_init' not found)"]
-  )
-
-  CPPFLAGS="$SAVE_CPPFLAGS"
-  LDFLAGS="$SAVE_LDFLAGS"
-fi
-
-if test "x$with_libmongoc" = "xyes"; then
-  BUILD_WITH_LIBMONGOC_CFLAGS="$LIBMONGOC_CFLAGS"
-  BUILD_WITH_LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS"
-fi
-
-AC_SUBST([BUILD_WITH_LIBMONGOC_CFLAGS])
-AC_SUBST([BUILD_WITH_LIBMONGOC_LDFLAGS])
+AM_CONDITIONAL(BUILD_WITH_LIBMONGOC, test "x$with_libmongoc" = "xyes")
 # }}}
 
 # --with-libmosquitto {{{
@@ -3655,6 +3714,18 @@ if test "x$with_libmnl" = "xyes"; then
     [[#include <linux/if_link.h>]]
   )
 
+  AC_CHECK_MEMBERS([struct rtnl_link_stats.rx_nohandler],
+    [],
+    [],
+    [[#include <linux/if_link.h>]]
+  )
+
+  AC_CHECK_MEMBERS([struct rtnl_link_stats64.rx_nohandler],
+    [],
+    [],
+    [[#include <linux/if_link.h>]]
+  )
+
   AC_CHECK_LIB([mnl], [mnl_nlmsg_get_payload],
     [with_libmnl="yes"],
     [with_libmnl="no (symbol 'mnl_nlmsg_get_payload' not found)"],
@@ -3668,6 +3739,7 @@ if test "x$with_libmnl" = "xyes"; then
 fi
 AC_SUBST([BUILD_WITH_LIBMNL_CFLAGS])
 AC_SUBST([BUILD_WITH_LIBMNL_LIBS])
+AM_CONDITIONAL([HAVE_LIBMNL], [test "x$with_libmnl" = "xyes"])
 # }}}
 
 # --with-libnetapp {{{
@@ -3731,6 +3803,56 @@ AC_SUBST([LIBNETAPP_LDFLAGS])
 AC_SUBST([LIBNETAPP_LIBS])
 # }}}
 
+# --with-liboconfig {{{
+with_own_liboconfig="no"
+liboconfig_LDFLAGS="$LDFLAGS"
+liboconfig_CPPFLAGS="$CPPFLAGS"
+AC_ARG_WITH(liboconfig, [AS_HELP_STRING([--with-liboconfig@<:@=PREFIX@:>@], [Path to liboconfig.])],
+[
+	if test "x$withval" != "xno" && test "x$withval" != "xyes"
+	then
+		if test -d "$withval/lib"
+		then
+			liboconfig_LDFLAGS="$LDFLAGS -L$withval/lib"
+		fi
+		if test -d "$withval/include"
+		then
+			liboconfig_CPPFLAGS="$CPPFLAGS -I$withval/include"
+		fi
+	fi
+	if test "x$withval" = "xno"
+	then
+		AC_MSG_ERROR("liboconfig is required")
+	fi
+],
+[
+	with_liboconfig="yes"
+])
+
+save_LDFLAGS="$LDFLAGS"
+save_CPPFLAGS="$CPPFLAGS"
+LDFLAGS="$liboconfig_LDFLAGS"
+CPPFLAGS="$liboconfig_CPPFLAGS"
+AC_CHECK_LIB(oconfig, oconfig_parse_file,
+[
+	with_liboconfig="yes"
+	with_own_liboconfig="no"
+],
+[
+	with_liboconfig="yes"
+	with_own_liboconfig="yes"
+	LDFLAGS="$save_LDFLAGS"
+	CPPFLAGS="$save_CPPFLAGS"
+])
+
+AM_CONDITIONAL(BUILD_WITH_OWN_LIBOCONFIG, test "x$with_own_liboconfig" = "xyes")
+if test "x$with_own_liboconfig" = "xyes"
+then
+	with_liboconfig="yes (shipped version)"
+fi
+# }}}
+
+
 # --with-libnetsnmp {{{
 AC_ARG_WITH([libnetsnmp],
   [AS_HELP_STRING([--with-libnetsnmp@<:@=PREFIX@:>@], [Path to libnetsnmp.])],
@@ -3775,11 +3897,67 @@ if test "x$with_libnetsnmp" = "xyes"; then
   LDFLAGS="$LDFLAGS $with_libnetsnmp_ldflags"
 
   AC_CHECK_LIB([netsnmp], [init_snmp],
-    [with_libnetsmp="yes"],
+    [with_libnetsnmp="yes"],
     [with_libnetsnmp="no (libnetsnmp not found)"]
   )
 
   LDFLAGS="$SAVE_LDFLAGS"
+fi
+
+if test "x$with_libnetsnmp" = "xyes"; then
+  SAVE_LDFLAGS="$LDFLAGS"
+  LDFLAGS="$LDFLAGS $with_libnetsnmp_ldflags"
+
+  AC_CHECK_LIB([netsnmp], [netsnmp_get_version],
+    [with_libnetsnmp="yes"],
+    [with_libnetsnmp="no (couldn't get libnetsnmp version)"]
+  )
+
+  LDFLAGS="$SAVE_LDFLAGS"
+fi
+
+if test "x$with_libnetsnmp" = "xyes"; then
+  SAVE_CPPFLAGS="$CPPFLAGS"
+  SAVE_LDFLAGS="$LDFLAGS"
+  SAVE_LIBS="$LIBS"
+  CPPFLAGS="$CPPFLAGS $with_libnetsnmp_cppflags -Wall -Werror"
+  LDFLAGS="$LDFLAGS $with_libnetsnmp_ldflags"
+  LIBS="$LIBS -lnetsnmp"
+
+  AC_CACHE_CHECK([whether netsnmp library has old API],
+    [c_cv_have_netsnmp_old_api],
+    [
+      AC_LINK_IFELSE(
+        [
+          AC_LANG_PROGRAM(
+            [[
+              #include <net-snmp/net-snmp-config.h>
+              #include <net-snmp/net-snmp-includes.h>
+            ]],
+            [[
+              netsnmp_variable_list *key = SNMP_MALLOC_TYPEDEF(netsnmp_variable_list);;
+              int val;
+              u_char type = ASN_INTEGER;
+              snmp_set_var_value(key, &val, sizeof(val));
+              snmp_set_var_typed_value(key, type, &val, sizeof(val));
+              return 0;
+            ]]
+          )
+        ],
+        [c_cv_have_netsnmp_old_api="no"],
+        [c_cv_have_netsnmp_old_api="yes"]
+      )
+    ]
+  )
+
+  if test "x$c_cv_have_netsnmp_old_api" = "xyes"; then
+    AC_DEFINE([HAVE_NETSNMP_OLD_API], [1],
+              ["Define 1 if you have old netsnmp API]")
+  fi
+
+  CPPFLAGS="$SAVE_CPPFLAGS"
+  LDFLAGS="$SAVE_LDFLAGS"
+  LIBS="$SAVE_LIBS"
 fi
 
 if test "x$with_libnetsnmp" = "xyes"; then
@@ -3793,7 +3971,7 @@ AC_SUBST([BUILD_WITH_LIBNETSNMP_LDFLAGS])
 AC_SUBST([BUILD_WITH_LIBNETSNMP_LIBS])
 # }}}
 
-# --with-libnetsmpagent {{{
+# --with-libnetsnmpagent {{{
 AC_ARG_WITH([libnetsnmpagent],
   [AS_HELP_STRING([--with-libnetsnmpagent@<:@=PREFIX@:>@], [Path to libnetsnmpagent.])],
   [
@@ -4075,7 +4253,7 @@ if test "x$with_libpcap" = "xyes"; then
             [[#include <pcap.h>]],
             [[
               int val = PCAP_ERROR_IFACE_NOT_UP;
-              return(val);
+              return val;
             ]]
           )
         ],
@@ -4266,6 +4444,8 @@ if test "x$with_libperl" = "xyes"; then
   CFLAGS="$SAVE_CFLAGS"
   LIBS="$SAVE_LIBS"
 fi
+AM_CONDITIONAL(HAVE_BROKEN_PERL_LOAD_MODULE,
+		test "x$c_cv_have_broken_perl_load_module" = "xyes")
 AC_SUBST([PERL_CFLAGS])
 AC_SUBST([PERL_LIBS])
 
@@ -4679,6 +4859,56 @@ if test "$with_libpython" != "xno"; then
   LIBS="$SAVE_LIBS"
 fi
 # }}} --with-libpython
+
+# --with-libqpid_proton {{{
+AC_ARG_WITH([libqpid_proton],
+  [AS_HELP_STRING([--with-libqpid_proton@<:@=PREFIX@:>@], [Path to libqpid_proton.])],
+  [
+    if test "x$withval" != "xno" && test "x$withval" != "xyes"; then
+      with_libqpid_proton_cppflags="-I$withval/include"
+      with_libqpid_proton_ldflags="-L$withval/lib"
+      with_libqpid_proton="yes"
+    else
+      with_libqpid_proton="$withval"
+    fi
+  ],
+  [with_libqpid_proton="yes"]
+)
+
+if test "x$with_libqpid_proton" = "xyes"; then
+  SAVE_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $with_libqpid_proton_cppflags"
+
+  AC_CHECK_HEADERS([proton/proactor.h],
+    [with_libqpid_proton="yes"],
+    [with_libqpid_proton="no (proton/proactor.h not found)"]
+  )
+
+  CPPFLAGS="$SAVE_CPPFLAGS"
+fi
+
+if test "x$with_libqpid_proton" = "xyes"; then
+  SAVE_LDFLAGS="$LDFLAGS"
+  LDFLAGS="$LDFLAGS $with_libqpid_proton_ldflags"
+
+  AC_CHECK_LIB([qpid-proton], [pn_connection],
+    [with_libqpid_proton="yes"],
+    [with_libqpid_proton="no (Symbol 'pn_connection' not found)"])
+
+  LDFLAGS="$SAVE_LDFLAGS"
+fi
+
+if test "x$with_libqpid_proton" = "xyes"; then
+  BUILD_WITH_LIBQPIDPROTON_CPPFLAGS="$with_libqpid_proton_cppflags"
+  BUILD_WITH_LIBQPIDPROTON_LDFLAGS="$with_libqpid_proton_ldflags"
+  BUILD_WITH_LIBQPIDPROTON_LIBS="-lqpid-proton"
+fi
+
+AC_SUBST(BUILD_WITH_LIBQPIDPROTON_CPPFLAGS)
+AC_SUBST(BUILD_WITH_LIBQPIDPROTON_LDFLAGS)
+AC_SUBST(BUILD_WITH_LIBQPIDPROTON_LIBS)
+
+# }}}
 
 # --with-librabbitmq {{{
 AC_ARG_WITH([librabbitmq],
@@ -5117,6 +5347,46 @@ fi
 AM_CONDITIONAL(BUILD_WITH_LIBSSL, test "x$with_libssl" = "xyes")
 # }}}
 
+<<<<<<< HEAD
+=======
+# For ipvs module
+have_linux_ip_vs_h="no"
+have_net_ip_vs_h="no"
+have_ip_vs_h="no"
+ip_vs_h_needs_kernel_cflags="no"
+if test "x$ac_system" = "xLinux"
+then
+	AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
+	AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
+	AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
+
+	if test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono" && test -d "$KERNEL_DIR"
+	then
+		SAVE_CFLAGS="$CFLAGS"
+		CFLAGS="$CFLAGS $KERNEL_CFLAGS"
+
+		AC_MSG_NOTICE([Did not find ip_vs.h. Trying again using headers from $KERNEL_DIR.])
+
+		AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
+		AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
+		AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
+
+		if test "x$have_linux_ip_vs_h" = "xyes" || test "x$have_net_ip_vs_h" = "xyes" || test "x$have_ip_vs_h" = "xyes"
+		then
+			ip_vs_h_needs_kernel_cflags="yes"
+		fi
+
+		CFLAGS="$SAVE_CFLAGS"
+	fi
+fi
+AM_CONDITIONAL(IP_VS_H_NEEDS_KERNEL_CFLAGS, test "x$ip_vs_h_needs_kernel_cflags" = "xyes")
+
+if test "x$ip_vs_h_needs_kernel_cflags" = "xyes"
+then
+	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
+fi
+
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 # --with-libstatgrab {{{
 AC_ARG_WITH([libstatgrab],
   [AS_HELP_STRING([--with-libstatgrab@<:@=PREFIX@:>@], [Path to libstatgrab.])],
@@ -5803,32 +6073,41 @@ AC_SUBST([BUILD_WITH_LIBVARNISH_CFLAGS])
 AC_SUBST([BUILD_WITH_LIBVARNISH_LIBS])
 # }}}
 
-# pkg-config --exists 'libxml-2.0'; pkg-config --exists libvirt {{{
-$PKG_CONFIG --exists 'libxml-2.0' 2>/dev/null
-if test $? -eq 0; then
-  with_libxml2="yes"
-else
-  with_libxml2="no (pkg-config doesn't know libxml-2.0)"
-fi
-
-$PKG_CONFIG --exists libvirt 2>/dev/null
-if test $? = 0; then
-  with_libvirt="yes"
-else
-  with_libvirt="no (pkg-config doesn't know libvirt)"
-fi
-
-if test "x$with_libxml2" = "xyes"; then
-  with_libxml2_cflags="`$PKG_CONFIG --cflags libxml-2.0`"
-  if test $? -ne 0; then
-    with_libxml2="no"
-  fi
-
-  with_libxml2_ldflags="`$PKG_CONFIG --libs libxml-2.0`"
-  if test $? -ne 0; then
-    with_libxml2="no"
-  fi
-fi
+# --with-libxml2 {{{
+AC_ARG_WITH(libxml2,
+  [AS_HELP_STRING([--with-libxml2@<:@=PREFIX@:>@], [Path to libxml2.])],
+  [
+    if test "x$withval" = "xno"; then
+      with_libxml2="no"
+    else if test "x$withval" = "xyes"; then
+      $PKG_CONFIG --exists 'libxml-2.0' 2>/dev/null
+      if test $? -eq 0; then
+        with_libxml2="yes"
+        with_libxml2_cflags="`$PKG_CONFIG --cflags libxml-2.0`"
+        with_libxml2_ldflags="`$PKG_CONFIG --libs libxml-2.0`"
+      else
+        with_libxml2="no (pkg-config doesn't know libxml-2.0)"
+      fi
+    else
+      with_libxml2="yes"
+      with_libxml2_cflags="-I$withval/include"
+      with_libxml2_ldflags="-L$withval/lib"
+    fi; fi
+  ],
+  dnl  if no argument --with-libxml2 was passed, find the library locations
+  dnl  with pkg-config just like above, when --with-libxml2=yes.
+  [
+    with_libxml2="yes"
+    $PKG_CONFIG --exists 'libxml-2.0' 2>/dev/null
+    if test $? -eq 0; then
+      with_libxml2="yes"
+      with_libxml2_cflags="`$PKG_CONFIG --cflags libxml-2.0`"
+      with_libxml2_ldflags="`$PKG_CONFIG --libs libxml-2.0`"
+    else
+      with_libxml2="no (pkg-config doesn't know libxml-2.0)"
+    fi
+  ]
+)
 
 if test "x$with_libxml2" = "xyes"; then
   SAVE_CPPFLAGS="$CPPFLAGS"
@@ -5861,6 +6140,15 @@ fi
 
 AC_SUBST([BUILD_WITH_LIBXML2_CFLAGS])
 AC_SUBST([BUILD_WITH_LIBXML2_LIBS])
+# }}}
+
+# pkg-config --exists libvirt {{{
+$PKG_CONFIG --exists libvirt 2>/dev/null
+if test $? = 0; then
+  with_libvirt="yes"
+else
+  with_libvirt="no (pkg-config doesn't know libvirt)"
+fi
 
 if test "x$with_libvirt" = "xyes"; then
   with_libvirt_cflags="`$PKG_CONFIG --cflags libvirt`"
@@ -6193,6 +6481,7 @@ plugin_nfs="no"
 plugin_numa="no"
 plugin_ovs_events="no"
 plugin_ovs_stats="no"
+plugin_pcie_errors="no"
 plugin_perl="no"
 plugin_pinba="no"
 plugin_processes="no"
@@ -6270,6 +6559,10 @@ if test "x$ac_system" = "xLinux"; then
   if test "x$with_libyajl" = "xyes" && test "x$with_libyajl2" = "xyes"; then
     plugin_ovs_events="yes"
     plugin_ovs_stats="yes"
+  fi
+
+  if test "x$have_pci_regs_h" = "xyes"; then
+    plugin_pcie_errors="yes"
   fi
 fi
 
@@ -6431,8 +6724,18 @@ if test "x$with_libgps" = "xyes"; then
   plugin_gps="yes"
 fi
 
-if test "x$with_libgrpcpp" = "xyes" && test "x$with_libprotobuf" = "xyes" && test "x$have_protoc3" = "xyes" && test "x$GRPC_CPP_PLUGIN" != "x"; then
-  plugin_grpc="yes"
+plugin_grpc="yes"
+if test "x$GRPC_CPP_PLUGIN" = "x"; then
+  plugin_grpc="no (grpc_cpp_plugin not found)"
+fi
+if test "x$have_protoc3" != "xyes"; then
+  plugin_grpc="no (protoc3 not found)"
+fi
+if test "x$with_libprotobuf" != "xyes"; then
+  plugin_grpc="no (libprotobuf not found)"
+fi
+if test "x$with_libgrpcpp" != "xyes"; then
+  plugin_grpc="no (libgrpc++ not found)"
 fi
 
 if test "x$have_getifaddrs" = "xyes"; then
@@ -6510,6 +6813,10 @@ if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
 then
 	plugin_write_gcm="yes"
         match_throttle_metadata_keys="yes"
+<<<<<<< HEAD
+=======
+        plugin_stackdriver_agent="yes"
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 fi
 
 if test "x$have_getutent" = "xyes"
@@ -6555,6 +6862,7 @@ m4_divert_once([HELP_ENABLE], [])
 
 AC_PLUGIN([aggregation],         [yes],                     [Aggregation plugin])
 AC_PLUGIN([amqp],                [$with_librabbitmq],       [AMQP output plugin])
+AC_PLUGIN([amqp1],               [$with_libqpid_proton],    [AMQP 1.0 output plugin])
 AC_PLUGIN([apache],              [$with_libcurl],           [Apache httpd statistics])
 AC_PLUGIN([apcups],              [yes],                     [Statistics of UPSes by APC])
 AC_PLUGIN([apple_sensors],       [$with_libiokit],          [Apple hardware sensors])
@@ -6606,6 +6914,7 @@ AC_PLUGIN([java],                [$with_java],              [Embed the Java Virt
 AC_PLUGIN([load],                [$plugin_load],            [System load])
 AC_PLUGIN([log_logstash],        [$plugin_log_logstash],    [Logstash json_event compatible logging])
 AC_PLUGIN([logfile],             [yes],                     [File logging plugin])
+AC_PLUGIN([logging_metrics],     [yes],                     [Collect Stackdriver Logging metrics])
 AC_PLUGIN([lpar],                [$with_perfstat],          [AIX logical partitions statistics])
 AC_PLUGIN([lua],                 [$with_liblua],            [Lua plugin])
 AC_PLUGIN([lvm],                 [$with_liblvm2app],        [LVM statistics])
@@ -6615,6 +6924,7 @@ AC_PLUGIN([match_hashed],        [yes],                     [The hashed match])
 AC_PLUGIN([match_regex],         [yes],                     [The regex match])
 AC_PLUGIN([match_timediff],      [yes],                     [The timediff match])
 AC_PLUGIN([match_value],         [yes],                     [The value match])
+AC_PLUGIN([match_throttle_metadata_keys], [$match_throttle_metadata_keys], [Metadata key throttling plugin])
 AC_PLUGIN([mbmon],               [yes],                     [Query mbmond])
 AC_PLUGIN([mcelog],              [$plugin_mcelog],          [Machine Check Exceptions notifications])
 AC_PLUGIN([md],                  [$have_linux_raid_md_u_h], [md (Linux software RAID) devices])
@@ -6623,6 +6933,7 @@ AC_PLUGIN([memcached],           [yes],                     [memcached statistic
 AC_PLUGIN([memory],              [$plugin_memory],          [Memory usage])
 AC_PLUGIN([mic],                 [$with_mic],               [Intel Many Integrated Core stats])
 AC_PLUGIN([modbus],              [$with_libmodbus],         [Modbus plugin])
+AC_PLUGIN([mongodb],             [$with_libmongoc],         [MongoDB statistics])
 AC_PLUGIN([mqtt],                [$with_libmosquitto],      [MQTT output plugin])
 AC_PLUGIN([multimeter],          [$plugin_multimeter],      [Read multimeter values])
 AC_PLUGIN([mysql],               [$with_libmysql],          [MySQL statistics])
@@ -6644,6 +6955,7 @@ AC_PLUGIN([openvpn],             [yes],                     [OpenVPN client stat
 AC_PLUGIN([oracle],              [$with_oracle],            [Oracle plugin])
 AC_PLUGIN([ovs_events],          [$plugin_ovs_events],      [OVS events plugin])
 AC_PLUGIN([ovs_stats],           [$plugin_ovs_stats],       [OVS statistics plugin])
+AC_PLUGIN([pcie_errors],         [$plugin_pcie_errors],     [PCIe errors plugin])
 AC_PLUGIN([perl],                [$plugin_perl],            [Embed a Perl interpreter])
 AC_PLUGIN([pf],                  [$have_net_pfvar_h],       [BSD packet filter (PF) statistics])
 # FIXME: Check for libevent, too.
@@ -6665,6 +6977,7 @@ AC_PLUGIN([sigrok],              [$with_libsigrok],         [sigrok acquisition 
 AC_PLUGIN([smart],               [$plugin_smart],           [SMART statistics])
 AC_PLUGIN([snmp],                [$with_libnetsnmp],        [SNMP querying plugin])
 AC_PLUGIN([snmp_agent],          [$with_libnetsnmpagent],   [SNMP agent plugin])
+AC_PLUGIN([stackdriver_agent],   [$plugin_stackdriver_agent], [Metrics from the Stackdriver agent itself])
 AC_PLUGIN([statsd],              [yes],                     [StatsD plugin])
 AC_PLUGIN([swap],                [$plugin_swap],            [Swap usage statistics])
 AC_PLUGIN([synproxy],            [$plugin_synproxy],        [Synproxy stats plugin])
@@ -6792,6 +7105,18 @@ AC_SUBST([LOAD_PLUGIN_RRDTOOL])
 AC_SUBST([LOAD_PLUGIN_NETWORK])
 AC_SUBST([LOAD_PLUGIN_CSV])
 
+dnl ip_vs.h
+if test "x$ac_system" = "xLinux" \
+	&& test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono"
+then
+	enable_ipvs="$enable_ipvs (ip_vs.h not found)"
+fi
+
+if test "x$ip_vs_h_needs_kernel_cflags" = "xyes"
+then
+	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
+fi
+
 dnl Perl bindings
 PERL_BINDINGS_OPTIONS="PREFIX=${prefix}"
 AC_ARG_WITH(perl-bindings, [AS_HELP_STRING([--with-perl-bindings@<:@=OPTIONS@:>@], [Options passed to "perl Makefile.PL".])],
@@ -6857,12 +7182,11 @@ fi
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([AM_CXXFLAGS])
 
-AC_CONFIG_FILES([ \
-  Makefile \
-  src/collectd.conf \
-  src/libcollectdclient/libcollectdclient.pc \
-])
-
+AC_CONFIG_FILES([Makefile proto/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
+if test "x$enable_logging_metrics" != "xno"
+then
+	AC_CONFIG_FILES([src/read_agent_logging], [chmod +x src/read_agent_logging])
+fi
 AC_OUTPUT
 
 if test "x$with_librrd" = "xyes" && test "x$librrd_threadsafe" != "xyes"; then
@@ -6946,6 +7270,7 @@ AC_MSG_RESULT([    libprotobuf . . . . . $with_libprotobuf])
 AC_MSG_RESULT([    libprotobuf-c . . . . $with_libprotobuf_c])
 AC_MSG_RESULT([    libpthread  . . . . . $with_libpthread])
 AC_MSG_RESULT([    libpython . . . . . . $with_libpython])
+AC_MSG_RESULT([    libqpid-proton .  . . $with_libqpid_proton])
 AC_MSG_RESULT([    librabbitmq . . . . . $with_librabbitmq])
 AC_MSG_RESULT([    libriemann-client . . $with_libriemann_client])
 AC_MSG_RESULT([    librdkafka  . . . . . $with_librdkafka])
@@ -6978,6 +7303,7 @@ AC_MSG_RESULT()
 AC_MSG_RESULT([  Modules:])
 AC_MSG_RESULT([    aggregation . . . . . $enable_aggregation])
 AC_MSG_RESULT([    amqp    . . . . . . . $enable_amqp])
+AC_MSG_RESULT([    amqp1   . . . . . . . $enable_amqp1])
 AC_MSG_RESULT([    apache  . . . . . . . $enable_apache])
 AC_MSG_RESULT([    apcups  . . . . . . . $enable_apcups])
 AC_MSG_RESULT([    apple_sensors . . . . $enable_apple_sensors])
@@ -7029,6 +7355,7 @@ AC_MSG_RESULT([    java  . . . . . . . . $enable_java])
 AC_MSG_RESULT([    load  . . . . . . . . $enable_load])
 AC_MSG_RESULT([    logfile . . . . . . . $enable_logfile])
 AC_MSG_RESULT([    log_logstash  . . . . $enable_log_logstash])
+AC_MSG_RESULT([    logging_metrics . . . $enable_logging_metrics])
 AC_MSG_RESULT([    lpar  . . . . . . . . $enable_lpar])
 AC_MSG_RESULT([    lua . . . . . . . . . $enable_lua])
 AC_MSG_RESULT([    lvm . . . . . . . . . $enable_lvm])
@@ -7038,6 +7365,7 @@ AC_MSG_RESULT([    match_hashed  . . . . $enable_match_hashed])
 AC_MSG_RESULT([    match_regex . . . . . $enable_match_regex])
 AC_MSG_RESULT([    match_timediff  . . . $enable_match_timediff])
 AC_MSG_RESULT([    match_value . . . . . $enable_match_value])
+AC_MSG_RESULT([    match_throttle_metadata_keys $enable_match_throttle_metadata_keys])
 AC_MSG_RESULT([    mbmon . . . . . . . . $enable_mbmon])
 AC_MSG_RESULT([    mcelog  . . . . . . . $enable_mcelog])
 AC_MSG_RESULT([    md  . . . . . . . . . $enable_md])
@@ -7046,6 +7374,7 @@ AC_MSG_RESULT([    memcached . . . . . . $enable_memcached])
 AC_MSG_RESULT([    memory  . . . . . . . $enable_memory])
 AC_MSG_RESULT([    mic . . . . . . . . . $enable_mic])
 AC_MSG_RESULT([    modbus  . . . . . . . $enable_modbus])
+AC_MSG_RESULT([    mongodb  . . . . .  . $enable_mongodb])
 AC_MSG_RESULT([    mqtt  . . . . . . . . $enable_mqtt])
 AC_MSG_RESULT([    multimeter  . . . . . $enable_multimeter])
 AC_MSG_RESULT([    mysql . . . . . . . . $enable_mysql])
@@ -7067,6 +7396,7 @@ AC_MSG_RESULT([    openvpn . . . . . . . $enable_openvpn])
 AC_MSG_RESULT([    oracle  . . . . . . . $enable_oracle])
 AC_MSG_RESULT([    ovs_events  . . . . . $enable_ovs_events])
 AC_MSG_RESULT([    ovs_stats . . . . . . $enable_ovs_stats])
+AC_MSG_RESULT([    pcie_errors . . . . . $enable_pcie_errors])
 AC_MSG_RESULT([    perl  . . . . . . . . $enable_perl])
 AC_MSG_RESULT([    pf  . . . . . . . . . $enable_pf])
 AC_MSG_RESULT([    pinba . . . . . . . . $enable_pinba])
@@ -7087,6 +7417,7 @@ AC_MSG_RESULT([    sigrok  . . . . . . . $enable_sigrok])
 AC_MSG_RESULT([    smart . . . . . . . . $enable_smart])
 AC_MSG_RESULT([    snmp  . . . . . . . . $enable_snmp])
 AC_MSG_RESULT([    snmp_agent  . . . . . $enable_snmp_agent])
+AC_MSG_RESULT([    stackdriver_agent . . $enable_stackdriver_agent])
 AC_MSG_RESULT([    statsd  . . . . . . . $enable_statsd])
 AC_MSG_RESULT([    swap  . . . . . . . . $enable_swap])
 AC_MSG_RESULT([    synproxy  . . . . . . $enable_synproxy])

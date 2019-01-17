@@ -630,7 +630,11 @@ static const struct ex_stats_item ex_stats_table[] = {
 };
 
 /* BlockDeviceFormatBasename */
+<<<<<<< HEAD
 static bool blockdevice_format_basename = false;
+=======
+static bool blockdevice_format_basename;
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 static enum bd_field blockdevice_format = target;
 static enum if_field interface_format = if_name;
 
@@ -1016,7 +1020,11 @@ static unsigned int parse_ex_stats_flags(char **exstats, int numexstats) {
 }
 
 static void domain_state_submit_notif(virDomainPtr dom, int state, int reason) {
+<<<<<<< HEAD
   if ((state < 0) || (state >= STATIC_ARRAY_SIZE(domain_states))) {
+=======
+  if ((state < 0) || ((size_t)state >= STATIC_ARRAY_SIZE(domain_states))) {
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
     ERROR(PLUGIN_NAME ": Array index out of bounds: state=%d", state);
     return;
   }
@@ -1024,7 +1032,8 @@ static void domain_state_submit_notif(virDomainPtr dom, int state, int reason) {
   char msg[DATA_MAX_NAME_LEN];
   const char *state_str = domain_states[state];
 #ifdef HAVE_DOM_REASON
-  if ((reason < 0) || (reason >= STATIC_ARRAY_SIZE(domain_reasons[0]))) {
+  if ((reason < 0) ||
+      ((size_t)reason >= STATIC_ARRAY_SIZE(domain_reasons[0]))) {
     ERROR(PLUGIN_NAME ": Array index out of bounds: reason=%d", reason);
     return;
   }
@@ -1397,7 +1406,10 @@ static void vcpu_pin_submit(virDomainPtr dom, int max_cpus, int vcpu,
                             unsigned char *cpu_maps, int cpu_map_len) {
   for (int cpu = 0; cpu < max_cpus; ++cpu) {
     char type_instance[DATA_MAX_NAME_LEN];
+<<<<<<< HEAD
 
+=======
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
     bool is_set = VIR_CPU_USABLE(cpu_maps, cpu_map_len, vcpu, cpu);
 
     snprintf(type_instance, sizeof(type_instance), "vcpu_%d-cpu_%d", vcpu, cpu);
@@ -1585,7 +1597,7 @@ static int get_block_stats(struct block_device *block_dev) {
 
 #define NM_ADD_STR_ITEMS(_items, _size)                                        \
   do {                                                                         \
-    for (int _i = 0; _i < _size; ++_i) {                                       \
+    for (size_t _i = 0; _i < _size; ++_i) {                                    \
       DEBUG(PLUGIN_NAME                                                        \
             " plugin: Adding notification metadata name=%s value=%s",          \
             _items[_i].name, _items[_i].value);                                \
@@ -1610,7 +1622,7 @@ static int fs_info_notify(virDomainPtr domain, virDomainFSInfoPtr fs_info) {
       {.name = "name", .value = fs_info->name},
       {.name = "fstype", .value = fs_info->fstype}};
 
-  for (int i = 0; i < fs_info->ndevAlias; ++i) {
+  for (size_t i = 0; i < fs_info->ndevAlias; ++i) {
     fs_dev_alias[i].name = "devAlias";
     fs_dev_alias[i].value = fs_info->devAlias[i];
   }
@@ -1825,7 +1837,11 @@ static int get_if_dev_stats(struct interface_device *if_dev) {
   return 0;
 }
 
+<<<<<<< HEAD
 static int domain_lifecycle_event_cb(__attribute__((unused)) virConnectPtr conn,
+=======
+static int domain_lifecycle_event_cb(__attribute__((unused)) virConnectPtr con_,
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
                                      virDomainPtr dom, int event, int detail,
                                      __attribute__((unused)) void *opaque) {
   int domain_state = map_domain_event_to_state(event);
@@ -1899,7 +1915,13 @@ static int virt_notif_thread_init(virt_notif_thread_t *thread_data) {
    * domain_event_cb_id to '-1'
    */
   thread_data->domain_event_cb_id = -1;
+<<<<<<< HEAD
   thread_data->is_active = 0;
+=======
+  pthread_mutex_lock(&thread_data->active_mutex);
+  thread_data->is_active = false;
+  pthread_mutex_unlock(&thread_data->active_mutex);
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 
   return 0;
 }
@@ -2647,12 +2669,12 @@ static int add_interface_device(struct lv_read_state *state, virDomainPtr dom,
 static int ignore_device_match(ignorelist_t *il, const char *domname,
                                const char *devpath) {
   char *name;
-  int n, r;
+  int r;
 
   if ((domname == NULL) || (devpath == NULL))
     return 0;
 
-  n = strlen(domname) + strlen(devpath) + 2;
+  size_t n = strlen(domname) + strlen(devpath) + 2;
   name = malloc(n);
   if (name == NULL) {
     ERROR(PLUGIN_NAME " plugin: malloc failed.");

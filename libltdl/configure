@@ -2853,6 +2853,10 @@ END
 fi
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 ## ------------------------------- ##
 ## Libtool specific configuration. ##
 ## ------------------------------- ##
@@ -15073,3 +15077,7 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
+<<<<<<< HEAD
+=======
+
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8

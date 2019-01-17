@@ -622,7 +622,11 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned uint64 value is %" PRIu64,
           v64);
 
+<<<<<<< HEAD
     CAST_TO_VALUE_T(ds, vt, v64);
+=======
+    CAST_TO_VALUE_T(ds, vt, v64, data->scale, data->shift);
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
     mb_submit(host, slave, data, vt);
   } else if (data->register_type == REG_TYPE_INT64) {
     union {
@@ -637,7 +641,11 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned uint64 value is %" PRIi64,
           v.i64);
 
+<<<<<<< HEAD
     CAST_TO_VALUE_T(ds, vt, v.i64);
+=======
+    CAST_TO_VALUE_T(ds, vt, v.i64, data->scale, data->shift);
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
     mb_submit(host, slave, data, vt);
   } else /* if (data->register_type == REG_TYPE_UINT16) */
   {

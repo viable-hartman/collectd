@@ -103,4 +103,12 @@ int rfc3339_zulu (char *buffer, size_t buffer_size, cdtime_t t);
  * precision. */
 int rfc3339nano_zulu (char *buffer, size_t buffer_size, cdtime_t t);
 
+/* rfc3339 formats a cdtime_t time in RFC 3339 zulu format with second
+ * precision. */
+int rfc3339_zulu (char *buffer, size_t buffer_size, cdtime_t t);
+
+/* rfc3339nano formats a cdtime_t time in RFC 3339 zulu format with nanosecond
+ * precision. */
+int rfc3339nano_zulu (char *buffer, size_t buffer_size, cdtime_t t);
+
 #endif /* UTILS_TIME_H */

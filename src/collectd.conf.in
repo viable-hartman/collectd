@@ -841,6 +841,8 @@
 #		RegisterType float
 #		Type gauge
 #		Instance "..."
+#		#Scale 1.0
+#		#Shift 0.0
 #	</Data>
 #
 #	<Host "name">

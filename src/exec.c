@@ -85,7 +85,7 @@ const long int MAX_GRBUF_SIZE = 65536;
 /*
  * Private variables
  */
-static program_list_t *pl_head = NULL;
+static program_list_t *pl_head;
 static pthread_mutex_t pl_lock = PTHREAD_MUTEX_INITIALIZER;
 
 /*
@@ -413,9 +413,7 @@ static int getegr_id(program_list_t *pl, int gid) /* {{{ */
     } else if (errno == ERANGE) {
       grbuf_size += grbuf_size; // increment buffer size and try again
     } else {
-      char errbuf[1024];
-      ERROR("exec plugin: getegr_id failed %s",
-            sstrerror(errno, errbuf, sizeof(errbuf)));
+      ERROR("exec plugin: getegr_id failed %s", STRERRNO);
       sfree(grbuf);
       return -2;
     }
@@ -423,7 +421,7 @@ static int getegr_id(program_list_t *pl, int gid) /* {{{ */
   ERROR("exec plugin: getegr_id Max grbuf size reached  for %s", pl->group);
   sfree(grbuf);
   return -2;
-} /* }}} */
+}
 
 /*
  * Creates three pipes (one for reading, one for writing and one for errors),
@@ -483,6 +481,7 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
 
   /* The group configured in the configfile is set as effective group, because
    * this way the forked process can (re-)gain the user's primary group. */
+<<<<<<< HEAD
   egid = -1;
   if (pl->group != NULL) {
     if (*pl->group != '\0') {
@@ -509,6 +508,12 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
       }
 
   set_environment();
+=======
+  egid = getegr_id(pl, gid);
+  if (egid == -2) {
+    goto failed;
+  }
+>>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 
   pid = fork();
   if (pid < 0) {
