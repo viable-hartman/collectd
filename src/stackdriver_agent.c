@@ -30,10 +30,6 @@
 
 static const char this_plugin_name[] = "stackdriver_agent";
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Configuration option to override default hostname in stackdriver_agent plugin (#100)
 static const char *hostname = NULL;
 
 static const char *config_keys[] = {
@@ -42,11 +38,6 @@ static const char *config_keys[] = {
 
 static int config_keys_num = STATIC_ARRAY_SIZE(config_keys);
 
-<<<<<<< HEAD
-=======
->>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
-=======
->>>>>>> Configuration option to override default hostname in stackdriver_agent plugin (#100)
 typedef struct {
     cdtime_t start_time;
 } context_t;
@@ -81,15 +72,7 @@ static int sagt_submit_helper(const char *type, const char *type_instance,
         .interval = interval,
         .meta = meta_data
     };
-<<<<<<< HEAD
-<<<<<<< HEAD
     sstrncpy(vl.host, hostname != NULL ? hostname : hostname_g, sizeof(vl.host));
-=======
-    sstrncpy(vl.host, hostname_g, sizeof(vl.host));
->>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
-=======
-    sstrncpy(vl.host, hostname != NULL ? hostname : hostname_g, sizeof(vl.host));
->>>>>>> Configuration option to override default hostname in stackdriver_agent plugin (#100)
     sstrncpy(vl.plugin, "agent", sizeof(vl.plugin));
     sstrncpy(vl.type, type, sizeof(vl.type));
     sstrncpy(vl.type_instance, type_instance, sizeof(vl.type_instance));
@@ -231,10 +214,6 @@ static int sagt_init()
     return result;
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Configuration option to override default hostname in stackdriver_agent plugin (#100)
 static int sagt_config(const char *key, const char *value) {
   if (strcmp(key, "Hostname") == 0) {
     hostname = (const char *) sstrdup(value);
@@ -249,24 +228,11 @@ static int sagt_config(const char *key, const char *value) {
   return -1;
 }
 
-<<<<<<< HEAD
 /* Register this module with collectd */
 void module_register(void)
 {
     plugin_register_config(this_plugin_name, sagt_config, config_keys,
         config_keys_num);
-=======
-/* Register this module with collectd */
-void module_register(void)
-{
->>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
-=======
-/* Register this module with collectd */
-void module_register(void)
-{
-    plugin_register_config(this_plugin_name, sagt_config, config_keys,
-        config_keys_num);
->>>>>>> Configuration option to override default hostname in stackdriver_agent plugin (#100)
     if (plugin_register_init(this_plugin_name, &sagt_init) != 0)
     {
         ERROR("%s: plugin_register_init failed.", this_plugin_name);

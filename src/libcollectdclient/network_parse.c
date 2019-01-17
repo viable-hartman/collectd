@@ -36,7 +36,6 @@
 #include <errno.h>
 #include <math.h>
 #include <pthread.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -46,15 +45,7 @@
 #elif HAVE_SYS_ENDIAN_H
 #include <sys/endian.h>
 #else /* fallback */
-<<<<<<< HEAD
-<<<<<<< HEAD
 #include "collectd/stdendian.h"
-=======
-#include "stdendian.h"
->>>>>>> Keep clang-format happy
-=======
-#include "collectd/stdendian.h"
->>>>>>> Fix make distcheck on Mac OS
 #endif
 
 #if HAVE_GCRYPT_H
@@ -77,7 +68,7 @@ static int network_parse(void *data, size_t data_size, lcc_security_level_t sl,
                          lcc_network_parse_options_t const *opts);
 
 #if HAVE_GCRYPT_H
-static int init_gcrypt(void) {
+static int init_gcrypt() {
   /* http://lists.gnupg.org/pipermail/gcrypt-devel/2003-August/000458.html
    * Because you can't know in a library whether another library has
    * already initialized the library */
@@ -229,7 +220,7 @@ static int parse_time(uint16_t type, void *payload, size_t payload_size,
 
 static double ntohd(double val) /* {{{ */
 {
-  static int config;
+  static int config = 0;
 
   union {
     uint8_t byte[8];

@@ -27,11 +27,6 @@
 #ifndef COLLECTD_H
 #define COLLECTD_H
 
-#ifdef WIN32
-typedef int uid_t;
-#include "gnulib_config.h"
-#endif
-
 #if HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -43,7 +38,6 @@ typedef int uid_t;
 #include <limits.h>
 #include <signal.h>
 #include <stdarg.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -127,10 +121,6 @@ typedef int uid_t;
 #include <sys/isa_defs.h>
 #endif
 
-#if HAVE_SYS_PARAM_H
-#include <sys/param.h>
-#endif
-
 #ifndef BYTE_ORDER
 #if defined(_BYTE_ORDER)
 #define BYTE_ORDER _BYTE_ORDER
@@ -192,6 +182,10 @@ typedef int uid_t;
 #endif
 #endif
 
+#if HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+
 #ifndef PACKAGE_NAME
 #define PACKAGE_NAME "collectd"
 #endif
@@ -233,42 +227,7 @@ typedef int uid_t;
 #endif
 
 #ifndef COLLECTD_DEFAULT_INTERVAL
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Disallow intervals that are less than sixty seconds
-=======
->>>>>>> Removes HEAD tag (atom bug) from collectd.h
-=======
->>>>>>> Merge conflicts from rebase
-#define COLLECTD_DEFAULT_INTERVAL 10.0
-=======
 # define COLLECTD_DEFAULT_INTERVAL 60.0
->>>>>>> Disallow intervals that are less than sixty seconds
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-#define COLLECTD_DEFAULT_INTERVAL 10.0
->>>>>>> Removes HEAD tag (atom bug) from collectd.h
-=======
-<<<<<<< HEAD
->>>>>>> Disallow intervals that are less than sixty seconds
-=======
-=======
-#define COLLECTD_DEFAULT_INTERVAL 10.0
->>>>>>> Removes HEAD tag (atom bug) from collectd.h
->>>>>>> Removes HEAD tag (atom bug) from collectd.h
-=======
-#define COLLECTD_DEFAULT_INTERVAL 60.0
->>>>>>> Merge conflicts from rebase
->>>>>>> Merge conflicts from rebase
-=======
-# define COLLECTD_DEFAULT_INTERVAL 60.0
->>>>>>> Completes rebase
 #endif
 
 #ifndef COLLECTD_USERAGENT
@@ -278,6 +237,26 @@ typedef int uid_t;
 /* Only enable __attribute__() for compilers known to support it. */
 #if !defined(__clang__) && !defined(__GNUC__)
 #define __attribute__(x) /**/
+#endif
+
+#if defined(COLLECT_DEBUG) && COLLECT_DEBUG && defined(__GNUC__) && __GNUC__
+#undef strcpy
+#undef strcat
+#undef strtok
+#pragma GCC poison strcpy strcat strtok
+#endif
+
+/*
+ * Special hack for the perl plugin: Because the later included perl.h defines
+ * a macro which is never used, but contains `sprintf', we cannot poison that
+ * identifies just yet. The parl plugin will do that itself once perl.h is
+ * included.
+ */
+#ifndef DONT_POISON_SPRINTF_YET
+#if defined(COLLECT_DEBUG) && COLLECT_DEBUG && defined(__GNUC__) && __GNUC__
+#undef sprintf
+#pragma GCC poison sprintf
+#endif
 #endif
 
 #ifndef GAUGE_FORMAT

@@ -26,18 +26,8 @@
 #include "bson-iso8601-private.h"
 #include "b64_pton.h"
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-#include <yajl/stackdriver_yajl_parser.h>
-#include <yajl/stackdriver_yajl_bytestack.h>
-=======
 #include <yajl/yajl_parser.h>
 #include <yajl/yajl_bytestack.h>
->>>>>>> vendoring libmongoc-1.3.5
-=======
-#include <yajl/stackdriver_yajl_parser.h>
-#include <yajl/stackdriver_yajl_bytestack.h>
->>>>>>> Move libyajl to a different namespace, essentially.
 
 #ifdef _WIN32
 # include <io.h>
@@ -996,43 +986,19 @@ _bson_json_read_parse_error (bson_json_reader_t *reader, /* IN */
       r = 0;
    } else {
       if (error) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-         str = stackdriver_yajl_get_error (yh, 1, p->buf + p->bytes_parsed,
-=======
          str = yajl_get_error (yh, 1, p->buf + p->bytes_parsed,
->>>>>>> vendoring libmongoc-1.3.5
-=======
-         str = stackdriver_yajl_get_error (yh, 1, p->buf + p->bytes_parsed,
->>>>>>> Move libyajl to a different namespace, essentially.
                                p->bytes_read - p->bytes_parsed);
          bson_set_error (error,
                          BSON_ERROR_JSON,
                          BSON_JSON_ERROR_READ_CORRUPT_JS,
                          "%s", str);
-<<<<<<< HEAD
-<<<<<<< HEAD
-         stackdriver_yajl_free_error (yh, str);
-=======
          yajl_free_error (yh, str);
->>>>>>> vendoring libmongoc-1.3.5
-=======
-         stackdriver_yajl_free_error (yh, str);
->>>>>>> Move libyajl to a different namespace, essentially.
       }
 
       r = -1;
    }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-   p->bytes_parsed += stackdriver_yajl_get_bytes_consumed (yh);
-=======
    p->bytes_parsed += yajl_get_bytes_consumed (yh);
->>>>>>> vendoring libmongoc-1.3.5
-=======
-   p->bytes_parsed += stackdriver_yajl_get_bytes_consumed (yh);
->>>>>>> Move libyajl to a different namespace, essentially.
 
    yh->stateStack.used = 0;
    yajl_bs_push (yh->stateStack, yajl_state_start);
@@ -1123,15 +1089,7 @@ bson_json_reader_read (bson_json_reader_t *reader, /* IN */
                (char *)(p->buf + p->bytes_parsed));
          }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-         ys = stackdriver_yajl_parse (yh, p->buf + p->bytes_parsed, r);
-=======
          ys = yajl_parse (yh, p->buf + p->bytes_parsed, r);
->>>>>>> vendoring libmongoc-1.3.5
-=======
-         ys = stackdriver_yajl_parse (yh, p->buf + p->bytes_parsed, r);
->>>>>>> Move libyajl to a different namespace, essentially.
 
          if (ys != yajl_status_ok) {
             ret = _bson_json_read_parse_error (reader, ys, error);
@@ -1141,15 +1099,7 @@ bson_json_reader_read (bson_json_reader_t *reader, /* IN */
    }
 
    if (read_something) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-      ys = stackdriver_yajl_complete_parse (yh);
-=======
       ys = yajl_complete_parse (yh);
->>>>>>> vendoring libmongoc-1.3.5
-=======
-      ys = stackdriver_yajl_complete_parse (yh);
->>>>>>> Move libyajl to a different namespace, essentially.
 
       if (ys != yajl_status_ok) {
          ret = _bson_json_read_parse_error (reader, ys, error);
@@ -1183,21 +1133,9 @@ bson_json_reader_new (void                 *data,           /* IN */
    p->buf_size = buf_size ? buf_size : BSON_JSON_DEFAULT_BUF_SIZE;
    p->buf = bson_malloc (p->buf_size);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-   r->yh = stackdriver_yajl_alloc (&read_cbs, &gYajlAllocFuncs, r);
-
-   stackdriver_yajl_config (r->yh,
-=======
    r->yh = yajl_alloc (&read_cbs, &gYajlAllocFuncs, r);
 
    yajl_config (r->yh,
->>>>>>> vendoring libmongoc-1.3.5
-=======
-   r->yh = stackdriver_yajl_alloc (&read_cbs, &gYajlAllocFuncs, r);
-
-   stackdriver_yajl_config (r->yh,
->>>>>>> Move libyajl to a different namespace, essentially.
                 yajl_dont_validate_strings |
                 (allow_multiple ?  yajl_allow_multiple_values : 0)
                 , 1);
@@ -1224,15 +1162,7 @@ bson_json_reader_destroy (bson_json_reader_t *reader) /* IN */
       bson_free (b->bson_type_buf[i].buf);
    }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-   stackdriver_yajl_free (reader->yh);
-=======
    yajl_free (reader->yh);
->>>>>>> vendoring libmongoc-1.3.5
-=======
-   stackdriver_yajl_free (reader->yh);
->>>>>>> Move libyajl to a different namespace, essentially.
 
    bson_free (reader);
 }

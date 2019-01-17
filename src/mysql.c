@@ -58,17 +58,17 @@ struct mysql_database_s /* {{{ */
   int port;
   int timeout;
 
-  bool master_stats;
-  bool slave_stats;
-  bool innodb_stats;
-  bool wsrep_stats;
+  _Bool master_stats;
+  _Bool slave_stats;
+  _Bool innodb_stats;
+  _Bool wsrep_stats;
 
-  bool slave_notif;
-  bool slave_io_running;
-  bool slave_sql_running;
+  _Bool slave_notif;
+  _Bool slave_io_running;
+  _Bool slave_sql_running;
 
   MYSQL *con;
-  bool is_connected;
+  _Bool is_connected;
 };
 typedef struct mysql_database_s mysql_database_t; /* }}} */
 
@@ -147,8 +147,8 @@ static int mysql_config_database(oconfig_item_t *ci) /* {{{ */
   db->timeout = 0;
 
   /* trigger a notification, if it's not running */
-  db->slave_io_running = true;
-  db->slave_sql_running = true;
+  db->slave_io_running = 1;
+  db->slave_sql_running = 1;
 
   status = cf_util_get_string(ci, &db->instance);
   if (status != 0) {
@@ -255,21 +255,6 @@ static int mysql_config(oconfig_item_t *ci) /* {{{ */
 
 /* }}} End of configuration handling functions */
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Ensure that mysql_thread_init() is called from every thread,
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Completes rebase
 static MYSQL *getconnection(mysql_database_t *db) {
   const char *cipher;
 
@@ -283,18 +268,14 @@ static MYSQL *getconnection(mysql_database_t *db) {
     WARNING("mysql plugin: Lost connection to instance \"%s\": %s",
             db->instance, mysql_error(db->con));
   }
-  db->is_connected = false;
+  db->is_connected = 0;
 
-  /* Close the old connection before initializing a new one. */
-  if (db->con != NULL) {
-    mysql_close(db->con);
-    db->con = NULL;
-  }
-
-  db->con = mysql_init(NULL);
   if (db->con == NULL) {
-    ERROR("mysql plugin: mysql_init failed: %s", mysql_error(db->con));
-    return NULL;
+    db->con = mysql_init(NULL);
+    if (db->con == NULL) {
+      ERROR("mysql plugin: mysql_init failed: %s", mysql_error(db->con));
+      return NULL;
+    }
   }
 
   /* Configure TCP connect timeout (default: 0) */
@@ -320,114 +301,8 @@ static MYSQL *getconnection(mysql_database_t *db) {
        mysql_get_host_info(db->con), (cipher != NULL) ? cipher : "<none>",
        mysql_get_server_info(db->con), mysql_get_proto_info(db->con));
 
-  db->is_connected = true;
+  db->is_connected = 1;
   return db->con;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Ensure that mysql_thread_init() is called from every thread,
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-static MYSQL *getconnection (mysql_database_t *db)
-{
-	const char *cipher;
-
-	mysql_thread_init();
-	if (db->is_connected)
-	{
-		int status;
-
-		status = mysql_ping (db->con);
-		if (status == 0)
-			return (db->con);
-
-		WARNING ("mysql plugin: Lost connection to instance \"%s\": %s",
-				db->instance, mysql_error (db->con));
-	}
-	db->is_connected = 0;
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Patch for mysql plugin memory leak taken from collectd#2704 (#130)
-	/* Close the old connection before initializing a new one. */
-	if (db->con != NULL) {
-		mysql_close(db->con);
-		db->con = NULL;
-	}
-
-	db->con = mysql_init (NULL);
-<<<<<<< HEAD
-	if (db->con == NULL)
-	{
-		ERROR ("mysql plugin: mysql_init failed: %s",
-                                mysql_error (db->con));
-		return (NULL);
-=======
-	if (db->con == NULL)
-	{
-		db->con = mysql_init (NULL);
-		if (db->con == NULL)
-		{
-			ERROR ("mysql plugin: mysql_init failed: %s",
-					mysql_error (db->con));
-			return (NULL);
-		}
->>>>>>> Ensure that mysql_thread_init() is called from every thread,
-=======
-	if (db->con == NULL)
-	{
-		ERROR ("mysql plugin: mysql_init failed: %s",
-                                mysql_error (db->con));
-		return (NULL);
->>>>>>> Patch for mysql plugin memory leak taken from collectd#2704 (#130)
-	}
-
-	/* Configure TCP connect timeout (default: 0) */
-	db->con->options.connect_timeout = db->timeout;
-
-	mysql_ssl_set (db->con, db->key, db->cert, db->ca, db->capath, db->cipher);
-
-	if (mysql_real_connect (db->con, db->host, db->user, db->pass,
-				db->database, db->port, db->socket, 0) == NULL)
-	{
-		ERROR ("mysql plugin: Failed to connect to database %s "
-				"at server %s: %s",
-				(db->database != NULL) ? db->database : "<none>",
-				(db->host != NULL) ? db->host : "localhost",
-				mysql_error (db->con));
-		return (NULL);
-	}
-
-	cipher = mysql_get_ssl_cipher (db->con);
-
-	INFO ("mysql plugin: Successfully connected to database %s "
-			"at server %s with cipher %s "
-			"(server version: %s, protocol version: %d) ",
-			(db->database != NULL) ? db->database : "<none>",
-			mysql_get_host_info (db->con),
-			(cipher != NULL) ?  cipher : "<none>",
-			mysql_get_server_info (db->con),
-			mysql_get_proto_info (db->con));
-
-	db->is_connected = 1;
-	return (db->con);
->>>>>>> Ensure that mysql_thread_init() is called from every thread,
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Ensure that mysql_thread_init() is called from every thread,
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Completes rebase
 } /* static MYSQL *getconnection (mysql_database_t *db) */
 
 static void set_host(mysql_database_t *db, char *buf, size_t buflen) {
@@ -484,7 +359,7 @@ static void traffic_submit(derive_t rx, derive_t tx, mysql_database_t *db) {
 static MYSQL_RES *exec_query(MYSQL *con, const char *query) {
   MYSQL_RES *res;
 
-  size_t query_len = strlen(query);
+  int query_len = strlen(query);
 
   if (mysql_real_query(con, query, query_len)) {
     ERROR("mysql plugin: Failed to execute query: %s", mysql_error(con));
@@ -624,14 +499,14 @@ static int mysql_read_slave_stats(mysql_database_t *db, MYSQL *con) {
       snprintf(n.message, sizeof(n.message),
                "slave I/O thread not started or not connected to master");
       plugin_dispatch_notification(&n);
-      db->slave_io_running = false;
+      db->slave_io_running = 0;
     } else if (((io != NULL) && (strcasecmp(io, "yes") == 0)) &&
                (!db->slave_io_running)) {
       n.severity = NOTIF_OKAY;
       snprintf(n.message, sizeof(n.message),
                "slave I/O thread started and connected to master");
       plugin_dispatch_notification(&n);
-      db->slave_io_running = true;
+      db->slave_io_running = 1;
     }
 
     if (((sql == NULL) || (strcasecmp(sql, "yes") != 0)) &&
@@ -639,13 +514,13 @@ static int mysql_read_slave_stats(mysql_database_t *db, MYSQL *con) {
       n.severity = NOTIF_WARNING;
       snprintf(n.message, sizeof(n.message), "slave SQL thread not started");
       plugin_dispatch_notification(&n);
-      db->slave_sql_running = false;
+      db->slave_sql_running = 0;
     } else if (((sql != NULL) && (strcasecmp(sql, "yes") == 0)) &&
                (!db->slave_sql_running)) {
       n.severity = NOTIF_OKAY;
       snprintf(n.message, sizeof(n.message), "slave SQL thread started");
       plugin_dispatch_notification(&n);
-      db->slave_sql_running = true;
+      db->slave_sql_running = 1;
     }
   }
 
@@ -1066,40 +941,8 @@ static int mysql_read(user_data_t *ud) {
   return 0;
 } /* int mysql_read */
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-void module_register(void) {
-  plugin_register_complex_config("mysql", mysql_config);
-=======
 void module_register (void)
 {
 	mysql_library_init(0, NULL, NULL);
 	plugin_register_complex_config ("mysql", mysql_config);
->>>>>>> Ensure that mysql_thread_init() is called from every thread,
-=======
-void module_register(void) {
-  plugin_register_complex_config("mysql", mysql_config);
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-<<<<<<< HEAD
-=======
-void module_register(void) {
-  plugin_register_complex_config("mysql", mysql_config);
-=======
-void module_register (void)
-{
-	mysql_library_init(0, NULL, NULL);
-	plugin_register_complex_config ("mysql", mysql_config);
->>>>>>> Ensure that mysql_thread_init() is called from every thread,
->>>>>>> Ensure that mysql_thread_init() is called from every thread,
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-void module_register(void) {
-  plugin_register_complex_config("mysql", mysql_config);
->>>>>>> Completes rebase
 } /* void module_register */

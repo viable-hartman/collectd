@@ -87,15 +87,7 @@ host_triplet = @host@
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
-<<<<<<< HEAD
-<<<<<<< HEAD
 	$(srcdir)/config-h.in lt__strl.c lt__dirent.c argz.c \
-=======
-	$(srcdir)/config-h.in lt__dirent.c lt__strl.c argz.c \
->>>>>>> Vendoring libltdl
-=======
-	$(srcdir)/config-h.in lt__strl.c lt__dirent.c argz.c \
->>>>>>> build stuff -- the result of running build.sh
 	$(top_srcdir)/config/depcomp $(am__include_HEADERS_DIST) \
 	$(am__ltdlinclude_HEADERS_DIST) COPYING.LIB README \
 	config/compile config/config.guess config/config.sub \
@@ -155,7 +147,7 @@ dld_link_la_OBJECTS = $(am_dld_link_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
-am__v_lt_1 = 
+am__v_lt_1 =
 dld_link_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(dld_link_la_LDFLAGS) $(LDFLAGS) -o $@
@@ -216,11 +208,11 @@ am__v_P_1 = :
 AM_V_GEN = $(am__v_GEN_@AM_V@)
 am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
 am__v_GEN_0 = @echo "  GEN     " $@;
-am__v_GEN_1 = 
+am__v_GEN_1 =
 AM_V_at = $(am__v_at_@AM_V@)
 am__v_at_ = $(am__v_at_@AM_DEFAULT_V@)
 am__v_at_0 = @
-am__v_at_1 = 
+am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/config/depcomp
 am__depfiles_maybe = depfiles
@@ -234,7 +226,7 @@ LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 AM_V_CC = $(am__v_CC_@AM_V@)
 am__v_CC_ = $(am__v_CC_@AM_DEFAULT_V@)
 am__v_CC_0 = @echo "  CC      " $@;
-am__v_CC_1 = 
+am__v_CC_1 =
 CCLD = $(CC)
 LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -242,7 +234,7 @@ LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
-am__v_CCLD_1 = 
+am__v_CCLD_1 =
 SOURCES = $(dld_link_la_SOURCES) $(dlopen_la_SOURCES) \
 	$(dyld_la_SOURCES) $(libltdl_la_SOURCES) \
 	$(libltdlc_la_SOURCES) $(load_add_on_la_SOURCES) \
@@ -538,7 +530,7 @@ config.h: stamp-h1
 stamp-h1: $(srcdir)/config-h.in $(top_builddir)/config.status
 	@rm -f stamp-h1
 	cd $(top_builddir) && $(SHELL) ./config.status config.h
-$(srcdir)/config-h.in:  $(am__configure_deps) 
+$(srcdir)/config-h.in:  $(am__configure_deps)
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
 	rm -f stamp-h1
 	touch $@
@@ -592,28 +584,28 @@ clean-noinstLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-dld_link.la: $(dld_link_la_OBJECTS) $(dld_link_la_DEPENDENCIES) $(EXTRA_dld_link_la_DEPENDENCIES) 
+dld_link.la: $(dld_link_la_OBJECTS) $(dld_link_la_DEPENDENCIES) $(EXTRA_dld_link_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(dld_link_la_LINK)  $(dld_link_la_OBJECTS) $(dld_link_la_LIBADD) $(LIBS)
 
-dlopen.la: $(dlopen_la_OBJECTS) $(dlopen_la_DEPENDENCIES) $(EXTRA_dlopen_la_DEPENDENCIES) 
+dlopen.la: $(dlopen_la_OBJECTS) $(dlopen_la_DEPENDENCIES) $(EXTRA_dlopen_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(dlopen_la_LINK)  $(dlopen_la_OBJECTS) $(dlopen_la_LIBADD) $(LIBS)
 
-dyld.la: $(dyld_la_OBJECTS) $(dyld_la_DEPENDENCIES) $(EXTRA_dyld_la_DEPENDENCIES) 
+dyld.la: $(dyld_la_OBJECTS) $(dyld_la_DEPENDENCIES) $(EXTRA_dyld_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(dyld_la_LINK)  $(dyld_la_OBJECTS) $(dyld_la_LIBADD) $(LIBS)
 
-libltdl.la: $(libltdl_la_OBJECTS) $(libltdl_la_DEPENDENCIES) $(EXTRA_libltdl_la_DEPENDENCIES) 
+libltdl.la: $(libltdl_la_OBJECTS) $(libltdl_la_DEPENDENCIES) $(EXTRA_libltdl_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(libltdl_la_LINK) $(am_libltdl_la_rpath) $(libltdl_la_OBJECTS) $(libltdl_la_LIBADD) $(LIBS)
 
-libltdlc.la: $(libltdlc_la_OBJECTS) $(libltdlc_la_DEPENDENCIES) $(EXTRA_libltdlc_la_DEPENDENCIES) 
+libltdlc.la: $(libltdlc_la_OBJECTS) $(libltdlc_la_DEPENDENCIES) $(EXTRA_libltdlc_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(libltdlc_la_LINK) $(am_libltdlc_la_rpath) $(libltdlc_la_OBJECTS) $(libltdlc_la_LIBADD) $(LIBS)
 
-load_add_on.la: $(load_add_on_la_OBJECTS) $(load_add_on_la_DEPENDENCIES) $(EXTRA_load_add_on_la_DEPENDENCIES) 
+load_add_on.la: $(load_add_on_la_OBJECTS) $(load_add_on_la_DEPENDENCIES) $(EXTRA_load_add_on_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(load_add_on_la_LINK)  $(load_add_on_la_OBJECTS) $(load_add_on_la_LIBADD) $(LIBS)
 
-loadlibrary.la: $(loadlibrary_la_OBJECTS) $(loadlibrary_la_DEPENDENCIES) $(EXTRA_loadlibrary_la_DEPENDENCIES) 
+loadlibrary.la: $(loadlibrary_la_OBJECTS) $(loadlibrary_la_DEPENDENCIES) $(EXTRA_loadlibrary_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(loadlibrary_la_LINK)  $(loadlibrary_la_OBJECTS) $(loadlibrary_la_LIBADD) $(LIBS)
 
-shl_load.la: $(shl_load_la_OBJECTS) $(shl_load_la_DEPENDENCIES) $(EXTRA_shl_load_la_DEPENDENCIES) 
+shl_load.la: $(shl_load_la_OBJECTS) $(shl_load_la_DEPENDENCIES) $(EXTRA_shl_load_la_DEPENDENCIES)
 	$(AM_V_CCLD)$(shl_load_la_LINK)  $(shl_load_la_OBJECTS) $(shl_load_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
@@ -1208,7 +1200,7 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
 # doesn't have one that works with the given compiler.
 all-local $(lib_OBJECTS): $(ARGZ_H)
 argz.h: argz_.h
-	$(mkinstalldirs) . 
+	$(mkinstalldirs) .
 	cp $(srcdir)/argz_.h $@-t
 	mv $@-t $@
 

@@ -31,13 +31,7 @@
 #include "common.h"
 #include "plugin.h"
 #include "utils_cache.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> Reformat changed files.
-=======
->>>>>>> Replace zu with PRIu64 and llu with new macro, PRIsz, which will make it easier to make the code platform-independent.
 #include <arpa/inet.h>
 #include <errno.h>
 #include <inttypes.h>
@@ -114,10 +108,10 @@ struct sensu_host {
 #define F_READY 0x01
   uint8_t flags;
   pthread_mutex_t lock;
-  bool notifications;
-  bool metrics;
-  bool store_rates;
-  bool always_append_ds;
+  _Bool notifications;
+  _Bool metrics;
+  _Bool store_rates;
+  _Bool always_append_ds;
   char *separator;
   char *node;
   char *service;
@@ -126,8 +120,8 @@ struct sensu_host {
   int reference_count;
 };
 
-static char *sensu_tags;
-static char **sensu_attrs;
+static char *sensu_tags = NULL;
+static char **sensu_attrs = NULL;
 static size_t sensu_attrs_num;
 
 static int add_str_to_list(struct str_list *strs,
@@ -316,8 +310,8 @@ static int sensu_format_name2(char *ret, int ret_len, const char *hostname,
 
 static void in_place_replace_sensu_name_reserved(char *orig_name) /* {{{ */
 {
-  size_t len = strlen(orig_name);
-  for (size_t i = 0; i < len; i++) {
+  int len = strlen(orig_name);
+  for (int i = 0; i < len; i++) {
     // some plugins like ipmi generate special characters in metric name
     switch (orig_name[i]) {
     case '(':
@@ -344,7 +338,8 @@ static void in_place_replace_sensu_name_reserved(char *orig_name) /* {{{ */
 
 static char *sensu_value_to_json(struct sensu_host const *host, /* {{{ */
                                  data_set_t const *ds, value_list_t const *vl,
-                                 size_t index, gauge_t const *rates) {
+                                 size_t index, gauge_t const *rates,
+                                 int status) {
   char name_buffer[5 * DATA_MAX_NAME_LEN];
   char service_buffer[6 * DATA_MAX_NAME_LEN];
   char *ret_str;
@@ -460,7 +455,7 @@ static char *sensu_value_to_json(struct sensu_host const *host, /* {{{ */
   // incorporate the data source index
   {
     char ds_index[DATA_MAX_NAME_LEN];
-    snprintf(ds_index, sizeof(ds_index), "%" PRIsz, index);
+    snprintf(ds_index, sizeof(ds_index), "%zu", index);
     res = my_asprintf(&temp_str, "%s, \"collectd_data_source_index\": %s",
                       ret_str, ds_index);
     free(ret_str);
@@ -525,8 +520,7 @@ static char *sensu_value_to_json(struct sensu_host const *host, /* {{{ */
         return NULL;
       }
     } else {
-      res = my_asprintf(&value_str, "%" PRIu64,
-                        (uint64_t)vl->values[index].counter);
+      res = my_asprintf(&value_str, "%llu", vl->values[index].counter);
       if (res == -1) {
         free(ret_str);
         ERROR("write_sensu plugin: Unable to alloc memory");
@@ -633,7 +627,7 @@ static char *replace_str(const char *str, const char *old, /* {{{ */
     r += newlen;
     p = q + oldlen;
   }
-  sstrncpy(r, p, retlen + 1);
+  strncpy(r, p, strlen(p));
 
   return ret;
 } /* }}} char *replace_str */
@@ -932,7 +926,7 @@ static int sensu_write(const data_set_t *ds, /* {{{ */
     }
   }
   for (size_t i = 0; i < vl->values_len; i++) {
-    msg = sensu_value_to_json(host, ds, vl, (int)i, rates);
+    msg = sensu_value_to_json(host, ds, vl, (int)i, rates, statuses[i]);
     if (msg == NULL) {
       sfree(rates);
       pthread_mutex_unlock(&host->lock);
@@ -1025,10 +1019,10 @@ static int sensu_config_node(oconfig_item_t *ci) /* {{{ */
   host->reference_count = 1;
   host->node = NULL;
   host->service = NULL;
-  host->notifications = false;
-  host->metrics = false;
-  host->store_rates = true;
-  host->always_append_ds = false;
+  host->notifications = 0;
+  host->metrics = 0;
+  host->store_rates = 1;
+  host->always_append_ds = 0;
   host->metric_handlers.nb_strs = 0;
   host->metric_handlers.strs = NULL;
   host->notification_handlers.nb_strs = 0;
@@ -1091,8 +1085,12 @@ static int sensu_config_node(oconfig_item_t *ci) /* {{{ */
         break;
     } else if (strcasecmp("Port", child->key) == 0) {
       status = cf_util_get_service(child, &host->service);
-      if (status != 0)
+      if (status != 0) {
+        ERROR("write_sensu plugin: Invalid argument "
+              "configured for the \"Port\" "
+              "option.");
         break;
+      }
     } else if (strcasecmp("StoreRates", child->key) == 0) {
       status = cf_util_get_boolean(child, &host->store_rates);
       if (status != 0)
@@ -1126,17 +1124,16 @@ static int sensu_config_node(oconfig_item_t *ci) /* {{{ */
     return -1;
   }
 
-  if ((host->notification_handlers.nb_strs > 0) &&
-      (host->notifications == false)) {
+  if ((host->notification_handlers.nb_strs > 0) && (host->notifications == 0)) {
     WARNING("write_sensu plugin: NotificationHandler given so forcing "
             "notifications to be enabled");
     host->notifications = 1;
   }
 
-  if ((host->metric_handlers.nb_strs > 0) && (host->metrics == false)) {
+  if ((host->metric_handlers.nb_strs > 0) && (host->metrics == 0)) {
     WARNING("write_sensu plugin: MetricHandler given so forcing metrics to be "
             "enabled");
-    host->metrics = true;
+    host->metrics = 1;
   }
 
   if (!(host->notifications || host->metrics)) {

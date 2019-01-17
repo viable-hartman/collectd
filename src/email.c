@@ -111,13 +111,13 @@ static const char *config_keys[] = {"SocketFile", "SocketGroup", "SocketPerms",
 static int config_keys_num = STATIC_ARRAY_SIZE(config_keys);
 
 /* socket configuration */
-static char *sock_file;
-static char *sock_group;
+static char *sock_file = NULL;
+static char *sock_group = NULL;
 static int sock_perms = S_IRWXU | S_IRWXG;
 static int max_conns = MAX_CONNS;
 
 /* state of the plugin */
-static int disabled;
+static int disabled = 0;
 
 /* thread managing "client" connections */
 static pthread_t connector = (pthread_t)0;
@@ -134,7 +134,7 @@ static conn_list_t conns;
 static pthread_cond_t collector_available = PTHREAD_COND_INITIALIZER;
 
 /* collector threads */
-static collector_t **collectors;
+static collector_t **collectors = NULL;
 
 static pthread_mutex_t available_mutex = PTHREAD_MUTEX_INITIALIZER;
 static int available_collectors;
@@ -260,6 +260,7 @@ static void *collect(void *arg) {
     while (42) {
       /* 256 bytes ought to be enough for anybody ;-) */
       char line[256 + 1]; /* line + '\0' */
+      int len = 0;
 
       errno = 0;
       if (fgets(line, sizeof(line), this->socket) == NULL) {
@@ -271,9 +272,9 @@ static void *collect(void *arg) {
         break;
       }
 
-      size_t len = strlen(line);
+      len = strlen(line);
       if ((line[len - 1] != '\n') && (line[len - 1] != '\r')) {
-        log_warn("collect: line too long (> %" PRIsz " characters): "
+        log_warn("collect: line too long (> %zu characters): "
                  "'%s' (truncated)",
                  sizeof(line) - 1, line);
 
@@ -286,7 +287,7 @@ static void *collect(void *arg) {
         continue;
       }
 
-      line[len - 1] = '\0';
+      line[len - 1] = 0;
 
       log_debug("collect: line = '%s'", line);
 
@@ -368,30 +369,16 @@ static void *open_connection(void __attribute__((unused)) * arg) {
     pthread_exit((void *)1);
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   struct sockaddr_un addr = {
       .sun_family = AF_UNIX,
   };
-=======
-  struct sockaddr_un addr = {.sun_family = AF_UNIX};
->>>>>>> Tree wide: Replace sstrerror() with STRERRNO.
-=======
-  struct sockaddr_un addr = {.sun_family = AF_UNIX};
->>>>>>> Replace zu with PRIu64 and llu with new macro, PRIsz, which will make it easier to make the code platform-independent.
   sstrncpy(addr.sun_path, path, (size_t)(UNIX_PATH_MAX - 1));
 
   errno = 0;
   if (bind(connector_socket, (struct sockaddr *)&addr,
            offsetof(struct sockaddr_un, sun_path) + strlen(addr.sun_path)) ==
       -1) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Replace zu with PRIu64 and llu with new macro, PRIsz, which will make it easier to make the code platform-independent.
     char errbuf[1024];
-=======
->>>>>>> Tree wide: Replace sstrerror() with STRERRNO.
     disabled = 1;
     close(connector_socket);
     connector_socket = -1;
@@ -423,7 +410,9 @@ static void *open_connection(void __attribute__((unused)) * arg) {
     grp = NULL;
     status = getgrnam_r(group, &sg, grbuf, sizeof(grbuf), &grp);
     if (status != 0) {
-      log_warn("getgrnam_r (%s) failed: %s", group, STRERROR(status));
+      char errbuf[1024];
+      log_warn("getgrnam_r (%s) failed: %s", group,
+               sstrerror(status, errbuf, sizeof(errbuf)));
     } else if (grp == NULL) {
       log_warn("No such group: `%s'", group);
     } else {

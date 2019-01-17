@@ -1,20 +1,8 @@
 #! /bin/sh
 # Attempt to guess a canonical system name.
-<<<<<<< HEAD
-<<<<<<< HEAD
 #   Copyright 1992-2014 Free Software Foundation, Inc.
 
 timestamp='2014-03-23'
-=======
-#   Copyright 1992-2013 Free Software Foundation, Inc.
-
-timestamp='2013-06-10'
->>>>>>> Vendoring libltdl
-=======
-#   Copyright 1992-2014 Free Software Foundation, Inc.
-
-timestamp='2014-03-23'
->>>>>>> build stuff -- the result of running build.sh
 
 # This file is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by
@@ -62,15 +50,7 @@ version="\
 GNU config.guess ($timestamp)
 
 Originally written by Per Bothner.
-<<<<<<< HEAD
-<<<<<<< HEAD
 Copyright 1992-2014 Free Software Foundation, Inc.
-=======
-Copyright 1992-2013 Free Software Foundation, Inc.
->>>>>>> Vendoring libltdl
-=======
-Copyright 1992-2014 Free Software Foundation, Inc.
->>>>>>> build stuff -- the result of running build.sh
 
 This is free software; see the source for copying conditions.  There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
@@ -169,15 +149,7 @@ Linux|GNU|GNU/*)
 	LIBC=gnu
 	#endif
 	EOF
-<<<<<<< HEAD
-<<<<<<< HEAD
 	eval `$CC_FOR_BUILD -E $dummy.c 2>/dev/null | grep '^LIBC' | sed 's, ,,g'`
-=======
-	eval `$CC_FOR_BUILD -E $dummy.c 2>/dev/null | grep '^LIBC'`
->>>>>>> Vendoring libltdl
-=======
-	eval `$CC_FOR_BUILD -E $dummy.c 2>/dev/null | grep '^LIBC' | sed 's, ,,g'`
->>>>>>> build stuff -- the result of running build.sh
 	;;
 esac
 
@@ -854,15 +826,7 @@ EOF
     *:MINGW*:*)
 	echo ${UNAME_MACHINE}-pc-mingw32
 	exit ;;
-<<<<<<< HEAD
-<<<<<<< HEAD
-    *:MSYS*:*)
-=======
     i*:MSYS*:*)
->>>>>>> Vendoring libltdl
-=======
-    *:MSYS*:*)
->>>>>>> build stuff -- the result of running build.sh
 	echo ${UNAME_MACHINE}-pc-msys
 	exit ;;
     i*:windows32*:*)
@@ -1005,24 +969,10 @@ EOF
 	eval `$CC_FOR_BUILD -E $dummy.c 2>/dev/null | grep '^CPU'`
 	test x"${CPU}" != x && { echo "${CPU}-unknown-linux-${LIBC}"; exit; }
 	;;
-<<<<<<< HEAD
-<<<<<<< HEAD
-    openrisc*:Linux:*:*)
-	echo or1k-unknown-linux-${LIBC}
-	exit ;;
-    or32:Linux:*:* | or1k*:Linux:*:*)
-=======
     or1k:Linux:*:*)
 	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
 	exit ;;
     or32:Linux:*:*)
->>>>>>> Vendoring libltdl
-=======
-    openrisc*:Linux:*:*)
-	echo or1k-unknown-linux-${LIBC}
-	exit ;;
-    or32:Linux:*:* | or1k*:Linux:*:*)
->>>>>>> build stuff -- the result of running build.sh
 	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
 	exit ;;
     padre:Linux:*:*)
@@ -1310,32 +1260,6 @@ EOF
 	if test "$UNAME_PROCESSOR" = unknown ; then
 	    UNAME_PROCESSOR=powerpc
 	fi
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> build stuff -- the result of running build.sh
-	if test `echo "$UNAME_RELEASE" | sed -e 's/\..*//'` -le 10 ; then
-	    if [ "$CC_FOR_BUILD" != 'no_compiler_found' ]; then
-		if (echo '#ifdef __LP64__'; echo IS_64BIT_ARCH; echo '#endif') | \
-		    (CCOPTS= $CC_FOR_BUILD -E - 2>/dev/null) | \
-		    grep IS_64BIT_ARCH >/dev/null
-		then
-		    case $UNAME_PROCESSOR in
-			i386) UNAME_PROCESSOR=x86_64 ;;
-			powerpc) UNAME_PROCESSOR=powerpc64 ;;
-		    esac
-		fi
-<<<<<<< HEAD
-	    fi
-	elif test "$UNAME_PROCESSOR" = i386 ; then
-	    # Avoid executing cc on OS X 10.9, as it ships with a stub
-	    # that puts up a graphical alert prompting to install
-	    # developer tools.  Any system running Mac OS X 10.7 or
-	    # later (Darwin 11 and later) is required to have a 64-bit
-	    # processor. This is not true of the ARM version of Darwin
-	    # that Apple uses in portable devices.
-	    UNAME_PROCESSOR=x86_64
-=======
 	if [ "$CC_FOR_BUILD" != 'no_compiler_found' ]; then
 	    if (echo '#ifdef __LP64__'; echo IS_64BIT_ARCH; echo '#endif') | \
 		(CCOPTS= $CC_FOR_BUILD -E - 2>/dev/null) | \
@@ -1346,18 +1270,6 @@ EOF
 		    powerpc) UNAME_PROCESSOR=powerpc64 ;;
 		esac
 	    fi
->>>>>>> Vendoring libltdl
-=======
-	    fi
-	elif test "$UNAME_PROCESSOR" = i386 ; then
-	    # Avoid executing cc on OS X 10.9, as it ships with a stub
-	    # that puts up a graphical alert prompting to install
-	    # developer tools.  Any system running Mac OS X 10.7 or
-	    # later (Darwin 11 and later) is required to have a 64-bit
-	    # processor. This is not true of the ARM version of Darwin
-	    # that Apple uses in portable devices.
-	    UNAME_PROCESSOR=x86_64
->>>>>>> build stuff -- the result of running build.sh
 	fi
 	echo ${UNAME_PROCESSOR}-apple-darwin${UNAME_RELEASE}
 	exit ;;
@@ -1449,9 +1361,6 @@ EOF
 	exit ;;
 esac
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 eval $set_cc_for_build
 cat >$dummy.c <<EOF
 #ifdef _SEQUENT_
@@ -1600,9 +1509,6 @@ then
     esac
 fi
 
->>>>>>> Vendoring libltdl
-=======
->>>>>>> build stuff -- the result of running build.sh
 cat >&2 <<EOF
 $0: unable to guess system type
 

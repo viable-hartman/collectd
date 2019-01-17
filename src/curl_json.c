@@ -74,7 +74,7 @@ typedef struct {
  * exists for this part of the JSON structure. */
 typedef struct {
   cj_tree_entry_t *entry;
-  bool in_array;
+  _Bool in_array;
   int index;
   char name[DATA_MAX_NAME_LEN];
 } cj_state_t;
@@ -91,12 +91,13 @@ struct cj_s /* {{{ */
   char *user;
   char *pass;
   char *credentials;
-  bool digest;
-  bool verify_peer;
-  bool verify_host;
+  _Bool digest;
+  _Bool verify_peer;
+  _Bool verify_host;
   char *cacert;
   struct curl_slist *headers;
   char *post_body;
+  cdtime_t interval;
   int timeout;
   curl_stats_t *stats;
 
@@ -255,6 +256,7 @@ static int cj_cb_number(void *ctx, const char *number, yajl_len_t number_len) {
   value_t vt;
   int status = parse_value(buffer, &vt, type);
   if (status != 0) {
+    NOTICE("curl_json plugin: Unable to parse number: \"%s\"", buffer);
     cj_advance_array(ctx);
     return CJ_CB_CONTINUE;
   }
@@ -323,7 +325,7 @@ static int cj_cb_start_array(void *ctx) {
     return CJ_CB_ABORT;
   }
   db->depth++;
-  db->state[db->depth].in_array = true;
+  db->state[db->depth].in_array = 1;
   db->state[db->depth].index = 0;
 
   cj_load_key(db, "0");
@@ -333,7 +335,7 @@ static int cj_cb_start_array(void *ctx) {
 
 static int cj_cb_end_array(void *ctx) {
   cj_t *db = (cj_t *)ctx;
-  db->state[db->depth].in_array = false;
+  db->state[db->depth].in_array = 0;
   return cj_cb_end(ctx);
 }
 
@@ -622,6 +624,9 @@ static int cj_init_curl(cj_t *db) /* {{{ */
 #ifdef HAVE_CURLOPT_TIMEOUT_MS
   if (db->timeout >= 0)
     curl_easy_setopt(db->curl, CURLOPT_TIMEOUT_MS, (long)db->timeout);
+  else if (db->interval > 0)
+    curl_easy_setopt(db->curl, CURLOPT_TIMEOUT_MS,
+                     (long)CDTIME_T_TO_MS(db->interval));
   else
     curl_easy_setopt(db->curl, CURLOPT_TIMEOUT_MS,
                      (long)CDTIME_T_TO_MS(plugin_get_interval()));
@@ -634,7 +639,6 @@ static int cj_config_add_url(oconfig_item_t *ci) /* {{{ */
 {
   cj_t *db;
   int status = 0;
-  cdtime_t interval = 0;
 
   if ((ci->values_num != 1) || (ci->values[0].type != OCONFIG_TYPE_STRING)) {
     WARNING("curl_json plugin: The `URL' block "
@@ -695,7 +699,7 @@ static int cj_config_add_url(oconfig_item_t *ci) /* {{{ */
     else if (strcasecmp("Key", child->key) == 0)
       status = cj_config_add_key(db, child);
     else if (strcasecmp("Interval", child->key) == 0)
-      status = cf_util_get_cdtime(child, &interval);
+      status = cf_util_get_cdtime(child, &db->interval);
     else if (strcasecmp("Timeout", child->key) == 0)
       status = cf_util_get_int(child, &db->timeout);
     else if (strcasecmp("Statistics", child->key) == 0) {
@@ -733,7 +737,8 @@ static int cj_config_add_url(oconfig_item_t *ci) /* {{{ */
     cb_name = ssnprintf_alloc("curl_json-%s-%s", db->instance,
                               db->url ? db->url : db->sock);
 
-    plugin_register_complex_read(/* group = */ NULL, cb_name, cj_read, interval,
+    plugin_register_complex_read(/* group = */ NULL, cb_name, cj_read,
+                                 /* interval = */ db->interval,
                                  &(user_data_t){
                                      .data = db, .free_func = cj_free,
                                  });
@@ -797,37 +802,6 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
   vl.values = value;
   vl.values_len = 1;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Revert https://github.com/Stackdriver/collectd/commit/9685c388b5954800d0e4ceb741844c2682464759 to revert the way the ES plugin forms keys
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Completes rebase
-  if (key->instance == NULL) {
-    int len = 0;
-    for (int i = 0; i < db->depth; i++)
-      len += snprintf(vl.type_instance + len, sizeof(vl.type_instance) - len,
-                      i ? "-%s" : "%s", db->state[i + 1].name);
-  } else
-    sstrncpy(vl.type_instance, key->instance, sizeof(vl.type_instance));
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Revert https://github.com/Stackdriver/collectd/commit/9685c388b5954800d0e4ceb741844c2682464759 to revert the way the ES plugin forms keys
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
   if (key->instance == NULL)
   {
     if ((db->depth == 0) || (strcmp ("", db->state[db->depth-1].name) == 0))
@@ -838,19 +812,6 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
   }
   else
     sstrncpy (vl.type_instance, key->instance, sizeof (vl.type_instance));
->>>>>>> Revert https://github.com/Stackdriver/collectd/commit/9685c388b5954800d0e4ceb741844c2682464759 to revert the way the ES plugin forms keys
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Revert https://github.com/Stackdriver/collectd/commit/9685c388b5954800d0e4ceb741844c2682464759 to revert the way the ES plugin forms keys
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Completes rebase
 
   sstrncpy(vl.host, cj_host(db), sizeof(vl.host));
   sstrncpy(vl.plugin, (db->plugin_name != NULL) ? db->plugin_name : "curl_json",
@@ -858,11 +819,15 @@ static void cj_submit_impl(cj_t *db, cj_key_t *key, value_t *value) /* {{{ */
   sstrncpy(vl.plugin_instance, db->instance, sizeof(vl.plugin_instance));
   sstrncpy(vl.type, key->type, sizeof(vl.type));
 
+  if (db->interval > 0)
+    vl.interval = db->interval;
+
   plugin_dispatch_values(&vl);
 } /* }}} int cj_submit_impl */
 
 static int cj_sock_perform(cj_t *db) /* {{{ */
 {
+  char errbuf[1024];
   struct sockaddr_un sa_unix = {
       .sun_family = AF_UNIX,
   };
@@ -873,7 +838,8 @@ static int cj_sock_perform(cj_t *db) /* {{{ */
     return -1;
   if (connect(fd, (struct sockaddr *)&sa_unix, sizeof(sa_unix)) < 0) {
     ERROR("curl_json plugin: connect(%s) failed: %s",
-          (db->sock != NULL) ? db->sock : "<null>", STRERRNO);
+          (db->sock != NULL) ? db->sock : "<null>",
+          sstrerror(errno, errbuf, sizeof(errbuf)));
     close(fd);
     return -1;
   }
@@ -884,7 +850,8 @@ static int cj_sock_perform(cj_t *db) /* {{{ */
     red = read(fd, buffer, sizeof(buffer));
     if (red < 0) {
       ERROR("curl_json plugin: read(%s) failed: %s",
-            (db->sock != NULL) ? db->sock : "<null>", STRERRNO);
+            (db->sock != NULL) ? db->sock : "<null>",
+            sstrerror(errno, errbuf, sizeof(errbuf)));
       close(fd);
       return -1;
     }

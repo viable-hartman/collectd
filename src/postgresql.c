@@ -102,7 +102,7 @@ typedef struct {
 typedef struct {
   char *name;
   char *statement;
-  bool store_rates;
+  _Bool store_rates;
 } c_psql_writer_t;
 
 typedef struct {
@@ -124,6 +124,8 @@ typedef struct {
 
   /* make sure we don't access the database object in parallel */
   pthread_mutex_t db_lock;
+
+  cdtime_t interval;
 
   /* writer "caching" settings */
   cdtime_t commit_interval;
@@ -153,14 +155,14 @@ static const char *const def_queries[] = {
     "table_states", "disk_io",      "disk_usage"};
 static int def_queries_num = STATIC_ARRAY_SIZE(def_queries);
 
-static c_psql_database_t **databases;
-static size_t databases_num;
+static c_psql_database_t **databases = NULL;
+static size_t databases_num = 0;
 
-static udb_query_t **queries;
-static size_t queries_num;
+static udb_query_t **queries = NULL;
+static size_t queries_num = 0;
 
-static c_psql_writer_t *writers;
-static size_t writers_num;
+static c_psql_writer_t *writers = NULL;
+static size_t writers_num = 0;
 
 static int c_psql_begin(c_psql_database_t *db) {
   PGresult *r = PQexec(db->conn, "BEGIN");
@@ -234,6 +236,8 @@ static c_psql_database_t *c_psql_database_new(const char *name) {
   db->writers_num = 0;
 
   pthread_mutex_init(&db->db_lock, /* attrs = */ NULL);
+
+  db->interval = 0;
 
   db->commit_interval = 0;
   db->next_commit = 0;
@@ -344,10 +348,10 @@ static int c_psql_connect(c_psql_database_t *db) {
 } /* c_psql_connect */
 
 static int c_psql_check_connection(c_psql_database_t *db) {
-  bool init = false;
+  _Bool init = 0;
 
   if (!db->conn) {
-    init = true;
+    init = 1;
 
     /* trigger c_release() */
     if (0 == db->conn_complaint.interval)
@@ -427,7 +431,8 @@ static PGresult *c_psql_exec_query_params(c_psql_database_t *db, udb_query_t *q,
       break;
     case C_PSQL_PARAM_INTERVAL:
       snprintf(interval, sizeof(interval), "%.3f",
-               CDTIME_T_TO_DOUBLE(plugin_get_interval()));
+               (db->interval > 0) ? CDTIME_T_TO_DOUBLE(db->interval)
+                                  : plugin_get_interval());
       params[i] = interval;
       break;
     case C_PSQL_PARAM_INSTANCE:
@@ -543,7 +548,7 @@ static int c_psql_exec_query(c_psql_database_t *db, udb_query_t *q,
   status = udb_query_prepare_result(
       q, prep_area, host,
       (db->plugin_name != NULL) ? db->plugin_name : "postgresql", db->instance,
-      column_names, (size_t)column_num);
+      column_names, (size_t)column_num, db->interval);
 
   if (0 != status) {
     log_err("udb_query_prepare_result failed with status %i.", status);
@@ -659,7 +664,7 @@ static char *values_name_to_sqlarray(const data_set_t *ds, char *string,
 } /* values_name_to_sqlarray */
 
 static char *values_type_to_sqlarray(const data_set_t *ds, char *string,
-                                     size_t string_len, bool store_rates) {
+                                     size_t string_len, _Bool store_rates) {
   char *str_ptr;
   size_t str_len;
 
@@ -702,7 +707,7 @@ static char *values_type_to_sqlarray(const data_set_t *ds, char *string,
 
 static char *values_to_sqlarray(const data_set_t *ds, const value_list_t *vl,
                                 char *string, size_t string_len,
-                                bool store_rates) {
+                                _Bool store_rates) {
   char *str_ptr;
   size_t str_len;
 
@@ -737,8 +742,7 @@ static char *values_to_sqlarray(const data_set_t *ds, const value_list_t *vl,
 
       status = snprintf(str_ptr, str_len, ",%lf", rates[i]);
     } else if (ds->ds[i].type == DS_TYPE_COUNTER)
-      status = snprintf(str_ptr, str_len, ",%" PRIu64,
-                        (uint64_t)vl->values[i].counter);
+      status = snprintf(str_ptr, str_len, ",%llu", vl->values[i].counter);
     else if (ds->ds[i].type == DS_TYPE_DERIVE)
       status = snprintf(str_ptr, str_len, ",%" PRIi64, vl->values[i].derive);
     else if (ds->ds[i].type == DS_TYPE_ABSOLUTE)
@@ -793,68 +797,10 @@ static int c_psql_write(const data_set_t *ds, const value_list_t *vl,
   assert(db->database != NULL);
   assert(db->writers != NULL);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Address review comments:
-=======
->>>>>>> Force use of local time in the postgresql plugin.
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Completes rebase
   if (rfc3339nano_local(time_str, sizeof(time_str), vl->time) != 0) {
     log_err("c_psql_write: Failed to convert time to RFC 3339 format");
     return -1;
   }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-	/* TODO: Should this be rfc3339nano_local()? */
-	if (rfc3339nano (time_str, sizeof (time_str), vl->time) != 0) {
-=======
-	if (rfc3339nano_local (time_str, sizeof (time_str), vl->time) != 0) {
->>>>>>> Force use of local time in the postgresql plugin.
-=======
-=======
-	/* TODO: Should this be rfc3339nano_local()? */
-	if (rfc3339nano (time_str, sizeof (time_str), vl->time) != 0) {
-<<<<<<< HEAD
->>>>>>> Address review comments:
-=======
-=======
-	if (rfc3339nano_local (time_str, sizeof (time_str), vl->time) != 0) {
->>>>>>> Force use of local time in the postgresql plugin.
->>>>>>> Force use of local time in the postgresql plugin.
-		log_err ("c_psql_write: Failed to convert time to RFC 3339 format");
-		return -1;
-	}
->>>>>>> Address review comments:
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Address review comments:
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Completes rebase
 
   if (values_name_to_sqlarray(ds, values_name_str, sizeof(values_name_str)) ==
       NULL)
@@ -989,7 +935,7 @@ static int c_psql_flush(cdtime_t timeout,
 } /* c_psql_flush */
 
 static int c_psql_shutdown(void) {
-  bool had_flush = false;
+  _Bool had_flush = 0;
 
   plugin_unregister_read_group("postgresql");
 
@@ -1002,7 +948,7 @@ static int c_psql_shutdown(void) {
 
       if (!had_flush) {
         plugin_unregister_flush("postgresql");
-        had_flush = true;
+        had_flush = 1;
       }
 
       plugin_unregister_flush(cb_name);
@@ -1150,7 +1096,7 @@ static int c_psql_config_writer(oconfig_item_t *ci) {
 
   writer->name = sstrdup(ci->values[0].value.string);
   writer->statement = NULL;
-  writer->store_rates = true;
+  writer->store_rates = 1;
 
   for (int i = 0; i < ci->children_num; ++i) {
     oconfig_item_t *c = ci->children + i;
@@ -1176,9 +1122,8 @@ static int c_psql_config_writer(oconfig_item_t *ci) {
 static int c_psql_config_database(oconfig_item_t *ci) {
   c_psql_database_t *db;
 
-  cdtime_t interval = 0;
   char cb_name[DATA_MAX_NAME_LEN];
-  static bool have_flush;
+  static _Bool have_flush = 0;
 
   if ((1 != ci->values_num) || (OCONFIG_TYPE_STRING != ci->values[0].type)) {
     log_err("<Database> expects a single string argument.");
@@ -1217,7 +1162,7 @@ static int c_psql_config_database(oconfig_item_t *ci) {
       config_add_writer(c, writers, writers_num, &db->writers,
                         &db->writers_num);
     else if (0 == strcasecmp(c->key, "Interval"))
-      cf_util_get_cdtime(c, &interval);
+      cf_util_get_cdtime(c, &db->interval);
     else if (strcasecmp("CommitInterval", c->key) == 0)
       cf_util_get_cdtime(c, &db->commit_interval);
     else if (strcasecmp("ExpireDelay", c->key) == 0)
@@ -1265,8 +1210,8 @@ static int c_psql_config_database(oconfig_item_t *ci) {
 
   if (db->queries_num > 0) {
     ++db->ref_cnt;
-    plugin_register_complex_read("postgresql", cb_name, c_psql_read, interval,
-                                 &ud);
+    plugin_register_complex_read("postgresql", cb_name, c_psql_read,
+                                 /* interval = */ db->interval, &ud);
   }
   if (db->writers_num > 0) {
     ++db->ref_cnt;
@@ -1275,7 +1220,7 @@ static int c_psql_config_database(oconfig_item_t *ci) {
     if (!have_flush) {
       /* flush all */
       plugin_register_flush("postgresql", c_psql_flush, /* user data = */ NULL);
-      have_flush = true;
+      have_flush = 1;
     }
 
     /* flush this connection only */
@@ -1291,7 +1236,7 @@ static int c_psql_config_database(oconfig_item_t *ci) {
 } /* c_psql_config_database */
 
 static int c_psql_config(oconfig_item_t *ci) {
-  static int have_def_config;
+  static int have_def_config = 0;
 
   if (0 == have_def_config) {
     oconfig_item_t *c;

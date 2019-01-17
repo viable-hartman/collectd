@@ -76,7 +76,7 @@ typedef struct cf_value_map_s {
 typedef struct cf_global_option_s {
   const char *key;
   char *value;
-  bool from_cli; /* value set from CLI */
+  _Bool from_cli; /* value set from CLI */
   const char *def;
 } cf_global_option_t;
 
@@ -91,8 +91,8 @@ static int dispatch_block_plugin(oconfig_item_t *ci);
 /*
  * Private variables
  */
-static cf_callback_t *first_callback;
-static cf_complex_callback_t *complex_callback_head;
+static cf_callback_t *first_callback = NULL;
+static cf_complex_callback_t *complex_callback_head = NULL;
 
 static cf_value_map_t cf_value_map[] = {{"TypesDB", dispatch_value_typesdb},
                                         {"PluginDir", dispatch_value_plugindir},
@@ -190,12 +190,8 @@ static int cf_dispatch(const char *type, const char *orig_key,
 } /* int cf_dispatch */
 
 static int dispatch_global_option(const oconfig_item_t *ci) {
-  if (ci->values_num != 1) {
-    ERROR("configfile: Global option `%s' needs exactly one argument.",
-          ci->key);
+  if (ci->values_num != 1)
     return -1;
-  }
-
   if (ci->values[0].type == OCONFIG_TYPE_STRING)
     return global_option_set(ci->key, ci->values[0].value.string, 0);
   else if (ci->values[0].type == OCONFIG_TYPE_NUMBER) {
@@ -208,8 +204,6 @@ static int dispatch_global_option(const oconfig_item_t *ci) {
     else
       return global_option_set(ci->key, "false", 0);
   }
-
-  ERROR("configfile: Global option `%s' argument has unknown type.", ci->key);
 
   return -1;
 } /* int dispatch_global_option */
@@ -240,37 +234,37 @@ static int dispatch_value_typesdb(oconfig_item_t *ci) {
 static int dispatch_value_plugindir(oconfig_item_t *ci) {
   assert(strcasecmp(ci->key, "PluginDir") == 0);
 
-  if (ci->values_num != 1 || ci->values[0].type != OCONFIG_TYPE_STRING) {
-    ERROR("configfile: The `PluginDir' option needs exactly one string "
-          "argument.");
+  if (ci->values_num != 1)
     return -1;
-  }
+  if (ci->values[0].type != OCONFIG_TYPE_STRING)
+    return -1;
 
   plugin_set_dir(ci->values[0].value.string);
   return 0;
 }
 
 static int dispatch_loadplugin(oconfig_item_t *ci) {
-  bool global = false;
+  const char *name;
+  _Bool global = 0;
+  plugin_ctx_t ctx = {0};
+  plugin_ctx_t old_ctx;
+  int ret_val;
 
   assert(strcasecmp(ci->key, "LoadPlugin") == 0);
 
-  if (ci->values_num != 1 || ci->values[0].type != OCONFIG_TYPE_STRING) {
-    ERROR("configfile: The `LoadPlugin' block needs exactly one string "
-          "argument.");
+  if (ci->values_num != 1)
     return -1;
-  }
+  if (ci->values[0].type != OCONFIG_TYPE_STRING)
+    return -1;
 
-  const char *name = ci->values[0].value.string;
+  name = ci->values[0].value.string;
   if (strcmp("libvirt", name) == 0)
     name = "virt";
 
   /* default to the global interval set before loading this plugin */
-  plugin_ctx_t ctx = {
-      .interval = cf_get_default_interval(), .name = strdup(name),
-  };
-  if (ctx.name == NULL)
-    return ENOMEM;
+  ctx.interval = cf_get_default_interval();
+  ctx.flush_interval = 0;
+  ctx.flush_timeout = 0;
 
   for (int i = 0; i < ci->children_num; ++i) {
     oconfig_item_t *child = ci->children + i;
@@ -286,12 +280,12 @@ static int dispatch_loadplugin(oconfig_item_t *ci) {
     else {
       WARNING("Ignoring unknown LoadPlugin option \"%s\" "
               "for plugin \"%s\"",
-              child->key, name);
+              child->key, ci->values[0].value.string);
     }
   }
 
-  plugin_ctx_t old_ctx = plugin_set_ctx(ctx);
-  int ret_val = plugin_load(name, global);
+  old_ctx = plugin_set_ctx(ctx);
+  ret_val = plugin_load(name, global);
   /* reset to the "global" context */
   plugin_set_ctx(old_ctx);
 
@@ -339,9 +333,6 @@ static int dispatch_value(oconfig_item_t *ci) {
       break;
     }
 
-  if (ret != 0)
-    return ret;
-
   for (int i = 0; i < cf_global_options_num; i++)
     if (strcasecmp(cf_global_options[i].key, ci->key) == 0) {
       ret = dispatch_global_option(ci);
@@ -352,18 +343,16 @@ static int dispatch_value(oconfig_item_t *ci) {
 } /* int dispatch_value */
 
 static int dispatch_block_plugin(oconfig_item_t *ci) {
-  assert(strcasecmp(ci->key, "Plugin") == 0);
+  const char *name;
 
-  if (ci->values_num < 1) {
-    ERROR("configfile: The `Plugin' block requires arguments.");
+  if (strcasecmp(ci->key, "Plugin") != 0)
     return -1;
-  }
-  if (ci->values[0].type != OCONFIG_TYPE_STRING) {
-    ERROR("configfile: First argument of `Plugin' block should be a string.");
+  if (ci->values_num < 1)
     return -1;
-  }
+  if (ci->values[0].type != OCONFIG_TYPE_STRING)
+    return -1;
 
-  const char *name = ci->values[0].value.string;
+  name = ci->values[0].value.string;
   if (strcmp("libvirt", name) == 0) {
     /* TODO(octo): Remove this legacy. */
     WARNING("The \"libvirt\" plugin has been renamed to \"virt\" to avoid "
@@ -381,10 +370,9 @@ static int dispatch_block_plugin(oconfig_item_t *ci) {
 
     /* default to the global interval set before loading this plugin */
     ctx.interval = cf_get_default_interval();
-    ctx.name = strdup(name);
 
     old_ctx = plugin_set_ctx(ctx);
-    status = plugin_load(name, /* flags = */ false);
+    status = plugin_load(name, /* flags = */ 0);
     /* reset to the "global" context */
     plugin_set_ctx(old_ctx);
 
@@ -646,7 +634,9 @@ static oconfig_item_t *cf_read_dir(const char *dir, const char *pattern,
 
   dh = opendir(dir);
   if (dh == NULL) {
-    ERROR("configfile: opendir failed: %s", STRERRNO);
+    char errbuf[1024];
+    ERROR("configfile: opendir failed: %s",
+          sstrerror(errno, errbuf, sizeof(errbuf)));
     return NULL;
   }
 
@@ -775,7 +765,9 @@ static oconfig_item_t *cf_read_generic(const char *path, const char *pattern,
 
     status = stat(path_ptr, &statbuf);
     if (status != 0) {
-      WARNING("configfile: stat (%s) failed: %s", path_ptr, STRERRNO);
+      char errbuf[1024];
+      WARNING("configfile: stat (%s) failed: %s", path_ptr,
+              sstrerror(errno, errbuf, sizeof(errbuf)));
       continue;
     }
 
@@ -821,7 +813,9 @@ static oconfig_item_t *cf_read_generic(const char *path, const char *pattern,
 
   status = stat(path, &statbuf);
   if (status != 0) {
-    ERROR("configfile: stat (%s) failed: %s", path, STRERRNO);
+    char errbuf[1024];
+    ERROR("configfile: stat (%s) failed: %s", path,
+          sstrerror(errno, errbuf, sizeof(errbuf)));
     return NULL;
   }
 
@@ -838,7 +832,7 @@ static oconfig_item_t *cf_read_generic(const char *path, const char *pattern,
 /*
  * Public functions
  */
-int global_option_set(const char *option, const char *value, bool from_cli) {
+int global_option_set(const char *option, const char *value, _Bool from_cli) {
   int i;
   DEBUG("option = %s; value = %s;", option, value);
 
@@ -921,26 +915,6 @@ cdtime_t global_option_get_time(const char *name, cdtime_t def) /* {{{ */
   return DOUBLE_TO_CDTIME_T(v);
 } /* }}} cdtime_t global_option_get_time */
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Disallow intervals that are less than sixty seconds
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Merge conflicts from rebase
-cdtime_t cf_get_default_interval(void) {
-  return global_option_get_time("Interval",
-                                DOUBLE_TO_CDTIME_T(COLLECTD_DEFAULT_INTERVAL));
-=======
-=======
->>>>>>> Merge conflicts from rebase
-=======
->>>>>>> Completes rebase
 cdtime_t cf_get_default_interval (void)
 {
 	cdtime_t result = (global_option_get_time ("Interval",
@@ -951,30 +925,6 @@ cdtime_t cf_get_default_interval (void)
 		ERROR ("The Stackdriver agent only supports intervals of 60 seconds or more. Using 60 seconds.");
 	}
 	return result;
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> Disallow intervals that are less than sixty seconds
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-cdtime_t cf_get_default_interval(void) {
-  return global_option_get_time("Interval",
-                                DOUBLE_TO_CDTIME_T(COLLECTD_DEFAULT_INTERVAL));
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Disallow intervals that are less than sixty seconds
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-=======
->>>>>>> Merge conflicts from rebase
->>>>>>> Merge conflicts from rebase
-=======
->>>>>>> Completes rebase
 }
 
 void cf_unregister(const char *type) {
@@ -1098,12 +1048,16 @@ int cf_read(const char *filename) {
  * success. */
 int cf_util_get_string(const oconfig_item_t *ci, char **ret_string) /* {{{ */
 {
+  char *string;
+
   if ((ci->values_num != 1) || (ci->values[0].type != OCONFIG_TYPE_STRING)) {
-    P_ERROR("The `%s' option requires exactly one string argument.", ci->key);
+    ERROR("cf_util_get_string: The %s option requires "
+          "exactly one string argument.",
+          ci->key);
     return -1;
   }
 
-  char *string = strdup(ci->values[0].value.string);
+  string = strdup(ci->values[0].value.string);
   if (string == NULL)
     return -1;
 
@@ -1122,7 +1076,9 @@ int cf_util_get_string_buffer(const oconfig_item_t *ci, char *buffer, /* {{{ */
     return EINVAL;
 
   if ((ci->values_num != 1) || (ci->values[0].type != OCONFIG_TYPE_STRING)) {
-    P_ERROR("The `%s' option requires exactly one string argument.", ci->key);
+    ERROR("cf_util_get_string_buffer: The %s option requires "
+          "exactly one string argument.",
+          ci->key);
     return -1;
   }
 
@@ -1139,7 +1095,9 @@ int cf_util_get_int(const oconfig_item_t *ci, int *ret_value) /* {{{ */
     return EINVAL;
 
   if ((ci->values_num != 1) || (ci->values[0].type != OCONFIG_TYPE_NUMBER)) {
-    P_ERROR("The `%s' option requires exactly one numeric argument.", ci->key);
+    ERROR("cf_util_get_int: The %s option requires "
+          "exactly one numeric argument.",
+          ci->key);
     return -1;
   }
 
@@ -1154,7 +1112,9 @@ int cf_util_get_double(const oconfig_item_t *ci, double *ret_value) /* {{{ */
     return EINVAL;
 
   if ((ci->values_num != 1) || (ci->values[0].type != OCONFIG_TYPE_NUMBER)) {
-    P_ERROR("The `%s' option requires exactly one numeric argument.", ci->key);
+    ERROR("cf_util_get_double: The %s option requires "
+          "exactly one numeric argument.",
+          ci->key);
     return -1;
   }
 
@@ -1163,35 +1123,37 @@ int cf_util_get_double(const oconfig_item_t *ci, double *ret_value) /* {{{ */
   return 0;
 } /* }}} int cf_util_get_double */
 
-int cf_util_get_boolean(const oconfig_item_t *ci, bool *ret_bool) /* {{{ */
+int cf_util_get_boolean(const oconfig_item_t *ci, _Bool *ret_bool) /* {{{ */
 {
   if ((ci == NULL) || (ret_bool == NULL))
     return EINVAL;
 
   if ((ci->values_num != 1) || ((ci->values[0].type != OCONFIG_TYPE_BOOLEAN) &&
                                 (ci->values[0].type != OCONFIG_TYPE_STRING))) {
-    P_ERROR("The `%s' option requires exactly one boolean argument.", ci->key);
+    ERROR("cf_util_get_boolean: The %s option requires "
+          "exactly one boolean argument.",
+          ci->key);
     return -1;
   }
 
   switch (ci->values[0].type) {
   case OCONFIG_TYPE_BOOLEAN:
-    *ret_bool = ci->values[0].value.boolean ? true : false;
+    *ret_bool = ci->values[0].value.boolean ? 1 : 0;
     break;
   case OCONFIG_TYPE_STRING:
-    P_WARNING("Using string value `%s' for boolean option `%s' is deprecated "
-              "and will be removed in future releases. Use unquoted true or "
-              "false instead.",
-              ci->values[0].value.string, ci->key);
+    WARNING("cf_util_get_boolean: Using string value `%s' for boolean option "
+            "`%s' is deprecated and will be removed in future releases. "
+            "Use unquoted true or false instead.",
+            ci->values[0].value.string, ci->key);
 
     if (IS_TRUE(ci->values[0].value.string))
-      *ret_bool = true;
+      *ret_bool = 1;
     else if (IS_FALSE(ci->values[0].value.string))
-      *ret_bool = false;
+      *ret_bool = 0;
     else {
-      P_ERROR("Cannot parse string value `%s' of the `%s' option as a boolean "
-              "value.",
-              ci->values[0].value.string, ci->key);
+      ERROR("cf_util_get_boolean: Cannot parse string value `%s' of the `%s' "
+            "option as a boolean value.",
+            ci->values[0].value.string, ci->key);
       return -1;
     }
     break;
@@ -1203,11 +1165,12 @@ int cf_util_get_boolean(const oconfig_item_t *ci, bool *ret_bool) /* {{{ */
 int cf_util_get_flag(const oconfig_item_t *ci, /* {{{ */
                      unsigned int *ret_value, unsigned int flag) {
   int status;
+  _Bool b;
 
   if (ret_value == NULL)
     return EINVAL;
 
-  bool b = false;
+  b = 0;
   status = cf_util_get_boolean(ci, &b);
   if (status != 0)
     return status;
@@ -1232,7 +1195,9 @@ int cf_util_get_port_number(const oconfig_item_t *ci) /* {{{ */
 
   if ((ci->values_num != 1) || ((ci->values[0].type != OCONFIG_TYPE_STRING) &&
                                 (ci->values[0].type != OCONFIG_TYPE_NUMBER))) {
-    P_ERROR("The `%s' option requires exactly one string argument.", ci->key);
+    ERROR("cf_util_get_port_number: The \"%s\" option requires "
+          "exactly one string argument.",
+          ci->key);
     return -1;
   }
 
@@ -1242,9 +1207,11 @@ int cf_util_get_port_number(const oconfig_item_t *ci) /* {{{ */
   assert(ci->values[0].type == OCONFIG_TYPE_NUMBER);
   tmp = (int)(ci->values[0].value.number + 0.5);
   if ((tmp < 1) || (tmp > 65535)) {
-    P_ERROR("The `%s' option requires a service name or a port number. The "
-            "number you specified, %i, is not in the valid range of 1-65535.",
-            ci->key, tmp);
+    ERROR("cf_util_get_port_number: The \"%s\" option requires "
+          "a service name or a port number. The number "
+          "you specified, %i, is not in the valid "
+          "range of 1-65535.",
+          ci->key, tmp);
     return -1;
   }
 
@@ -1258,15 +1225,18 @@ int cf_util_get_service(const oconfig_item_t *ci, char **ret_string) /* {{{ */
   int status;
 
   if (ci->values_num != 1) {
-    P_ERROR("The `%s` option requires exactly one argument.", ci->key);
+    ERROR("cf_util_get_service: The %s option requires exactly "
+          "one argument.",
+          ci->key);
     return -1;
   }
 
   if (ci->values[0].type == OCONFIG_TYPE_STRING)
     return cf_util_get_string(ci, ret_string);
   if (ci->values[0].type != OCONFIG_TYPE_NUMBER) {
-    P_ERROR("The `%s` option requires exactly one string or numeric argument.",
-            ci->key);
+    ERROR("cf_util_get_service: The %s option requires "
+          "exactly one string or numeric argument.",
+          ci->key);
   }
 
   port = 0;
@@ -1274,14 +1244,16 @@ int cf_util_get_service(const oconfig_item_t *ci, char **ret_string) /* {{{ */
   if (status != 0)
     return status;
   else if ((port < 1) || (port > 65535)) {
-    P_ERROR("The port number given for the `%s` option is out of range (%i).",
-            ci->key, port);
+    ERROR("cf_util_get_service: The port number given "
+          "for the %s option is out of "
+          "range (%i).",
+          ci->key, port);
     return -1;
   }
 
   service = malloc(6);
   if (service == NULL) {
-    P_ERROR("cf_util_get_service: Out of memory.");
+    ERROR("cf_util_get_service: Out of memory.");
     return -1;
   }
   snprintf(service, 6, "%i", port);
@@ -1298,13 +1270,16 @@ int cf_util_get_cdtime(const oconfig_item_t *ci, cdtime_t *ret_value) /* {{{ */
     return EINVAL;
 
   if ((ci->values_num != 1) || (ci->values[0].type != OCONFIG_TYPE_NUMBER)) {
-    P_ERROR("The `%s' option requires exactly one numeric argument.", ci->key);
+    ERROR("cf_util_get_cdtime: The %s option requires "
+          "exactly one numeric argument.",
+          ci->key);
     return -1;
   }
 
   if (ci->values[0].value.number < 0.0) {
-    P_ERROR("The numeric argument of the `%s' option must not be negative.",
-            ci->key);
+    ERROR("cf_util_get_cdtime: The numeric argument of the %s "
+          "option must not be negative.",
+          ci->key);
     return -1;
   }
 

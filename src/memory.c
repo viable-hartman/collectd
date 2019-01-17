@@ -94,8 +94,8 @@ static int pagesize;
 #error "No applicable input method."
 #endif
 
-static bool values_absolute = true;
-static bool values_percentage;
+static _Bool values_absolute = 1;
+static _Bool values_percentage = 0;
 
 static int memory_config(oconfig_item_t *ci) /* {{{ */
 {
@@ -163,9 +163,9 @@ static int memory_init(void) {
 #define MEMORY_SUBMIT(...)                                                     \
   do {                                                                         \
     if (values_absolute)                                                       \
-      plugin_dispatch_multivalue(vl, false, DS_TYPE_GAUGE, __VA_ARGS__, NULL); \
+      plugin_dispatch_multivalue(vl, 0, DS_TYPE_GAUGE, __VA_ARGS__, NULL);     \
     if (values_percentage)                                                     \
-      plugin_dispatch_multivalue(vl, true, DS_TYPE_GAUGE, __VA_ARGS__, NULL);  \
+      plugin_dispatch_multivalue(vl, 1, DS_TYPE_GAUGE, __VA_ARGS__, NULL);     \
   } while (0)
 
 static int memory_read_internal(value_list_t *vl) {
@@ -262,28 +262,13 @@ static int memory_read_internal(value_list_t *vl) {
 /* #endif HAVE_SYSCTLBYNAME */
 
 #elif KERNEL_LINUX
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Completes rebase
   FILE *fh;
   char buffer[1024];
 
   char *fields[8];
   int numfields;
 
-  bool detailed_slab_info = false;
+  _Bool detailed_slab_info = 0;
 
   gauge_t mem_total = 0;
   gauge_t mem_used = 0;
@@ -295,7 +280,8 @@ static int memory_read_internal(value_list_t *vl) {
   gauge_t mem_slab_unreclaimable = 0;
 
   if ((fh = fopen("/proc/meminfo", "r")) == NULL) {
-    WARNING("memory: fopen: %s", STRERRNO);
+    char errbuf[1024];
+    WARNING("memory: fopen: %s", sstrerror(errno, errbuf, sizeof(errbuf)));
     return -1;
   }
 
@@ -314,10 +300,10 @@ static int memory_read_internal(value_list_t *vl) {
       val = &mem_slab_total;
     else if (strncasecmp(buffer, "SReclaimable:", 13) == 0) {
       val = &mem_slab_reclaimable;
-      detailed_slab_info = true;
+      detailed_slab_info = 1;
     } else if (strncasecmp(buffer, "SUnreclaim:", 11) == 0) {
       val = &mem_slab_unreclaimable;
-      detailed_slab_info = true;
+      detailed_slab_info = 1;
     } else
       continue;
 
@@ -329,7 +315,8 @@ static int memory_read_internal(value_list_t *vl) {
   }
 
   if (fclose(fh)) {
-    WARNING("memory: fclose: %s", STRERRNO);
+    char errbuf[1024];
+    WARNING("memory: fclose: %s", sstrerror(errno, errbuf, sizeof(errbuf)));
   }
 
   if (mem_total < (mem_free + mem_buffered + mem_cached + mem_slab_total))
@@ -349,123 +336,6 @@ static int memory_read_internal(value_list_t *vl) {
   else
     MEMORY_SUBMIT("used", mem_used, "buffered", mem_buffered, "cached",
                   mem_cached, "free", mem_free, "slab", mem_slab_total);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-	FILE *fh;
-	char buffer[1024];
-
-	char *fields[8];
-	int numfields;
-
-	_Bool detailed_slab_info = 0;
-
-	gauge_t mem_total = 0;
-	gauge_t mem_used = 0;
-	gauge_t mem_buffered = 0;
-	gauge_t mem_cached = 0;
-	gauge_t mem_free = 0;
-	gauge_t mem_slab_total = 0;
-	gauge_t mem_slab_reclaimable = 0;
-	gauge_t mem_slab_unreclaimable = 0;
-
-	if ((fh = fopen ("/proc/meminfo", "r")) == NULL)
-	{
-		char errbuf[1024];
-		WARNING ("memory: fopen: %s",
-				sstrerror (errno, errbuf, sizeof (errbuf)));
-		return (-1);
-	}
-
-	while (fgets (buffer, sizeof (buffer), fh) != NULL)
-	{
-		gauge_t *val = NULL;
-
-		if (strncasecmp (buffer, "MemTotal:", 9) == 0)
-			val = &mem_total;
-		else if (strncasecmp (buffer, "MemFree:", 8) == 0)
-			val = &mem_free;
-		else if (strncasecmp (buffer, "Buffers:", 8) == 0)
-			val = &mem_buffered;
-		else if (strncasecmp (buffer, "Cached:", 7) == 0)
-			val = &mem_cached;
-		else if (strncasecmp (buffer, "Slab:", 5) == 0)
-			val = &mem_slab_total;
-		else if (strncasecmp (buffer, "SReclaimable:", 13) == 0) {
-			val = &mem_slab_reclaimable;
-			detailed_slab_info = 1;
-		}
-		else if (strncasecmp (buffer, "SUnreclaim:", 11) == 0) {
-			val = &mem_slab_unreclaimable;
-			detailed_slab_info = 1;
-		}
-		else
-			continue;
-
-		numfields = strsplit (buffer, fields, STATIC_ARRAY_SIZE (fields));
-		if (numfields < 2)
-			continue;
-
-		*val = 1024.0 * atof (fields[1]);
-	}
-
-	if (fclose (fh))
-	{
-		char errbuf[1024];
-		WARNING ("memory: fclose: %s",
-				sstrerror (errno, errbuf, sizeof (errbuf)));
-	}
-
-	if (mem_total < (mem_free + mem_buffered + mem_cached + mem_slab_total))
-		return (-1);
-
-	mem_used = mem_total - (mem_free + mem_buffered + mem_cached + mem_slab_total);
-
-	/* SReclaimable and SUnreclaim were introduced in kernel 2.6.19
-	 * They sum up to the value of Slab, which is available on older & newer
-	 * kernels. So SReclaimable/SUnreclaim are submitted if available, and Slab
-	 * if not. */
-	if (detailed_slab_info)
-		MEMORY_SUBMIT ("used",        mem_used,
-		               "buffered",    mem_buffered,
-		               "cached",      mem_cached,
-<<<<<<< HEAD
-<<<<<<< HEAD
-		               "slab",        mem_slab_total,
-=======
->>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
-=======
-		               "slab",        mem_slab_total,
->>>>>>> Add slab metric to bytes_used memory metric (#123)
-		               "free",        mem_free);
-	else
-		MEMORY_SUBMIT ("used",     mem_used,
-		               "buffered", mem_buffered,
-		               "cached",   mem_cached,
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Add slab metric to bytes_used memory metric (#123)
-		               "slab",     mem_slab_total,
-		               "free",     mem_free);
->>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-<<<<<<< HEAD
-=======
-		               "free",     mem_free);
->>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
->>>>>>> Remove the (newly-introduced) "slab*" types from the memory plugin.
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Completes rebase
 /* #endif KERNEL_LINUX */
 
 #elif HAVE_LIBKSTAT
@@ -551,7 +421,9 @@ static int memory_read_internal(value_list_t *vl) {
   size = sizeof(vmtotal);
 
   if (sysctl(mib, 2, &vmtotal, &size, NULL, 0) < 0) {
-    WARNING("memory plugin: sysctl failed: %s", STRERRNO);
+    char errbuf[1024];
+    WARNING("memory plugin: sysctl failed: %s",
+            sstrerror(errno, errbuf, sizeof(errbuf)));
     return -1;
   }
 
@@ -579,7 +451,9 @@ static int memory_read_internal(value_list_t *vl) {
   perfstat_memory_total_t pmemory = {0};
 
   if (perfstat_memory_total(NULL, &pmemory, sizeof(pmemory), 1) < 0) {
-    WARNING("memory plugin: perfstat_memory_total failed: %s", STRERRNO);
+    char errbuf[1024];
+    WARNING("memory plugin: perfstat_memory_total failed: %s",
+            sstrerror(errno, errbuf, sizeof(errbuf)));
     return -1;
   }
 

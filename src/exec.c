@@ -85,7 +85,7 @@ const long int MAX_GRBUF_SIZE = 65536;
 /*
  * Private variables
  */
-static program_list_t *pl_head;
+static program_list_t *pl_head = NULL;
 static pthread_mutex_t pl_lock = PTHREAD_MUTEX_INITIALIZER;
 
 /*
@@ -366,10 +366,6 @@ static void close_pipe(int fd_pipe[2]) /* {{{ */
 
 /*
  * Get effective group ID from group name.
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Made some Code Optimization changes per review.
  * Input arguments:
  *       pl  :program list struct with group name
  *       gid :group id to fallback in case egid cannot be determined.
@@ -377,7 +373,6 @@ static void close_pipe(int fd_pipe[2]) /* {{{ */
  *       egid effective group id if successfull,
  *            -1 if group is not defined/not found.
  *            -2 for any buffer allocation error.
-<<<<<<< HEAD
  */
 static int getegr_id(program_list_t *pl, int gid) /* {{{ */
 {
@@ -486,21 +481,9 @@ static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
     goto failed;
   }
 
-<<<<<<< HEAD
-  egid = getegr_id(pl, gid);
-  if (egid == -2) {
-    goto failed;
-  }
-=======
   /* The group configured in the configfile is set as effective group, because
    * this way the forked process can (re-)gain the user's primary group. */
   egid = -1;
-=======
- */
-static int getegr_id(program_list_t *pl, int gid) /* {{{ */
-{
-  int egid = -1;
->>>>>>> Refactored getting effective group id from group name part of fork_child
   if (pl->group != NULL) {
     if (*pl->group != '\0') {
       struct group *gr_ptr = NULL;
@@ -511,196 +494,21 @@ static int getegr_id(program_list_t *pl, int gid) /* {{{ */
         grbuf_size = sysconf(_SC_PAGESIZE);
       if (grbuf_size <= 0)
         grbuf_size = 4096;
+      char grbuf[grbuf_size];
 
-      long int size;
-      size = grbuf_size;
-      char *temp = NULL;
-      char *grbuf = NULL;
-      int getgr_failed = 0;
-      grbuf = malloc(size);
-      if (grbuf == NULL) {
-        ERROR("exec plugin: get group information for '%s' failed: buffer "
-              "malloc() failed",
-              pl->group);
-        getgr_failed = 1;
-        goto gr_finally;
-      }
-      int status;
-      while ((status = getgrnam_r(pl->group, &gr, grbuf, size, &gr_ptr)) != 0) {
-        switch (errno) {
-        case ERANGE:
-          if ((size + grbuf_size) < size ||
-              (size + grbuf_size) > MAX_GRBUF_SIZE) {
-            ERROR("exec plugin: get group information for '%s' max buffer "
-                  "limit (%ld) reached \n",
-                  pl->group, MAX_GRBUF_SIZE);
-            getgr_failed = 1;
-            goto gr_finally;
-          }
-          /* grow the buffer by 'grbuf_size' each time getgrnamr fails */
-          size += grbuf_size;
-          temp = realloc(grbuf, size);
-          if (temp == NULL) {
-            ERROR("exec plugin: get group information for '%s' realloc() "
-                  "buffer to (%ld) failed ",
-                  pl->group, size);
-            getgr_failed = 1;
-            goto gr_finally;
-          }
-          grbuf = temp;
-          break;
-        default:
-          ERROR("exec plugin: default errno: get group information for '%s' "
-                "failed : %s",
-                pl->group, STRERRNO);
-          getgr_failed = 1;
-          goto gr_finally;
-        }
+      status = getgrnam_r(pl->group, &gr, grbuf, sizeof(grbuf), &gr_ptr);
+      if (status != 0) {
+        ERROR("exec plugin: Failed to get group information "
+              "for group ``%s'': %s",
+              pl->group, STRERROR(status));
+        goto failed;
       }
       if (gr_ptr == NULL) {
         ERROR("exec plugin: No such group: `%s'", pl->group);
-        getgr_failed = 1;
-        goto gr_finally;
+        goto failed;
       }
-<<<<<<< HEAD
->>>>>>> Tree wide: Replace sstrerror() with STRERROR().
 
   set_environment();
-=======
-      egid = gr.gr_gid;
-    gr_finally:
-      free(grbuf);
-      DEBUG("exec plugin: release grbuf memory ");
-      grbuf = NULL;
-      if (getgr_failed > 0) {
-        egid = -2; // arbitrary value to indicate fail
-=======
- */
-static int getegr_id(program_list_t *pl, int gid) /* {{{ */
-{
-  if (pl->group == NULL) {
-    return -1;
-  }
-  if (strcmp(pl->group, "") == 0) {
-    return gid;
-  }
-  struct group *gr_ptr = NULL;
-  struct group gr;
-
-  long int grbuf_size = sysconf(_SC_GETGR_R_SIZE_MAX);
-  if (grbuf_size <= 0)
-    grbuf_size = sysconf(_SC_PAGESIZE);
-  if (grbuf_size <= 0)
-    grbuf_size = 4096;
-
-  char *temp = NULL;
-  char *grbuf = NULL;
-
-  do {
-    temp = realloc(grbuf, grbuf_size);
-    if (temp == NULL) {
-      ERROR("exec plugin: getegr_id for %s: realloc buffer[%ld] failed ",
-            pl->group, grbuf_size);
-      sfree(grbuf);
-      return -2;
-    }
-    grbuf = temp;
-    if (getgrnam_r(pl->group, &gr, grbuf, grbuf_size, &gr_ptr) == 0) {
-      sfree(grbuf);
-      if (gr_ptr == NULL) {
-        ERROR("exec plugin: No such group: `%s'", pl->group);
-        return -1;
->>>>>>> Made some Code Optimization changes per review.
-      }
-      return gr.gr_gid;
-    } else if (errno == ERANGE) {
-      grbuf_size += grbuf_size; // increment buffer size and try again
-    } else {
-      ERROR("exec plugin: getegr_id failed %s", STRERRNO);
-      sfree(grbuf);
-      return -2;
-    }
-<<<<<<< HEAD
-  } /* if (pl->group == NULL) */
-<<<<<<< HEAD
->>>>>>> fix issue 2696 to dynamically allocate grname buffer in increments of _SC_GETGR_R_SIZE_MAX/_SC_PAGESIZE
-=======
-  return egid;
-=======
-  } while (grbuf_size <= MAX_GRBUF_SIZE);
-  ERROR("exec plugin: getegr_id Max grbuf size reached  for %s", pl->group);
-  sfree(grbuf);
-  return -2;
->>>>>>> Made some Code Optimization changes per review.
-}
-
-/*
- * Creates three pipes (one for reading, one for writing and one for errors),
- * forks a child, sets up the pipes so that fd_in is connected to STDIN of
- * the child and fd_out is connected to STDOUT and fd_err is connected to STDERR
- * of the child. Then is calls `exec_child'.
- */
-static int fork_child(program_list_t *pl, int *fd_in, int *fd_out,
-                      int *fd_err) /* {{{ */
-{
-  int fd_pipe_in[2] = {-1, -1};
-  int fd_pipe_out[2] = {-1, -1};
-  int fd_pipe_err[2] = {-1, -1};
-  int status;
-  int pid;
-
-  int uid;
-  int gid;
-  int egid;
-
-  struct passwd *sp_ptr;
-  struct passwd sp;
-
-  if (pl->pid != 0)
-    return -1;
-
-  long int nambuf_size = sysconf(_SC_GETPW_R_SIZE_MAX);
-  if (nambuf_size <= 0)
-    nambuf_size = sysconf(_SC_PAGESIZE);
-  if (nambuf_size <= 0)
-    nambuf_size = 4096;
-  char nambuf[nambuf_size];
-
-  if ((create_pipe(fd_pipe_in) == -1) || (create_pipe(fd_pipe_out) == -1) ||
-      (create_pipe(fd_pipe_err) == -1))
-    goto failed;
-
-  sp_ptr = NULL;
-  status = getpwnam_r(pl->user, &sp, nambuf, sizeof(nambuf), &sp_ptr);
-  if (status != 0) {
-    ERROR("exec plugin: Failed to get user information for user ``%s'': %s",
-          pl->user, STRERROR(status));
-    goto failed;
-  }
-
-  if (sp_ptr == NULL) {
-    ERROR("exec plugin: No such user: `%s'", pl->user);
-    goto failed;
-  }
-
-  uid = sp.pw_uid;
-  gid = sp.pw_gid;
-  if (uid == 0) {
-    ERROR("exec plugin: Cowardly refusing to exec program as root.");
-    goto failed;
-  }
-
-  /* The group configured in the configfile is set as effective group, because
-   * this way the forked process can (re-)gain the user's primary group. */
-<<<<<<< HEAD
-  egid = getegid(pl);
->>>>>>> Refactored getting effective group id from group name part of fork_child
-=======
-  egid = getegr_id(pl, gid);
-  if (egid == -2) {
-    goto failed;
-  }
->>>>>>> fixed build issues
 
   pid = fork();
   if (pid < 0) {

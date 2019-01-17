@@ -32,60 +32,12 @@
 
 #include <curl/curl.h>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 #ifndef WRITE_HTTP_DEFAULT_BUFFER_SIZE
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-#define WRITE_HTTP_DEFAULT_BUFFER_SIZE 4096
-#endif
-
-#ifndef WRITE_HTTP_DEFAULT_PREFIX
-#define WRITE_HTTP_DEFAULT_PREFIX "collectd"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-# define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-=======
-# define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
-=======
-# define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-#ifndef WRITE_HTTP_DEFAULT_PREFIX
-#define WRITE_HTTP_DEFAULT_PREFIX "collectd"
-#define WRITE_HTTP_DEFAULT_BUFFER_SIZE
 #define WRITE_HTTP_DEFAULT_BUFFER_SIZE (1024 * 1024)
->>>>>>> Completes rebase
-=======
-#ifndef WRITE_HTTP_DEFAULT_BUFFER_SIZE
-#define WRITE_HTTP_DEFAULT_BUFFER_SIZE 4096
 #endif
 
 #ifndef WRITE_HTTP_DEFAULT_PREFIX
 #define WRITE_HTTP_DEFAULT_PREFIX "collectd"
->>>>>>> Adds upstream write_http.c
 #endif
 
 /*
@@ -98,16 +50,16 @@ struct wh_callback_s {
   char *user;
   char *pass;
   char *credentials;
-  bool verify_peer;
-  bool verify_host;
+  _Bool verify_peer;
+  _Bool verify_host;
   char *cacert;
   char *capath;
   char *clientkey;
   char *clientcert;
   char *clientkeypass;
   long sslversion;
-  bool store_rates;
-  bool log_http_error;
+  _Bool store_rates;
+  _Bool log_http_error;
   int low_speed_limit;
   time_t low_speed_time;
   int timeout;
@@ -116,8 +68,8 @@ struct wh_callback_s {
 #define WH_FORMAT_JSON 1
 #define WH_FORMAT_KAIROSDB 2
   int format;
-  bool send_metrics;
-  bool send_notifications;
+  _Bool send_metrics;
+  _Bool send_notifications;
 
   CURL *curl;
   struct curl_slist *headers;
@@ -128,65 +80,12 @@ struct wh_callback_s {
   size_t send_buffer_free;
   size_t send_buffer_fill;
   cdtime_t send_buffer_init_time;
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-  pthread_mutex_t send_lock;
-
-  int data_ttl;
-  char *metrics_prefix;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-        char  *send_buffer;
-        size_t send_buffer_size;
-        size_t send_buffer_free;
-        size_t send_buffer_fill;
-        cdtime_t send_buffer_init_time;
-        cdtime_t buffer_flush_last;
-
-        pthread_mutex_t send_lock;
-        pthread_mutex_t flush_lock;
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-  cdtime_t buffer_flush_last;
   pthread_mutex_t send_lock;
   pthread_mutex_t flush_lock;
->>>>>>> Completes rebase
-=======
-
-  pthread_mutex_t send_lock;
 
   int data_ttl;
   char *metrics_prefix;
->>>>>>> Adds upstream write_http.c
 };
 typedef struct wh_callback_s wh_callback_t;
 
@@ -330,7 +229,7 @@ static int wh_flush_nolock(cdtime_t timeout, wh_callback_t *cb) /* {{{ */
   int status;
 
   DEBUG("write_http plugin: wh_flush_nolock: timeout = %.3f; "
-        "send_buffer_fill = %" PRIsz ";",
+        "send_buffer_fill = %zu;",
         CDTIME_T_TO_DOUBLE(timeout), cb->send_buffer_fill);
 
   /* timeout == 0  => flush unconditionally */
@@ -482,7 +381,7 @@ static int wh_write_command(const data_set_t *ds,
                                  CDTIME_T_TO_DOUBLE(vl->interval), values);
   if (command_len >= sizeof(command)) {
     ERROR("write_http plugin: Command buffer too small: "
-          "Need %" PRIsz " bytes.",
+          "Need %zu bytes.",
           command_len + 1);
     return -1;
   }
@@ -512,8 +411,8 @@ static int wh_write_command(const data_set_t *ds,
   cb->send_buffer_fill += command_len;
   cb->send_buffer_free -= command_len;
 
-  DEBUG("write_http plugin: <%s> buffer %" PRIsz "/%" PRIsz " (%g%%) \"%s\"",
-        cb->location, cb->send_buffer_fill, cb->send_buffer_size,
+  DEBUG("write_http plugin: <%s> buffer %zu/%zu (%g%%) \"%s\"", cb->location,
+        cb->send_buffer_fill, cb->send_buffer_size,
         100.0 * ((double)cb->send_buffer_fill) / ((double)cb->send_buffer_size),
         command);
 
@@ -554,8 +453,8 @@ static int wh_write_json(const data_set_t *ds, const value_list_t *vl, /* {{{ */
     return status;
   }
 
-  DEBUG("write_http plugin: <%s> buffer %" PRIsz "/%" PRIsz " (%g%%)",
-        cb->location, cb->send_buffer_fill, cb->send_buffer_size,
+  DEBUG("write_http plugin: <%s> buffer %zu/%zu (%g%%)", cb->location,
+        cb->send_buffer_fill, cb->send_buffer_size,
         100.0 * ((double)cb->send_buffer_fill) /
             ((double)cb->send_buffer_size));
 
@@ -603,8 +502,8 @@ static int wh_write_kairosdb(const data_set_t *ds,
     return status;
   }
 
-  DEBUG("write_http plugin: <%s> buffer %" PRIsz "/%" PRIsz " (%g%%)",
-        cb->location, cb->send_buffer_fill, cb->send_buffer_size,
+  DEBUG("write_http plugin: <%s> buffer %zu/%zu (%g%%)", cb->location,
+        cb->send_buffer_fill, cb->send_buffer_size,
         100.0 * ((double)cb->send_buffer_fill) /
             ((double)cb->send_buffer_size));
 
@@ -614,66 +513,6 @@ static int wh_write_kairosdb(const data_set_t *ds,
   return 0;
 } /* }}} int wh_write_kairosdb */
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> adds upstream write_http
-=======
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
-=======
->>>>>>> adds upstream write_http
->>>>>>> adds upstream write_http
-=======
->>>>>>> Adds upstream write_http.c
-static int wh_write(const data_set_t *ds, const value_list_t *vl, /* {{{ */
-                    user_data_t *user_data) {
-  wh_callback_t *cb;
-  int status;
-
-  if (user_data == NULL)
-    return -EINVAL;
-
-  cb = user_data->data;
-  assert(cb->send_metrics);
-
-  switch (cb->format) {
-  case WH_FORMAT_JSON:
-    status = wh_write_json(ds, vl, cb);
-    break;
-  case WH_FORMAT_KAIROSDB:
-    status = wh_write_kairosdb(ds, vl, cb);
-    break;
-  default:
-    status = wh_write_command(ds, vl, cb);
-    break;
-  }
-  return status;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> adds upstream write_http
-=======
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-<<<<<<< HEAD
-=======
-=======
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> Completes rebase
 static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
                 user_data_t *user_data)
 {
@@ -710,28 +549,6 @@ static int wh_write (const data_set_t *ds, const value_list_t *vl, /* {{{ */
                 break;
         }
         return (status);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> adds upstream write_http
-=======
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
->>>>>>> Bump the buffer size for the write_http plugin and force flushing
-=======
->>>>>>> Removes HEAD tag (atom bug) from remaining files... I think.
-=======
->>>>>>> adds upstream write_http
-=======
->>>>>>> Completes rebase
-=======
->>>>>>> Adds upstream write_http.c
 } /* }}} int wh_write */
 
 static int wh_notify(notification_t const *n, user_data_t *ud) /* {{{ */
@@ -821,16 +638,16 @@ static int wh_config_node(oconfig_item_t *ci) /* {{{ */
     ERROR("write_http plugin: calloc failed.");
     return -1;
   }
-  cb->verify_peer = true;
-  cb->verify_host = true;
+  cb->verify_peer = 1;
+  cb->verify_host = 1;
   cb->format = WH_FORMAT_COMMAND;
   cb->sslversion = CURL_SSLVERSION_DEFAULT;
   cb->low_speed_limit = 0;
   cb->timeout = 0;
-  cb->log_http_error = false;
+  cb->log_http_error = 0;
   cb->headers = NULL;
-  cb->send_metrics = true;
-  cb->send_notifications = false;
+  cb->send_metrics = 1;
+  cb->send_notifications = 0;
   cb->data_ttl = 0;
   cb->metrics_prefix = strdup(WRITE_HTTP_DEFAULT_PREFIX);
 
@@ -999,8 +816,7 @@ static int wh_config_node(oconfig_item_t *ci) /* {{{ */
   /* Allocate the buffer. */
   cb->send_buffer = malloc(cb->send_buffer_size);
   if (cb->send_buffer == NULL) {
-    ERROR("write_http plugin: malloc(%" PRIsz ") failed.",
-          cb->send_buffer_size);
+    ERROR("write_http plugin: malloc(%zu) failed.", cb->send_buffer_size);
     wh_callback_free(cb);
     return -1;
   }

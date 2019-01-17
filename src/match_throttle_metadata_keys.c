@@ -35,29 +35,10 @@
 
 #include <pthread.h>
 #include <sys/types.h>
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
-#include <stdlib.h>
-#include <strings.h>
-#include <memory.h>
-
-#include "collectd.h"
-#include "common.h"
-#include "daemon/utils_cache.h"
-#include "filter_chain.h"
-#include "liboconfig/oconfig.h"
-#include "stackdriver-agent-keys.h"
-<<<<<<< HEAD
-=======
 
 #include "collectd.h"
 #include "common.h"
 #include "filter_chain.h"
->>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
-=======
->>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
 #include "utils_avltree.h"
 
 static char this_plugin_name[] = "match_throttle_metadata_keys";
@@ -508,38 +489,6 @@ static int mtg_compute_hash_code_and_memory_impact(const value_list_t *vl,
   return 0;
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
-static int mtg_update_stats(size_t server_memory_in_use, _Bool is_throttling)
-{
-    data_set_t ds = {};  // zero-fill
-    value_list_t vl = {
-        .plugin = "stackdriver_agent",
-        .time = cdtime()
-    };
-    if (uc_update(&ds, &vl) != 0)
-    {
-        ERROR("%s: uc_update returned an error", this_plugin_name);
-        return -1;
-    }
-    // The corresponding uc_meta_data_set calls are in stackdriver_agent.c.
-    // The key names (between uc_get and uc_set) must be kept in sync.
-    if (uc_meta_data_add_unsigned_int(&vl, SAGT_STREAMSPACE_SIZE, server_memory_in_use) != 0 ||
-            uc_meta_data_add_boolean(&vl, SAGT_STREAMSPACE_SIZE_THROTTLING, is_throttling) != 0)
-    {
-        ERROR("%s: uc_meta_data_add returned an error", this_plugin_name);
-        return -1;
-    }
-    return 0;
-}
-
-<<<<<<< HEAD
-=======
->>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
-=======
->>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
 static int mtg_retire_old_entries(mtg_key_tracker_t *tracker, cdtime_t now)
 {
     // Trim the key history (removing entries older than 'purge_time')
@@ -662,15 +611,7 @@ static int mtg_add_new_entries(const mtg_context_t *ctx, cdtime_t now,
         tail = new;  // Keep our alias up to date.
         ++tracker->num_key_history_entries;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        DEBUG("%s: %u history entries, %u distinct keys,"
-=======
         INFO("%s: %u history entries, %u distinct keys,"
->>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
-=======
-        DEBUG("%s: %u history entries, %u distinct keys,"
->>>>>>> Set Throttle Metadata Keys logging level to DEBUG (#84)
              " %zd bytes server memory.",
              this_plugin_name, tracker->num_key_history_entries,
              tracker->num_distinct_keys, tracker->server_memory_in_use);
@@ -718,22 +659,6 @@ static int mtg_match_helper (const value_list_t *vl, mtg_context_t *context)
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
-    // Let's update our stats here so that the "stackdriver_agent" plugin can pick them up.
-    if (mtg_update_stats(tracker->server_memory_in_use, tracker->is_throttling) != 0)
-    {
-        ERROR("%s: mtg_update_stats failed.", this_plugin_name);
-        return -1;
-    }
-
-<<<<<<< HEAD
-=======
->>>>>>> New matcher which keeps track of the number and estimated memory cost of distinct
-=======
->>>>>>> New stackdriver_agent plugin, which sends metrics about the agent itself.
     if (tracker->is_throttling && context->ok_to_throttle)
     {
         return FC_MATCH_NO_MATCH;

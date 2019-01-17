@@ -1,80 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Travis test (ignore)
-=======
->>>>>>> Undo test commit
-=======
->>>>>>> Changes write_stackdriver to write_gcm
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 SUBDIRS = src/libmongoc
->>>>>>> mongo plugin
-=======
-=======
->>>>>>> Removes merge tags.
-=======
- 
->>>>>>> Travis test (ignore)
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
- 
->>>>>>> Undo test commit
-=======
-
->>>>>>> Changes write_stackdriver to write_gcm
-=======
-
-<<<<<<< HEAD
->>>>>>> mongo plugin
-=======
-=======
->>>>>>> Removes merge tags.
->>>>>>> Removes merge tags.
-=======
->>>>>>> Travis test (ignore)
-=======
-=======
- 
->>>>>>> Undo test commit
-<<<<<<< HEAD
->>>>>>> Undo test commit
-=======
-=======
-
->>>>>>> Changes write_stackdriver to write_gcm
->>>>>>> Changes write_stackdriver to write_gcm
-=======
-
-<<<<<<< HEAD
-SUBDIRS = src/libmongoc
-
->>>>>>> Completes rebase
-=======
->>>>>>> Checking Makefile.am for rebase
-if BUILD_WIN32
-cpkgdatadir=$(datadir)
-cpkglibdir=$(libdir)/plugins
-cpkglocalstatedir=${localstatedir}
-else
-cpkgdatadir=$(pkgdatadir)
-cpkglibdir=$(pkglibdir)
-cpkglocalstatedir=${localstatedir}/lib/${PACKAGE_NAME}
-endif
->>>>>>> Base port to Windows (#2810)
 
 BUILT_SOURCES = \
 	src/libcollectdclient/collectd/lcc_features.h \
@@ -135,7 +62,6 @@ EXTRA_DIST = \
 	src/types.db \
 	src/types.db.pod \
 	src/valgrind.FreeBSD.suppress \
-	src/valgrind.suppress \
 	testwrapper.sh \
 	version-gen.sh
 
@@ -173,13 +99,7 @@ pkginclude_HEADERS = \
 
 lib_LTLIBRARIES = libcollectdclient.la
 
-if BUILD_WIN32
-# TODO: Build all executables on Windows as well.
-sbin_PROGRAMS = \
-        collectd
 
-bin_PROGRAMS =
-else
 sbin_PROGRAMS = \
 	collectd \
 	collectdmon
@@ -189,10 +109,9 @@ bin_PROGRAMS = \
 	collectd-nagios \
 	collectd-tg \
 	collectdctl
-endif # BUILD_WIN32
 
 
-EXTRA_LTLIBRARIES = \
+noinst_LTLIBRARIES = \
 	libavltree.la \
 	libcmds.la \
 	libcommon.la \
@@ -232,7 +151,7 @@ TESTS = $(check_PROGRAMS)
 LOG_COMPILER = env VALGRIND="@VALGRIND@" $(abs_srcdir)/testwrapper.sh
 
 
-jardir = $(cpkgdatadir)/java
+jardir = $(pkgdatadir)/java
 
 pkglib_LTLIBRARIES =
 
@@ -241,9 +160,6 @@ PLUGIN_LDFLAGS = \
 	-module \
 	-avoid-version \
 	-export-symbols-regex '\<module_register\>'
-if BUILD_WIN32
-PLUGIN_LDFLAGS += -shared -no-undefined -lcollectd -L.
-endif
 
 
 AM_CPPFLAGS = \
@@ -251,26 +167,13 @@ AM_CPPFLAGS = \
 	-DPREFIX='"${prefix}"' \
 	-DCONFIGFILE='"${sysconfdir}/${PACKAGE_NAME}.conf"' \
 	-DLOCALSTATEDIR='"${localstatedir}"' \
-	-DPKGLOCALSTATEDIR='"${cpkglocalstatedir}"' \
-	-DPLUGINDIR='"${cpkglibdir}"' \
-	-DPKGDATADIR='"${cpkgdatadir}"'
-if BUILD_WIN32
-AM_CPPFLAGS += -DNOGDI
-endif
+	-DPKGLOCALSTATEDIR='"${localstatedir}/lib/${PACKAGE_NAME}"' \
+	-DPLUGINDIR='"${pkglibdir}"' \
+	-DPKGDATADIR='"${pkgdatadir}"'
 
-COMMON_DEPS =
-if BUILD_WIN32
-COMMON_DEPS += collectd.exe
-endif
 
 # Link to these libraries..
 COMMON_LIBS = $(PTHREAD_LIBS)
-if BUILD_WIN32
-COMMON_LIBS += -lws2_32
-endif
-if BUILD_WITH_GNULIB
-COMMON_LIBS += -lgnu
-endif
 if BUILD_WITH_CAPABILITY
 COMMON_LIBS += -lcap
 endif
@@ -292,7 +195,6 @@ endif
 
 
 collectd_SOURCES = \
-	src/daemon/cmd.h \
 	src/daemon/collectd.c \
 	src/daemon/collectd.h \
 	src/daemon/configfile.c \
@@ -335,13 +237,6 @@ collectd_LDADD = \
 	$(COMMON_LIBS) \
 	$(DLOPEN_LIBS)
 
-if BUILD_WIN32
-collectd_SOURCES += src/daemon/cmd_windows.c
-collectd_LDFLAGS += -ldl -Wl,--out-implib,libcollectd.a
-else
-collectd_SOURCES += src/daemon/cmd.c
-endif
-
 if BUILD_FEATURE_DAEMON
 collectd_CPPFLAGS += -DPIDFILE='"${localstatedir}/run/${PACKAGE_NAME}.pid"'
 endif
@@ -353,9 +248,6 @@ collectd_CFLAGS += $(BUILD_WITH_LIBSTATGRAB_CFLAGS)
 collectd_LDADD += $(BUILD_WITH_LIBSTATGRAB_LDFLAGS)
 endif
 
-if BUILD_WIN32
-collectd_LDFLAGS += -Wl,--out-implib,libcollectd.a
-endif
 
 collectdmon_SOURCES = src/collectdmon.c
 
@@ -607,10 +499,6 @@ libcollectdclient_la_CPPFLAGS = \
 	-I$(srcdir)/src/daemon
 libcollectdclient_la_LDFLAGS = -version-info 2:0:1
 libcollectdclient_la_LIBADD = -lm
-if BUILD_WIN32
-libcollectdclient_la_LDFLAGS += -shared -no-undefined
-libcollectdclient_la_LIBADD += -lgnu -lws2_32 -liphlpapi
-endif
 if BUILD_WITH_LIBGCRYPT
 libcollectdclient_la_CPPFLAGS += $(GCRYPT_CPPFLAGS)
 libcollectdclient_la_LDFLAGS += $(GCRYPT_LDFLAGS)
@@ -657,20 +545,6 @@ amqp_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBRABBITMQ_CPPFLAGS)
 amqp_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(BUILD_WITH_LIBRABBITMQ_LDFLAGS)
 amqp_la_LIBADD = \
 	$(BUILD_WITH_LIBRABBITMQ_LIBS) \
-	libcmds.la \
-	libformat_graphite.la \
-	libformat_json.la
-endif
-
-if BUILD_PLUGIN_AMQP1
-pkglib_LTLIBRARIES += amqp1.la
-amqp1_la_SOURCES = \
-	src/amqp1.c \
-	src/utils_deq.h
-amqp1_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBQPIDPROTON_CPPFLAGS)
-amqp1_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(BUILD_WITH_LIBQPIDPROTON_LDFLAGS)
-amqp1_la_LIBADD = \
-	$(BUILD_WITH_LIBQPIDPROTON_LIBS) \
 	libcmds.la \
 	libformat_graphite.la \
 	libformat_json.la
@@ -726,7 +600,7 @@ if BUILD_PLUGIN_BAROMETER
 pkglib_LTLIBRARIES += barometer.la
 barometer_la_SOURCES = src/barometer.c
 barometer_la_LDFLAGS = $(PLUGIN_LDFLAGS)
-barometer_la_LIBADD = -lm $(BUILD_WITH_LIBI2C_LIBS)
+barometer_la_LIBADD = -lm
 endif
 
 if BUILD_PLUGIN_BATTERY
@@ -1152,7 +1026,6 @@ if BUILD_PLUGIN_LOGFILE
 pkglib_LTLIBRARIES += logfile.la
 logfile_la_SOURCES = src/logfile.c
 logfile_la_LDFLAGS = $(PLUGIN_LDFLAGS)
-logfile_la_DEPENDENCIES = $(COMMON_DEPS)
 endif
 
 if BUILD_PLUGIN_LOG_LOGSTASH
@@ -1228,32 +1101,6 @@ match_value_la_SOURCES = src/match_value.c
 match_value_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
-pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
-<<<<<<< HEAD
-<<<<<<< HEAD
-match_throttle_metadata_keys_la_SOURCES = src/match_throttle_metadata_keys.c src/stackdriver-agent-keys.h
-=======
-match_throttle_metadata_keys_la_SOURCES = match_throttle_metadata_keys.c stackdriver-agent-keys.h
->>>>>>> Adds BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS to makefile.am
-=======
-match_throttle_metadata_keys_la_SOURCES = src/match_throttle_metadata_keys.c src/stackdriver-agent-keys.h
->>>>>>> fixes directory for throttle plugin
-match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
-endif
-
-=======
->>>>>>> Completes rebase
-=======
-if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
-pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
-match_throttle_metadata_keys_la_SOURCES = src/match_throttle_metadata_keys.c src/stackdriver-agent-keys.h
-match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
-endif
-
->>>>>>> Checking Makefile.am for rebase
 if BUILD_PLUGIN_MBMON
 pkglib_LTLIBRARIES += mbmon.la
 mbmon_la_SOURCES = src/mbmon.c
@@ -1343,58 +1190,6 @@ mqtt_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(BUILD_WITH_LIBMOSQUITTO_LDFLAGS)
 mqtt_la_LIBADD = $(BUILD_WITH_LIBMOSQUITTO_LIBS)
 endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-if BUILD_PLUGIN_MONGODB
-pkglib_LTLIBRARIES += mongodb.la
-<<<<<<< HEAD
-<<<<<<< HEAD
-mongodb_la_SOURCES = src/mongodb.c
-=======
-mongodb_la_SOURCES = mongodb.c
->>>>>>> Adds mongodb to makefile
-=======
-mongodb_la_SOURCES = src/mongodb.c
->>>>>>> Points to correct directory for mongodb
-=======
-if BUILD_PLUGIN_MONGODB
-pkglib_LTLIBRARIES += mongodb.la
-mongodb_la_SOURCES = src/mongodb.c
->>>>>>> Checking Makefile.am for rebase
-mongodb_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBMONGOC_CPPFLAGS)
-mongodb_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBMONGOC_LDFLAGS)
-mongodb_la_LIBADD =
-if BUILD_WITH_OWN_LIBMONGOC
-
-# add libmongoc source files
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-mongodb_la_CPPFLAGS += -Isrc/libmongoc/src/mongoc -Isrc/libmongoc/src/libbson/src/bson
-mongodb_la_LIBADD += src/libmongoc/libmongoc-1.0.la src/libmongoc/src/libbson/libbson.la
-=======
-mongodb_la_CPPFLAGS += -Ilibmongoc/src/mongoc -Ilibmongoc/src/libbson/src/bson
-mongodb_la_LIBADD += libmongoc/libmongoc-1.0.la libmongoc/src/libbson/libbson.la
->>>>>>> Adds mongodb to makefile
-=======
-mongodb_la_CPPFLAGS += -Isrc/libmongoc/src/mongoc -Isrc/libmongoc/src/libbson/src/bson
-mongodb_la_LIBADD += src/libmongoc/libmongoc-1.0.la src/libmongoc/src/libbson/libbson.la
->>>>>>> Fixes mongodb directory
-=======
-mongodb_la_CPPFLAGS += -Isrc/libmongoc/src/mongoc -Isrc/libmongoc/src/libbson/src/bson
-mongodb_la_LIBADD += src/libmongoc/libmongoc-1.0.la src/libmongoc/src/libbson/libbson.la
->>>>>>> Checking Makefile.am for rebase
-
-else
-mongodb_la_LIBADD += -lmongoc
-endif
-endif
-
-<<<<<<< HEAD
-=======
->>>>>>> Completes rebase
-=======
->>>>>>> Checking Makefile.am for rebase
 if BUILD_PLUGIN_MULTIMETER
 pkglib_LTLIBRARIES += multimeter.la
 multimeter_la_SOURCES = src/multimeter.c
@@ -1570,24 +1365,6 @@ ovs_stats_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(BUILD_WITH_LIBYAJL_LDFLAGS)
 ovs_stats_la_LIBADD = $(BUILD_WITH_LIBYAJL_LIBS)
 endif
 
-if BUILD_PLUGIN_PCIE_ERRORS
-pkglib_LTLIBRARIES += pcie_errors.la
-pcie_errors_la_SOURCES = src/pcie_errors.c
-pcie_errors_la_CPPFLAGS = $(AM_CPPFLAGS)
-pcie_errors_la_LDFLAGS = $(PLUGIN_LDFLAGS)
-
-test_plugin_pcie_errors_SOURCES = \
-	src/pcie_errors_test.c \
-	src/daemon/utils_llist.c \
-	src/daemon/configfile.c \
-	src/daemon/types_list.c
-test_plugin_pcie_errors_CPPFLAGS = $(AM_CPPFLAGS)
-test_plugin_pcie_errors_LDFLAGS = $(PLUGIN_LDFLAGS)
-test_plugin_pcie_errors_LDADD = liboconfig.la libplugin_mock.la
-check_PROGRAMS += test_plugin_pcie_errors
-TESTS += test_plugin_pcie_errors
-endif
-
 if BUILD_PLUGIN_PERL
 pkglib_LTLIBRARIES += perl.la
 perl_la_SOURCES = src/perl.c
@@ -1659,27 +1436,13 @@ python_la_CPPFLAGS = $(AM_CPPFLAGS) $(LIBPYTHON_CPPFLAGS)
 python_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(LIBPYTHON_LDFLAGS)
 endif
 
-if HAVE_LIBMNL
-EXTRA_LTLIBRARIES += libtaskstats.la
-libtaskstats_la_SOURCES = \
-	src/utils_taskstats.c \
-	src/utils_taskstats.h
-libtaskstats_la_CFLAGS = $(AM_CFLAGS) $(BUILD_WITH_LIBMNL_CFLAGS)
-libtaskstats_la_LIBADD = $(BUILD_WITH_LIBMNL_LIBS)
-endif
-
 if BUILD_PLUGIN_PROCESSES
 pkglib_LTLIBRARIES += processes.la
 processes_la_SOURCES = src/processes.c
-processes_la_CPPFLAGS = $(AM_CPPFLAGS)
 processes_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 processes_la_LIBADD =
 if BUILD_WITH_LIBKVM_GETPROCS
 processes_la_LIBADD += -lkvm
-endif
-if HAVE_LIBMNL
-processes_la_CPPFLAGS += -DHAVE_LIBTASKSTATS=1
-processes_la_LIBADD += libtaskstats.la
 endif
 endif
 
@@ -1765,7 +1528,7 @@ pkglib_LTLIBRARIES += snmp.la
 snmp_la_SOURCES = src/snmp.c
 snmp_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBNETSNMP_CPPFLAGS)
 snmp_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(BUILD_WITH_LIBNETSNMP_LDFLAGS)
-snmp_la_LIBADD = libignorelist.la $(BUILD_WITH_LIBNETSNMP_LIBS)
+snmp_la_LIBADD = $(BUILD_WITH_LIBNETSNMP_LIBS)
 endif
 
 if BUILD_PLUGIN_SNMP_AGENT
@@ -1774,23 +1537,6 @@ snmp_agent_la_SOURCES = src/snmp_agent.c
 snmp_agent_la_CPPFLAGS = $(AM_CPPFLAGS) $(BUILD_WITH_LIBNETSNMPAGENT_CPPFLAGS)
 snmp_agent_la_LDFLAGS = $(PLUGIN_LDFLAGS) $(BUILD_WITH_LIBNETSNMPAGENT_LDFLAGS)
 snmp_agent_la_LIBADD = $(BUILD_WITH_LIBNETSNMPAGENT_LIBS)
-
-test_plugin_snmp_agent_SOURCES = src/snmp_agent_test.c \
-                                 src/daemon/utils_avltree.c \
-                                 src/daemon/utils_llist.c \
-                                 src/daemon/configfile.c \
-                                 src/daemon/types_list.c
-test_plugin_snmp_agent_CPPFLAGS = $(AM_CPPFLAGS) \
-	$(BUILD_WITH_LIBNETSNMPAGENT_CPPFLAGS)
-test_plugin_snmp_agent_LDFLAGS = $(PLUGIN_LDFLAGS) \
-	$(BUILD_WITH_LIBNETSNMPAGENT_LDFLAGS)
-test_plugin_snmp_agent_LDADD = liboconfig.la libplugin_mock.la \
-	$(BUILD_WITH_LIBNETSNMPAGENT_LIBS) $(BUILD_WITH_LIBNETSNMP_LIBS)
-
-check_PROGRAMS += test_plugin_snmp_agent
-TESTS += test_plugin_snmp_agent
-
-
 endif
 
 if BUILD_PLUGIN_STATSD
@@ -1825,32 +1571,6 @@ endif
 
 endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-if BUILD_PLUGIN_STACKDRIVER_AGENT
-pkglib_LTLIBRARIES += stackdriver_agent.la
-<<<<<<< HEAD
-<<<<<<< HEAD
-stackdriver_agent_la_SOURCES = src/stackdriver_agent.c
-=======
-stackdriver_agent_la_SOURCES = stackdriver_agent.c
->>>>>>> adds BUILD_PLUGIN_STACKDRIVER_AGENT to makefile.am
-=======
-stackdriver_agent_la_SOURCES = src/stackdriver_agent.c
->>>>>>> points BUILD_STACKDRIVER_PLUGIN to correct directory
-stackdriver_agent_la_LDFLAGS = -module -avoid-version
-endif
-
-=======
->>>>>>> Completes rebase
-=======
-if BUILD_PLUGIN_STACKDRIVER_AGENT
-pkglib_LTLIBRARIES += stackdriver_agent.la
-stackdriver_agent_la_SOURCES = src/stackdriver_agent.c
-stackdriver_agent_la_LDFLAGS = -module -avoid-version
-endif
-
->>>>>>> Checking Makefile.am for rebase
 if BUILD_PLUGIN_SYNPROXY
 pkglib_LTLIBRARIES += synproxy.la
 synproxy_la_SOURCES = src/synproxy.c
@@ -2038,15 +1758,18 @@ virt_la_CFLAGS = $(AM_CFLAGS) \
 virt_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 virt_la_LIBADD = libignorelist.la $(BUILD_WITH_LIBVIRT_LIBS) $(BUILD_WITH_LIBXML2_LIBS)
 
-test_plugin_virt_SOURCES = src/virt_test.c
-test_plugin_virt_CPPFLAGS = $(AM_CPPFLAGS) \
-	$(BUILD_WITH_LIBVIRT_CPPFLAGS) $(BUILD_WITH_LIBXML2_CFLAGS)
-test_plugin_virt_LDFLAGS = $(PLUGIN_LDFLAGS) \
-	$(BUILD_WITH_LIBVIRT_LDFLAGS) $(BUILD_WITH_LIBXML2_LDFLAGS)
-test_plugin_virt_LDADD = libplugin_mock.la \
-	$(BUILD_WITH_LIBVIRT_LIBS) $(BUILD_WITH_LIBXML2_LIBS)
-check_PROGRAMS += test_plugin_virt
-TESTS += test_plugin_virt
+# TODO: enable once we support only modern libvirts which depends on libnl-3
+# the libvirt on wheezy is linked in libnl v1, and there is a small leak here,
+# triggered by the library initialization. There are no means to avoid it,
+# and libvirt switched to libnl3 anyway
+#test_plugin_virt_SOURCES = src/virt_test.c
+#test_plugin_virt_CPPFLAGS = $(AM_CPPFLAGS) \
+#	$(BUILD_WITH_LIBVIRT_CFLAGS) $(BUILD_WITH_LIBXML2_CFLAGS)
+#test_plugin_virt_LDFLAGS = $(PLUGIN_LDFLAGS)
+#test_plugin_virt_LDADD = libplugin_mock.la \
+#	$(BUILD_WITH_LIBVIRT_LIBS) $(BUILD_WITH_LIBXML2_LIBS)
+#check_PROGRAMS += test_plugin_virt
+#TESTS += test_plugin_virt
 endif
 
 if BUILD_PLUGIN_VMEM
@@ -2067,64 +1790,6 @@ wireless_la_SOURCES = src/wireless.c
 wireless_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-if BUILD_PLUGIN_WRITE_GCM
-<<<<<<< HEAD
-<<<<<<< HEAD
-pkglib_LTLIBRARIES += write_gcm.la
-<<<<<<< HEAD
-write_gcm_la_SOURCES = src/write_gcm.c
-=======
-write_gcm_la_SOURCES = write_gcm.c
->>>>>>> Adds BUILD_PLUGIN_WRITE_GCM to makefile.am
-=======
-pkglib_LTLIBRARIES += src/write_gcm.la
-=======
-pkglib_LTLIBRARIES += write_gcm.la
->>>>>>> fixes directory
-write_gcm_la_SOURCES = src/write_gcm.c
->>>>>>> points BUILD_PLUGIN_WRITE_GCM to correct directory
-=======
-if BUILD_PLUGIN_WRITE_GCM
-pkglib_LTLIBRARIES += write_gcm.la
-write_gcm_la_SOURCES = src/write_gcm.c
->>>>>>> Checking Makefile.am for rebase
-write_gcm_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBYAJL_LDFLAGS)
-write_gcm_la_CFLAGS = $(AM_CFLAGS) $(BUILD_WITH_LIBYAJL_CPPFLAGS)
-write_gcm_la_LIBADD = $(BUILD_WITH_LIBYAJL_LIBS)
-if BUILD_WITH_LIBSSL
-write_gcm_la_CFLAGS += $(BUILD_WITH_LIBSSL_CFLAGS)
-write_gcm_la_LIBADD += $(BUILD_WITH_LIBSSL_LIBS)
-endif
-if BUILD_WITH_LIBCURL
-write_gcm_la_CFLAGS += $(BUILD_WITH_LIBCURL_CFLAGS)
-write_gcm_la_LIBADD += $(BUILD_WITH_LIBCURL_LIBS)
-endif
-endif
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-if BUILD_WITH_OWN_LIBMONGOC
-SUBDIRS = src/libmongoc
-endif
-
-=======
->>>>>>> Adds BUILD_PLUGIN_WRITE_GCM to makefile.am
-=======
-=======
->>>>>>> Checking Makefile.am for rebase
-if BUILD_WITH_OWN_LIBMONGOC
-SUBDIRS = src/libmongoc
-endif
-
-<<<<<<< HEAD
->>>>>>> Adds in mongodb makefile and configure info
-=======
->>>>>>> Completes rebase
-=======
->>>>>>> Checking Makefile.am for rebase
 if BUILD_PLUGIN_WRITE_GRAPHITE
 pkglib_LTLIBRARIES += write_graphite.la
 write_graphite_la_SOURCES = src/write_graphite.c
@@ -2319,19 +1984,19 @@ install-exec-hook:
 	$(mkinstalldirs) $(DESTDIR)$(sysconfdir)
 	if test -e $(DESTDIR)$(sysconfdir)/collectd.conf; \
 	then \
-		$(INSTALL) -m 0640 $(builddir)/src/collectd.conf $(DESTDIR)$(sysconfdir)/collectd.conf.pkg-orig; \
+		$(INSTALL) -m 0640 $(srcdir)/src/collectd.conf $(DESTDIR)$(sysconfdir)/collectd.conf.pkg-orig; \
 	else \
-		$(INSTALL) -m 0640 $(builddir)/src/collectd.conf $(DESTDIR)$(sysconfdir)/collectd.conf; \
+		$(INSTALL) -m 0640 $(srcdir)/src/collectd.conf $(DESTDIR)$(sysconfdir)/collectd.conf; \
 	fi; \
-	$(mkinstalldirs) $(DESTDIR)$(cpkgdatadir)
-	$(INSTALL) -m 0644 $(srcdir)/src/types.db $(DESTDIR)$(cpkgdatadir)/types.db;
+	$(mkinstalldirs) $(DESTDIR)$(pkgdatadir)
+	$(INSTALL) -m 0644 $(srcdir)/src/types.db $(DESTDIR)$(pkgdatadir)/types.db;
 	$(INSTALL) -m 0644 $(srcdir)/src/postgresql_default.conf \
-		$(DESTDIR)$(cpkgdatadir)/postgresql_default.conf;
+		$(DESTDIR)$(pkgdatadir)/postgresql_default.conf;
 
 uninstall-hook:
-	rm -f $(DESTDIR)$(cpkgdatadir)/types.db;
+	rm -f $(DESTDIR)$(pkgdatadir)/types.db;
 	rm -f $(DESTDIR)$(sysconfdir)/collectd.conf
-	rm -f $(DESTDIR)$(cpkgdatadir)/postgresql_default.conf;
+	rm -f $(DESTDIR)$(pkgdatadir)/postgresql_default.conf;
 
 all-local: @PERL_BINDINGS@
 

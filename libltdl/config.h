@@ -120,15 +120,7 @@
 /* #undef LTDL_DLOPEN_DEPLIBS */
 
 /* Define to the system default library search path. */
-<<<<<<< HEAD
-<<<<<<< HEAD
-#define LT_DLSEARCH_PATH "/lib:/usr/lib:/usr/lib/x86_64-linux-gnu/libfakeroot:/usr/local/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu"
-=======
 #define LT_DLSEARCH_PATH "/lib64:/usr/lib64:/lib:/usr/lib:/usr/lib64/atlas:/usr/lib64/iscsi:/usr/lib64/llvm:/usr/lib64/mysql:/usr/lib64/qt-3.3/lib:/usr/lib64/tracker-0.14:/usr/lib64/xulrunner"
->>>>>>> Vendoring libltdl
-=======
-#define LT_DLSEARCH_PATH "/lib:/usr/lib:/usr/lib/x86_64-linux-gnu/libfakeroot:/usr/local/lib:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu"
->>>>>>> build stuff -- the result of running build.sh
 
 /* The archive extension */
 #define LT_LIBEXT "a"
