@@ -5347,8 +5347,6 @@ fi
 AM_CONDITIONAL(BUILD_WITH_LIBSSL, test "x$with_libssl" = "xyes")
 # }}}
 
-<<<<<<< HEAD
-=======
 # For ipvs module
 have_linux_ip_vs_h="no"
 have_net_ip_vs_h="no"
@@ -5386,7 +5384,6 @@ then
 	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
 fi
 
->>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 # --with-libstatgrab {{{
 AC_ARG_WITH([libstatgrab],
   [AS_HELP_STRING([--with-libstatgrab@<:@=PREFIX@:>@], [Path to libstatgrab.])],
@@ -5847,15 +5844,15 @@ if test "x$with_libxmms" = "xyes"; then
 fi
 
 if test "x$with_libxmms" = "xyes"; then
-  SAVE_CPPFLAGS="$CFLAGS"
-  CPPFLAGS="$with_xmms_cflags"
+  SAVE_CFLAGS="$CFLAGS"
+  CFLAGS="$with_xmms_cflags"
 
   AC_CHECK_HEADER([xmmsctrl.h],
     [with_libxmms="yes"],
     [with_libxmms="no"],
   )
 
-  CPPFLAGS="$SAVE_CPPFLAGS"
+  CFLAGS="$SAVE_CFLAGS"
 fi
 
 if test "x$with_libxmms" = "xyes"; then
@@ -6813,10 +6810,7 @@ if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
 then
 	plugin_write_gcm="yes"
         match_throttle_metadata_keys="yes"
-<<<<<<< HEAD
-=======
         plugin_stackdriver_agent="yes"
->>>>>>> 95389ffa1005b6e450e62e66cf4a97cdbf7779b8
 fi
 
 if test "x$have_getutent" = "xyes"
@@ -7182,7 +7176,7 @@ fi
 AC_SUBST([AM_CFLAGS])
 AC_SUBST([AM_CXXFLAGS])
 
-AC_CONFIG_FILES([Makefile proto/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
+AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
 if test "x$enable_logging_metrics" != "xno"
 then
 	AC_CONFIG_FILES([src/read_agent_logging], [chmod +x src/read_agent_logging])
