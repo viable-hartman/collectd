@@ -1,3 +1,4 @@
+
 /**
  * collectd - src/utils_time.c
  * Copyright (C) 2010-2015  Florian octo Forster
@@ -231,4 +232,4 @@ int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
     return ENOMEM;
 
   return format_rfc3339_local(buffer, buffer_size, t, 1);
-} /* }}} int rfc3339nano */
+}

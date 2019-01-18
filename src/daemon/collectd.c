@@ -438,4 +438,4 @@ int run_loop(bool test_readall) {
   }
 
   return exit_status;
-} /* int run_loop */
+}
