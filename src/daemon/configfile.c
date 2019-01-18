@@ -1136,9 +1136,9 @@ int cf_util_get_boolean(const oconfig_item_t *ci, bool *ret_bool) /* {{{ */
     break;
   case OCONFIG_TYPE_STRING:
     P_WARNING("Using string value `%s' for boolean option `%s' is deprecated "
-               "and will be removed in future releases. Use unquoted true or "
-               "false instead.",
-            ci->values[0].value.string, ci->key);
+              "and will be removed in future releases. Use unquoted true or "
+              "false instead.",
+              ci->values[0].value.string, ci->key);
 
     if (IS_TRUE(ci->values[0].value.string))
       *ret_bool = true;
@@ -1146,8 +1146,8 @@ int cf_util_get_boolean(const oconfig_item_t *ci, bool *ret_bool) /* {{{ */
       *ret_bool = false;
     else {
       P_ERROR("Cannot parse string value `%s' of the `%s' option as a boolean "
-               "value.",
-            ci->values[0].value.string, ci->key);
+              "value.",
+              ci->values[0].value.string, ci->key);
       return -1;
     }
     break;
@@ -1199,8 +1199,8 @@ int cf_util_get_port_number(const oconfig_item_t *ci) /* {{{ */
   tmp = (int)(ci->values[0].value.number + 0.5);
   if ((tmp < 1) || (tmp > 65535)) {
     P_ERROR("The `%s' option requires a service name or a port number. The "
-             "number you specified, %i, is not in the valid range of 1-65535.",
-          ci->key, tmp);
+            "number you specified, %i, is not in the valid range of 1-65535.",
+            ci->key, tmp);
     return -1;
   }
 
@@ -1222,7 +1222,7 @@ int cf_util_get_service(const oconfig_item_t *ci, char **ret_string) /* {{{ */
     return cf_util_get_string(ci, ret_string);
   if (ci->values[0].type != OCONFIG_TYPE_NUMBER) {
     P_ERROR("The `%s` option requires exactly one string or numeric argument.",
-          ci->key);
+            ci->key);
   }
 
   port = 0;
@@ -1231,7 +1231,7 @@ int cf_util_get_service(const oconfig_item_t *ci, char **ret_string) /* {{{ */
     return status;
   else if ((port < 1) || (port > 65535)) {
     P_ERROR("The port number given for the `%s` option is out of range (%i).",
-          ci->key, port);
+            ci->key, port);
     return -1;
   }
 
@@ -1260,7 +1260,7 @@ int cf_util_get_cdtime(const oconfig_item_t *ci, cdtime_t *ret_value) /* {{{ */
 
   if (ci->values[0].value.number < 0.0) {
     P_ERROR("The numeric argument of the `%s' option must not be negative.",
-          ci->key);
+            ci->key);
     return -1;
   }
 

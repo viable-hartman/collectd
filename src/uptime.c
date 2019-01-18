@@ -52,6 +52,7 @@
 /*
  * Global variables
  */
+
 #if HAVE_KSTAT_H
 #include <kstat.h>
 #endif

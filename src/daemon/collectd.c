@@ -307,8 +307,7 @@ static int do_shutdown(void) {
 static void read_cmdline(int argc, char **argv, struct cmdline_config *config) {
   /* read options */
   while (1) {
-    int c;
-    c = getopt(argc, argv, "BhtTC:"
+    int c = getopt(argc, argv, "BhtTC:"
 #if COLLECT_DAEMON
                                "fP:"
 #endif

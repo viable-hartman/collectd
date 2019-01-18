@@ -1090,7 +1090,7 @@ static int c_ipmi_config_add_instance(oconfig_item_t *ci) {
       ignorelist_add(st->ignorelist, value);
       sfree(value);
     } else if (strcasecmp("IgnoreSelected", child->key) == 0) {
-      _Bool t;
+      bool t;
       status = cf_util_get_boolean(child, &t);
       if (status != 0)
         break;

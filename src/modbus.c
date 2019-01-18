@@ -394,13 +394,13 @@ static int mb_init_connection(mb_host_t *host) /* {{{ */
 #define CAST_TO_VALUE_T(ds, vt, raw, scale, shift)                             \
   do {                                                                         \
     if ((ds)->ds[0].type == DS_TYPE_COUNTER)                                   \
-      (vt).counter = (((counter_t)(raw) * scale) + shift);                     \
+      (vt).counter = (((counter_t)(raw)*scale) + shift);                       \
     else if ((ds)->ds[0].type == DS_TYPE_GAUGE)                                \
-      (vt).gauge = (((gauge_t)(raw) * scale) + shift);                         \
+      (vt).gauge = (((gauge_t)(raw)*scale) + shift);                           \
     else if ((ds)->ds[0].type == DS_TYPE_DERIVE)                               \
-      (vt).derive = (((derive_t)(raw) * scale) + shift);                       \
+      (vt).derive = (((derive_t)(raw)*scale) + shift);                         \
     else /* if (ds->ds[0].type == DS_TYPE_ABSOLUTE) */                         \
-      (vt).absolute = (((absolute_t)(raw) * scale) + shift);                   \
+      (vt).absolute = (((absolute_t)(raw)*scale) + shift);                     \
   } while (0)
 
 static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
@@ -622,7 +622,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned uint64 value is %" PRIu64,
           v64);
 
-    CAST_TO_VALUE_T(ds, vt, v64);
+    CAST_TO_VALUE_T(ds, vt, v64, data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   } else if (data->register_type == REG_TYPE_INT64) {
     union {
@@ -637,7 +637,7 @@ static int mb_read_data(mb_host_t *host, mb_slave_t *slave, /* {{{ */
           "Returned uint64 value is %" PRIi64,
           v.i64);
 
-    CAST_TO_VALUE_T(ds, vt, v.i64);
+    CAST_TO_VALUE_T(ds, vt, v.i64, data->scale, data->shift);
     mb_submit(host, slave, data, vt);
   } else /* if (data->register_type == REG_TYPE_UINT16) */
   {

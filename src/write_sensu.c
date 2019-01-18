@@ -31,7 +31,6 @@
 #include "common.h"
 #include "plugin.h"
 #include "utils_cache.h"
-
 #include <arpa/inet.h>
 #include <errno.h>
 #include <inttypes.h>

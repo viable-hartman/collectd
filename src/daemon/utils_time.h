@@ -101,4 +101,12 @@ int rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t);
  * nanosecond precision, e.g., "2006-01-02T15:04:05.999999999+00:00". */
 int rfc3339nano_local (char *buffer, size_t buffer_size, cdtime_t t);
 
+/* rfc3339 formats a cdtime_t time as local in RFC 3339 format with second
+ * precision, e.g., "2006-01-02T15:04:05+00:00". */
+int rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t);
+
+/* rfc3339nano formats a cdtime_t time as local in RFC 3339 format with
+ * nanosecond precision, e.g., "2006-01-02T15:04:05.999999999+00:00". */
+int rfc3339nano_local (char *buffer, size_t buffer_size, cdtime_t t);
+
 #endif /* UTILS_TIME_H */

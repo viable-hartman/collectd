@@ -122,7 +122,7 @@ static void parse_line(char *buf) {
   for (size_t i = 0; i < ds->ds_num; i++)
     if (parse_ds(ds->ds + i, fields[i + 1], strlen(fields[i + 1])) != 0) {
       ERROR("types_list: parse_line: Cannot parse data source #%" PRIsz
-            "of data set %s",
+            " of data set %s",
             i, ds->type);
       sfree(ds->ds);
       sfree(ds);

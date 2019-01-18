@@ -377,7 +377,6 @@ static void *open_connection(void __attribute__((unused)) * arg) {
   if (bind(connector_socket, (struct sockaddr *)&addr,
            offsetof(struct sockaddr_un, sun_path) + strlen(addr.sun_path)) ==
       -1) {
-    char errbuf[1024];
     disabled = 1;
     close(connector_socket);
     connector_socket = -1;

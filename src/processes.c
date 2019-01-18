@@ -555,6 +555,40 @@ static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
 }
 #endif
 
+#if HAVE_LIBTASKSTATS
+static void ps_update_delay_one(gauge_t *out_rate_sum,
+                                value_to_rate_state_t *state, uint64_t cnt,
+                                cdtime_t t) {
+  gauge_t rate = NAN;
+  int status = value_to_rate(&rate, (value_t){.counter = (counter_t)cnt},
+                             DS_TYPE_COUNTER, t, state);
+  if ((status != 0) || isnan(rate)) {
+    return;
+  }
+
+  if (isnan(*out_rate_sum)) {
+    *out_rate_sum = rate;
+  } else {
+    *out_rate_sum += rate;
+  }
+}
+
+static void ps_update_delay(procstat_t *out, procstat_entry_t *prev,
+                            procstat_entry_t *curr) {
+  cdtime_t now = cdtime();
+
+  ps_update_delay_one(&out->delay_cpu, &prev->delay_cpu,
+                      curr->gauges.delay.cpu_ns,
+                      now);
+  ps_update_delay_one(&out->delay_blkio, &prev->delay_blkio,
+                      curr->gauges.delay.blkio_ns, now);
+  ps_update_delay_one(&out->delay_swapin, &prev->delay_swapin,
+                      curr->gauges.delay.swapin_ns, now);
+  ps_update_delay_one(&out->delay_freepages, &prev->delay_freepages,
+                      curr->gauges.delay.freepages_ns, now);
+}
+#endif
+
 /* add process entry to 'instances' of process 'name' (or refresh it) */
 static void ps_list_add(const char *name, const char *cmdline,
                         procstat_entry_t *entry) {
@@ -1318,6 +1352,8 @@ static void ps_submit_proc_list (procstat_t *ps)
         }
     }
 }
+
+#undef MAX_VALUE_LIST_SIZE
 
 #undef MAX_VALUE_LIST_SIZE
 
@@ -2148,7 +2184,6 @@ static int ps_read_process(long pid, procstat_entry_t *ps, char *state) {
   /*
    * Convert rssize from KB to bytes to be consistent w/ the linux module
    */
-
 
   /*
    * TODO: Data and code segment calculations for Solaris
