@@ -1,4 +1,3 @@
-
 /**
  * collectd - src/utils_time.c
  * Copyright (C) 2010-2015  Florian octo Forster
@@ -144,66 +143,70 @@ static int format_zone(char *buffer, size_t buffer_size,
   return 0;
 } /* }}} int format_zone */
 
-int format_rfc3339 (char *buffer, size_t buffer_size, struct tm const *t_tm, long nsec, _Bool print_nano, char const *zone) /* {{{ */
+int format_rfc3339(char *buffer, size_t buffer_size, struct tm const *t_tm,
+                   long nsec, bool print_nano, char const *zone) /* {{{ */
 {
   size_t len;
   char *pos = buffer;
   size_t size_left = buffer_size;
 
-  if ((len = strftime (pos, size_left, "%Y-%m-%dT%H:%M:%S", t_tm)) == 0)
+  if ((len = strftime(pos, size_left, "%Y-%m-%dT%H:%M:%S", t_tm)) == 0)
     return ENOMEM;
   pos += len;
   size_left -= len;
 
   if (print_nano) {
-    if ((len = ssnprintf (pos, size_left, ".%09ld", nsec)) == 0)
+    if ((len = snprintf(pos, size_left, ".%09ld", nsec)) == 0)
       return ENOMEM;
     pos += len;
     size_left -= len;
   }
 
-  sstrncpy (pos, zone, size_left);
+  sstrncpy(pos, zone, size_left);
   return 0;
 } /* }}} int format_rfc3339 */
 
-int format_rfc3339_utc (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano) /* {{{ */
+int format_rfc3339_utc(char *buffer, size_t buffer_size, cdtime_t t,
+                       bool print_nano) /* {{{ */
 {
   struct tm t_tm;
   long nsec = 0;
   int status;
 
-  if ((status = get_utc_time (t, &t_tm, &nsec)) != 0)
-    return status;  /* The error should have already be reported. */
+  if ((status = get_utc_time(t, &t_tm, &nsec)) != 0)
+    return status; /* The error should have already be reported. */
 
-  return format_rfc3339 (buffer, buffer_size, &t_tm, nsec, print_nano, zulu_zone);
+  return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano,
+                        zulu_zone);
 } /* }}} int format_rfc3339_utc */
 
-int format_rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t, _Bool print_nano) /* {{{ */
+int format_rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t,
+                         bool print_nano) /* {{{ */
 {
   struct tm t_tm;
   long nsec = 0;
   int status;
-  char zone[7];  /* +00:00 */
+  char zone[7]; /* +00:00 */
 
-  if ((status = get_local_time (t, &t_tm, &nsec)) != 0)
-    return status;  /* The error should have already be reported. */
+  if ((status = get_local_time(t, &t_tm, &nsec)) != 0)
+    return status; /* The error should have already be reported. */
 
-  if ((status = format_zone (zone, sizeof (zone), &t_tm)) != 0)
+  if ((status = format_zone(zone, sizeof(zone), &t_tm)) != 0)
     return status;
 
-  return format_rfc3339 (buffer, buffer_size, &t_tm, nsec, print_nano, zone);
+  return format_rfc3339(buffer, buffer_size, &t_tm, nsec, print_nano, zone);
 } /* }}} int format_rfc3339_local */
 
 /**********************************************************************
  Public functions
 ***********************************************************************/
 
-int rfc3339 (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
+int rfc3339(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339_SIZE)
     return ENOMEM;
 
-  return format_rfc3339_utc (buffer, buffer_size, t, 0);
+  return format_rfc3339_utc(buffer, buffer_size, t, 0);
 } /* }}} int rfc3339 */
 
 int rfc3339nano(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
@@ -211,18 +214,18 @@ int rfc3339nano(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
   if (buffer_size < RFC3339NANO_SIZE)
     return ENOMEM;
 
-  return format_rfc3339_utc (buffer, buffer_size, t, 1);
+  return format_rfc3339_utc(buffer, buffer_size, t, 1);
 } /* }}} int rfc3339nano */
 
-int rfc3339_local (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
+int rfc3339_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339_SIZE)
     return ENOMEM;
 
-  return format_rfc3339_local (buffer, buffer_size, t, 0);
+  return format_rfc3339_local(buffer, buffer_size, t, 0);
 } /* }}} int rfc3339 */
 
-int rfc3339nano_local (char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
+int rfc3339nano_local(char *buffer, size_t buffer_size, cdtime_t t) /* {{{ */
 {
   if (buffer_size < RFC3339NANO_SIZE)
     return ENOMEM;

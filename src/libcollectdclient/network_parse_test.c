@@ -247,7 +247,7 @@ static int test_network_parse() {
     if (decode_string(raw_packet_data[i], buffer, &buffer_size)) {
       fprintf(stderr, "lcc_network_parse(raw_packet_data[%" PRIsz "]):"
                       " decoding string failed\n",
-          i);
+              i);
       return -1;
     }
 

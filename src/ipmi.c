@@ -781,30 +781,30 @@ static int sel_list_add(c_ipmi_instance_t *st, ipmi_sensor_t *sensor) {
     return 0;
 
   /* register threshold event if threshold sensor support events */
-      if (ipmi_sensor_get_event_reading_type(sensor) ==
-          IPMI_EVENT_READING_TYPE_THRESHOLD)
-        status = ipmi_sensor_add_threshold_event_handler(
-            sensor, sensor_threshold_event_handler, st);
-      /* register discrete handler if discrete/specific sensor support events */
-      else if (ipmi_sensor_get_event_support(sensor) != IPMI_EVENT_SUPPORT_NONE)
-        status = ipmi_sensor_add_discrete_event_handler(
-            sensor, sensor_discrete_event_handler, st);
+  if (ipmi_sensor_get_event_reading_type(sensor) ==
+      IPMI_EVENT_READING_TYPE_THRESHOLD)
+    status = ipmi_sensor_add_threshold_event_handler(
+        sensor, sensor_threshold_event_handler, st);
+  /* register discrete handler if discrete/specific sensor support events */
+  else if (ipmi_sensor_get_event_support(sensor) != IPMI_EVENT_SUPPORT_NONE)
+    status = ipmi_sensor_add_discrete_event_handler(
+        sensor, sensor_discrete_event_handler, st);
 
   if (status)
     ERROR("Unable to add sensor %s event handler, status: %d", sensor_name,
           status);
   return status;
-    }
+}
 
 static void sel_list_remove(c_ipmi_instance_t *st, ipmi_sensor_t *sensor) {
-      if (ipmi_sensor_get_event_reading_type(sensor) ==
-          IPMI_EVENT_READING_TYPE_THRESHOLD)
-        ipmi_sensor_remove_threshold_event_handler(
-            sensor, sensor_threshold_event_handler, st);
-      else
-        ipmi_sensor_remove_discrete_event_handler(
-            sensor, sensor_discrete_event_handler, st);
-    }
+  if (ipmi_sensor_get_event_reading_type(sensor) ==
+      IPMI_EVENT_READING_TYPE_THRESHOLD)
+    ipmi_sensor_remove_threshold_event_handler(
+        sensor, sensor_threshold_event_handler, st);
+  else
+    ipmi_sensor_remove_discrete_event_handler(
+        sensor, sensor_discrete_event_handler, st);
+}
 /*
  * Entity handlers
  */

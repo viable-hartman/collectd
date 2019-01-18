@@ -1,8 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 AM_YFLAGS = -d
 
-SUBDIRS = src/libmongoc
-
 if BUILD_WIN32
 cpkgdatadir=$(datadir)
 cpkglibdir=$(libdir)/plugins
@@ -1900,7 +1898,7 @@ virt_la_CFLAGS = $(AM_CFLAGS) \
 virt_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 virt_la_LIBADD = libignorelist.la $(BUILD_WITH_LIBVIRT_LIBS) $(BUILD_WITH_LIBXML2_LIBS)
 
-test_plugin_virt_SOURCES = src/virt_test.c 
+test_plugin_virt_SOURCES = src/virt_test.c
 test_plugin_virt_CPPFLAGS = $(AM_CPPFLAGS) \
 	$(BUILD_WITH_LIBVIRT_CPPFLAGS) $(BUILD_WITH_LIBXML2_CFLAGS)
 test_plugin_virt_LDFLAGS = $(PLUGIN_LDFLAGS) \

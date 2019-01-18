@@ -1411,13 +1411,13 @@ static int get_vcpu_stats(virDomainPtr domain, unsigned short nr_virt_cpu) {
 
   virVcpuInfoPtr vinfo = calloc(nr_virt_cpu, sizeof(vinfo[0]));
   if (vinfo == NULL) {
-    ERROR(PLUGIN_NAME " plugin: calloc failed.");
+    ERROR(PLUGIN_NAME " plugin: malloc failed.");
     return -1;
   }
 
   unsigned char *cpumaps = calloc(nr_virt_cpu, cpu_map_len);
   if (cpumaps == NULL) {
-    ERROR(PLUGIN_NAME " plugin: calloc failed.");
+    ERROR(PLUGIN_NAME " plugin: malloc failed.");
     sfree(vinfo);
     return -1;
   }
@@ -1585,11 +1585,7 @@ static int get_block_stats(struct block_device *block_dev) {
 
 #define NM_ADD_STR_ITEMS(_items, _size)                                        \
   do {                                                                         \
-<<<<<<< HEAD
-    for (size_t _i = 0; _i < _size; ++_i) {                                       \
-=======
     for (size_t _i = 0; _i < _size; ++_i) {                                    \
->>>>>>> cde440ec8efde180b98f6456b732a1ec0dc196fb
       DEBUG(PLUGIN_NAME                                                        \
             " plugin: Adding notification metadata name=%s value=%s",          \
             _items[_i].name, _items[_i].value);                                \
@@ -1999,15 +1995,9 @@ static int persistent_domains_state_notification(void) {
       }
       status = virDomainGetInfo(dom, &info);
       if (status == 0)
-<<<<<<< HEAD
-      /* virDomainGetState is not available. Submit 0, which corresponds to
-       * unknown reason. */
-      domain_state_submit_notif(dom, info.state, 0);
-=======
         /* virDomainGetState is not available. Submit 0, which corresponds to
          * unknown reason. */
         domain_state_submit_notif(dom, info.state, 0);
->>>>>>> cde440ec8efde180b98f6456b732a1ec0dc196fb
       else
         ERROR(PLUGIN_NAME " plugin: virDomainGetInfo failed with status %i.",
               status);
@@ -2074,20 +2064,6 @@ static int lv_read(user_data_t *ud) {
             status);
   }
 
-<<<<<<< HEAD
-  #if COLLECT_DEBUG
-    for (int i = 0; i < state->nr_domains; ++i)
-        DEBUG(PLUGIN_NAME " plugin: domain %s",
-              virDomainGetName(state->domains[i].ptr));
-    for (int i = 0; i < state->nr_block_devices; ++i)
-    DEBUG(PLUGIN_NAME " plugin: block device %d %s:%s", i,
-          virDomainGetName(state->block_devices[i].dom),
-              state->block_devices[i].path);
-    for (int i = 0; i < state->nr_interface_devices; ++i)
-    DEBUG(PLUGIN_NAME " plugin: interface device %d %s:%s", i,
-          virDomainGetName(state->interface_devices[i].dom),
-              state->interface_devices[i].path);
-=======
 #if COLLECT_DEBUG
   for (int i = 0; i < state->nr_domains; ++i)
     DEBUG(PLUGIN_NAME " plugin: domain %s",
@@ -2100,7 +2076,6 @@ static int lv_read(user_data_t *ud) {
     DEBUG(PLUGIN_NAME " plugin: interface device %d %s:%s", i,
           virDomainGetName(state->interface_devices[i].dom),
           state->interface_devices[i].path);
->>>>>>> cde440ec8efde180b98f6456b732a1ec0dc196fb
 #endif
 
   /* Get domains' metrics */
@@ -2325,21 +2300,12 @@ static int refresh_lists(struct lv_read_instance *inst) {
 #else
   int *domids;
 
-<<<<<<< HEAD
-    /* Get list of domains. */
-  domids = calloc(n, sizeof(*domids));
-    if (domids == NULL) {
-    ERROR(PLUGIN_NAME " plugin: calloc failed.");
-      return -1;
-    }
-=======
   /* Get list of domains. */
   domids = calloc(n, sizeof(*domids));
   if (domids == NULL) {
     ERROR(PLUGIN_NAME " plugin: calloc failed.");
     return -1;
   }
->>>>>>> cde440ec8efde180b98f6456b732a1ec0dc196fb
 
   n = virConnectListDomains(conn, domids, n);
 #endif
@@ -2347,11 +2313,7 @@ static int refresh_lists(struct lv_read_instance *inst) {
   if (n < 0) {
     VIRT_ERROR(conn, "reading list of domains");
 #ifndef HAVE_LIST_ALL_DOMAINS
-<<<<<<< HEAD
-      sfree(domids);
-=======
     sfree(domids);
->>>>>>> cde440ec8efde180b98f6456b732a1ec0dc196fb
 #else
     for (int i = 0; i < m; ++i)
       virDomainFree(domains_inactive[i]);
@@ -2370,28 +2332,6 @@ static int refresh_lists(struct lv_read_instance *inst) {
     }
 #endif
 
-<<<<<<< HEAD
-#ifdef HAVE_LIST_ALL_DOMAINS
-  for (int i = 0; i < m; ++i)
-    if (add_domain(state, domains_inactive[i], 0) < 0) {
-      ERROR(PLUGIN_NAME " plugin: malloc failed.");
-      virDomainFree(domains_inactive[i]);
-      domains_inactive[i] = NULL;
-      continue;
-    }
-#endif
-
-    /* Fetch each domain and add it to the list, unless ignore. */
-    for (int i = 0; i < n; ++i) {
-      const char *name;
-      char *xml = NULL;
-      xmlDocPtr xml_doc = NULL;
-      xmlXPathContextPtr xpath_ctx = NULL;
-      xmlXPathObjectPtr xpath_obj = NULL;
-      char tag[PARTITION_TAG_MAX_LEN] = {'\0'};
-      virDomainInfo info;
-      int status;
-=======
   /* Fetch each domain and add it to the list, unless ignore. */
   for (int i = 0; i < n; ++i) {
     const char *name;
@@ -2402,7 +2342,6 @@ static int refresh_lists(struct lv_read_instance *inst) {
     char tag[PARTITION_TAG_MAX_LEN] = {'\0'};
     virDomainInfo info;
     int status;
->>>>>>> cde440ec8efde180b98f6456b732a1ec0dc196fb
 
 #ifdef HAVE_LIST_ALL_DOMAINS
     virDomainPtr dom = domains[i];
@@ -2429,15 +2368,6 @@ static int refresh_lists(struct lv_read_instance *inst) {
       virDomainFree(dom);
       goto cont;
     }
-<<<<<<< HEAD
-
-      name = virDomainGetName(dom);
-      if (name == NULL) {
-        VIRT_ERROR(conn, "virDomainGetName");
-        goto cont;
-      }
-=======
->>>>>>> cde440ec8efde180b98f6456b732a1ec0dc196fb
 
     name = virDomainGetName(dom);
     if (name == NULL) {
@@ -2481,13 +2411,6 @@ static int refresh_lists(struct lv_read_instance *inst) {
       goto cont;
     }
 
-<<<<<<< HEAD
-      /* Block devices. */
-      const char *bd_xmlpath = "/domain/devices/disk/target[@dev]";
-      if (blockdevice_format == source)
-        bd_xmlpath = "/domain/devices/disk/source[@dev]";
-      xpath_obj = xmlXPathEval((const xmlChar *)bd_xmlpath, xpath_ctx);
-=======
     if (!lv_instance_include_domain(inst, name, tag))
       goto cont;
 
@@ -2496,7 +2419,6 @@ static int refresh_lists(struct lv_read_instance *inst) {
     if (blockdevice_format == source)
       bd_xmlpath = "/domain/devices/disk/source[@dev]";
     xpath_obj = xmlXPathEval((const xmlChar *)bd_xmlpath, xpath_ctx);
->>>>>>> cde440ec8efde180b98f6456b732a1ec0dc196fb
 
     if (xpath_obj == NULL || xpath_obj->type != XPATH_NODESET ||
         xpath_obj->nodesetval == NULL)
@@ -2585,17 +2507,10 @@ static int refresh_lists(struct lv_read_instance *inst) {
   /* NOTE: domains_active and domains_inactive data will be cleared during
      refresh of all domains (inside lv_clean_read_state function) so we need
      to free here only allocated arrays */
-<<<<<<< HEAD
-    sfree(domains);
-  sfree(domains_inactive);
-#else
-    sfree(domids);
-=======
   sfree(domains);
   sfree(domains_inactive);
 #else
   sfree(domids);
->>>>>>> cde440ec8efde180b98f6456b732a1ec0dc196fb
 
 end:
 #endif

@@ -409,7 +409,7 @@ struct cmdline_config init_config(int argc, char **argv) {
     exit(EXIT_FAILURE);
 
   return config;
-  }
+}
 
 int run_loop(bool test_readall) {
   int exit_status = 0;

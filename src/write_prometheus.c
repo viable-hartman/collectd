@@ -245,7 +245,7 @@ static int http_handler(void *cls, struct MHD_Connection *connection,
   char const *accept = MHD_lookup_connection_value(connection, MHD_HEADER_KIND,
                                                    MHD_HTTP_HEADER_ACCEPT);
   bool want_proto = (accept != NULL) &&
-      (strstr(accept, "application/vnd.google.protobuf") != NULL);
+                    (strstr(accept, "application/vnd.google.protobuf") != NULL);
 
   uint8_t scratch[4096] = {0};
   ProtobufCBufferSimple simple = PROTOBUF_C_BUFFER_SIMPLE_INIT(scratch);
@@ -488,7 +488,7 @@ static int metric_update(Io__Prometheus__Client__Metric *m, value_t value,
   /* Prometheus has a globally configured timeout after which metrics are
    * considered stale. This causes problems when metrics have an interval
    * exceeding that limit. We emulate the behavior of "pushgateway" and *not*
-   * send a timestamp value – Prometheus will fill in the current time. */
+   * send a timestamp value – Prometheus will fill in the current time. */
   if (interval <= staleness_delta) {
     m->timestamp_ms = CDTIME_T_TO_MS(t);
     m->has_timestamp_ms = 1;

@@ -3,8 +3,8 @@ AC_PREREQ([2.60])
 AC_INIT([collectd],[m4_esyscmd(./version-gen.sh)])
 AC_CONFIG_SRCDIR(src/target_set.c)
 AC_CONFIG_HEADERS(src/config.h)
-AC_CONFIG_AUX_DIR([libltdl/config])
-AC_CONFIG_SUBDIRS([src/libmongoc])
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([m4])
 
 dnl older automake's default of ARFLAGS=cru is noisy on newer binutils;
 dnl we don't really need the 'u' even in older toolchains.  Then there is
@@ -871,10 +871,10 @@ AC_CHECK_FUNCS([socket],
       [
         AC_CHECK_LIB([gnu], [rpl_socket],
           [socket_needs_gnulib="yes"],
-      [AC_MSG_ERROR([cannot find socket() in libsocket])]
+          [AC_MSG_ERROR([cannot find socket() in libsocket])]
+        )
+      ]
     )
-  ]
-)
   ]
 )
 AM_CONDITIONAL([BUILD_WITH_LIBSOCKET], [test "x$socket_needs_socket" = "xyes"])
@@ -2749,7 +2749,7 @@ AC_SUBST([BUILD_WITH_LIBGRPCPP_LIBS])
 
 AC_ARG_VAR([GRPC_CPP_PLUGIN], [path to the grpc_cpp_plugin binary])
 if test "x$with_libgrpcpp_bin" = "x"; then
-AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
+  AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin])
 else
   AC_PATH_PROG([GRPC_CPP_PLUGIN], [grpc_cpp_plugin], [], "$with_libgrpcpp_bin:$PATH")
 fi
@@ -3085,24 +3085,30 @@ else
               PKG_CHECK_MODULES([LUA], [lua53],
                 [with_liblua="yes"],
                 [
-              PKG_CHECK_MODULES([LUA], [lua-5.2],
-                [with_liblua="yes"],
-                [
                   PKG_CHECK_MODULES([LUA], [lua-5.2],
                     [with_liblua="yes"],
                     [
-                          PKG_CHECK_MODULES([LUA], [lua52],
-                            [with_liblua="yes"],
-                            [
-                      PKG_CHECK_MODULES([LUA], [lua-5.1],
+                      PKG_CHECK_MODULES([LUA], [lua5.2],
                         [with_liblua="yes"],
                         [
                           PKG_CHECK_MODULES([LUA], [lua52],
                             [with_liblua="yes"],
+                            [
+                              PKG_CHECK_MODULES([LUA], [lua-5.1],
+                                [with_liblua="yes"],
+                                [
+                                  PKG_CHECK_MODULES([LUA], [lua5.1],
+                                    [with_liblua="yes"],
                                     [
                                       PKG_CHECK_MODULES([LUA], [lua51],
                                         [with_liblua="yes"],
-                            [with_liblua="no (pkg-config cannot find liblua)"]
+                                        [with_liblua="no (pkg-config cannot find liblua)"]
+                                      )
+                                    ]
+                                  )
+                                ]
+                              )
+                            ]
                           )
                         ]
                       )
@@ -3110,12 +3116,6 @@ else
                   )
                 ]
               )
-            ]
-          )
-        ]
-      )
-    ]
-  )
             ]
           )
         ]
@@ -3415,21 +3415,21 @@ AC_ARG_WITH(libmongoc, [AS_HELP_STRING([--with-libmongoc@<:@=PREFIX@:>@], [Path 
 [
  if test "x$withval" = "xyes"
  then
-	 with_libmongoc="yes"
+   with_libmongoc="yes"
  else if test "x$withval" = "xno"
  then
-	 with_libmongoc="no"
+   with_libmongoc="no"
  else
      if test "x$withval" = "xown"
      then
-	     with_libmongoc="yes"
-	     with_own_libmongoc="yes"
-	     AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
-	     AC_CONFIG_SUBDIRS([src/libmongoc])
-	 else
-	     LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
-	     LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
-	 fi
+       with_libmongoc="yes"
+       with_own_libmongoc="yes"
+       AC_DEFINE(OWN_LIBMONGOC, 1, [Define to 1 if we use the shipped mongoc lib.])
+       AC_CONFIG_SUBDIRS([src/libmongoc])
+   else
+       LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS -I$withval/include"
+       LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS -L$withval/lib"
+   fi
  fi; fi
 ],
 [with_libmongoc="yes"])
@@ -3442,15 +3442,15 @@ LDFLAGS="$LDFLAGS $LIBMONGOC_LDFLAGS"
 
 if test "x$with_libmongoc" = "xyes"
 then
-	if test "x$LIBMONGOC_CPPFLAGS" != "x"
-	then
-		AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CPPFLAGS])
-	fi
-	if test "x$with_own_libmongoc" != "xyes"
-	then
-	    AC_CHECK_HEADERS(mongo.h,
-	    [with_libmongoc="yes"],
-	    [with_libmongoc="no ('mongo.h' not found)"],
+  if test "x$LIBMONGOC_CPPFLAGS" != "x"
+  then
+    AC_MSG_NOTICE([libmongoc CPPFLAGS: $LIBMONGOC_CPPFLAGS])
+  fi
+  if test "x$with_own_libmongoc" != "xyes"
+  then
+      AC_CHECK_HEADERS(mongo.h,
+      [with_libmongoc="yes"],
+      [with_libmongoc="no ('mongo.h' not found)"],
 [#if HAVE_STDINT_H
 # define MONGO_HAVE_STDINT 1
 #else
@@ -3461,13 +3461,13 @@ then
 fi
 if test "x$with_libmongoc" = "xyes" -a "x$with_own_libmongoc" != "xyes"
 then
-	if test "x$LIBMONGOC_LDFLAGS" != "x"
-	then
-		AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
-	fi
-	AC_CHECK_LIB(mongoc, mongo_run_command,
-	[with_libmongoc="yes"],
-	[with_libmongoc="no (symbol 'mongo_run_command' not found)"])
+  if test "x$LIBMONGOC_LDFLAGS" != "x"
+  then
+    AC_MSG_NOTICE([libmongoc LDFLAGS: $LIBMONGOC_LDFLAGS])
+  fi
+  AC_CHECK_LIB(mongoc, mongo_run_command,
+  [with_libmongoc="yes"],
+  [with_libmongoc="no (symbol 'mongo_run_command' not found)"])
 fi
 
 CPPFLAGS="$SAVE_CPPFLAGS"
@@ -3475,10 +3475,10 @@ LDFLAGS="$SAVE_LDFLAGS"
 
 if test "x$with_libmongoc" = "xyes"
 then
-	BUILD_WITH_LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS"
-	BUILD_WITH_LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS"
-	AC_SUBST(BUILD_WITH_LIBMONGOC_CPPFLAGS)
-	AC_SUBST(BUILD_WITH_LIBMONGOC_LDFLAGS)
+  BUILD_WITH_LIBMONGOC_CPPFLAGS="$LIBMONGOC_CPPFLAGS"
+  BUILD_WITH_LIBMONGOC_LDFLAGS="$LIBMONGOC_LDFLAGS"
+  AC_SUBST(BUILD_WITH_LIBMONGOC_CPPFLAGS)
+  AC_SUBST(BUILD_WITH_LIBMONGOC_LDFLAGS)
 fi
 AM_CONDITIONAL(BUILD_WITH_LIBMONGOC, test "x$with_libmongoc" = "xyes")
 # }}}
@@ -3809,24 +3809,24 @@ liboconfig_LDFLAGS="$LDFLAGS"
 liboconfig_CPPFLAGS="$CPPFLAGS"
 AC_ARG_WITH(liboconfig, [AS_HELP_STRING([--with-liboconfig@<:@=PREFIX@:>@], [Path to liboconfig.])],
 [
-	if test "x$withval" != "xno" && test "x$withval" != "xyes"
-	then
-		if test -d "$withval/lib"
-		then
-			liboconfig_LDFLAGS="$LDFLAGS -L$withval/lib"
-		fi
-		if test -d "$withval/include"
-		then
-			liboconfig_CPPFLAGS="$CPPFLAGS -I$withval/include"
-		fi
-	fi
-	if test "x$withval" = "xno"
-	then
-		AC_MSG_ERROR("liboconfig is required")
-	fi
+  if test "x$withval" != "xno" && test "x$withval" != "xyes"
+  then
+    if test -d "$withval/lib"
+    then
+      liboconfig_LDFLAGS="$LDFLAGS -L$withval/lib"
+    fi
+    if test -d "$withval/include"
+    then
+      liboconfig_CPPFLAGS="$CPPFLAGS -I$withval/include"
+    fi
+  fi
+  if test "x$withval" = "xno"
+  then
+    AC_MSG_ERROR("liboconfig is required")
+  fi
 ],
 [
-	with_liboconfig="yes"
+  with_liboconfig="yes"
 ])
 
 save_LDFLAGS="$LDFLAGS"
@@ -3835,20 +3835,20 @@ LDFLAGS="$liboconfig_LDFLAGS"
 CPPFLAGS="$liboconfig_CPPFLAGS"
 AC_CHECK_LIB(oconfig, oconfig_parse_file,
 [
-	with_liboconfig="yes"
-	with_own_liboconfig="no"
+  with_liboconfig="yes"
+  with_own_liboconfig="no"
 ],
 [
-	with_liboconfig="yes"
-	with_own_liboconfig="yes"
-	LDFLAGS="$save_LDFLAGS"
-	CPPFLAGS="$save_CPPFLAGS"
+  with_liboconfig="yes"
+  with_own_liboconfig="yes"
+  LDFLAGS="$save_LDFLAGS"
+  CPPFLAGS="$save_CPPFLAGS"
 ])
 
 AM_CONDITIONAL(BUILD_WITH_OWN_LIBOCONFIG, test "x$with_own_liboconfig" = "xyes")
 if test "x$with_own_liboconfig" = "xyes"
 then
-	with_liboconfig="yes (shipped version)"
+  with_liboconfig="yes (shipped version)"
 fi
 # }}}
 
@@ -4445,7 +4445,7 @@ if test "x$with_libperl" = "xyes"; then
   LIBS="$SAVE_LIBS"
 fi
 AM_CONDITIONAL(HAVE_BROKEN_PERL_LOAD_MODULE,
-		test "x$c_cv_have_broken_perl_load_module" = "xyes")
+    test "x$c_cv_have_broken_perl_load_module" = "xyes")
 AC_SUBST([PERL_CFLAGS])
 AC_SUBST([PERL_LIBS])
 
@@ -5299,50 +5299,50 @@ with_libssl_cflags=""
 with_libssl_ldflags=""
 AC_ARG_WITH(libssl, [AS_HELP_STRING([--with-libssl@<:@=PREFIX@:>@], [Path to libssl.])],
 [
-	if test "x$withval" != "xno" && test "x$withval" != "xyes"
-	then
-		with_libssl_cppflags="-I$withval/include"
-		with_libssl_ldflags="-L$withval/lib"
-		with_libssl="yes"
-	else
-		with_libssl="$withval"
-	fi
+  if test "x$withval" != "xno" && test "x$withval" != "xyes"
+  then
+    with_libssl_cppflags="-I$withval/include"
+    with_libssl_ldflags="-L$withval/lib"
+    with_libssl="yes"
+  else
+    with_libssl="$withval"
+  fi
 ],
 [
-	with_libssl="yes"
+  with_libssl="yes"
 ])
 if test "x$with_libssl" = "xyes"
 then
-	SAVE_CPPFLAGS="$CPPFLAGS"
-	CPPFLAGS="$CPPFLAGS $with_libssl_cppflags"
+  SAVE_CPPFLAGS="$CPPFLAGS"
+  CPPFLAGS="$CPPFLAGS $with_libssl_cppflags"
 
   AC_CHECK_HEADERS(openssl/sha.h openssl/blowfish.h openssl/rand.h,
     [with_libssl="yes"],
     [with_libssl="no (ssl header not found)"])
 
-	CPPFLAGS="$SAVE_CPPFLAGS"
+  CPPFLAGS="$SAVE_CPPFLAGS"
 fi
 if test "x$with_libssl" = "xyes"
 then
-	SAVE_CPPFLAGS="$CPPFLAGS"
-	SAVE_LDFLAGS="$LDFLAGS"
-	CPPFLAGS="$CPPFLAGS $with_libssl_cppflags"
-	LDFLAGS="$LDFLAGS $with_libssl_ldflags"
+  SAVE_CPPFLAGS="$CPPFLAGS"
+  SAVE_LDFLAGS="$LDFLAGS"
+  CPPFLAGS="$CPPFLAGS $with_libssl_cppflags"
+  LDFLAGS="$LDFLAGS $with_libssl_ldflags"
 
-	AC_CHECK_LIB(ssl, SSL_library_init, [with_libssl="yes"], [with_libssl="no (Symbol 'SSL_library_init' not found)"])
+  AC_CHECK_LIB(ssl, SSL_library_init, [with_libssl="yes"], [with_libssl="no (Symbol 'SSL_library_init' not found)"])
 
-	CPPFLAGS="$SAVE_CPPFLAGS"
-	LDFLAGS="$SAVE_LDFLAGS"
+  CPPFLAGS="$SAVE_CPPFLAGS"
+  LDFLAGS="$SAVE_LDFLAGS"
 fi
 if test "x$with_libssl" = "xyes"
 then
-	BUILD_WITH_LIBSSL_CFLAGS="$with_libssl_cflags"
-	BUILD_WITH_LIBSSL_LDFLAGS="$with_libssl_ldflags"
-	BUILD_WITH_LIBSSL_LIBS="-lssl -lcrypto"
-	AC_SUBST(BUILD_WITH_LIBSSL_CFLAGS)
-	AC_SUBST(BUILD_WITH_LIBSSL_LDFLAGS)
-	AC_SUBST(BUILD_WITH_LIBSSL_LIBS)
-	AC_DEFINE(HAVE_LIBSSL, 1, [Define if libssl is present and usable.])
+  BUILD_WITH_LIBSSL_CFLAGS="$with_libssl_cflags"
+  BUILD_WITH_LIBSSL_LDFLAGS="$with_libssl_ldflags"
+  BUILD_WITH_LIBSSL_LIBS="-lssl -lcrypto"
+  AC_SUBST(BUILD_WITH_LIBSSL_CFLAGS)
+  AC_SUBST(BUILD_WITH_LIBSSL_LDFLAGS)
+  AC_SUBST(BUILD_WITH_LIBSSL_LIBS)
+  AC_DEFINE(HAVE_LIBSSL, 1, [Define if libssl is present and usable.])
 fi
 AM_CONDITIONAL(BUILD_WITH_LIBSSL, test "x$with_libssl" = "xyes")
 # }}}
@@ -5354,34 +5354,34 @@ have_ip_vs_h="no"
 ip_vs_h_needs_kernel_cflags="no"
 if test "x$ac_system" = "xLinux"
 then
-	AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
-	AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
-	AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
+  AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
+  AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
+  AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
 
-	if test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono" && test -d "$KERNEL_DIR"
-	then
-		SAVE_CFLAGS="$CFLAGS"
-		CFLAGS="$CFLAGS $KERNEL_CFLAGS"
+  if test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono" && test -d "$KERNEL_DIR"
+  then
+    SAVE_CFLAGS="$CFLAGS"
+    CFLAGS="$CFLAGS $KERNEL_CFLAGS"
 
-		AC_MSG_NOTICE([Did not find ip_vs.h. Trying again using headers from $KERNEL_DIR.])
+    AC_MSG_NOTICE([Did not find ip_vs.h. Trying again using headers from $KERNEL_DIR.])
 
-		AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
-		AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
-		AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
+    AC_CHECK_HEADERS(linux/ip_vs.h, [have_linux_ip_vs_h="yes"])
+    AC_CHECK_HEADERS(net/ip_vs.h, [have_net_ip_vs_h="yes"])
+    AC_CHECK_HEADERS(ip_vs.h, [have_ip_vs_h="yes"])
 
-		if test "x$have_linux_ip_vs_h" = "xyes" || test "x$have_net_ip_vs_h" = "xyes" || test "x$have_ip_vs_h" = "xyes"
-		then
-			ip_vs_h_needs_kernel_cflags="yes"
-		fi
+    if test "x$have_linux_ip_vs_h" = "xyes" || test "x$have_net_ip_vs_h" = "xyes" || test "x$have_ip_vs_h" = "xyes"
+    then
+      ip_vs_h_needs_kernel_cflags="yes"
+    fi
 
-		CFLAGS="$SAVE_CFLAGS"
-	fi
+    CFLAGS="$SAVE_CFLAGS"
+  fi
 fi
 AM_CONDITIONAL(IP_VS_H_NEEDS_KERNEL_CFLAGS, test "x$ip_vs_h_needs_kernel_cflags" = "xyes")
 
 if test "x$ip_vs_h_needs_kernel_cflags" = "xyes"
 then
-	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
+  enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
 fi
 
 # --with-libstatgrab {{{
@@ -5844,15 +5844,15 @@ if test "x$with_libxmms" = "xyes"; then
 fi
 
 if test "x$with_libxmms" = "xyes"; then
-  SAVE_CPPFLAGS="$CFLAGS"
-  CPPFLAGS="$with_xmms_cflags"
+  SAVE_CFLAGS="$CFLAGS"
+  CFLAGS="$with_xmms_cflags"
 
   AC_CHECK_HEADER([xmmsctrl.h],
     [with_libxmms="yes"],
     [with_libxmms="no"],
   )
 
-  CPPFLAGS="$SAVE_CPPFLAGS"
+  CFLAGS="$SAVE_CFLAGS"
 fi
 
 if test "x$with_libxmms" = "xyes"; then
@@ -6077,14 +6077,14 @@ AC_ARG_WITH(libxml2,
     if test "x$withval" = "xno"; then
       with_libxml2="no"
     else if test "x$withval" = "xyes"; then
-$PKG_CONFIG --exists 'libxml-2.0' 2>/dev/null
-if test $? -eq 0; then
-  with_libxml2="yes"
+      $PKG_CONFIG --exists 'libxml-2.0' 2>/dev/null
+      if test $? -eq 0; then
+        with_libxml2="yes"
         with_libxml2_cflags="`$PKG_CONFIG --cflags libxml-2.0`"
         with_libxml2_ldflags="`$PKG_CONFIG --libs libxml-2.0`"
-else
-  with_libxml2="no (pkg-config doesn't know libxml-2.0)"
-fi
+      else
+        with_libxml2="no (pkg-config doesn't know libxml-2.0)"
+      fi
     else
       with_libxml2="yes"
       with_libxml2_cflags="-I$withval/include"
@@ -6098,11 +6098,11 @@ fi
     $PKG_CONFIG --exists 'libxml-2.0' 2>/dev/null
     if test $? -eq 0; then
       with_libxml2="yes"
-  with_libxml2_cflags="`$PKG_CONFIG --cflags libxml-2.0`"
-  with_libxml2_ldflags="`$PKG_CONFIG --libs libxml-2.0`"
+      with_libxml2_cflags="`$PKG_CONFIG --cflags libxml-2.0`"
+      with_libxml2_ldflags="`$PKG_CONFIG --libs libxml-2.0`"
     else
       with_libxml2="no (pkg-config doesn't know libxml-2.0)"
-fi
+    fi
   ]
 )
 
@@ -6721,7 +6721,7 @@ if test "x$with_libgps" = "xyes"; then
   plugin_gps="yes"
 fi
 
-  plugin_grpc="yes"
+plugin_grpc="yes"
 if test "x$GRPC_CPP_PLUGIN" = "x"; then
   plugin_grpc="no (grpc_cpp_plugin not found)"
 fi
@@ -6808,14 +6808,14 @@ fi
 
 if test "x$with_libcurl" = "xyes" && test "x$with_libyajl" = "xyes"
 then
-	plugin_write_gcm="yes"
+  plugin_write_gcm="yes"
         match_throttle_metadata_keys="yes"
         plugin_stackdriver_agent="yes"
 fi
 
 if test "x$have_getutent" = "xyes"
 then
-	plugin_users="yes"
+  plugin_users="yes"
 fi
 
 if test "x$have_getutxent" = "xyes"; then
@@ -7101,14 +7101,14 @@ AC_SUBST([LOAD_PLUGIN_CSV])
 
 dnl ip_vs.h
 if test "x$ac_system" = "xLinux" \
-	&& test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono"
+  && test "x$have_linux_ip_vs_h$have_net_ip_vs_h$have_ip_vs_h" = "xnonono"
 then
-	enable_ipvs="$enable_ipvs (ip_vs.h not found)"
+  enable_ipvs="$enable_ipvs (ip_vs.h not found)"
 fi
 
 if test "x$ip_vs_h_needs_kernel_cflags" = "xyes"
 then
-	enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
+  enable_ipvs="$enable_ipvs (needs $KERNEL_CFLAGS)"
 fi
 
 dnl Perl bindings
@@ -7179,7 +7179,7 @@ AC_SUBST([AM_CXXFLAGS])
 AC_CONFIG_FILES([Makefile proto/Makefile src/Makefile src/collectd.conf src/libcollectdclient/libcollectdclient.pc])
 if test "x$enable_logging_metrics" != "xno"
 then
-	AC_CONFIG_FILES([src/read_agent_logging], [chmod +x src/read_agent_logging])
+  AC_CONFIG_FILES([src/read_agent_logging], [chmod +x src/read_agent_logging])
 fi
 AC_OUTPUT
 
@@ -7468,4 +7468,3 @@ if test "x$dependency_warning" = "xyes"; then
 fi
 
 # vim: set fdm=marker sw=2 sts=2 ts=2 et :
-
