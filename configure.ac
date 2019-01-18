@@ -7466,5 +7466,3 @@ fi
 if test "x$dependency_warning" = "xyes"; then
   AC_MSG_WARN("Some plugins seem to have missing dependencies but have been enabled forcibly - see the summary above for details")
 fi
-
-# vim: set fdm=marker sw=2 sts=2 ts=2 et :
