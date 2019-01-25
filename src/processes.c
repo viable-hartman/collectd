@@ -40,7 +40,7 @@
 
 #include "common.h"
 #include "plugin.h"
-static const int VALUE_UNSET
+static const int VALUE_UNSET = -1;
 
 #if HAVE_LIBTASKSTATS
 #include "utils_complain.h"
