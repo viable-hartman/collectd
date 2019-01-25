@@ -40,6 +40,7 @@
 
 #include "common.h"
 #include "plugin.h"
+#define VALUE_UNSET -1
 
 #if HAVE_LIBTASKSTATS
 #include "utils_complain.h"
@@ -118,7 +119,6 @@
 #define MAXPROCENTRY 32
 #define MAXTHRDENTRY 16
 #define MAXARGLN 1024
-#define VALUE_UNSET -1
 /* #endif HAVE_PROCINFO_H */
 
 #elif KERNEL_SOLARIS
@@ -505,7 +505,7 @@ static void ps_update_counter(derive_t *group_counter, derive_t *curr_counter,
 
   *curr_counter = new_counter;
   *group_counter += curr_value;
-static void ps_update_counter (derive_t *group_counter, derive_t *curr_counter, 
+static void ps_update_counter (derive_t *group_counter, derive_t *curr_counter,
                                derive_t new_counter)
 {
 	// Determine whether or not the counter has overflowed and compensate
