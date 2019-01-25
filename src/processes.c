@@ -40,6 +40,7 @@
 
 #include "common.h"
 #include "plugin.h"
+#define VALUE_UNSET
 
 #if HAVE_LIBTASKSTATS
 #include "utils_complain.h"
@@ -229,14 +230,14 @@ static procstat_gauges_t procstat_gauges_init = {
 	.vmem_data     = 0,
 	.vmem_code     = 0,
 	.stack_size    = 0,
-	.io_rchar      = -1,
-	.io_wchar      = -1,
-	.io_syscr      = -1,
-	.io_syscw      = -1,
-	.io_diskr      = -1,
-	.io_diskw      = -1,
-	.cswitch_vol   = -1,
-	.cswitch_invol = -1,
+	.io_rchar      = VALUE_UNSET,
+	.io_wchar      = VALUE_UNSET,
+	.io_syscr      = VALUE_UNSET,
+	.io_syscw      = VALUE_UNSET,
+	.io_diskr      = VALUE_UNSET,
+	.io_diskw      = VALUE_UNSET,
+	.cswitch_vol   = VALUE_UNSET,
+	.cswitch_invol = VALUE_UNSET,
 };
 
 
@@ -341,7 +342,7 @@ static ts_t *taskstats_handle;
 #endif
 
 static derive_t ps_delta(derive_t value) {
-	return (value == -1) ? 0 : value;
+	return (value == VALUE_UNSET) ? 0 : value;
 }
 
 static void ps_procstat_gauges_add (procstat_gauges_t *dst, procstat_gauges_t *src) {
@@ -379,14 +380,14 @@ static procstat_t *ps_list_register(const char *name, const char *regexp) {
   }
   sstrncpy(new->name, name, sizeof(new->name));
 
-  new->gauges.io_rchar = -1;
-  new->gauges.io_wchar = -1;
-  new->gauges.io_syscr = -1;
-  new->gauges.io_syscw = -1;
-  new->gauges.io_diskr = -1;
-  new->gauges.io_diskw = -1;
-  new->gauges.cswitch_vol = -1;
-  new->gauges.cswitch_invol = -1;
+  new->gauges.io_rchar = VALUE_UNSET;
+  new->gauges.io_wchar = -VALUE_UNSET;
+  new->gauges.io_syscr = VALUE_UNSET;
+  new->gauges.io_syscw = VALUE_UNSET;
+  new->gauges.io_diskr = VALUE_UNSET;
+  new->gauges.io_diskw = VALUE_UNSET;
+  new->gauges.cswitch_vol = VALUE_UNSET;
+  new->gauges.cswitch_invol = VALUE_UNSET;
 
   new->report_fd_num = report_fd_num;
   new->report_maps_num = report_maps_num;
