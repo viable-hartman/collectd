@@ -2270,6 +2270,7 @@ if test "x$with_libcurl" = "xyes"; then
     )
   fi
 fi
+AM_CONDITIONAL([BUILD_WITH_LIBCURL], [test "x$with_libcurl" = "xyes"])
 
 AC_SUBST(BUILD_WITH_LIBCURL_CFLAGS)
 AC_SUBST(BUILD_WITH_LIBCURL_LIBS)
