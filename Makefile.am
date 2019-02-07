@@ -1094,7 +1094,7 @@ endif
 
 if BUILD_PLUGIN_MATCH_THROTTLE_METADATA_KEYS
 pkglib_LTLIBRARIES += match_throttle_metadata_keys.la
-match_throttle_metadata_keys_la_SOURCES = match_throttle_metadata_keys.c stackdriver-agent-keys.h
+match_throttle_metadata_keys_la_SOURCES = src/match_throttle_metadata_keys.c src/stackdriver-agent-keys.h
 match_throttle_metadata_keys_la_LDFLAGS = $(PLUGIN_LDFLAGS)
 endif
 
@@ -1823,7 +1823,7 @@ endif
 
 if BUILD_PLUGIN_WRITE_GCM
 pkglib_LTLIBRARIES += write_gcm.la
-write_gcm_la_SOURCES = write_gcm.c
+write_gcm_la_SOURCES = src/write_gcm.c
 write_gcm_la_LDFLAGS = -module -avoid-version $(BUILD_WITH_LIBYAJL_LDFLAGS)
 write_gcm_la_CFLAGS = $(AM_CFLAGS) $(BUILD_WITH_LIBYAJL_CPPFLAGS)
 write_gcm_la_LIBADD = $(BUILD_WITH_LIBYAJL_LIBS)
