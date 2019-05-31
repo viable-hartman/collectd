@@ -181,6 +181,21 @@ static int varnish_monitor(void *priv,
 
   val = *(const volatile uint64_t *)pt->ptr;
 
+#if HAVE_VARNISH_V5
+  if (conf->collect_cache) {
+    if (strcmp(name, "cache_hit") == 0)
+      return varnish_submit_derive(conf->instance, "cache", "cache_result",
+                                   "hit", val);
+    else if (strcmp(name, "cache_miss") == 0)
+      return varnish_submit_derive(conf->instance, "cache", "cache_result",
+                                   "miss", val);
+    else if (strcmp(name, "cache_hitmiss") == 0)
+      return varnish_submit_derive(conf->instance, "cache", "cache_result",
+                                   "hitpass", val);
+  }
+#endif
+	
+#if HAVE_VARNISH_V2 || HAVE_VARNISH_V3 || HAVE_VARNISH_V4
   if (conf->collect_cache) {
     if (strcmp(name, "cache_hit") == 0)
       return varnish_submit_derive(conf->instance, "cache", "cache_result",
@@ -192,6 +207,7 @@ static int varnish_monitor(void *priv,
       return varnish_submit_derive(conf->instance, "cache", "cache_result",
                                    "hitpass", val);
   }
+#endif
 
   if (conf->collect_connections) {
     if (strcmp(name, "client_conn") == 0)
