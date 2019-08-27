@@ -27,7 +27,7 @@
 #include "collectd.h"
 
 #include "plugin.h"
-#include "utils/common/common.h"
+#include "common.h"
 
 #if HAVE_VARNISH_V4 || HAVE_VARNISH_V5
 #include <vapi/vsc.h>
